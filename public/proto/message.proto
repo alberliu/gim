@@ -1,0 +1,21 @@
+syntax = "proto3";
+package pb;
+
+// 消息投递
+message Message {
+    repeated MessageItem Messages = 1;
+}
+
+// 单条消息投递
+message MessageItem {
+    int64 message_id = 1; //消息id
+    int32 sender_type = 2; // 发送者类型
+    int64 sender_id = 3; // 发送者id
+    int64 sender_device_id = 4; // 发送者设备id
+    int32 receiver_type = 5; // 接收者类型，1：user;2:group
+    int64 receiver_id = 6; // 用户id或者群组id
+    int32 type = 7; // 消息类型
+    string content = 8; // 消息内容
+    int64 sync_sequence = 9; // 同步序列号
+    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
+}

@@ -1,0 +1,20 @@
+package: goim
+import:
+- package: github.com/gin-gonic/gin
+  version: ^1.3.0
+- package: github.com/go-sql-driver/mysql
+  version: ^1.4.1
+- package: github.com/golang/protobuf
+  version: ^1.2.0
+  subpackages:
+  - proto
+- package: github.com/json-iterator/go
+  version: ^1.1.5
+- package: github.com/satori/go.uuid
+  version: ^1.2.0
+- package: go.uber.org/zap
+  version: ^1.9.1
+  subpackages:
+  - zapcore
+- package: gopkg.in/natefinch/lumberjack.v2
+  version: ^2.1.0

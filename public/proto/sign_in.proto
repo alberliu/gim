@@ -1,0 +1,9 @@
+syntax = "proto3";
+package pb;
+
+// 设备登录
+message SignIn {
+    int64 device_id = 1; // 设备id
+    int64 user_id = 2; // 用户id
+    string token = 3; // 设备token
+}

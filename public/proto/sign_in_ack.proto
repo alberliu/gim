@@ -1,0 +1,8 @@
+syntax = "proto3";
+package pb;
+
+// 设备登录回执
+message SignInACK {
+    int32 code = 1; // 返回码
+    string message = 2; // 描述
+}

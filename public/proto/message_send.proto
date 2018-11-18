@@ -1,0 +1,12 @@
+syntax = "proto3";
+package pb;
+
+// 消息发送
+message MessageSend {
+    int32 receiver_type = 1; // 接收者类型，1：user;2:group
+    int64 receiver_id = 2; // 用户id或者群组id
+    int32 type = 3; // 消息类型，1：文字；2：语音；3：图片
+    string content = 4; // 消息内容
+    int64 send_sequence = 5; // 发送序列号
+    int64 send_time = 6; // 消息发送时间戳，精确到毫秒
+}
