@@ -178,12 +178,13 @@ func (*messageService) SendToUser(ctx *imctx.Context, userId int64, message *mod
 	}
 
 	for _, v := range devices {
-		message := transfer.Message{DeviceId: v.Id, Messages: []transfer.MessageItem{messageItem}}
+		message := transfer.Message{DeviceId: v.Id, Type: transfer.MessageTypeMail, Messages: []transfer.MessageItem{messageItem}}
 		connect_rpc.ConnectRPC.SendMessage(message)
 
 		logger.Sugar.Infow("消息投递",
 			"device_id:", message.DeviceId,
 			"user_id", userId,
+			"type", message.Type,
 			"messages", message.GetLog())
 	}
 	return nil

@@ -57,7 +57,7 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 		messages = append(messages, item)
 	}
 
-	content, err := proto.Marshal(&pb.Message{Messages: messages})
+	content, err := proto.Marshal(&pb.Message{Type: message.Type, Messages: messages})
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err

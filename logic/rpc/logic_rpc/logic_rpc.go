@@ -89,12 +89,13 @@ func (s *logicRPC) SyncTrigger(ctx *imctx.Context, trigger transfer.SyncTrigger)
 		messages = append(messages, item)
 	}
 
-	message := transfer.Message{DeviceId: trigger.DeviceId, Messages: messages}
+	message := transfer.Message{DeviceId: trigger.DeviceId, Type: transfer.MessageTypeSync, Messages: messages}
 	connect_rpc.ConnectRPC.SendMessage(message)
 
 	logger.Sugar.Infow("消息同步",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
+		"type", message.Type,
 		"messages", message.GetLog())
 	return nil
 }

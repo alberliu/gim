@@ -5,9 +5,15 @@ import (
 	"time"
 )
 
+const (
+	MessageTypeSync = 1 // 消息同步
+	MessageTypeMail = 2 // 消息投递
+)
+
 type Message struct {
-	DeviceId int64
-	Messages []MessageItem
+	DeviceId int64         // 设备id
+	Type     int32         // 消息投递类型，1：消息同步列表，2：消息发送列表
+	Messages []MessageItem // 消息列表
 }
 
 // GetLog 获取消息日志

@@ -3,7 +3,8 @@ package pb;
 
 // 消息投递
 message Message {
-    repeated MessageItem Messages = 1;
+    int32 type = 1; // 消息投递类型，1：消息同步列表，2：消息发送列表
+    repeated MessageItem messages = 2; // 消息列表
 }
 
 // 单条消息投递
