@@ -10,6 +10,8 @@ import (
 
 	"goim/public/lib"
 
+	"goim/public/transfer"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -127,6 +129,10 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			return err
 		}
 
+		if message.Type == transfer.MessageTypeSync {
+			fmt.Println("消息同步开始......")
+		}
+
 		for _, v := range message.Messages {
 			if v.ReceiverType == 1 {
 				if v.SenderDeviceId != c.DeviceId {
@@ -138,6 +144,10 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 					fmt.Printf("群聊：来自用户：%d,群组：%d,消息内容：%s\n", v.SenderId, v.ReceiverId, v.Content)
 				}
 			}
+		}
+
+		if message.Type == transfer.MessageTypeSync {
+			fmt.Println("消息同步结束")
 		}
 
 		if len(message.Messages) == 0 {

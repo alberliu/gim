@@ -131,7 +131,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			return nil
 		}
 
-		ack := pb.MessageACK{SyncSequence: message.Messages[len(message.Messages)-1].Sequence}
+		ack := pb.MessageACK{SyncSequence: message.Messages[len(message.Messages)-1].SyncSequence}
 		ackBytes, err := proto.Marshal(&ack)
 		if err != nil {
 			logger.Sugar.Error(err)
