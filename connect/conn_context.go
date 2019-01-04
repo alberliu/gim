@@ -26,10 +26,10 @@ const (
 	CodeSyncTrigger    = 3 // 消息同步触发
 	CodeHeadbeat       = 4 // 心跳
 	CodeHeadbeatACK    = 5 // 心跳回执
-	CodeMessageSend    = 5 // 消息发送
-	CodeMessageSendACK = 6 // 消息发送回执
-	CodeMessage        = 7 // 消息投递
-	CodeMessageACK     = 8 // 消息投递回执
+	CodeMessageSend    = 6 // 消息发送
+	CodeMessageSendACK = 7 // 消息发送回执
+	CodeMessage        = 8 // 消息投递
+	CodeMessageACK     = 9 // 消息投递回执
 )
 
 // ConnContext 连接上下文
