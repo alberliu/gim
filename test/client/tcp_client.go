@@ -98,6 +98,7 @@ func (c *TcpClient) Receive() {
 }
 
 func (c *TcpClient) HandlePackage(pack connect.Package) error {
+	fmt.Println("pack", pack.Code)
 	switch pack.Code {
 	case connect.CodeSignInACK:
 		ack := pb.SignInACK{}
@@ -144,6 +145,9 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 					fmt.Printf("群聊：来自用户：%d,群组：%d,消息内容：%s\n", v.SenderId, v.ReceiverId, v.Content)
 				}
 			}
+			if c.SendSequence < v.SyncSequence {
+				c.SendSequence = v.SyncSequence
+			}
 		}
 
 		if message.Type == transfer.MessageTypeSync {
@@ -181,6 +185,9 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 func (c *TcpClient) SendMessage() {
 	send := pb.MessageSend{}
 	fmt.Scanf("%d %d %s", &send.ReceiverType, &send.ReceiverId, &send.Content)
+	if send.Content == "" {
+		return
+	}
 	send.Type = 1
 	c.SendSequence++
 	send.SendSequence = c.SendSequence

@@ -20,3 +20,4 @@ message MessageItem {
     int64 sync_sequence = 9; // 同步序列号
     int64 send_time = 10; // 消息发送时间戳，精确到毫秒
 }
+

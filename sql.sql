@@ -1,6 +1,8 @@
 -- ----------------------------
 -- Table structure for t_device
 -- ----------------------------
+CREATE DATABASE im DEFAULT CHARSET 'utf8';
+
 DROP TABLE IF EXISTS `t_device`;
 CREATE TABLE `t_device` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '设备id',

@@ -9,7 +9,7 @@ import (
 )
 
 func TestLid(t *testing.T) {
-	db, err := sql.Open("mysql", "root:Liu123456@tcp(localhost:3306)/im?charset=utf8")
+	db, err := sql.Open("mysql", "ximi:xim.2018@tcp(localhost:3306)/im?charset=utf8")
 	if err != nil {
 		fmt.Println(err)
 		panic(err)

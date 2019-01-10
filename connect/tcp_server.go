@@ -32,11 +32,11 @@ func NewTCPServer(conf Conf) *TCPServer {
 
 // Start 启动服务器
 func (t *TCPServer) Start() {
-	addr, err := net.ResolveTCPAddr("tcp", t.Address)
-	if err != nil {
-		logger.Sugar.Error(err)
-	}
-	listener, err := net.ListenTCP("tcp", addr)
+	//addr, err := net.ResolveTCPAddr("tcp", t.Address)
+	//if err != nil {
+	//	logger.Sugar.Error(err)
+	//}
+	listener, err := net.Listen("tcp", t.Address)
 	if err != nil {
 		logger.Sugar.Error("error listening", err.Error())
 		return
@@ -44,24 +44,23 @@ func (t *TCPServer) Start() {
 	for i := 0; i < t.AcceptCount; i++ {
 		go t.Accept(listener)
 	}
-	select {}
+	//select {}
 }
 
 // Accept 接收客户端的TCP长连接的建立
-func (t *TCPServer) Accept(listener *net.TCPListener) {
+func (t *TCPServer) Accept(listener net.Listener) {
 	defer RecoverPanic()
 
 	for {
-		conn, err := listener.AcceptTCP()
+		conn, err := listener.Accept()
 		if err != nil {
 			logger.Sugar.Error(err)
 			continue
 		}
-
-		err = conn.SetKeepAlive(true)
-		if err != nil {
-			logger.Sugar.Error(err)
-		}
+		//err = conn.SetKeepAlive(true)
+		//if err != nil {
+		//	logger.Sugar.Error(err)
+		//}
 
 		connContext := NewConnContext(conn)
 		go connContext.DoConn()

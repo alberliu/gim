@@ -3,7 +3,7 @@ package conf
 import "os"
 
 // MySQL mysql配置
-var MySQL = "root:Liu123456@tcp(localhost:3306)/im?charset=utf8&parseTime=true"
+var MySQL = "ximi:ximi.2018@tcp(localhost:3306)/im_bak?charset=utf8&parseTime=true"
 
 func init() {
 	env := os.Getenv("im_env")

@@ -46,7 +46,7 @@ type Package struct {
 	Content []byte // 消息体
 }
 
-func NewConnContext(conn *net.TCPConn) *ConnContext {
+func NewConnContext(conn net.Conn) *ConnContext {
 	codec := NewCodec(conn)
 	return &ConnContext{Codec: codec}
 }
