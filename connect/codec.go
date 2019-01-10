@@ -40,6 +40,7 @@ func (c *Codec) Read() (int, error) {
 
 // Decode 解码数据
 func (c *Codec) Decode() (*Package, bool) {
+	//fmt.Println(string(c.ReadBuf.buf))
 	var err error
 	// 读取数据类型
 	typeBuf, err := c.ReadBuf.seek(0, TypeLen)

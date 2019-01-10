@@ -121,6 +121,10 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			fmt.Println(err)
 			return err
 		}
+		if ack.Code == 1 {
+			c.SyncSequence = ack.SendSequence
+			c.SendSequence = ack.SendSequence + 1
+		}
 		fmt.Println(ack.SendSequence, ack.Code)
 	case connect.CodeMessage:
 		message := pb.Message{}
@@ -146,11 +150,12 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 				}
 			}
 			if c.SendSequence < v.SyncSequence {
-				c.SendSequence = v.SyncSequence
+				c.SyncSequence = v.SyncSequence
 			}
 		}
 
 		if message.Type == transfer.MessageTypeSync {
+			c.SendSequence = c.SyncSequence + 1
 			fmt.Println("消息同步结束")
 		}
 
@@ -189,7 +194,6 @@ func (c *TcpClient) SendMessage() {
 		return
 	}
 	send.Type = 1
-	c.SendSequence++
 	send.SendSequence = c.SendSequence
 	send.SendTime = lib.UnixTime(time.Now())
 	bytes, err := proto.Marshal(&send)
