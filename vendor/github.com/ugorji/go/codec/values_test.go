@@ -1,4 +1,4 @@
-/* // +build testing */
+// comment this out // + build testing
 
 // Copyright (c) 2012-2018 Ugorji Nwoke. All rights reserved.
 // Use of this source code is governed by a MIT license found in the LICENSE file.
@@ -351,6 +351,7 @@ func populateTestStrucCommon(ts *TestStrucCommon, n int, bench, useInterface, us
 		// ts.Iptrslice = nil
 	}
 	if !useStringKeyOnly {
+		var _ byte = 0 // so this empty branch doesn't flag a warning
 		// ts.AnonInTestStruc.AMU32F64 = map[uint32]float64{1: 1, 2: 2, 3: 3} // Json/Bson barf
 	}
 }

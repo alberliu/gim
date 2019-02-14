@@ -38,7 +38,7 @@ func (t *TCPServer) Start() {
 	}
 	listener, err := net.ListenTCP("tcp", addr)
 	if err != nil {
-		logger.Sugar.Error("error listening", err.Error())
+		logger.Sugar.Error("error listening:", err.Error())
 		return
 	}
 	for i := 0; i < t.AcceptCount; i++ {

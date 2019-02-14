@@ -1,7 +1,23 @@
 // Copyright (c) 2012-2018 Ugorji Nwoke. All rights reserved.
 // Use of this source code is governed by a MIT license found in the LICENSE file.
 
-// codecgen generates codec.Selfer implementations for a set of types.
+// codecgen generates static implementations of the encoder and decoder functions
+// for a given type, bypassing reflection, and giving some performance benefits in terms of
+// wall and cpu time, and memory usage.
+//
+// Benchmarks (as of Dec 2018) show that codecgen gives about
+//
+//   - for binary formats (cbor, etc): 25% on encoding and 30% on decoding to/from []byte
+//   - for text formats (json, etc): 15% on encoding and 25% on decoding to/from []byte
+//
+// Note that (as of Dec 2018) codecgen completely ignores
+//
+// - MissingFielder interface
+//   (if you types implements it, codecgen ignores that)
+// - decode option PreferArrayOverSlice
+//   (we cannot dynamically create non-static arrays without reflection)
+//
+// In explicit package terms: codecgen generates codec.Selfer implementations for a set of types.
 package main
 
 import (
@@ -109,9 +125,11 @@ func Generate(outfile, buildTag, codecPkgPath string,
 	if len(infiles) == 0 {
 		return
 	}
-	if outfile == "" || codecPkgPath == "" {
-		err = errors.New("outfile and codec package path cannot be blank")
-		return
+	if codecPkgPath == "" {
+		return errors.New("codec package path cannot be blank")
+	}
+	if outfile == "" {
+		return errors.New("outfile cannot be blank")
 	}
 	if uid < 0 {
 		uid = -uid
@@ -165,7 +183,7 @@ func Generate(outfile, buildTag, codecPkgPath string,
 	var fi os.FileInfo
 	for i, infile := range infiles {
 		if filepath.Dir(infile) != lastdir {
-			err = errors.New("in files must all be in same directory as outfile")
+			err = errors.New("all input files must all be in same directory as output file")
 			return
 		}
 		if fi, err = os.Stat(infile); err != nil {
@@ -269,8 +287,8 @@ func Generate(outfile, buildTag, codecPkgPath string,
 	// frun, err = ioutil.TempFile("", "codecgen-")
 	// frunName := filepath.Join(os.TempDir(), "codecgen-"+strconv.FormatInt(time.Now().UnixNano(), 10)+".go")
 
-	frunMainName := "codecgen-main-" + tv.RandString + ".generated.go"
-	frunPkgName := "codecgen-pkg-" + tv.RandString + ".generated.go"
+	frunMainName := filepath.Join(lastdir, "codecgen-main-"+tv.RandString+".generated.go")
+	frunPkgName := filepath.Join(lastdir, "codecgen-pkg-"+tv.RandString+".generated.go")
 	if deleteTempFile {
 		defer os.Remove(frunMainName)
 		defer os.Remove(frunPkgName)
@@ -288,6 +306,7 @@ func Generate(outfile, buildTag, codecPkgPath string,
 
 	// execute go run frun
 	cmd := exec.Command("go", "run", "-tags", "codecgen.exec safe "+goRunTag, frunMainName) //, frunPkg.Name())
+	cmd.Dir = lastdir
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 	cmd.Stderr = &buf

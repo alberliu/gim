@@ -11,9 +11,9 @@ const (
 )
 
 type Message struct {
-	DeviceId int64         // 设备id
-	Type     int32         // 消息投递类型，1：消息同步列表，2：消息发送列表
-	Messages []MessageItem // 消息列表
+	DeviceId int64         `json:"device_id"` // 设备id
+	Type     int32         `json:"type"`      // 消息投递类型，1：消息同步列表，2：消息发送列表
+	Messages []MessageItem `json:"messages"`  // 消息列表
 }
 
 // GetLog 获取消息日志

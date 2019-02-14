@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"fmt"
 	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
@@ -10,6 +11,8 @@ import (
 	"time"
 
 	"goim/public/lib"
+
+	"goim/conf"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -111,8 +114,8 @@ func (c *ConnContext) HandlePackage(pack *Package) {
 
 // HandlePackageSignIn 处理登录消息包
 func (c *ConnContext) HandlePackageSignIn(pack *Package) {
-	var signIn pb.SignIn
-	err := proto.Unmarshal(pack.Content, &signIn)
+	var sign pb.SignIn
+	err := proto.Unmarshal(pack.Content, &sign)
 	if err != nil {
 		logger.Sugar.Error(err)
 		c.Release()
@@ -120,13 +123,13 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	}
 
 	transferSignIn := transfer.SignIn{
-		DeviceId: signIn.DeviceId,
-		UserId:   signIn.UserId,
-		Token:    signIn.Token,
+		DeviceId: sign.DeviceId,
+		UserId:   sign.UserId,
+		Token:    sign.Token,
 	}
 
 	// 处理设备登录逻辑
-	ack, err := LogicRPC.SignIn(Context(), transferSignIn)
+	ack, err := signIn(transferSignIn)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
@@ -144,11 +147,16 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 		return
 	}
 
-	if ack.Code == 1 {
+	if ack.Code == transfer.CodeSignInSuccess {
+		// 将连接保存到本机字典
 		c.IsSignIn = true
-		c.DeviceId = signIn.DeviceId
-		c.UserId = signIn.UserId
+		c.DeviceId = sign.DeviceId
+		c.UserId = sign.UserId
 		store(c.DeviceId, c)
+
+		// 将设备和服务器IP的对应关系保存到redis
+		redisClient.Set(deviceIdPre+fmt.Sprint(c.DeviceId), conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort,
+			0)
 	}
 }
 
@@ -168,7 +176,7 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 		SyncSequence: trigger.SyncSequence,
 	}
 
-	LogicRPC.SyncTrigger(Context(), transferTrigger)
+	publishSyncTrigger(transferTrigger)
 }
 
 // HandlePackageHeadbeat 处理心跳包
@@ -201,7 +209,7 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 		SendTime:       lib.UnunixTime(send.SendTime),
 	}
 
-	err = LogicRPC.MessageSend(Context(), transferSend)
+	publishMessageSend(transferSend)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
@@ -225,7 +233,7 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 		ReceiveTime:  lib.UnunixTime(ack.ReceiveTime),
 	}
 
-	LogicRPC.MessageACK(Context(), transferAck)
+	publishMessageACK(transferAck)
 }
 
 // HandleReadErr 读取conn错误
@@ -256,8 +264,9 @@ func (c *ConnContext) Release() {
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
-	err = LogicRPC.OffLine(Context(), c.DeviceId, c.UserId)
-	if err != nil {
-		logger.Sugar.Error(err)
-	}
+
+	publishOffLine(transfer.OffLine{
+		DeviceId: c.DeviceId,
+		UserId:   c.UserId,
+	})
 }

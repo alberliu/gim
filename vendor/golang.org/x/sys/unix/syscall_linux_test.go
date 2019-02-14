@@ -482,3 +482,36 @@ func TestSyncFileRange(t *testing.T) {
 		t.Fatalf("SyncFileRange: unexpected error: %v, want EINVAL", err)
 	}
 }
+
+func TestClockNanosleep(t *testing.T) {
+	delay := 100 * time.Millisecond
+
+	// Relative timespec.
+	start := time.Now()
+	rel := unix.NsecToTimespec(delay.Nanoseconds())
+	err := unix.ClockNanosleep(unix.CLOCK_MONOTONIC, 0, &rel, nil)
+	if err == unix.ENOSYS || err == unix.EPERM {
+		t.Skip("clock_nanosleep syscall is not available, skipping test")
+	} else if err != nil {
+		t.Errorf("ClockNanosleep(CLOCK_MONOTONIC, 0, %#v, nil) = %v", &rel, err)
+	} else if slept := time.Now().Sub(start); slept < delay {
+		t.Errorf("ClockNanosleep(CLOCK_MONOTONIC, 0, %#v, nil) slept only %v", &rel, slept)
+	}
+
+	// Absolute timespec.
+	start = time.Now()
+	until := start.Add(delay)
+	abs := unix.NsecToTimespec(until.UnixNano())
+	err = unix.ClockNanosleep(unix.CLOCK_REALTIME, unix.TIMER_ABSTIME, &abs, nil)
+	if err != nil {
+		t.Errorf("ClockNanosleep(CLOCK_REALTIME, TIMER_ABSTIME, %#v (=%v), nil) = %v", &abs, until, err)
+	} else if slept := time.Now().Sub(start); slept < delay {
+		t.Errorf("ClockNanosleep(CLOCK_REALTIME, TIMER_ABSTIME, %#v (=%v), nil) slept only %v", &abs, until, slept)
+	}
+
+	// Invalid clock. clock_nanosleep(2) says EINVAL, but it’s actually EOPNOTSUPP.
+	err = unix.ClockNanosleep(unix.CLOCK_THREAD_CPUTIME_ID, 0, &rel, nil)
+	if err != unix.EINVAL && err != unix.EOPNOTSUPP {
+		t.Errorf("ClockNanosleep(CLOCK_THREAD_CPUTIME_ID, 0, %#v, nil) = %v, want EINVAL or EOPNOTSUPP", &rel, err)
+	}
+}

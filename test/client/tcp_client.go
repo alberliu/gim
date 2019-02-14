@@ -25,7 +25,7 @@ type TcpClient struct {
 }
 
 func (c *TcpClient) Start() {
-	conn, err := net.Dial("tcp", "localhost:50002")
+	conn, err := net.Dial("tcp", "localhost:50000")
 	if err != nil {
 		fmt.Println(err)
 		return

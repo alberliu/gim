@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"goim/logic/dao"
 	"goim/logic/model"
-	"goim/logic/rpc/connect_rpc"
+	"goim/logic/mq/produce"
 	"goim/public/imctx"
 	"goim/public/imerror"
 	"goim/public/logger"
@@ -179,7 +179,7 @@ func (*messageService) SendToUser(ctx *imctx.Context, userId int64, message *mod
 
 	for _, v := range devices {
 		message := transfer.Message{DeviceId: v.Id, Type: transfer.MessageTypeMail, Messages: []transfer.MessageItem{messageItem}}
-		connect_rpc.ConnectRPC.SendMessage(message)
+		produce.PublishMessage(message)
 
 		logger.Sugar.Infow("消息投递",
 			"device_id:", message.DeviceId,

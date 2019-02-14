@@ -1,4 +1,4 @@
-/* // +build testing */
+// comment this out // // + build testing
 
 // Copyright (c) 2012-2018 Ugorji Nwoke. All rights reserved.
 // Use of this source code is governed by a MIT license found in the LICENSE file.
@@ -75,6 +75,7 @@ type missingFielderT1 struct {
 }
 
 func (t *missingFielderT1) CodecMissingField(field []byte, value interface{}) bool {
+	// xdebugf(">> calling CodecMissingField with field: %s, value: %v", field, value)
 	switch string(field) {
 	case "F":
 		t.f = value.(float64)
