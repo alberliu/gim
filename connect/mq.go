@@ -3,9 +3,9 @@ package connect
 import (
 	"time"
 
-	"goim/public/logger"
+	"gim/public/logger"
 
-	"goim/conf"
+	"gim/conf"
 
 	"github.com/nsqio/go-nsq"
 )

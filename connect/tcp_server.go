@@ -1,8 +1,8 @@
 package connect
 
 import (
-	"goim/public/logger"
-	"goim/public/util"
+	"gim/public/logger"
+	"gim/public/util"
 	"net"
 )
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"goim/conf"
-	"goim/connect"
-	"goim/public/util"
+	"gim/conf"
+	"gim/connect"
+	"gim/public/util"
 )
 
 func main() {

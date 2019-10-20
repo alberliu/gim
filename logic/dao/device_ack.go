@@ -1,9 +1,9 @@
 package dao
 
 import (
-	"goim/logic/db"
-	"goim/public/imctx"
-	"goim/public/logger"
+	"gim/logic/db"
+	"gim/public/imctx"
+	"gim/public/logger"
 )
 
 type deviceAckDao struct{}

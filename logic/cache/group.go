@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"goim/logic/db"
-	"goim/logic/model"
-	"goim/public/logger"
+	"gim/logic/db"
+	"gim/logic/model"
+	"gim/public/logger"
 	"strconv"
 	"time"
 

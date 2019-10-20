@@ -2,7 +2,7 @@ package util
 
 import (
 	"fmt"
-	"goim/public/logger"
+	"gim/public/logger"
 	"runtime"
 )
 

@@ -1,13 +1,13 @@
 package server
 
 import (
-	"goim/logic/model"
-	"goim/logic/service"
-	"goim/public/imctx"
-	"goim/public/imerror"
-	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/transfer"
+	"gim/logic/model"
+	"gim/logic/service"
+	"gim/public/imctx"
+	"gim/public/imerror"
+	"gim/public/logger"
+	"gim/public/pb"
+	"gim/public/transfer"
 
 	"go.uber.org/zap"
 

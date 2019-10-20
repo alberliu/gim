@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"goim/logic/db"
-	"goim/public/logger"
+	"gim/logic/db"
+	"gim/public/logger"
 	"strconv"
 
 	"github.com/go-redis/redis"

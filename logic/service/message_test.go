@@ -2,8 +2,8 @@ package service
 
 import (
 	"fmt"
-	"goim/logic/model"
-	"goim/public/pb"
+	"gim/logic/model"
+	"gim/public/pb"
 	"testing"
 
 	"github.com/json-iterator/go"

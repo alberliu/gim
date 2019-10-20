@@ -1,7 +1,7 @@
 package imerror
 
 import (
-	"goim/public/pb"
+	"gim/public/pb"
 )
 
 const (

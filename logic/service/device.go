@@ -1,14 +1,14 @@
 package service
 
 import (
-	"goim/logic/cache"
-	"goim/logic/dao"
-	"goim/logic/model"
-	"goim/public/imerror"
-	"goim/public/util"
+	"gim/logic/cache"
+	"gim/logic/dao"
+	"gim/logic/model"
+	"gim/public/imerror"
+	"gim/public/util"
 
-	"goim/public/imctx"
-	"goim/public/logger"
+	"gim/public/imctx"
+	"gim/public/logger"
 )
 
 const (

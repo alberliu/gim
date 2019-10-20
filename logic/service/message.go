@@ -1,15 +1,15 @@
 package service
 
 import (
-	"goim/logic/cache"
-	"goim/logic/dao"
-	"goim/logic/model"
-	"goim/logic/rpc/client"
-	"goim/public/imctx"
-	"goim/public/imerror"
-	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/util"
+	"gim/logic/cache"
+	"gim/logic/dao"
+	"gim/logic/model"
+	"gim/logic/rpc/client"
+	"gim/public/imctx"
+	"gim/public/imerror"
+	"gim/public/logger"
+	"gim/public/pb"
+	"gim/public/util"
 
 	"go.uber.org/zap"
 )

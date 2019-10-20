@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"goim/logic/model"
-	"goim/logic/service"
-	"goim/public/imerror"
-	"goim/public/pb"
-	"goim/public/util"
+	"gim/logic/model"
+	"gim/logic/service"
+	"gim/public/imerror"
+	"gim/public/pb"
+	"gim/public/util"
 	"io/ioutil"
 	"net/http"
 

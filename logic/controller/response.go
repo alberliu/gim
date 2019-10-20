@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"goim/public/imerror"
+	"gim/public/imerror"
 )
 
 const OK = 200

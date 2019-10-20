@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"goim/conf"
+	"gim/conf"
 
 	_ "github.com/go-sql-driver/mysql"
 )

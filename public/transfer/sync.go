@@ -1,9 +1,9 @@
 package transfer
 
 import (
-	"goim/public/imerror"
-	"goim/public/logger"
-	"goim/public/pb"
+	"gim/public/imerror"
+	"gim/public/logger"
+	"gim/public/pb"
 
 	"github.com/golang/protobuf/proto"
 )

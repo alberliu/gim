@@ -1,8 +1,8 @@
 package service
 
 import (
-	"goim/logic/dao"
-	"goim/public/imctx"
+	"gim/logic/dao"
+	"gim/public/imctx"
 )
 
 type deviceAckService struct{}

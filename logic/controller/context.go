@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"goim/public/imerror"
+	"gim/public/imerror"
 
 	"github.com/gin-gonic/gin"
 )

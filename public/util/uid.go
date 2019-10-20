@@ -2,8 +2,8 @@ package util
 
 import (
 	"database/sql"
-	"goim/public/logger"
-	"goim/public/util/uid"
+	"gim/public/logger"
+	"gim/public/util/uid"
 )
 
 var (

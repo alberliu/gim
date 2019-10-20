@@ -2,7 +2,7 @@ package dao
 
 import (
 	"fmt"
-	"goim/logic/model"
+	"gim/logic/model"
 	"testing"
 )
 

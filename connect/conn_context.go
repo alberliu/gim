@@ -2,10 +2,10 @@ package connect
 
 import (
 	"fmt"
-	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/transfer"
-	"goim/public/util"
+	"gim/public/logger"
+	"gim/public/pb"
+	"gim/public/transfer"
+	"gim/public/util"
 	"io"
 	"net"
 	"strings"

@@ -1,9 +1,9 @@
 package model
 
 import (
-	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/util"
+	"gim/public/logger"
+	"gim/public/pb"
+	"gim/public/util"
 
 	jsoniter "github.com/json-iterator/go"
 )

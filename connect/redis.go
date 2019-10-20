@@ -1,7 +1,7 @@
 package connect
 
 import (
-	"goim/conf"
+	"gim/conf"
 
 	"github.com/astaxie/beego/logs"
 	"github.com/go-redis/redis"

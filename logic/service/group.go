@@ -1,12 +1,12 @@
 package service
 
 import (
-	"goim/logic/cache"
-	"goim/logic/dao"
-	"goim/logic/model"
-	"goim/public/imctx"
-	"goim/public/imerror"
-	"goim/public/logger"
+	"gim/logic/cache"
+	"gim/logic/dao"
+	"gim/logic/model"
+	"gim/public/imctx"
+	"gim/public/imerror"
+	"gim/public/logger"
 )
 
 type groupService struct{}

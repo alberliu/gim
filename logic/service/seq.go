@@ -1,8 +1,8 @@
 package service
 
 import (
-	"goim/logic/cache"
-	"goim/public/imctx"
+	"gim/logic/cache"
+	"gim/public/imctx"
 )
 
 type seqService struct{}

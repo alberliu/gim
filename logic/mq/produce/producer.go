@@ -1,8 +1,8 @@
 package produce
 
 import (
-	"goim/conf"
-	"goim/public/pb"
+	"gim/conf"
+	"gim/public/pb"
 
 	"github.com/nsqio/go-nsq"
 )

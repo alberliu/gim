@@ -2,10 +2,10 @@ package dao
 
 import (
 	"database/sql"
-	"goim/logic/db"
-	"goim/logic/model"
-	"goim/public/imctx"
-	"goim/public/logger"
+	"gim/logic/db"
+	"gim/logic/model"
+	"gim/public/imctx"
+	"gim/public/logger"
 )
 
 type deviceDao struct{}

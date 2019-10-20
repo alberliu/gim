@@ -1,7 +1,7 @@
 package util
 
 import (
-	"goim/public/logger"
+	"gim/public/logger"
 
 	"go.uber.org/zap"
 

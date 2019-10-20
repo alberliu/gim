@@ -1,10 +1,10 @@
 package cache
 
 import (
-	"goim/logic/db"
-	"goim/logic/model"
-	"goim/public/logger"
-	"goim/public/util"
+	"gim/logic/db"
+	"gim/logic/model"
+	"gim/public/logger"
+	"gim/public/util"
 	"strconv"
 
 	"github.com/json-iterator/go"

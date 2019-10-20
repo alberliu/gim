@@ -3,7 +3,7 @@ package connect
 import (
 	"encoding/binary"
 	"errors"
-	"goim/public/logger"
+	"gim/public/logger"
 	"net"
 	"time"
 )

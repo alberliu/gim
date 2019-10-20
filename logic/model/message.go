@@ -1,8 +1,8 @@
 package model
 
 import (
-	"goim/public/logger"
-	"goim/public/pb"
+	"gim/public/logger"
+	"gim/public/pb"
 	"strconv"
 	"strings"
 	"time"

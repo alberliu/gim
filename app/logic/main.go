@@ -1,13 +1,13 @@
 package main
 
 import (
-	"goim/conf"
-	"goim/logic/controller"
-	"goim/logic/db"
-	"goim/logic/rpc/client"
-	"goim/logic/rpc/server"
-	"goim/public/logger"
-	"goim/public/util"
+	"gim/conf"
+	"gim/logic/controller"
+	"gim/logic/db"
+	"gim/logic/rpc/client"
+	"gim/logic/rpc/server"
+	"gim/public/logger"
+	"gim/public/util"
 )
 
 func main() {

@@ -2,8 +2,8 @@ package dao
 
 import (
 	"fmt"
-	"goim/logic/model"
-	"goim/public/imctx"
+	"gim/logic/model"
+	"gim/public/imctx"
 	"testing"
 )
 

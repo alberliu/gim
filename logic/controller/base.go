@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"goim/logic/service"
-	"goim/public/imctx"
-	"goim/public/imerror"
+	"gim/logic/service"
+	"gim/public/imctx"
+	"gim/public/imerror"
 	"net/http"
 	"strconv"
 

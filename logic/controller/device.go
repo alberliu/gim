@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"goim/logic/model"
-	"goim/logic/service"
-	"goim/public/imerror"
+	"gim/logic/model"
+	"gim/logic/service"
+	"gim/public/imerror"
 )
 
 func init() {

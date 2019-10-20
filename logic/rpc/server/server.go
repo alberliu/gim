@@ -1,7 +1,7 @@
 package server
 
 import (
-	"goim/conf"
+	"gim/conf"
 	"log"
 	"net"
 	"net/rpc"

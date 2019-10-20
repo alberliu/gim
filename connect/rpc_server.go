@@ -1,10 +1,10 @@
 package connect
 
 import (
-	"goim/conf"
-	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/transfer"
+	"gim/conf"
+	"gim/public/logger"
+	"gim/public/pb"
+	"gim/public/transfer"
 	"log"
 	"net"
 	"net/rpc"

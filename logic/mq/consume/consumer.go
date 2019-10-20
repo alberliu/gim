@@ -1,9 +1,9 @@
 package consume
 
 import (
-	"goim/conf"
-	"goim/logic/db"
-	"goim/public/imctx"
+	"gim/conf"
+	"gim/logic/db"
+	"gim/public/imctx"
 	"time"
 
 	"github.com/nsqio/go-nsq"

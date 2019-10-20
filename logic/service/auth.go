@@ -2,11 +2,11 @@ package service
 
 import (
 	"encoding/base64"
-	"goim/logic/cache"
-	"goim/public/imctx"
-	"goim/public/imerror"
-	"goim/public/logger"
-	"goim/public/util"
+	"gim/logic/cache"
+	"gim/public/imctx"
+	"gim/public/imerror"
+	"gim/public/logger"
+	"gim/public/util"
 	"strconv"
 	"strings"
 	"time"

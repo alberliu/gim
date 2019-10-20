@@ -1,9 +1,9 @@
 package connect
 
 import (
-	"goim/conf"
-	"goim/public/logger"
-	"goim/public/transfer"
+	"gim/conf"
+	"gim/public/logger"
+	"gim/public/transfer"
 	"net/rpc"
 	"time"
 )
