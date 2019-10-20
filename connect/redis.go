@@ -7,8 +7,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const deviceIdPre = "connect:device_id:"
-
 var redisClient *redis.Client
 
 func init() {

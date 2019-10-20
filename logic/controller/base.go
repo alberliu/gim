@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"goim/logic/db"
 	"goim/logic/service"
 	"goim/public/imctx"
 	"goim/public/imerror"
@@ -19,44 +18,55 @@ func init() {
 }
 
 const (
-	keyDeviceId = "device_id"
+	keyAppId    = "app_id"
 	keyUserId   = "user_id"
+	keyDeviceId = "device_id"
+	keyToken    = "token"
 )
 
 // verify 权限校验
 func verify(c *context) {
-	deviceIdStr := c.GetHeader("device_id")
-	token := c.GetHeader("token")
+	appIdStr := c.GetHeader(keyAppId)
+	userIdStr := c.GetHeader(keyUserId)
+	deviceIdStr := c.GetHeader(keyDeviceId)
+	token := c.GetHeader(keyToken)
 	path := c.Request.URL.Path
 	if path == "/device" {
 		return
 	}
 
-	deviceId, err := strconv.ParseInt(deviceIdStr, 10, 64)
+	appId, err := strconv.ParseInt(appIdStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.LErrUnauthorized))
+		c.JSON(http.StatusOK, NewWithError(imerror.ErrUnauthorized))
 		c.Abort()
 		return
 	}
-	userId, err := service.AuthService.Auth(Context(), deviceId, token)
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.LErrUnauthorized))
+		c.JSON(http.StatusOK, NewWithError(imerror.ErrUnauthorized))
+		c.Abort()
+		return
+	}
+	deviceId, err := strconv.ParseInt(deviceIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, NewWithError(imerror.ErrUnauthorized))
+		c.Abort()
+		return
+	}
+	err = service.AuthService.Auth(Context(), appId, userId, deviceId, token)
+	if err != nil {
+		c.JSON(http.StatusOK, NewWithError(imerror.ErrUnauthorized))
 		c.Abort()
 		return
 	}
 	c.Keys = make(map[string]interface{}, 2)
+	c.Keys[keyAppId] = appId
+	c.Keys[keyUserId] = userId
 	c.Keys[keyDeviceId] = deviceId
-	if path != "/user" && path != "/user/signin" {
-		if userId == 0 {
-			c.JSON(http.StatusOK, NewWithBError(imerror.LErrDeviceNotBindUser))
-			c.Abort()
-			return
-		}
-		c.Keys[keyUserId] = userId
-	}
+
 	c.Next()
 }
 
 func Context() *imctx.Context {
-	return imctx.NewContext(db.Factoty.GetSession())
+	return imctx.NewContext()
 }

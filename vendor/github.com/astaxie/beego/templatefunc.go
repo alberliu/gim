@@ -55,21 +55,21 @@ func Substr(s string, start, length int) string {
 // HTML2str returns escaping text convert from html.
 func HTML2str(html string) string {
 
-	re, _ := regexp.Compile(`\<[\S\s]+?\>`)
+	re := regexp.MustCompile(`\<[\S\s]+?\>`)
 	html = re.ReplaceAllStringFunc(html, strings.ToLower)
 
 	//remove STYLE
-	re, _ = regexp.Compile(`\<style[\S\s]+?\</style\>`)
+	re = regexp.MustCompile(`\<style[\S\s]+?\</style\>`)
 	html = re.ReplaceAllString(html, "")
 
 	//remove SCRIPT
-	re, _ = regexp.Compile(`\<script[\S\s]+?\</script\>`)
+	re = regexp.MustCompile(`\<script[\S\s]+?\</script\>`)
 	html = re.ReplaceAllString(html, "")
 
-	re, _ = regexp.Compile(`\<[\S\s]+?\>`)
+	re = regexp.MustCompile(`\<[\S\s]+?\>`)
 	html = re.ReplaceAllString(html, "\n")
 
-	re, _ = regexp.Compile(`\s{2,}`)
+	re = regexp.MustCompile(`\s{2,}`)
 	html = re.ReplaceAllString(html, "\n")
 
 	return strings.TrimSpace(html)
@@ -172,7 +172,7 @@ func GetConfig(returnType, key string, defaultVal interface{}) (value interface{
 	case "DIY":
 		value, err = AppConfig.DIY(key)
 	default:
-		err = errors.New("Config keys must be of type String, Bool, Int, Int64, Float, or DIY")
+		err = errors.New("config keys must be of type String, Bool, Int, Int64, Float, or DIY")
 	}
 
 	if err != nil {
@@ -297,9 +297,21 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 			tag = tags[0]
 		}
 
-		value := form.Get(tag)
-		if len(value) == 0 {
-			continue
+		formValues := form[tag]
+		var value string
+		if len(formValues) == 0 {
+			defaultValue := fieldT.Tag.Get("default")
+			if defaultValue != "" {
+				value = defaultValue
+			} else {
+				continue
+			}
+		}
+		if len(formValues) == 1 {
+			value = formValues[0]
+			if value == "" {
+				continue
+			}
 		}
 
 		switch fieldT.Type.Kind() {
@@ -349,6 +361,8 @@ func parseFormToStruct(form url.Values, objT reflect.Type, objV reflect.Value) e
 				if len(value) >= 25 {
 					value = value[:25]
 					t, err = time.ParseInLocation(time.RFC3339, value, time.Local)
+				} else if strings.HasSuffix(strings.ToUpper(value), "Z") {
+					t, err = time.ParseInLocation(time.RFC3339, value, time.Local)	
 				} else if len(value) >= 19 {
 					if strings.Contains(value, "T") {
 						value = value[:19]

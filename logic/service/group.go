@@ -1,9 +1,11 @@
 package service
 
 import (
+	"goim/logic/cache"
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/public/imctx"
+	"goim/public/imerror"
 	"goim/public/logger"
 )
 
@@ -11,106 +13,136 @@ type groupService struct{}
 
 var GroupService = new(groupService)
 
-// ListByUserId 获取用户群组
-func (*groupService) ListByUserId(ctx *imctx.Context, userId int64) ([]*model.Group, error) {
-	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
+// Get 获取群组信息
+func (*groupService) Get(ctx *imctx.Context, appId, groupId int64) (*model.Group, error) {
+	group, err := cache.GroupCache.Get(appId, groupId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-	groups := make([]*model.Group, 0, len(ids))
-	for i := range ids {
-		group, err := GroupService.Get(ctx, ids[i])
-		if err != nil {
-			logger.Sugar.Error(err)
-			return nil, err
-		}
-		groups = append(groups, group)
+	if group != nil {
+		return group, nil
 	}
-	return groups, nil
-}
-
-// ListGroupUser 获取群组的用户信息
-func (*groupService) Get(ctx *imctx.Context, id int64) (*model.Group, error) {
-	group, err := dao.GroupUserDao.Get(ctx, id)
+	group, err = dao.GroupDao.Get(ctx, appId, groupId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-
-	group.GroupUser, err = dao.GroupUserDao.ListGroupUser(ctx, id)
-	if err != nil {
-		logger.Sugar.Error(err)
-	}
-	return group, err
+	return group, nil
 }
 
-// CreateAndAddUser 创建群组并且添加群成员
-func (*groupService) CreateAndAddUser(ctx *imctx.Context, groupName string, userIds []int64) (int64, error) {
-	err := ctx.Session.Begin()
+// Create 创建群组
+func (*groupService) Create(ctx *imctx.Context, group model.Group) error {
+	affected, err := dao.GroupDao.Add(ctx, group)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return 0, err
+		return err
 	}
-	defer ctx.Session.Rollback()
 
-	id, err := dao.GroupDao.Add(ctx, groupName)
+	if affected == 0 {
+		return imerror.ErrGroupAlreadyExist
+	}
+	return nil
+}
+
+// Update 更新群组
+func (*groupService) Update(ctx *imctx.Context, group model.Group) error {
+	err := dao.GroupDao.Update(ctx, group.AppId, group.GroupId, group.Name, group.Introduction, group.Extra)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return 0, err
+		return err
 	}
-
-	for _, userId := range userIds {
-		err := dao.GroupUserDao.Add(ctx, id, userId)
-		if err != nil {
-			logger.Sugar.Error(err)
-			return 0, err
-		}
+	err = cache.GroupCache.Del(group.AppId, group.GroupId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
 	}
-	ctx.Session.Commit()
-	return id, nil
+	return nil
 }
 
 // AddUser 给群组添加用户
-func (*groupService) AddUser(ctx *imctx.Context, groupId int64, userIds []int64) error {
-	err := ctx.Session.Begin()
+func (*groupService) AddUser(ctx *imctx.Context, appId, groupId, userId int64, label, extra string) error {
+	group, err := GroupService.Get(ctx, appId, groupId)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return nil
+		return err
 	}
-	defer ctx.Session.Rollback()
 
-	for _, userId := range userIds {
-		err := dao.GroupUserDao.Add(ctx, groupId, userId)
+	if group == nil {
+		return imerror.ErrGroupNotExist
+	}
+
+	if group.Type == model.GroupTypeGroup {
+		err = GroupUserService.AddUser(ctx, appId, groupId, userId, label, extra)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
 		}
 	}
-	ctx.Session.Commit()
-	return nil
-}
-
-// DeleteUser 从群组移除用户
-func (*groupService) DeleteUser(ctx *imctx.Context, groupId int64, userIds []int64) error {
-	err := ctx.Session.Begin()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil
-	}
-	defer ctx.Session.Rollback()
-
-	for _, userId := range userIds {
-		err := dao.GroupUserDao.Delete(ctx, groupId, userId)
+	if group.Type == model.GroupTypeChatRoom {
+		err = cache.LargeGroupUserCache.Set(appId, groupId, userId, label, extra)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
 		}
 	}
-	ctx.Session.Commit()
 	return nil
 }
 
-func (*groupService) UpdateLabel(ctx *imctx.Context, groupId int64, userId int64, label string) error {
-	return dao.GroupUserDao.UpdateLabel(ctx, groupId, userId, label)
+// UpdateUser 更新群组用户
+func (*groupService) UpdateUser(ctx *imctx.Context, appId, groupId, userId int64, label, extra string) error {
+	group, err := GroupService.Get(ctx, appId, groupId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
+	if group == nil {
+		return imerror.ErrGroupNotExist
+	}
+
+	if group.Type == model.GroupTypeGroup {
+		err = GroupUserService.Update(ctx, appId, groupId, userId, label, extra)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+	}
+	if group.Type == model.GroupTypeChatRoom {
+		err = cache.LargeGroupUserCache.Set(appId, groupId, userId, label, extra)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+	}
+	return nil
+}
+
+// DeleteUser 删除用户群组
+func (*groupService) DeleteUser(ctx *imctx.Context, appId, groupId, userId int64) error {
+	group, err := GroupService.Get(ctx, appId, groupId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
+	if group == nil {
+		return imerror.ErrGroupNotExist
+	}
+
+	if group.Type == model.GroupTypeGroup {
+		err = GroupUserService.DeleteUser(ctx, appId, groupId, userId)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+	}
+	if group.Type == model.GroupTypeChatRoom {
+		err = cache.LargeGroupUserCache.Del(appId, groupId, userId)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+	}
+	return nil
 }

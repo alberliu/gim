@@ -6,6 +6,8 @@ import (
 	"net"
 	"time"
 
+	"go.uber.org/zap"
+
 	"goim/public/logger"
 
 	"fmt"
@@ -104,7 +106,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			logger.Sugar.Error(err)
 			return err
 		}
-		logger.Sugar.Info("设备登录回执：%#v\n", ack)
+		logger.Logger.Info("设备登录回执", zap.Any("ack", ack))
 	case connect.CodeHeadbeatACK:
 		//log.Println("心跳回执")
 	case connect.CodeMessageSendACK:
@@ -114,7 +116,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			logger.Sugar.Error(err)
 			return err
 		}
-		logger.Sugar.Info("消息发送回执：%#v\n", ack)
+		logger.Logger.Info("消息发送回执", zap.Any("any", ack))
 	case connect.CodeMessage:
 		message := pb.Message{}
 		err := proto.Unmarshal(pack.Content, &message)

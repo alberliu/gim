@@ -5,16 +5,13 @@ import (
 	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
+	"goim/public/util"
 	"io"
 	"net"
 	"strings"
 	"time"
 
-	"goim/public/lib"
-
-	"goim/conf"
-
-	"github.com/golang/protobuf/proto"
+	"go.uber.org/zap"
 )
 
 const (
@@ -22,23 +19,11 @@ const (
 	WriteDeadline = 10 * time.Second
 )
 
-// 消息协议
-const (
-	CodeSignIn         = 1 // 设备登录
-	CodeSignInACK      = 2 // 设备登录回执
-	CodeSyncTrigger    = 3 // 消息同步触发
-	CodeHeadbeat       = 4 // 心跳
-	CodeHeadbeatACK    = 5 // 心跳回执
-	CodeMessageSend    = 6 // 消息发送
-	CodeMessageSendACK = 7 // 消息发送回执
-	CodeMessage        = 8 // 消息投递
-	CodeMessageACK     = 9 // 消息投递回执
-)
-
 // ConnContext 连接上下文
 type ConnContext struct {
 	Codec    *Codec // 编解码器
-	IsSignIn bool   // 是否登录
+	IsSignIn bool   // 标记连接是否登录成功
+	AppId    int64  // AppId
 	DeviceId int64  // 设备id
 	UserId   int64  // 用户id
 }
@@ -56,7 +41,7 @@ func NewConnContext(conn *net.TCPConn) *ConnContext {
 
 // DoConn 处理TCP连接
 func (c *ConnContext) DoConn() {
-	defer RecoverPanic()
+	defer util.RecoverPanic()
 
 	c.HandleConnect()
 
@@ -74,7 +59,13 @@ func (c *ConnContext) DoConn() {
 		}
 
 		for {
-			message, ok := c.Codec.Decode()
+			message, ok, err := c.Codec.Decode()
+			// 解码出错，需要中断连接
+			if err != nil {
+				logger.Logger.Error(err.Error())
+				c.Release()
+				return
+			}
 			if ok {
 				c.HandlePackage(message)
 				continue
@@ -91,22 +82,21 @@ func (c *ConnContext) HandleConnect() {
 
 // HandlePackage 处理消息包
 func (c *ConnContext) HandlePackage(pack *Package) {
-	// 未登录拦截
-	if pack.Code != CodeSignIn && c.IsSignIn == false {
+	// 对未登录的用户进行拦截
+	if pack.Code != int(pb.PackageType_PT_SIGN_IN_REQ) && c.IsSignIn == false {
+		// 应该告诉用户没有登录
 		c.Release()
 		return
 	}
 
-	switch pack.Code {
-	case CodeSignIn:
+	switch pb.PackageType(pack.Code) {
+	case pb.PackageType_PT_SIGN_IN_REQ:
 		c.HandlePackageSignIn(pack)
-	case CodeSyncTrigger:
-		c.HandlePackageSyncTrigger(pack)
-	case CodeHeadbeat:
-		c.HandlePackageHeadbeat()
-	case CodeMessageSend:
-		c.HandlePackageMessageSend(pack)
-	case CodeMessageACK:
+	case pb.PackageType_PT_SYNC_REQ:
+		c.HandlePackageSync(pack)
+	case pb.PackageType_PT_HEARTBEAT_REQ:
+		c.HandlePackageHeartbeat()
+	case pb.PackageType_PT_MESSAGE_ACK:
 		c.HandlePackageMessageACK(pack)
 	}
 	return
@@ -114,131 +104,85 @@ func (c *ConnContext) HandlePackage(pack *Package) {
 
 // HandlePackageSignIn 处理登录消息包
 func (c *ConnContext) HandlePackageSignIn(pack *Package) {
-	var sign pb.SignIn
-	err := proto.Unmarshal(pack.Content, &sign)
-	if err != nil {
-		logger.Sugar.Error(err)
-		c.Release()
-		return
-	}
-
-	transferSignIn := transfer.SignIn{
-		DeviceId: sign.DeviceId,
-		UserId:   sign.UserId,
-		Token:    sign.Token,
-	}
-
-	// 处理设备登录逻辑
-	ack, err := signIn(transferSignIn)
+	resp, err := RpcClient.SignIn(transfer.SignInReq{
+		Bytes: pack.Content,
+		// TODO 发送本机IP
+	})
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
 	}
 
-	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
-	if err != nil {
-		logger.Sugar.Error(err)
-		return
-	}
-
-	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, WriteDeadline)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return
-	}
-
-	if ack.Code == transfer.CodeSignInSuccess {
+	if resp.ConnectStatus == transfer.ConnectStatusOK {
 		// 将连接保存到本机字典
 		c.IsSignIn = true
-		c.DeviceId = sign.DeviceId
-		c.UserId = sign.UserId
+		c.AppId = resp.AppId
+		c.DeviceId = resp.DeviceId
+		c.UserId = resp.UserId
 		store(c.DeviceId, c)
+	}
+	// todo 登录失败处理
 
-		// 将设备和服务器IP的对应关系保存到redis
-		redisClient.Set(deviceIdPre+fmt.Sprint(c.DeviceId), conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort,
-			0)
+	// 将响应写回缓冲区
+	err = c.Codec.Encode(Package{Code: int(pb.PackageType_PT_SIGN_IN_RESP), Content: resp.Bytes}, WriteDeadline)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return
 	}
 }
 
 // HandlePackageSyncTrigger 处理同步触发消息包
-func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
-	var trigger pb.SyncTrigger
-	err := proto.Unmarshal(pack.Content, &trigger)
+func (c *ConnContext) HandlePackageSync(pack *Package) {
+	resp, err := RpcClient.Sync(transfer.SyncReq{
+		IsSignIn: c.IsSignIn,
+		AppId:    c.AppId,
+		DeviceId: c.DeviceId,
+		UserId:   c.UserId,
+		Bytes:    pack.Content,
+	})
 	if err != nil {
 		logger.Sugar.Error(err)
-		c.Release()
 		return
 	}
 
-	transferTrigger := transfer.SyncTrigger{
-		DeviceId:     c.DeviceId,
-		UserId:       c.UserId,
-		SyncSequence: trigger.SyncSequence,
+	// 将响应写回缓冲区
+	err = c.Codec.Encode(Package{Code: int(pb.PackageType_PT_SYNC_RESP), Content: resp.Bytes}, WriteDeadline)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return
 	}
-
-	publishSyncTrigger(transferTrigger)
 }
 
 // HandlePackageHeadbeat 处理心跳包
-func (c *ConnContext) HandlePackageHeadbeat() {
-	err := c.Codec.Eecode(Package{Code: CodeHeadbeatACK, Content: []byte{}}, WriteDeadline)
+func (c *ConnContext) HandlePackageHeartbeat() {
+	err := c.Codec.Encode(Package{Code: int(pb.PackageType_PT_HEARTBEAT_RESP), Content: []byte{}}, WriteDeadline)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
-	logger.Sugar.Infow("心跳：", "device_id", c.DeviceId, "user_id", c.UserId)
-}
-
-// HandlePackageMessageSend 处理消息发送包
-func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
-	var send pb.MessageSend
-	err := proto.Unmarshal(pack.Content, &send)
-	if err != nil {
-		logger.Sugar.Error(err)
-		c.Release()
-		return
-	}
-
-	transferSend := transfer.MessageSend{
-		SenderDeviceId: c.DeviceId,
-		SenderUserId:   c.UserId,
-		ReceiverType:   send.ReceiverType,
-		ReceiverId:     send.ReceiverId,
-		Type:           send.Type,
-		Content:        send.Content,
-		SendSequence:   send.SendSequence,
-		SendTime:       lib.UnunixTime(send.SendTime),
-	}
-
-	publishMessageSend(transferSend)
-	if err != nil {
-		logger.Sugar.Error(err)
-	}
+	logger.Sugar.Infow("heartbeat", "device_id", c.DeviceId, "user_id", c.UserId)
 }
 
 // HandlePackageMessageACK 处理消息回执消息包
 func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
-	var ack pb.MessageACK
-	err := proto.Unmarshal(pack.Content, &ack)
+	resp, err := RpcClient.MessageACK(transfer.MessageAckReq{
+		IsSignIn: c.IsSignIn,
+		AppId:    c.AppId,
+		DeviceId: c.DeviceId,
+		UserId:   c.UserId,
+		Bytes:    pack.Content,
+	})
 	if err != nil {
 		logger.Sugar.Error(err)
-		c.Release()
+		// todo 响应未知异常
 		return
 	}
-
-	transferAck := transfer.MessageACK{
-		MessageId:    ack.MessageId,
-		DeviceId:     c.DeviceId,
-		UserId:       c.UserId,
-		SyncSequence: ack.SyncSequence,
-		ReceiveTime:  lib.UnunixTime(ack.ReceiveTime),
-	}
-
-	publishMessageACK(transferAck)
+	fmt.Println(resp)
 }
 
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
-	logger.Sugar.Infow("连接读取异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
+	logger.Logger.Debug("read tcp error：", zap.Int64("app_id", c.AppId), zap.Int64("user_id", c.UserId),
+		zap.Int64("device_id", c.DeviceId), zap.Error(err))
 	str := err.Error()
 	// 服务器主动关闭连接
 	if strings.HasSuffix(str, "use of closed network connection") {
@@ -254,19 +198,25 @@ func (c *ConnContext) HandleReadErr(err error) {
 	if strings.HasSuffix(str, "i/o timeout") {
 		return
 	}
-	logger.Sugar.Infow("连接读取未知异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
 }
 
 // Release 释放TCP连接
 func (c *ConnContext) Release() {
+	// 从本地manager中删除tcp连接
 	delete(c.DeviceId)
+
+	// 关闭tcp连接
 	err := c.Codec.Conn.Close()
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
 
-	publishOffLine(transfer.OffLine{
+	// 通知业务服务器设备下线
+	_, err = RpcClient.Offline(transfer.OfflineReq{
 		DeviceId: c.DeviceId,
 		UserId:   c.UserId,
 	})
+	if err != nil {
+		logger.Sugar.Error(err)
+	}
 }

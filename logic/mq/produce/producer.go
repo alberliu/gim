@@ -1,13 +1,9 @@
 package produce
 
 import (
-	"fmt"
 	"goim/conf"
-	"goim/logic/db"
-	"goim/public/logger"
-	"goim/public/transfer"
+	"goim/public/pb"
 
-	"github.com/json-iterator/go"
 	"github.com/nsqio/go-nsq"
 )
 
@@ -28,9 +24,9 @@ func init() {
 }
 
 // PublishMessage 发布消息投递
-func PublishMessage(message transfer.Message) {
+func PublishMessage(appId, userId, deviceId int64, message pb.Message) {
 	// 获取设备连接的连接层服务器
-	connectIP, err := db.RedisClient.Get(db.DeviceIdPre + fmt.Sprint(message.DeviceId)).Result()
+	/*connectIP, err := db.RedisClient.Get(db.DeviceIdPre + fmt.Sprint(message.DeviceId)).Result()
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
@@ -46,9 +42,10 @@ func PublishMessage(message transfer.Message) {
 	err = producer.Publish(topic, body)
 	if err != nil {
 		logger.Sugar.Error(err)
-	}
+	}*/
 }
 
+/*
 // PublishMessage 发布消息发送回执
 func PublishMessageSendACK(ack transfer.MessageSendACK) {
 	// 获取设备连接的连接层服务器
@@ -70,3 +67,5 @@ func PublishMessageSendACK(ack transfer.MessageSendACK) {
 		logger.Sugar.Error(err)
 	}
 }
+
+*/

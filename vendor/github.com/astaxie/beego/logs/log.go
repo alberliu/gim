@@ -92,7 +92,7 @@ type Logger interface {
 }
 
 var adapters = make(map[string]newLoggerFunc)
-var levelPrefix = [LevelDebug + 1]string{"[M] ", "[A] ", "[C] ", "[E] ", "[W] ", "[N] ", "[I] ", "[D] "}
+var levelPrefix = [LevelDebug + 1]string{"[M]", "[A]", "[C]", "[E]", "[W]", "[N]", "[I]", "[D]"}
 
 // Register makes a log provide available by the provided name.
 // If Register is called twice with the same name or if driver is nil,
@@ -187,12 +187,12 @@ func (bl *BeeLogger) setLogger(adapterName string, configs ...string) error {
 		}
 	}
 
-	log, ok := adapters[adapterName]
+	logAdapter, ok := adapters[adapterName]
 	if !ok {
 		return fmt.Errorf("logs: unknown adaptername %q (forgotten Register?)", adapterName)
 	}
 
-	lg := log()
+	lg := logAdapter()
 	err := lg.Init(config)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "logs.BeeLogger.SetLogger: "+err.Error())
@@ -287,7 +287,7 @@ func (bl *BeeLogger) writeMsg(logLevel int, msg string, v ...interface{}) error 
 		// set to emergency to ensure all log will be print out correctly
 		logLevel = LevelEmergency
 	} else {
-		msg = levelPrefix[logLevel] + msg
+		msg = levelPrefix[logLevel] + " " + msg
 	}
 
 	if bl.asynchronous {

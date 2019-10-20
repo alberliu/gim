@@ -60,62 +60,60 @@ func growCap(oldCap, unit, num int) (newCap int) {
 	//   bytes.Buffer model (2*cap + n): much better for bytes.
 	// smarter way is to take the byte-size of the appended element(type) into account
 
-	// maintain 3 thresholds:
+	// maintain 2 thresholds:
 	// t1: if cap <= t1, newcap = 2x
-	// t2: if cap <= t2, newcap = 1.75x
-	// t3: if cap <= t3, newcap = 1.5x
+	// t2: if cap <= t2, newcap = 1.5x
 	//     else          newcap = 1.25x
 	//
-	// t1, t2, t3 >= 1024 always.
-	// i.e. if unit size >= 16, then always do 2x or 1.25x (ie t1, t2, t3 are all same)
+	// t1, t2 >= 1024 always.
+	// This means that, if unit size >= 16, then always do 2x or 1.25x (ie t1, t2, t3 are all same)
 	//
 	// With this, appending for bytes increase by:
 	//    100% up to 4K
-	//     75% up to 8K
-	//     50% up to 16K
+	//     75% up to 16K
 	//     25% beyond that
 
 	// unit can be 0 e.g. for struct{}{}; handle that appropriately
-	var t1, t2, t3 int // thresholds
-	if unit <= 1 {
-		t1, t2, t3 = 4*1024, 8*1024, 16*1024
-	} else if unit < 16 {
-		t3 = 16 / unit * 1024
-		t1 = t3 * 1 / 4
-		t2 = t3 * 2 / 4
-	} else {
-		t1, t2, t3 = 1024, 1024, 1024
+	if unit <= 0 {
+		if uint64(^uint(0)) == ^uint64(0) { // 64-bit
+			var maxInt64 uint64 = 1<<63 - 1 // prevent failure with overflow int on 32-bit (386)
+			return int(maxInt64)            // math.MaxInt64
+		}
+		return 1<<31 - 1 //  math.MaxInt32
 	}
 
-	var x int // temporary variable
+	// handle if num < 0, cap=0, etc.
 
-	// x is multiplier here: one of 5, 6, 7 or 8; incr of 25%, 50%, 75% or 100% respectively
-	if oldCap <= t1 { // [0,t1]
-		x = 8
-	} else if oldCap > t3 { // (t3,infinity]
-		x = 5
+	var t1, t2 int // thresholds
+	if unit <= 4 {
+		t1, t2 = 4*1024, 16*1024
+	} else if unit <= 16 {
+		t1, t2 = unit*1*1024, unit*4*1024
+	} else {
+		t1, t2 = 1024, 1024
+	}
+
+	if oldCap <= 0 {
+		newCap = 2
+	} else if oldCap <= t1 { // [0,t1]
+		newCap = oldCap * 8 / 4
 	} else if oldCap <= t2 { // (t1,t2]
-		x = 7
-	} else { // (t2,t3]
-		x = 6
-	}
-	newCap = x * oldCap / 4
-
-	if num > 0 {
-		newCap += num
+		newCap = oldCap * 6 / 4
+	} else { // (t2,infinity]
+		newCap = oldCap * 5 / 4
 	}
 
-	// ensure newCap is a multiple of 64 (if it is > 64) or 16.
-	if newCap > 64 {
-		if x = newCap % 64; x != 0 {
-			x = newCap / 64
-			newCap = 64 * (x + 1)
-		}
-	} else {
-		if x = newCap % 16; x != 0 {
-			x = newCap / 16
-			newCap = 16 * (x + 1)
-		}
+	if num > 0 && newCap < num+oldCap {
+		newCap = num + oldCap
 	}
+
+	// ensure newCap takes multiples of a cache line (size is a multiple of 64)
+	t1 = newCap * unit
+	t2 = t1 % 64
+	if t2 != 0 {
+		t1 += 64 - t2
+		newCap = t1 / unit
+	}
+
 	return
 }

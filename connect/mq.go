@@ -3,16 +3,10 @@ package connect
 import (
 	"time"
 
-	"encoding/json"
-	"goim/public/lib"
 	"goim/public/logger"
-	"goim/public/pb"
-	"goim/public/transfer"
 
 	"goim/conf"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/json-iterator/go"
 	"github.com/nsqio/go-nsq"
 )
 
@@ -37,14 +31,14 @@ func NsqConsumer(topic, channel string, handle func(message *nsq.Message) error,
 
 // StartNsqConsume 启动nsq消费者，以后所有的消费者在这里注册
 func StartNsqConsumer() {
-	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message", "1", handleMessage, 20)
-	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message_send_ack", "1", handleMessageSendACK, 20)
+	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message", "1", HandleMessage, 20)
+	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message_send_ack", "1", HandleMessageSendACK, 20)
 }
 
-// handleMessage 处理消息投递
-func handleMessage(msg *nsq.Message) error {
+// HandleMessage 处理消息投递
+func HandleMessage(msg *nsq.Message) error {
 	// nsq消息解码
-	var message transfer.Message
+	/*var message transfer.Message
 	err := json.Unmarshal(msg.Body, &message)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -71,7 +65,7 @@ func handleMessage(msg *nsq.Message) error {
 		item.Type = int32(v.Type)
 		item.Content = v.Content
 		item.SyncSequence = v.Sequence
-		item.SendTime = lib.UnixTime(v.SendTime)
+		item.SendTime = util.UnixTime(v.SendTime)
 
 		messages = append(messages, item)
 	}
@@ -88,14 +82,14 @@ func handleMessage(msg *nsq.Message) error {
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
-	}
+	}*/
 	return nil
 }
 
-// handleMessageSendACK 处理消息发送回执
-func handleMessageSendACK(msg *nsq.Message) error {
+// HandleMessageSendACK 处理消息发送回执
+func HandleMessageSendACK(msg *nsq.Message) error {
 	// nsq消息解码
-	var ack transfer.MessageSendACK
+	/*var ack transfer.MessageSendACK
 	err := json.Unmarshal(msg.Body, &ack)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -121,11 +115,11 @@ func handleMessageSendACK(msg *nsq.Message) error {
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
-	}
+	}*/
 	return nil
 }
 
-func init() {
+func initNsqProducer() {
 	var err error
 	cfg := nsq.NewConfig()
 	producer, err = nsq.NewProducer(conf.NSQIP, cfg)
@@ -139,7 +133,7 @@ func init() {
 	}
 }
 
-// publishSyncTrigger 发布消息同步
+/*// publishSyncTrigger 发布消息同步
 func publishSyncTrigger(syncTrigger transfer.SyncTrigger) {
 	body, err := jsoniter.Marshal(syncTrigger)
 	if err != nil {
@@ -168,11 +162,13 @@ func publishMessageSend(send transfer.MessageSend) {
 // publishMessageACK 发布消息回执
 func publishMessageACK(ack transfer.MessageACK) {
 	body, err := jsoniter.Marshal(ack)
+	fmt.Println(err)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
 	}
 	err = producer.Publish("message_ack", body)
+
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
@@ -190,3 +186,4 @@ func publishOffLine(offLine transfer.OffLine) {
 		logger.Sugar.Error(err)
 	}
 }
+*/

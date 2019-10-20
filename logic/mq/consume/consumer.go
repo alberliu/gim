@@ -1,22 +1,11 @@
 package consume
 
 import (
+	"goim/conf"
+	"goim/logic/db"
+	"goim/public/imctx"
 	"time"
 
-	"goim/logic/dao"
-	"goim/logic/db"
-	"goim/logic/service"
-	"goim/public/imctx"
-	"goim/public/imerror"
-	"goim/public/lib"
-	"goim/public/logger"
-	"goim/public/transfer"
-
-	"goim/conf"
-
-	"goim/logic/mq/produce"
-
-	"github.com/json-iterator/go"
 	"github.com/nsqio/go-nsq"
 )
 
@@ -50,7 +39,7 @@ func context() *imctx.Context {
 
 // handleSyncTrigger 处理消息同步出发
 func handleSyncTrigger(msg *nsq.Message) error {
-	var trigger transfer.SyncTrigger
+	/*var trigger transfer.SyncTrigger
 	err := jsoniter.Unmarshal(msg.Body, &trigger)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -58,12 +47,12 @@ func handleSyncTrigger(msg *nsq.Message) error {
 	}
 
 	ctx := context()
-	logger.Sugar.Infow("同步触发",
-		"device_id:", trigger.DeviceId,
-		"user_id", trigger.UserId,
-		"sync_sequence", trigger.SyncSequence)
+	logger.Logger.Info("同步触发",
+		zap.Int64("device_id:", trigger.DeviceId),
+		zap.Int64("user_id", trigger.UserId),
+		zap.Int64("sync_sequence", trigger.SyncSequence))
 
-	dbMessages, err := dao.MessageDao.ListByUserIdAndSequence(ctx, trigger.UserId, trigger.SyncSequence)
+	dbMessages, err := dao.MessageDao.ListByUserIdAndUserSeq(ctx, trigger.UserId, trigger.SyncSequence)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -90,32 +79,33 @@ func handleSyncTrigger(msg *nsq.Message) error {
 	message := transfer.Message{DeviceId: trigger.DeviceId, Type: transfer.MessageTypeSync, Messages: messages}
 	produce.PublishMessage(message)
 
-	logger.Sugar.Infow("消息同步",
-		"device_id:", trigger.DeviceId,
-		"user_id", trigger.UserId,
-		"type", message.Type,
-		"messages", message.GetLog())
+	logger.Logger.Info("消息同步",
+		zap.Int64("device_id:", trigger.DeviceId),
+		zap.Int64("user_id", trigger.UserId),
+		zap.Int32("type", message.Type),
+		zap.String("messages", message.GetLog()))
+	*/
 	return nil
 }
 
 // handleMessageSend 处理消息发送
 func handleMessageSend(msg *nsq.Message) error {
-	var send transfer.MessageSend
+	/*var send transfer.MessageSend
 	err := jsoniter.Unmarshal(msg.Body, &send)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil
 	}
 
-	send.MessageId = lib.Lid.Get()
+	send.MessageId = util.Lid.Get()
 	ctx := context()
-	logger.Sugar.Infow("消息发送",
-		"device_id", send.SenderDeviceId,
-		"user_id", send.SenderUserId,
-		"message_id", send.MessageId,
-		"send_sequence", send.SendSequence)
+	logger.Logger.Info("消息发送",
+		zap.Int64("device_id", send.SenderDeviceId),
+		zap.Int64("user_id", send.SenderUserId),
+		zap.Int64("message_id", send.MessageId),
+		zap.Int64("send_sequence", send.SendSequence))
 
-	// 检查消息是否重复发送
+	// 检查消息是否重复发送,todo:用随机数代替
 	sendSequence, err := dao.DeviceSendSequenceDao.Get(ctx, send.SenderDeviceId)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -148,25 +138,26 @@ func handleMessageSend(msg *nsq.Message) error {
 	if cerror, ok := err.(*imerror.CError); ok {
 		ack.Code = cerror.Code
 	} else {
-		ack.Code = imerror.CErrUnkonw.Code
+		ack.Code = imerror.CErrUnknown.Code
 	}
 	// 消息发送回执
 	produce.PublishMessageSendACK(ack)
 
-	logger.Sugar.Infow("消息发送回执",
-		"device_id", ack.DeviceId,
-		"user_id", send.SenderUserId,
-		"message_id", send.MessageId,
-		"send_sequence", ack.SendSequence,
-		"code", ack.Code,
-	)
+	logger.Logger.Info("消息发送回执",
+		zap.Int64("device_id", ack.DeviceId),
+		zap.Int64("user_id", send.SenderUserId),
+		zap.Int64("message_id", send.MessageId),
+		zap.Int64("send_sequence", ack.SendSequence),
+		zap.Int("code", ack.Code))
 
+
+	*/
 	return nil
 }
 
 // handleMessageACK 处理消息回执
 func handleMessageACK(msg *nsq.Message) error {
-	var ack transfer.MessageACK
+	/*var ack transfer.MessageACK
 	err := jsoniter.Unmarshal(msg.Body, &ack)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -178,18 +169,20 @@ func handleMessageACK(msg *nsq.Message) error {
 		logger.Sugar.Error(err)
 	}
 
-	logger.Sugar.Infow("消息投递回执",
-		"device_id", ack.DeviceId,
-		"user_id", ack.UserId,
-		"message_id", ack.MessageId,
-		"sync_sequence", ack.SyncSequence)
+	logger.Logger.Info("消息投递回执",
+		zap.Int64("device_id", ack.DeviceId),
+		zap.Int64("user_id", ack.UserId),
+		zap.Int64("message_id", ack.MessageId),
+		zap.Int64("sync_sequence", ack.SyncSequence))
 
+
+	*/
 	return nil
 }
 
 // handleOffLine 处理消息离线
 func handleOffLine(msg *nsq.Message) error {
-	var offLine transfer.OffLine
+	/*var offLine transfer.OffLine
 	err := jsoniter.Unmarshal(msg.Body, &offLine)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -201,6 +194,7 @@ func handleOffLine(msg *nsq.Message) error {
 		logger.Sugar.Error(err)
 	}
 
-	logger.Sugar.Infow("设备离线", "device_id", offLine.DeviceId, "user_id", offLine.UserId)
+	logger.Logger.Info("设备离线", zap.Int64("device_id", offLine.DeviceId), zap.Int64("user_id", offLine.UserId))
+	*/
 	return nil
 }

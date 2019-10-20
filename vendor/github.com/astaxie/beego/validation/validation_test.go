@@ -268,6 +268,18 @@ func TestMobile(t *testing.T) {
 	if !valid.Mobile("+8614700008888", "mobile").Ok {
 		t.Error("\"+8614700008888\" is a valid mobile phone number should be true")
 	}
+	if !valid.Mobile("17300008888", "mobile").Ok {
+		t.Error("\"17300008888\" is a valid mobile phone number should be true")
+	}
+	if !valid.Mobile("+8617100008888", "mobile").Ok {
+		t.Error("\"+8617100008888\" is a valid mobile phone number should be true")
+	}
+	if !valid.Mobile("8617500008888", "mobile").Ok {
+		t.Error("\"8617500008888\" is a valid mobile phone number should be true")
+	}
+	if valid.Mobile("8617400008888", "mobile").Ok {
+		t.Error("\"8617400008888\" is a valid mobile phone number should be false")
+	}
 }
 
 func TestTel(t *testing.T) {

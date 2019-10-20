@@ -90,9 +90,7 @@ func NewFailoverClient(failoverOpt *FailoverOptions) *Client {
 			opt:      opt,
 			connPool: failover.Pool(),
 
-			onClose: func() error {
-				return failover.Close()
-			},
+			onClose: failover.Close,
 		},
 	}
 	c.baseClient.init()
@@ -160,6 +158,39 @@ func (c *SentinelClient) GetMasterAddrByName(name string) *StringSliceCmd {
 
 func (c *SentinelClient) Sentinels(name string) *SliceCmd {
 	cmd := NewSliceCmd("sentinel", "sentinels", name)
+	c.Process(cmd)
+	return cmd
+}
+
+// Failover forces a failover as if the master was not reachable, and without
+// asking for agreement to other Sentinels.
+func (c *SentinelClient) Failover(name string) *StatusCmd {
+	cmd := NewStatusCmd("sentinel", "failover", name)
+	c.Process(cmd)
+	return cmd
+}
+
+// Reset resets all the masters with matching name. The pattern argument is a
+// glob-style pattern. The reset process clears any previous state in a master
+// (including a failover in progress), and removes every slave and sentinel
+// already discovered and associated with the master.
+func (c *SentinelClient) Reset(pattern string) *IntCmd {
+	cmd := NewIntCmd("sentinel", "reset", pattern)
+	c.Process(cmd)
+	return cmd
+}
+
+// FlushConfig forces Sentinel to rewrite its configuration on disk, including
+// the current Sentinel state.
+func (c *SentinelClient) FlushConfig() *StatusCmd {
+	cmd := NewStatusCmd("sentinel", "flushconfig")
+	c.Process(cmd)
+	return cmd
+}
+
+// Master shows the state and info of the specified master.
+func (c *SentinelClient) Master(name string) *StringStringMapCmd {
+	cmd := NewStringStringMapCmd("sentinel", "master", name)
 	c.Process(cmd)
 	return cmd
 }
@@ -358,8 +389,7 @@ func (c *sentinelFailover) listen(pubsub *PubSub) {
 			break
 		}
 
-		switch msg.Channel {
-		case "+switch-master":
+		if msg.Channel == "+switch-master" {
 			parts := strings.Split(msg.Payload, " ")
 			if parts[0] != c.masterName {
 				internal.Logf("sentinel: ignore addr for master=%q", parts[0])

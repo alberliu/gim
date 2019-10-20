@@ -1,7 +1,7 @@
 package service
 
 import (
-	"database/sql"
+	"goim/logic/cache"
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/public/imctx"
@@ -13,126 +13,60 @@ type userService struct{}
 
 var UserService = new(userService)
 
-// Regist 注册
-func (*userService) Regist(ctx *imctx.Context, deviceId int64, regist model.UserRegist) (*model.SignInResp, error) {
-	err := ctx.Session.Begin()
+// Add 添加用户（将业务账号导入IM系统账户）
+//1.添加用户，2.添加用户消息序列号
+func (*userService) Add(ctx *imctx.Context, user model.User) error {
+	affected, err := dao.UserDao.Add(ctx, user)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return nil, err
+		return err
 	}
-	defer ctx.Session.Rollback()
-
-	// 添加用户
-	user := model.User{
-		Number:   regist.Number,
-		Nickname: regist.Nickname,
-		Sex:      regist.Sex,
-		Avatar:   regist.Avatar,
-		Password: regist.Password,
+	if affected == 0 {
+		return imerror.ErrUserAlreadyExist
 	}
-	userId, err := dao.UserDao.Add(ctx, user)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-	if userId == 0 {
-		return nil, imerror.LErrNumberUsed
-	}
-
-	err = dao.UserSequenceDao.Add(ctx, userId, 0)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	err = dao.DeviceDao.UpdateUserId(ctx, deviceId, userId)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, deviceId, 0)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-	dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, deviceId, 0)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	err = ctx.Session.Commit()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	return &model.SignInResp{
-		SendSequence: 0,
-		SyncSequence: 0,
-	}, nil
-}
-
-// SignIn 登录
-func (*userService) SignIn(ctx *imctx.Context, deviceId int64, number string, password string) (*model.SignInResp, error) {
-	err := ctx.Session.Begin()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-	defer ctx.Session.Rollback()
-	// 设备验证
-
-	// 用户验证
-	user, err := dao.UserDao.GetByNumber(ctx, number)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, imerror.LErrNameOrPassword
-		}
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-	if password != user.Password {
-		return nil, imerror.LErrNameOrPassword
-	}
-
-	err = dao.DeviceDao.UpdateUserId(ctx, deviceId, user.Id)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, deviceId, 0)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	maxSyncSequence, err := dao.DeviceSyncSequenceDao.GetMaxSyncSequenceByUserId(ctx, user.Id)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-
-	err = ctx.Session.Commit()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
-	}
-	return &model.SignInResp{
-		SendSequence: 0,
-		SyncSequence: maxSyncSequence,
-	}, nil
+	return nil
 }
 
 // Get 获取用户信息
-func (*userService) Get(ctx *imctx.Context, userId int64) (*model.User, error) {
-	user, err := dao.UserDao.Get(ctx, userId)
+func (*userService) Get(ctx *imctx.Context, appId, userId int64) (*model.User, error) {
+	user, err := cache.UserCache.Get(appId, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-	user.Id = userId
+	if user != nil {
+		return user, nil
+	}
+
+	user, err = dao.UserDao.Get(ctx, appId, userId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return nil, err
+	}
+
+	if user != nil {
+		err = cache.UserCache.Set(*user)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return nil, err
+		}
+	}
 	return user, err
+}
+
+// Get 获取用户信息
+func (*userService) Update(ctx *imctx.Context, user model.User) error {
+	err := dao.UserDao.Update(ctx, user)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
+	err = cache.UserCache.Del(user.AppId, user.UserId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
+	return nil
 }

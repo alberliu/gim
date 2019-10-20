@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"database/sql"
+	"goim/logic/db"
 	"goim/logic/model"
 	"goim/public/imctx"
 	"goim/public/logger"
@@ -12,41 +14,52 @@ var UserDao = new(userDao)
 
 // Add 插入一条用户信息
 func (*userDao) Add(ctx *imctx.Context, user model.User) (int64, error) {
-	result, err := ctx.Session.Exec("insert ignore into t_user(number,nickname,sex,avatar,password) values(?,?,?,?,?)",
-		user.Number, user.Nickname, user.Sex, user.Avatar, user.Password)
+	result, err := db.DBCli.Exec("insert ignore into user(app_id,user_id,nickname,sex,avatar_url,extra) values(?,?,?,?,?,?)",
+		user.AppId, user.UserId, user.Nickname, user.Sex, user.AvatarUrl, user.Extra)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, err
 	}
 
-	id, err := result.LastInsertId()
+	affected, err := result.RowsAffected()
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, err
 	}
-	return id, nil
+	return affected, nil
 }
 
 // Get 获取用户信息
-func (*userDao) Get(ctx *imctx.Context, id int64) (*model.User, error) {
-	row := ctx.Session.QueryRow("select number,nickname,password,sex,avatar from t_user where id = ?", id)
-	user := new(model.User)
-	err := row.Scan(&user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
-	if err != nil {
+func (*userDao) Get(ctx *imctx.Context, appId, userId int64) (*model.User, error) {
+	row := db.DBCli.QueryRow("select nickname,sex,avatar_url,extra,create_time,update_time from user where app_id = ? and user_id = ?",
+		appId, userId)
+	user := model.User{
+		AppId:  appId,
+		UserId: userId,
+	}
+
+	err := row.Scan(&user.Nickname, &user.Sex, &user.AvatarUrl, &user.Extra, &user.CreateTime, &user.UpdateTime)
+	if err != nil && err != sql.ErrNoRows {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-	return user, err
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	return &user, err
 }
 
-// GetByNumber 获取用户信息根据手机号
-func (*userDao) GetByNumber(ctx *imctx.Context, number string) (*model.User, error) {
-	row := ctx.Session.QueryRow("select id,number,nickname,password,sex,avatar from t_user where number = ?", number)
-	user := new(model.User)
-	err := row.Scan(&user.Id, &user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
+// Update 更新用户信息
+func (*userDao) Update(ctx *imctx.Context, user model.User) error {
+	_, err := db.DBCli.Exec("update user set nickname = ?,sex = ?,avatar_url = ?,extra = ? where app_id = and user_id = ?",
+		user.Nickname, user.Sex, user.AvatarUrl, user.Extra, user.AppId, user.UserId)
+
 	if err != nil {
 		logger.Sugar.Error(err)
-		return nil, err
+		return err
 	}
-	return user, err
+
+	return nil
 }

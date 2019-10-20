@@ -1,8 +1,0 @@
-syntax = "proto3";
-package pb;
-// 投递消息回执
-message MessageACK {
-    int64 message_id = 1; // 消息id
-    int64 sync_sequence = 2; //同步序列号
-    int64 receive_time = 3; // 消息接收时间戳，精确到毫秒
-}

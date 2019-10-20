@@ -289,10 +289,7 @@ func Generate(outfile, buildTag, codecPkgPath string,
 
 	frunMainName := filepath.Join(lastdir, "codecgen-main-"+tv.RandString+".generated.go")
 	frunPkgName := filepath.Join(lastdir, "codecgen-pkg-"+tv.RandString+".generated.go")
-	if deleteTempFile {
-		defer os.Remove(frunMainName)
-		defer os.Remove(frunPkgName)
-	}
+
 	// var frunMain, frunPkg *os.File
 	if _, err = gen1(frunMainName, genFrunMainTmpl, &tv); err != nil {
 		return
@@ -316,6 +313,14 @@ func Generate(outfile, buildTag, codecPkgPath string,
 		return
 	}
 	os.Stdout.Write(buf.Bytes())
+
+	// only delete these files if codecgen ran successfully.
+	// if unsuccessful, these files are here for diagnosis.
+	if deleteTempFile {
+		os.Remove(frunMainName)
+		os.Remove(frunPkgName)
+	}
+
 	return
 }
 

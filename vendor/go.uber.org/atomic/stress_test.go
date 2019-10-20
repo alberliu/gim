@@ -21,6 +21,7 @@
 package atomic
 
 import (
+	"errors"
 	"math"
 	"runtime"
 	"sync"
@@ -46,6 +47,7 @@ var _stressTests = map[string]func() func(){
 	"bool":     stressBool,
 	"string":   stressString,
 	"duration": stressDuration,
+	"error":    stressError,
 }
 
 func TestStress(t *testing.T) {
@@ -254,5 +256,19 @@ func stressDuration() func() {
 		atom.CAS(1, 0)
 		atom.Swap(5)
 		atom.Store(1)
+	}
+}
+
+func stressError() func() {
+	var atom = NewError(nil)
+	var err1 = errors.New("err1")
+	var err2 = errors.New("err2")
+	return func() {
+		atom.Load()
+		atom.Store(err1)
+		atom.Load()
+		atom.Store(err2)
+		atom.Load()
+		atom.Store(nil)
 	}
 }

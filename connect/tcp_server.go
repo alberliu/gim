@@ -1,10 +1,9 @@
 package connect
 
 import (
-	"fmt"
 	"goim/public/logger"
+	"goim/public/util"
 	"net"
-	"runtime"
 )
 
 // Conf server配置文件
@@ -44,12 +43,13 @@ func (t *TCPServer) Start() {
 	for i := 0; i < t.AcceptCount; i++ {
 		go t.Accept(listener)
 	}
+	logger.Sugar.Info("tcp server start")
 	select {}
 }
 
 // Accept 接收客户端的TCP长连接的建立
 func (t *TCPServer) Accept(listener *net.TCPListener) {
-	defer RecoverPanic()
+	defer util.RecoverPanic()
 
 	for {
 		conn, err := listener.AcceptTCP()
@@ -66,20 +66,4 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 		connContext := NewConnContext(conn)
 		go connContext.DoConn()
 	}
-}
-
-// RecoverPanic 恢复panic
-func RecoverPanic() {
-	err := recover()
-	if err != nil {
-		logger.Sugar.Error(GetPanicInfo())
-	}
-
-}
-
-// PrintStaStack 打印Panic堆栈信息
-func GetPanicInfo() string {
-	buf := make([]byte, 2048)
-	n := runtime.Stack(buf, false)
-	return fmt.Sprintf("%s", buf[:n])
 }

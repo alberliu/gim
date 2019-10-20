@@ -1,8 +1,0 @@
-syntax = "proto3";
-package pb;
-
-// 消息发送回执
-message MessageSendACK {
-    int64 send_sequence = 1; // 序列号
-    int32 code = 2; // 消息发送状态
-}

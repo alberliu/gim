@@ -1,44 +1,44 @@
 package main
 
 import (
-	"fmt"
 	"goim/conf"
 	"goim/logic/controller"
-	"goim/logic/mq/consume"
+	"goim/logic/db"
+	"goim/logic/rpc/client"
 	"goim/logic/rpc/server"
 	"goim/public/logger"
-	"runtime"
+	"goim/public/util"
 )
 
 func main() {
+	// 初始化数据库
+	db.InitDB()
+
+	// 初始化自增id配置
+	util.InitUID(db.DBCli)
+
 	// 启动rpc服务
 	go func() {
-		defer RecoverPanic()
+		defer util.RecoverPanic()
 		server.StartRPCServer()
 	}()
 
-	// 启动nsq消费服务
+	// 初始化RpcClient
 	go func() {
-		defer RecoverPanic()
-		consume.StartNsqConsumer()
+		defer util.RecoverPanic()
+		client.InitRpcClient()
 	}()
 
-	// 启动web容器
-	controller.Engine.Run(conf.LogicHTTPListenIP)
-}
+	/*// 启动nsq消费服务
+	go func() {
+		defer util.RecoverPanic()
+		consume.StartNsqConsumer()
+	}()
+	*/
 
-// RecoverPanic 恢复panic
-func RecoverPanic() {
-	err := recover()
+	// 启动web容器
+	err := controller.Engine.Run(conf.LogicHTTPListenIP)
 	if err != nil {
 		logger.Sugar.Error(err)
-		logger.Sugar.Error(GetPanicInfo())
 	}
-}
-
-// PrintStaStack 打印Panic堆栈信息
-func GetPanicInfo() string {
-	buf := make([]byte, 2048)
-	n := runtime.Stack(buf, false)
-	return fmt.Sprintf("%s", buf[:n])
 }

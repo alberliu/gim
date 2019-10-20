@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"fmt"
+	"goim/logic/db"
 	"goim/logic/model"
 	"goim/public/imctx"
 	"goim/public/logger"
@@ -11,10 +13,10 @@ type messageDao struct{}
 var MessageDao = new(messageDao)
 
 // Add 插入一条消息
-func (*messageDao) Add(ctx *imctx.Context, message model.Message) error {
-	_, err := ctx.Session.Exec("insert into t_message(message_id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,send_time,sequence) values(?,?,?,?,?,?,?,?,?,?,?)",
-		message.MessageId, message.UserId, message.SenderType, message.SenderId, message.SenderDeviceId,
-		message.ReceiverType, message.ReceiverId, message.Type, message.Content, message.SendTime, message.Sequence)
+func (*messageDao) Add(ctx *imctx.Context, tableName string, message model.Message) error {
+	sql := fmt.Sprintf(`insert into %s(message_id,app_id,object_type,object_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,to_user_ids,type,content,seq,send_time) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, tableName)
+	_, err := db.DBCli.Exec(sql, message.MessageId, message.AppId, message.ObjectType, message.ObjectId, message.SenderType, message.SenderId, message.SenderDeviceId,
+		message.ReceiverType, message.ReceiverId, message.ToUserIds, message.Type, message.Content, message.Seq, message.SendTime)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -22,25 +24,25 @@ func (*messageDao) Add(ctx *imctx.Context, message model.Message) error {
 	return nil
 }
 
-// ListByUserIdAndSequence 根据用户id查询大于序号大于sequence的消息
-func (*messageDao) ListByUserIdAndSequence(ctx *imctx.Context, userId int64, sequence int64) ([]*model.Message, error) {
-	rows, err := ctx.Session.Query("select id,message_id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,sequence,send_time,create_time from t_message where user_id = ? and sequence >= ?",
-		userId, sequence)
+// ListBySeq 根据类型和id查询大于序号大于seq的消息
+func (*messageDao) ListBySeq(ctx *imctx.Context, tableName string, appId, objectType, objectId, seq int64) ([]model.Message, error) {
+	sql := fmt.Sprintf(`select message_id,app_id,object_type,object_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,to_user_ids,type,content,seq,send_time from %s where app_id = ? and object_type = ? and object_id = ? and seq > ?`, tableName)
+	rows, err := db.DBCli.Query(sql, appId, objectType, objectId, seq)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
 
-	messages := make([]*model.Message, 0, 5)
+	messages := make([]model.Message, 0, 5)
 	for rows.Next() {
 		message := new(model.Message)
-		err := rows.Scan(&message.Id, &message.MessageId, &message.UserId, &message.SenderType, &message.SenderId, &message.SenderDeviceId, &message.ReceiverType,
-			&message.ReceiverId, &message.Type, &message.Content, &message.Sequence, &message.SendTime, &message.CreateTime)
+		err := rows.Scan(&message.MessageId, &message.AppId, &message.ObjectType, &message.ObjectId, &message.SenderType, &message.SenderId, &message.SenderDeviceId, &message.ReceiverType,
+			&message.ReceiverId, &message.ToUserIds, &message.Type, message.Content, &message.Seq, &message.SendTime)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return nil, err
 		}
-		messages = append(messages, message)
+		messages = append(messages, *message)
 	}
 	return messages, nil
 }

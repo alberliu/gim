@@ -8,24 +8,24 @@ import (
 
 func init() {
 	g := Engine.Group("/device")
-	g.POST("", handler(DeviceController{}.Regist))
+	g.POST("", handler(DeviceController{}.Register))
 }
 
 type DeviceController struct{}
 
-// Regist 设备注册
-func (DeviceController) Regist(c *context) {
+// Register 设备注册
+func (DeviceController) Register(c *context) {
 	var device model.Device
 	if c.ShouldBindJSON(&device) != nil {
 		return
 	}
 
-	if device.Type == 0 || device.Brand == "" || device.Model == "" ||
-		device.SystemVersion == "" || device.APPVersion == "" {
-		c.response(nil, imerror.LErrBadRequest)
+	if device.AppId == 0 || device.Type == 0 || device.Brand == "" || device.Model == "" ||
+		device.SystemVersion == "" || device.SDKVersion == "" {
+		c.response(nil, imerror.ErrBadRequest)
 		return
 	}
 
-	id, token, err := service.DeviceService.Regist(Context(), device)
-	c.response(map[string]interface{}{"id": id, "token": token}, err)
+	id, err := service.DeviceService.Register(Context(), device)
+	c.response(map[string]interface{}{"device_id": id}, err)
 }

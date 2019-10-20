@@ -68,8 +68,7 @@ func newRPCCodec2(r io.Reader, w io.Writer, c io.Closer, h Handle) rpcCodec {
 		if bh.ReaderBufferSize <= 0 {
 			if _, ok = w.(ioPeeker); !ok {
 				if _, ok = w.(ioBuffered); !ok {
-					br := bufio.NewReader(r)
-					r = br
+					r = bufio.NewReader(r)
 				}
 			}
 		}
@@ -97,9 +96,6 @@ func (c *rpcCodec) write(obj1, obj2 interface{}, writeObj2 bool) (err error) {
 		if writeObj2 {
 			err = c.enc.Encode(obj2)
 		}
-		// if err == nil && c.f != nil {
-		// 	err = c.f.Flush()
-		// }
 	}
 	if c.f != nil {
 		if err == nil {
@@ -109,11 +105,6 @@ func (c *rpcCodec) write(obj1, obj2 interface{}, writeObj2 bool) (err error) {
 		}
 	}
 	return
-}
-
-func (c *rpcCodec) swallow(err *error) {
-	defer panicToErr(c.dec, err)
-	c.dec.swallow()
 }
 
 func (c *rpcCodec) read(obj interface{}) (err error) {
@@ -127,7 +118,8 @@ func (c *rpcCodec) read(obj interface{}) (err error) {
 	if obj == nil {
 		// var obj2 interface{}
 		// return c.dec.Decode(&obj2)
-		c.swallow(&err)
+		defer panicToErr(c.dec, &err)
+		c.dec.swallow()
 		return
 	}
 	return c.dec.Decode(obj)

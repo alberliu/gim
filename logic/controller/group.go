@@ -10,17 +10,18 @@ func init() {
 	g := Engine.Group("/group")
 	g.GET("/all", handler(GroupController{}.All))
 	g.GET("/one/:group_id", handler(GroupController{}.Get))
-	g.POST("", handler(GroupController{}.CreateAndAddUser))
+	g.POST("", handler(GroupController{}.Create))
+	g.PUT("", handler(GroupController{}.Update))
 	g.POST("/user", handler(GroupController{}.AddUser))
 	g.DELETE("/user", handler(GroupController{}.DeleteUser))
-	g.PUT("/user/label", handler(GroupController{}.UpdateLabel))
+	g.PUT("/user", handler(GroupController{}.UpdateUser))
 }
 
 type GroupController struct{}
 
 // Get 获取群组信息
 func (GroupController) All(c *context) {
-	c.response(service.GroupService.ListByUserId(Context(), c.userId))
+	c.response(service.GroupUserService.ListByUserId(Context(), c.appId, c.userId))
 }
 
 // Get 获取群组信息
@@ -31,29 +32,36 @@ func (GroupController) Get(c *context) {
 		c.badParam(err)
 		return
 	}
-	c.response(service.GroupService.Get(Context(), groupId))
+	c.response(service.GroupService.Get(Context(), c.appId, groupId))
 }
 
-// CreateAndAddUser 创建群组并且添加成员
-func (GroupController) CreateAndAddUser(c *context) {
-	var data = struct {
-		Name    string  `json:"name"`     // 群组名称
-		UserIds []int64 `json:"user_ids"` // 群组成员
-	}{}
-	if c.bindJson(&data) != nil {
+// Create 创建群组
+func (GroupController) Create(c *context) {
+	var group model.Group
+	if c.bindJson(&group) != nil {
 		return
 	}
-	groupId, err := service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds)
-	c.response(map[string]int64{"id": groupId}, err)
+	group.AppId = c.appId
+	c.response(nil, service.GroupService.Create(Context(), group))
+}
+
+// Update 更细群组信息
+func (GroupController) Update(c *context) {
+	var group model.Group
+	if c.bindJson(&group) != nil {
+		return
+	}
+	group.AppId = c.appId
+	c.response(nil, service.GroupService.Update(Context(), group))
 }
 
 // AddUser 给群组添加用户
 func (GroupController) AddUser(c *context) {
-	var update model.GroupUserUpdate
-	if c.bindJson(&update) != nil {
+	var add model.GroupUserUpdate
+	if c.bindJson(&add) != nil {
 		return
 	}
-	c.response(nil, service.GroupService.AddUser(Context(), update.GroupId, update.UserIds))
+	c.response(nil, service.GroupService.AddUser(Context(), c.appId, add.GroupId, add.UserId, add.Label, add.Extra))
 }
 
 // DeleteUser 从群组删除成员
@@ -62,18 +70,15 @@ func (GroupController) DeleteUser(c *context) {
 	if c.bindJson(&update) != nil {
 		return
 	}
-	c.response(nil, service.GroupService.DeleteUser(Context(), update.GroupId, update.UserIds))
+	c.response(nil, service.GroupService.DeleteUser(Context(), c.appId, update.GroupId, update.UserId))
 }
 
 // UpdateLabel 更新用户群组备注
-func (GroupController) UpdateLabel(c *context) {
-	var json struct {
-		GroupId int64  `json:"group_id"`
-		Label   string `json:"label"`
-	}
-	if c.bindJson(&json) != nil {
+func (GroupController) UpdateUser(c *context) {
+	var update model.GroupUserUpdate
+	if c.bindJson(&update) != nil {
 		return
 	}
-	err := service.GroupService.UpdateLabel(Context(), json.GroupId, c.userId, json.Label)
+	err := service.GroupService.UpdateUser(Context(), c.appId, update.GroupId, c.userId, update.Label, update.Extra)
 	c.response(nil, err)
 }
