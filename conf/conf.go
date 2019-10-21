@@ -14,8 +14,7 @@ var (
 
 // connect配置
 var (
-	ConnectTCPListenIP   = "127.0.0.1"
-	ConnectTCPListenPort = "50000"
+	ConnectTCPListenAddress = ":50000"
 )
 
 // logic配置

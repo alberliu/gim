@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"goim/test/client"
+	"gim/test/client"
 )
 
 func main() {

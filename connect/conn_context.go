@@ -206,7 +206,7 @@ func (c *ConnContext) Release() {
 	delete(c.DeviceId)
 
 	// 关闭tcp连接
-	err := c.Codec.Conn.Close()
+	err := c.Codec.Release()
 	if err != nil {
 		logger.Sugar.Error(err)
 	}

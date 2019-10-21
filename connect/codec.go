@@ -5,6 +5,7 @@ import (
 	"errors"
 	"gim/public/logger"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -21,6 +22,13 @@ var (
 	ErrIllegalValueLen = errors.New("illegal package length") // 违法的包长度
 )
 
+var readBufferPool = sync.Pool{
+	New: func() interface{} {
+		b := make([]byte, BufLen)
+		return b
+	},
+}
+
 // Codec 编解码器，用来处理tcp的拆包粘包
 type Codec struct {
 	Conn    net.Conn
@@ -31,13 +39,13 @@ type Codec struct {
 func NewCodec(conn net.Conn) *Codec {
 	return &Codec{
 		Conn:    conn,
-		ReadBuf: newBuffer(conn, BufLen),
+		ReadBuf: newBuffer(readBufferPool.Get().([]byte)),
 	}
 }
 
 // Read 从conn里面读取数据，当conn发生阻塞，这个方法也会阻塞
 func (c *Codec) Read() (int, error) {
-	return c.ReadBuf.readFromReader()
+	return c.ReadBuf.readFromReader(c.Conn)
 }
 
 // Decode 解码数据
@@ -95,5 +103,17 @@ func (c *Codec) Encode(pack Package, duration time.Duration) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// Release 释放编解码器（断开TCP链接，以及归还读缓存区的的内存到内存池）
+func (c *Codec) Release() error {
+	err := c.Conn.Close()
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+
+	readBufferPool.Put(c.ReadBuf.buf)
 	return nil
 }

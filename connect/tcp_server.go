@@ -6,26 +6,17 @@ import (
 	"net"
 )
 
-// Conf server配置文件
-type Conf struct {
-	Address      string // 端口
-	MaxConnCount int    // 最大连接数
-	AcceptCount  int    // 接收建立连接的groutine数量
-}
-
 // TCPServer TCP服务器
 type TCPServer struct {
-	Address      string // 端口
-	MaxConnCount int    // 最大连接数
-	AcceptCount  int    // 接收建立连接的groutine数量
+	Address            string // 端口
+	AcceptGoroutineNum int    // 接收建立连接的goroutine数量
 }
 
 // NewTCPServer 创建TCP服务器
-func NewTCPServer(conf Conf) *TCPServer {
+func NewTCPServer(address string, acceptGoroutineNum int) *TCPServer {
 	return &TCPServer{
-		Address:      conf.Address,
-		MaxConnCount: conf.MaxConnCount,
-		AcceptCount:  conf.AcceptCount,
+		Address:            address,
+		AcceptGoroutineNum: acceptGoroutineNum,
 	}
 }
 
@@ -34,13 +25,14 @@ func (t *TCPServer) Start() {
 	addr, err := net.ResolveTCPAddr("tcp", t.Address)
 	if err != nil {
 		logger.Sugar.Error(err)
+		panic(err)
 	}
 	listener, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		logger.Sugar.Error("error listening:", err.Error())
 		return
 	}
-	for i := 0; i < t.AcceptCount; i++ {
+	for i := 0; i < t.AcceptGoroutineNum; i++ {
 		go t.Accept(listener)
 	}
 	logger.Sugar.Info("tcp server start")
