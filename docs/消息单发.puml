@@ -1,0 +1,31 @@
+@startuml
+participant c1.d1
+participant c1.d2
+participant c2.d3
+participant c2.d4
+participant connect
+participant logic
+
+c1.d1 -> logic: c1给c2用户发送消息
+logic --> c1.d1 : 返回消息发送成功
+
+logic -> logic: 获取c1用户下一个消息序列号
+logic -> logic: 将消息持久化到c1用户的消息列表
+logic -> logic: 查询c1用户其他在线设备
+logic --> connect: 给设备d2发送消息
+connect --> c1.d2: 给设备d2发送消息
+c1.d2 ->connect : 消息ack
+connect -> logic: 消息ack
+
+logic -> logic: 获取c2用户下一个消息序列号
+logic -> logic: 将消息持久化到c2用户的消息列表
+logic -> logic: 查询c2用户所有在线设备
+logic -> connect: 给设备d3发送消息
+connect -> c2.d3: 给设备d3发送消息
+c2.d3 ->connect : 消息ack
+connect -> logic: 消息ack
+logic -> connect: 给设备d4发送消息
+connect -> c2.d4: 给设备d4发送消息
+c2.d4 ->connect : 消息ack
+connect -> logic: 消息ack
+@enduml

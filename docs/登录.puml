@@ -1,0 +1,15 @@
+@startuml
+participant client
+participant connect
+participant logic
+
+client -> connect: 设备鉴权
+connect -> logic: 设备鉴权
+
+logic -> logic: 检查token是否合法
+
+logic --> connect: 返回校验结果
+connect --> client: 返回校验结果
+
+connect -> connect: 如果鉴权失败，断开连接
+@enduml
