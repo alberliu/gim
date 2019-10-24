@@ -31,8 +31,8 @@ func NsqConsumer(topic, channel string, handle func(message *nsq.Message) error,
 
 // StartNsqConsume 启动nsq消费者，以后所有的消费者在这里注册
 func StartNsqConsumer() {
-	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message", "1", HandleMessage, 20)
-	NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message_send_ack", "1", HandleMessageSendACK, 20)
+	//NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message", "1", HandleMessage, 20)
+	//NsqConsumer(conf.ConnectTCPListenIP+"."+conf.ConnectTCPListenPort+".message_send_ack", "1", HandleMessageSendACK, 20)
 }
 
 // HandleMessage 处理消息投递

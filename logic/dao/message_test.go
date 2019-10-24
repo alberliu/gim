@@ -3,7 +3,7 @@ package dao
 import (
 	"encoding/json"
 	"fmt"
-	"goim/logic/model"
+	"gim/logic/model"
 	"testing"
 	"time"
 )
@@ -20,7 +20,8 @@ func TestMessageDao_Add(t *testing.T) {
 		ReceiverType:   2,
 		ReceiverId:     2,
 		ToUserIds:      "2",
-		MessageBodyId:  2,
+		Type:           1,
+		Content:        "",
 		Seq:            2,
 		SendTime:       time.Now(),
 	}
