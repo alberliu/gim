@@ -3,9 +3,9 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 1.多业务接入  
 2.单用户多设备同时在线  
 3.离线消息同步  
-4.单聊，群聊，以及超大群聊天场景    
-### 核心组件：
-数据库：Mysql+Redis 
+4.单聊，群聊，以及超大群聊天场景
+### 使用技术：
+数据库：Mysql+Redis
 组件：gin+jsoniter+zap  
 ### 安装部署
 1.首先安装MySQL，Redis  
@@ -57,12 +57,12 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 **缺点**：一个群组有多少人，就要插入多少条消息，当群组成员很多时，DB的压力会增大
 ### 核心流程时序图
 #### 长连接登录
-![eaf3a08af9c64bbd.png](http://www.wailian.work/images/2019/10/26/eaf3a08af9c64bbd.png)
+<div align=center>![eaf3a08af9c64bbd.png](http://www.wailian.work/images/2019/10/26/eaf3a08af9c64bbd.png)
 #### 离线消息同步
-![17ae1726b66ee7da.png](http://www.wailian.work/images/2019/10/26/17ae1726b66ee7da.png)
+<div align=center>![17ae1726b66ee7da.png](http://www.wailian.work/images/2019/10/26/17ae1726b66ee7da.png)
 #### 心跳
-![6ea6acf2cd4b956e.png](http://www.wailian.work/images/2019/10/26/6ea6acf2cd4b956e.png)
+<div align=center>![6ea6acf2cd4b956e.png](http://www.wailian.work/images/2019/10/26/6ea6acf2cd4b956e.png)
 #### 消息单发
-![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
+<div align=center>![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
 #### 消息群发
-![cee48420191412c3.png](http://www.wailian.work/images/2019/10/26/cee48420191412c3.png)
+<div align=center>![cee48420191412c3.png](http://www.wailian.work/images/2019/10/26/cee48420191412c3.png)
