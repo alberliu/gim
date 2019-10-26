@@ -4,9 +4,62 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"gim/public/logger"
+	"github.com/json-iterator/go"
 )
+
+type TokenInfo struct {
+	AppId    int64 `json:"app_id"`    // appId
+	UserId   int64 `json:"user_id"`   // 用户id
+	DeviceId int64 `json:"device_id"` // 设备id
+	Expire   int64 `json:"expire"`    // 过期时间
+}
+
+// GetToken 获取token
+func GetToken(appId, userId, deviceId int64, expire int64, publicKey string) (string, error) {
+	info := TokenInfo{
+		AppId:    appId,
+		UserId:   userId,
+		DeviceId: deviceId,
+		Expire:   expire,
+	}
+	bytes, err := jsoniter.Marshal(info)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return "", err
+	}
+
+	token, err := RsaEncrypt(bytes, []byte(publicKey))
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(token), nil
+}
+
+// DecryptToken 对加密的token进行解码
+func DecryptToken(token string, privateKey string) (*TokenInfo, error) {
+	bytes, err := base64.StdEncoding.DecodeString(token)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return nil, err
+	}
+	result, err := RsaDecrypt(bytes, Str2bytes(privateKey))
+	if err != nil {
+		logger.Sugar.Error(err)
+		return nil, err
+	}
+
+	var info TokenInfo
+	err = jsoniter.Unmarshal(result, &info)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return nil, err
+	}
+	return &info, nil
+}
 
 // 加密
 func RsaEncrypt(origData []byte, publicKey []byte) ([]byte, error) {
@@ -42,6 +95,7 @@ func RsaDecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 	return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
 }
 
+// PrivateKey 公钥
 var PrivateKey = []byte(`
 -----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQDcGsUIIAINHfRTdMmgGwLrjzfMNSrtgIf4EGsNaYwmC1GjF/bM
@@ -62,11 +116,11 @@ zncjRK3pbVkv0KrKfczuJiRlZ7dUzVO0b6QJr8TRAA==
 
 // 公钥: 根据私钥生成
 //openssl rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem
-var PublicKey = []byte(`
+var PublicKey = `
 -----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDcGsUIIAINHfRTdMmgGwLrjzfM
 NSrtgIf4EGsNaYwmC1GjF/bMh0Mcm10oLhNrKNYCTTQVGGIxuc5heKd1gOzb7bdT
 nCDPPZ7oV7p1B9Pud+6zPacoqDz2M24vHFWYY2FbIIJh8fHhKcfXNXOLovdVBE7Z
 y682X1+R1lRK8D+vmQIDAQAB
 -----END PUBLIC KEY-----
-`)
+`

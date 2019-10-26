@@ -1,14 +1,11 @@
 package service
 
 import (
-	"encoding/base64"
 	"gim/logic/cache"
 	"gim/public/imctx"
 	"gim/public/imerror"
 	"gim/public/logger"
 	"gim/public/util"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -47,8 +44,8 @@ func (*authService) Auth(ctx *imctx.Context, appId, userId, deviceId int64, toke
 }
 
 // VerifySecretKey 对用户秘钥进行校验
-func (*authService) VerifyToken(ctx *imctx.Context, appid, userId, diviceId int64, token string) error {
-	app, err := AppService.Get(ctx, appid)
+func (*authService) VerifyToken(ctx *imctx.Context, appId, userId, deviceId int64, token string) error {
+	app, err := AppService.Get(ctx, appId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -58,36 +55,17 @@ func (*authService) VerifyToken(ctx *imctx.Context, appid, userId, diviceId int6
 		return imerror.ErrBadRequest
 	}
 
-	bytes, err := base64.StdEncoding.DecodeString(token)
+	info, err := util.DecryptToken(token, app.PrivateKey)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return imerror.ErrUnauthorized
 	}
-	result, err := util.RsaDecrypt(bytes, util.Str2bytes(app.PtivateKey))
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
 
-	//appId:user_id:device_id:expire token格式
-	strs := strings.Split(util.Bytes2str(result), ":")
-	if strs[0] != strconv.FormatInt(appid, 10) {
-		return imerror.ErrUnauthorized
-	}
-	if strs[1] != strconv.FormatInt(userId, 10) {
-		return imerror.ErrUnauthorized
-	}
-	if strs[2] != strconv.FormatInt(diviceId, 10) {
+	if !(info.AppId == appId && info.UserId == userId && info.DeviceId == deviceId) {
 		return imerror.ErrUnauthorized
 	}
 
-	expire, err := strconv.ParseInt(strs[3], 10, 64)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return nil
-	}
-
-	if expire < time.Now().Unix() {
+	if info.Expire < time.Now().Unix() {
 		return imerror.ErrUnauthorized
 	}
 	return nil
