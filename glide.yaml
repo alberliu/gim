@@ -26,3 +26,5 @@ import:
   - zapcore
 - package: gopkg.in/natefinch/lumberjack.v2
   version: ^2.1.0
+- package: google.golang.org/grpc
+  version: ^1.25.1
