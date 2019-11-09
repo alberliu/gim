@@ -10,8 +10,8 @@ import (
 
 // SignIn 设备登录
 type SignInReq struct {
-	ConnectIP string // 连接层RPC监听IP
-	Bytes     []byte
+	ConnectAddress string // 连接层RPC监听IP
+	Bytes          []byte
 }
 
 //  SignInACK 设备登录回执

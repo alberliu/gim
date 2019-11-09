@@ -33,7 +33,7 @@ func (s *LogicRPCServer) SignIn(req transfer.SignInReq, resp *transfer.SignInRes
 	logger.Logger.Debug("device sign_in req", zap.Int64("app_id", signInReq.AppId),
 		zap.Int64("user_id", signInReq.UserId), zap.Int64("device_id", signInReq.DeviceId))
 
-	err = service.AuthService.SignIn(Context(), signInReq.AppId, signInReq.UserId, signInReq.DeviceId, signInReq.Token, req.ConnectIP)
+	err = service.AuthService.SignIn(Context(), signInReq.AppId, signInReq.UserId, signInReq.DeviceId, signInReq.Token, req.ConnectAddress)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
