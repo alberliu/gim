@@ -100,6 +100,21 @@ message Command {
 message Custom {
     string data = 1; // 自定义数据
 }
+
+// 单条消息投递内容,todo 通知栏提醒 t 3 12 i 5 20 s 1 20 255
+message MessageItem {
+    string message_id = 1; //消息id
+    SenderType sender_type = 2; // 发送者类型，1：系统，2：用户
+    int64 sender_id = 3; // 发送者id
+    int64 sender_device_id = 4; // 发送者设备id
+    ReceiverType receiver_type = 5; // 接收者类型，1：user;2:group
+    int64 receiver_id = 6; // 用户id或者群组id
+    repeated int64 to_user_ids = 7; // 需要@的用户id列表
+    MessageBody message_body = 8; // 消息体
+    int64 seq = 9; // 用户消息发送序列号
+    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
+    MessageStatus status = 11; // 消息状态
+}
 /************************************消息体定义结束************************************/
 
 
@@ -149,23 +164,6 @@ enum ReceiverType {
     RT_LARGE_GROUP = 3; // 大群组
 }
 
-// 发送消息请求
-message SendMessageReq {
-    ReceiverType receiver_type = 1; // 接收者类型
-    int64 receiver_id = 2; // 用户id或者群组id
-    repeated int64 to_user_ids = 3; // 需要@的用户id列表
-    repeated MessageBody message_body = 4; // 消息体
-    string message_id = 5; // 消息id,由客户端生成，用户消息的链路追踪
-    int64 send_time = 6; // 消息发送时间戳，精确到毫秒
-}
-
-// 发送消息响应
-message SendMessageResp {
-    int32 code = 1; // 错误码
-    string message = 2; // 错误信息
-    string message_id = 3; // 消息id
-}
-
 // 消息投递
 message Message {
     MessageItem message = 1; // 消息
@@ -181,21 +179,6 @@ enum MessageStatus {
     MS_UNKNOWN = 0; // 未知的
     MS_NORMAL = 1; // 正常的
     MS_RECALL = 2; // 撤回
-}
-
-// 单条消息投递内容,todo 通知栏提醒
-message MessageItem {
-    string message_id = 1; //消息id
-    SenderType sender_type = 2; // 发送者类型，1：系统，2：用户
-    int64 sender_id = 3; // 发送者id
-    int64 sender_device_id = 4; // 发送者设备id
-    ReceiverType receiver_type = 5; // 接收者类型，1：user;2:group
-    int64 receiver_id = 6; // 用户id或者群组id
-    repeated int64 to_user_ids = 7; // 需要@的用户id列表
-    MessageBody message_body = 8; // 消息体
-    int64 seq = 9; // 用户消息发送序列号
-    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
-    MessageStatus status = 11; // 消息状态
 }
 
 // 投递消息回执

@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	TypeLen       = 2                       // 消息类型字节数组长度
-	LenLen        = 2                       // 消息长度字节数组长度
-	HeadLen       = TypeLen + LenLen        // 消息头部字节数组长度（消息类型字节数组长度+消息长度字节数组长度）
-	ContentMaxLen = 1020                    // 消息体最大长度
-	BufLen        = ContentMaxLen + HeadLen // 缓冲buffer字节数组长度
-
+	TypeLen            = 2                            // 消息类型字节数组长度
+	LenLen             = 2                            // 消息长度字节数组长度
+	HeadLen            = TypeLen + LenLen             // 消息头部字节数组长度（消息类型字节数组长度+消息长度字节数组长度）
+	ReadContentMaxLen  = 1020                         // 读缓存区内容最大长度
+	ReadBufferLen      = ReadContentMaxLen + HeadLen  // 读缓存区长度
+	WriteContentMaxLen = 508                          // 写缓存区内容最大长度
+	WriteBufferLen     = WriteContentMaxLen + HeadLen // 写缓存区长度
 )
 
 var (
@@ -24,7 +25,13 @@ var (
 
 var readBufferPool = sync.Pool{
 	New: func() interface{} {
-		b := make([]byte, BufLen)
+		b := make([]byte, ReadBufferLen)
+		return b
+	},
+}
+var writeBufferPool = sync.Pool{
+	New: func() interface{} {
+		b := make([]byte, WriteBufferLen)
 		return b
 	},
 }
@@ -70,7 +77,7 @@ func (c *Codec) Decode() (*Package, bool, error) {
 	valueLen := int(binary.BigEndian.Uint16(lenBuf))
 
 	// 数据的字节数组长度大于buffer的长度，返回错误
-	if valueLen > ContentMaxLen {
+	if valueLen > ReadContentMaxLen {
 		logger.Logger.Error(ErrIllegalValueLen.Error())
 		return nil, false, ErrIllegalValueLen
 	}
@@ -85,8 +92,15 @@ func (c *Codec) Decode() (*Package, bool, error) {
 
 // Encode 编码数据
 func (c *Codec) Encode(pack Package, duration time.Duration) error {
-	// 申请写入内存 TODO 可以使用内存池做优化
-	buffer := make([]byte, HeadLen+len(pack.Content))
+	var buffer []byte
+	if len(pack.Content) <= WriteContentMaxLen {
+		bufferCache := writeBufferPool.Get().([]byte)
+		buffer = bufferCache[0 : HeadLen+len(pack.Content)]
+
+		defer writeBufferPool.Put(bufferCache)
+	} else {
+		buffer = make([]byte, HeadLen+len(pack.Content))
+	}
 
 	// 将消息类型写入buffer
 	binary.BigEndian.PutUint16(buffer[0:TypeLen], uint16(pack.Code))
