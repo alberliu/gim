@@ -35,7 +35,7 @@ func TestDeviceDao_ListOnlineByUserId(t *testing.T) {
 }
 
 func TestDeviceDao_UpdateUserIdAndStatus(t *testing.T) {
-	fmt.Println(DeviceDao.UpdateUserIdAndStatus(ctx, 1, 1, 1))
+	fmt.Println(DeviceDao.UpdateUserIdAndStatus(ctx, 1, 1, 1, "172.000.000.1:80000"))
 }
 
 func TestDeviceDao_UpdateStatus(t *testing.T) {

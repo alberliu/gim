@@ -1,16 +1,15 @@
 package client
 
 import (
-	"gim/connect"
+	"fmt"
+	"gim/conn"
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/util"
 	"net"
 	"time"
 
-	"github.com/json-iterator/go"
-
-	"fmt"
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -20,36 +19,38 @@ func Json(i interface{}) string {
 	return string(bytes)
 }
 
+var codecFactory = conn.NewCodecFactory(2, 2, 65536, 1024)
+
 type TcpClient struct {
 	AppId    int64
 	UserId   int64
 	DeviceId int64
 	Seq      int64
-	codec    *connect.Codec
+	codec    *conn.Codec
 }
 
 func (c *TcpClient) Start() {
-	conn, err := net.Dial("tcp", "localhost:50000")
+	connect, err := net.Dial("tcp", "localhost:8080")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c.codec = connect.NewCodec(conn)
+	c.codec = codecFactory.GetCodec(connect)
 
 	c.SignIn()
 	c.SyncTrigger()
-	go c.HeadBeat()
+	go c.Heartbeat()
 	go c.Receive()
 }
 
 func (c *TcpClient) SignIn() {
-	token, err := util.GetToken(c.AppId, c.UserId, c.DeviceId, time.Now().Add(24*30*time.Hour), util.PublicKey)
+	token, err := util.GetToken(c.AppId, c.UserId, c.DeviceId, time.Now().Add(24*30*time.Hour).Unix(), util.PublicKey)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
 	}
-	signIn := pb.SignInReq{
+	signIn := pb.SignInInput{
 		AppId:    c.AppId,
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
@@ -62,26 +63,26 @@ func (c *TcpClient) SignIn() {
 		return
 	}
 
-	pack := connect.Package{Code: int(pb.PackageType_PT_SIGN_IN_REQ), Content: signInBytes}
+	pack := conn.Package{Code: int(pb.PackageType_PT_SIGN_IN), Content: signInBytes}
 	c.codec.Encode(pack, 10*time.Second)
 }
 
 func (c *TcpClient) SyncTrigger() {
-	bytes, err := proto.Marshal(&pb.SyncReq{Seq: c.Seq})
+	bytes, err := proto.Marshal(&pb.SyncInput{Seq: c.Seq})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	err = c.codec.Encode(connect.Package{Code: int(pb.PackageType_PT_SYNC_REQ), Content: bytes}, 10*time.Second)
+	err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_SYNC), Content: bytes}, 10*time.Second)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (c *TcpClient) HeadBeat() {
+func (c *TcpClient) Heartbeat() {
 	ticker := time.NewTicker(time.Minute * 4)
 	for _ = range ticker.C {
-		err := c.codec.Encode(connect.Package{Code: int(pb.PackageType_PT_HEARTBEAT_REQ), Content: []byte{}}, 10*time.Second)
+		err := c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_HEARTBEAT), Content: []byte{}}, 10*time.Second)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -113,22 +114,22 @@ func (c *TcpClient) Receive() {
 	}
 }
 
-func (c *TcpClient) HandlePackage(pack connect.Package) error {
+func (c *TcpClient) HandlePackage(pack conn.Package) error {
 	switch pb.PackageType(pack.Code) {
-	case pb.PackageType_PT_SIGN_IN_RESP:
-		resp := pb.SignInResp{}
+	case pb.PackageType_PT_SIGN_IN:
+		resp := pb.SignInOutput{}
 		err := proto.Unmarshal(pack.Content, &resp)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
 		fmt.Println(Json(resp))
-	case pb.PackageType_PT_HEARTBEAT_RESP:
+	case pb.PackageType_PT_HEARTBEAT:
 		fmt.Println("心跳响应")
-	case pb.PackageType_PT_SYNC_RESP:
+	case pb.PackageType_PT_SYNC:
 		fmt.Println("离线消息同步开始------")
 
-		syncResp := pb.SyncResp{}
+		syncResp := pb.SyncOutput{}
 		err := proto.Unmarshal(pack.Content, &syncResp)
 		if err != nil {
 			fmt.Println(err)
@@ -178,7 +179,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 		}
 
 		c.Seq = msg.Seq
-		err = c.codec.Encode(connect.Package{Code: int(pb.PackageType_PT_MESSAGE_ACK), Content: ackBytes}, 10*time.Second)
+		err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_MESSAGE), Content: ackBytes}, 10*time.Second)
 		if err != nil {
 			fmt.Println(err)
 			return err

@@ -96,7 +96,7 @@ func RsaDecrypt(ciphertext []byte, privateKey []byte) ([]byte, error) {
 }
 
 // PrivateKey 公钥
-var PrivateKey = []byte(`
+var PrivateKey = `
 -----BEGIN RSA PRIVATE KEY-----
 MIICWwIBAAKBgQDcGsUIIAINHfRTdMmgGwLrjzfMNSrtgIf4EGsNaYwmC1GjF/bM
 h0Mcm10oLhNrKNYCTTQVGGIxuc5heKd1gOzb7bdTnCDPPZ7oV7p1B9Pud+6zPaco
@@ -112,7 +112,7 @@ YFnxCTNkOzIVoXMjGp6WMFylgIfLPZdSUiaPnxby1FNM7987fh7Lp/m12QJAK9iL
 eQgic9DvIYzwDUcU8wJAIkKROzuzLi9AvLnLUrSdI6998lmeYO9x7pwZPukz3era
 zncjRK3pbVkv0KrKfczuJiRlZ7dUzVO0b6QJr8TRAA==
 -----END RSA PRIVATE KEY-----
-`)
+`
 
 // 公钥: 根据私钥生成
 //openssl rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem

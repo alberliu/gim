@@ -4,11 +4,12 @@ import (
 	"gim/logic/cache"
 	"gim/logic/dao"
 	"gim/logic/model"
-	"gim/logic/rpc/client"
+	"gim/public/grpclib"
 	"gim/public/imctx"
 	"gim/public/imerror"
 	"gim/public/logger"
 	"gim/public/pb"
+	"gim/public/rpc_cli"
 	"gim/public/util"
 
 	"go.uber.org/zap"
@@ -35,7 +36,7 @@ func (*messageService) ListByUserIdAndSeq(ctx *imctx.Context, appId, userId, seq
 }
 
 // Send 消息发送
-func (s *messageService) Send(ctx *imctx.Context, appId, userId, deviceId int64, send model.SendMessage) error {
+func (s *messageService) Send(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
 	switch send.ReceiverType {
 	case pb.ReceiverType_RT_USER:
 		err := MessageService.SendToFriend(ctx, appId, userId, deviceId, send)
@@ -61,7 +62,7 @@ func (s *messageService) Send(ctx *imctx.Context, appId, userId, deviceId int64,
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToFriend(ctx *imctx.Context, appId, userId, deviceId int64, send model.SendMessage) error {
+func (*messageService) SendToFriend(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
 	// 发给发送者
 	err := MessageService.StoreAndSendToUser(ctx, appId, userId, deviceId, userId, send)
 	if err != nil {
@@ -80,7 +81,7 @@ func (*messageService) SendToFriend(ctx *imctx.Context, appId, userId, deviceId 
 }
 
 // SendToGroup 消息发送至群组（使用写扩散）
-func (*messageService) SendToGroup(ctx *imctx.Context, appId, userId, deviceId int64, send model.SendMessage) error {
+func (*messageService) SendToGroup(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
 	users, err := GroupUserService.GetUsers(ctx, appId, send.ReceiverId)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -113,7 +114,7 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 }
 
 // SendToChatRoom 消息发送至聊天室（读扩散）
-func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceId int64, send model.SendMessage) error {
+func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
 	userIds, err := cache.LargeGroupUserCache.Members(appId, send.ReceiverId)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -138,6 +139,7 @@ func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceI
 		return err
 	}
 
+	messageType, messageContent := model.PBToMessageBody(send.MessageBody)
 	selfMessage := model.Message{
 		MessageId:      send.MessageId,
 		AppId:          appId,
@@ -149,8 +151,8 @@ func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceI
 		ReceiverType:   int32(send.ReceiverType),
 		ReceiverId:     send.ReceiverId,
 		ToUserIds:      model.FormatUserIds(send.ToUserIds),
-		Type:           send.MessageBody.MessageType,
-		Content:        send.MessageBody.MessageContent,
+		Type:           messageType,
+		Content:        messageContent,
 		Seq:            seq,
 		SendTime:       util.UnunixMilliTime(send.SendTime),
 		Status:         int32(pb.MessageStatus_MS_NORMAL),
@@ -170,7 +172,7 @@ func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceI
 		ReceiverType:   send.ReceiverType,
 		ReceiverId:     send.ReceiverId,
 		ToUserIds:      send.ToUserIds,
-		MessageBody:    send.PbBody,
+		MessageBody:    send.MessageBody,
 		Seq:            seq,
 		SendTime:       send.SendTime,
 		Status:         pb.MessageStatus_MS_NORMAL,
@@ -188,7 +190,7 @@ func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceI
 }
 
 // StoreAndSendToUser 将消息持久化到数据库,并且消息发送至用户
-func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, deviceId, toUserId int64, send model.SendMessage) error {
+func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, deviceId, toUserId int64, send pb.SendMessageReq) error {
 	logger.Logger.Debug("message_store_send_to_user",
 		zap.String("message_id", send.MessageId),
 		zap.Int64("app_id", appId),
@@ -199,6 +201,7 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 		return err
 	}
 
+	messageType, messageContent := model.PBToMessageBody(send.MessageBody)
 	selfMessage := model.Message{
 		MessageId:      send.MessageId,
 		AppId:          appId,
@@ -210,8 +213,8 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 		ReceiverType:   int32(send.ReceiverType),
 		ReceiverId:     send.ReceiverId,
 		ToUserIds:      model.FormatUserIds(send.ToUserIds),
-		Type:           send.MessageBody.MessageType,
-		Content:        send.MessageBody.MessageContent,
+		Type:           messageType,
+		Content:        messageContent,
 		Seq:            seq,
 		SendTime:       util.UnunixMilliTime(send.SendTime),
 		Status:         int32(pb.MessageStatus_MS_NORMAL),
@@ -231,7 +234,7 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 		ReceiverType:   send.ReceiverType,
 		ReceiverId:     send.ReceiverId,
 		ToUserIds:      send.ToUserIds,
-		MessageBody:    send.PbBody,
+		MessageBody:    send.MessageBody,
 		Seq:            seq,
 		SendTime:       send.SendTime,
 		Status:         pb.MessageStatus_MS_NORMAL,
@@ -251,7 +254,8 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 		}
 
 		message := pb.Message{Message: &messageItem}
-		_, err = client.ConnectRpcClient.Message(devices[i].DeviceId, message)
+		_, err = rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(devices[i].ConnAddr), &pb.DeliverMessageReq{
+			DeviceId: devices[i].DeviceId, Message: &message})
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
@@ -288,8 +292,9 @@ func (*messageService) SendToUser(ctx *imctx.Context, appId, userId, deviceId, t
 		}
 
 		message := pb.Message{Message: messageItem}
-		// TODO 根据设备ID选择连接层服务器
-		_, err = client.ConnectRpcClient.Message(devices[i].DeviceId, message)
+
+		_, err = rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(devices[i].ConnAddr), &pb.DeliverMessageReq{
+			DeviceId: devices[i].DeviceId, Message: &message})
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err

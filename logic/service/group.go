@@ -67,9 +67,17 @@ func (*groupService) AddUser(ctx *imctx.Context, appId, groupId, userId int64, l
 		logger.Sugar.Error(err)
 		return err
 	}
-
 	if group == nil {
 		return imerror.ErrGroupNotExist
+	}
+
+	user, err := UserService.Get(ctx, appId, userId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
+	}
+	if user == nil {
+		return imerror.ErrUserNotExist
 	}
 
 	if group.Type == model.GroupTypeGroup {

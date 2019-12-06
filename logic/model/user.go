@@ -10,7 +10,7 @@ type User struct {
 	AppId      int64     `json:"app_id"`     // app_id
 	UserId     int64     `json:"user_id"`    // 手机号
 	Nickname   string    `json:"nickname"`   // 昵称
-	Sex        int       `json:"sex"`        // 性别，1:男；2:女
+	Sex        int32     `json:"sex"`        // 性别，1:男；2:女
 	AvatarUrl  string    `json:"avatar_url"` // 用户头像
 	Extra      string    `json:"extra"`      // 附加属性
 	CreateTime time.Time `json:"-"`          // 创建时间

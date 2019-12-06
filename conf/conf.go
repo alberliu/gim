@@ -2,24 +2,27 @@ package conf
 
 import "os"
 
-// connect和logic公用配置
+// conn和logic公用配置
 var (
 	MySQL   = "root:liu123456@tcp(localhost:3306)/gim?charset=utf8&parseTime=true"
 	NSQIP   = "127.0.0.1:4150"
 	RedisIP = "127.0.0.1:6379"
-
-	LogicRPCServerIP   = "127.0.0.1:60000"
-	ConnectRPCServerIP = "127.0.0.1:60001"
 )
 
-// connect配置
+// conn配置
 var (
-	ConnectTCPListenAddress = ":50000"
+	ConnTCPListenAddr = ":8080"
+	ConnRPCListenAddr = ":60000"
+	LocalAddr         = "127.0.0.1:60000"
+	LogicRPCAddrs     = "addrs:///127.0.0.1:50000"
 )
 
 // logic配置
 var (
-	LogicHTTPListenIP = "127.0.0.1:8000"
+	LogicRPCIntListenAddr       = ":50000"
+	LogicClientRPCExtListenAddr = ":50001"
+	LogicServerRPCExtListenAddr = ":50002"
+	ConnRPCAddrs                = "addrs:///127.0.0.1:60000"
 )
 
 func init() {

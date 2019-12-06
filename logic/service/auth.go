@@ -1,7 +1,6 @@
 package service
 
 import (
-	"gim/logic/cache"
 	"gim/public/imctx"
 	"gim/public/imerror"
 	"gim/public/logger"
@@ -14,7 +13,7 @@ type authService struct{}
 var AuthService = new(authService)
 
 // SignIn 长连接登录
-func (*authService) SignIn(ctx *imctx.Context, appId, userId, deviceId int64, token string, connectIP string) error {
+func (*authService) SignIn(ctx *imctx.Context, appId, userId, deviceId int64, token string, connectAddr string) error {
 	// 用户验证
 	err := AuthService.VerifyToken(ctx, appId, userId, deviceId, token)
 	if err != nil {
@@ -23,18 +22,12 @@ func (*authService) SignIn(ctx *imctx.Context, appId, userId, deviceId int64, to
 	}
 
 	// 标记用户在设备上登录
-	err = DeviceService.Online(ctx, appId, deviceId, userId)
+	err = DeviceService.Online(ctx, appId, deviceId, userId, connectAddr)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
-	// 记录下设备在线的主机IP和端口
-	err = cache.DeviceIPCache.Set(deviceId, connectIP)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
 	return nil
 }
 

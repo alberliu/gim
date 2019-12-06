@@ -1,12 +1,12 @@
 package logger
 
 import (
+	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var Logger *zap.Logger

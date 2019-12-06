@@ -2,8 +2,7 @@ package db
 
 import (
 	"gim/conf"
-
-	"github.com/astaxie/beego/logs"
+	"gim/public/logger"
 	"github.com/go-redis/redis"
 )
 
@@ -19,7 +18,7 @@ func InitDB() {
 
 	_, err := RedisCli.Ping().Result()
 	if err != nil {
-		logs.Error("redis err ")
+		logger.Sugar.Error("redis err ")
 		panic(err)
 	}
 }
