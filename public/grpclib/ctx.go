@@ -4,8 +4,9 @@ import (
 	"context"
 	"gim/public/imerror"
 	"gim/public/logger"
-	"google.golang.org/grpc/metadata"
 	"strconv"
+
+	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -82,7 +83,7 @@ func GetCtxAppId(ctx context.Context) (int64, error) {
 	return appId, nil
 }
 
-// // GetCtxAppId 获取ctx的token
+// GetCtxAppId 获取ctx的token
 func GetCtxToken(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

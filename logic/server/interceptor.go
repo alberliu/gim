@@ -8,6 +8,8 @@ import (
 	"gim/public/logger"
 	"gim/public/util"
 
+	"google.golang.org/grpc/status"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -15,7 +17,11 @@ import (
 // 服务器端的单向调用的拦截器
 func LogicIntInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	resp, err := handler(ctx, req)
-	logger.Logger.Debug("logic_int_interceptor", zap.Any("info", info), zap.Any("req", req), zap.Any("resp", resp))
+	logger.Logger.Debug("logic_int_interceptor", zap.Any("info", info), zap.Any("req", req), zap.Any("resp", resp), zap.Error(err))
+
+	if _, ok := status.FromError(err); !ok {
+		logger.Logger.Error("logic_int_interceptor", zap.Any("info", info), zap.Any("req", req), zap.Any("resp", resp), zap.Error(err))
+	}
 	return resp, err
 }
 
@@ -33,6 +39,10 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	resp, err = doLogicClientExt(ctx, req, info, handler)
 	logger.Logger.Debug("logic_client_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
 		zap.Any("resp", resp), zap.Error(err))
+	if _, ok := status.FromError(err); !ok {
+		logger.Logger.Error("logic_client_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+			zap.Any("resp", resp), zap.Error(err))
+	}
 	return
 }
 
@@ -70,6 +80,10 @@ func LogicServerExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	resp, err = doLogicServerExt(ctx, req, info, handler)
 	logger.Logger.Debug("logic_server_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
 		zap.Any("resp", resp), zap.Error(err))
+	if _, ok := status.FromError(err); !ok {
+		logger.Logger.Error("logic_server_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+			zap.Any("resp", resp), zap.Error(err))
+	}
 	return resp, err
 }
 

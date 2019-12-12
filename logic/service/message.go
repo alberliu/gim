@@ -36,22 +36,30 @@ func (*messageService) ListByUserIdAndSeq(ctx *imctx.Context, appId, userId, seq
 }
 
 // Send 消息发送
-func (s *messageService) Send(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
-	switch send.ReceiverType {
+func (s *messageService) Send(ctx *imctx.Context, sender model.Sender, req pb.SendMessageReq) error {
+	switch req.ReceiverType {
 	case pb.ReceiverType_RT_USER:
-		err := MessageService.SendToFriend(ctx, appId, userId, deviceId, send)
-		if err != nil {
-			logger.Sugar.Error(err)
-			return err
+		if sender.SenderType == pb.SenderType_ST_USER {
+			err := MessageService.SendToFriend(ctx, sender, req)
+			if err != nil {
+				logger.Sugar.Error(err)
+				return err
+			}
+		} else {
+			err := MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
+			if err != nil {
+				logger.Sugar.Error(err)
+				return err
+			}
 		}
 	case pb.ReceiverType_RT_NORMAL_GROUP:
-		err := MessageService.SendToGroup(ctx, appId, userId, deviceId, send)
+		err := MessageService.SendToGroup(ctx, sender, req)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
 		}
 	case pb.ReceiverType_RT_LARGE_GROUP:
-		err := MessageService.SendToChatRoom(ctx, appId, userId, deviceId, send)
+		err := MessageService.SendToChatRoom(ctx, sender, req)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
@@ -62,16 +70,16 @@ func (s *messageService) Send(ctx *imctx.Context, appId, userId, deviceId int64,
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToFriend(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
+func (*messageService) SendToFriend(ctx *imctx.Context, sender model.Sender, req pb.SendMessageReq) error {
 	// 发给发送者
-	err := MessageService.StoreAndSendToUser(ctx, appId, userId, deviceId, userId, send)
+	err := MessageService.SendToUser(ctx, sender, sender.SenderId, 0, req)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
 	// 发给接收者
-	err = MessageService.StoreAndSendToUser(ctx, appId, userId, deviceId, send.ReceiverId, send)
+	err = MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -81,21 +89,21 @@ func (*messageService) SendToFriend(ctx *imctx.Context, appId, userId, deviceId 
 }
 
 // SendToGroup 消息发送至群组（使用写扩散）
-func (*messageService) SendToGroup(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
-	users, err := GroupUserService.GetUsers(ctx, appId, send.ReceiverId)
+func (*messageService) SendToGroup(ctx *imctx.Context, sender model.Sender, req pb.SendMessageReq) error {
+	users, err := GroupUserService.GetUsers(ctx, sender.AppId, req.ReceiverId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
-	if !IsInGroup(users, userId) {
-		logger.Sugar.Error(ctx, appId, send.ReceiverId, "不在群组内")
+	if sender.SenderType == pb.SenderType_ST_USER && !IsInGroup(users, sender.SenderId) {
+		logger.Sugar.Error(ctx, sender.SenderId, req.ReceiverId, "不在群组内")
 		return imerror.ErrNotInGroup
 	}
 
 	// 将消息发送给群组用户，使用写扩散
 	for _, user := range users {
-		err = MessageService.StoreAndSendToUser(ctx, appId, userId, deviceId, user.UserId, send)
+		err = MessageService.SendToUser(ctx, sender, user.UserId, 0, req)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
@@ -114,73 +122,61 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 }
 
 // SendToChatRoom 消息发送至聊天室（读扩散）
-func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceId int64, send pb.SendMessageReq) error {
-	userIds, err := cache.LargeGroupUserCache.Members(appId, send.ReceiverId)
+func (*messageService) SendToChatRoom(ctx *imctx.Context, sender model.Sender, req pb.SendMessageReq) error {
+	userIds, err := cache.LargeGroupUserCache.Members(sender.AppId, req.ReceiverId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
-	isMember, err := cache.LargeGroupUserCache.IsMember(appId, send.ReceiverId, userId)
+	isMember, err := cache.LargeGroupUserCache.IsMember(sender.AppId, req.ReceiverId, sender.SenderId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
-	if !isMember {
-		logger.Logger.Error("not int group", zap.Int64("app_id", appId), zap.Int64("group_id", send.ReceiverId),
-			zap.Int64("user_id", userId))
+	if sender.SenderType == pb.SenderType_ST_USER && !isMember {
+		logger.Logger.Error("not int group", zap.Int64("app_id", sender.AppId), zap.Int64("group_id", req.ReceiverId),
+			zap.Int64("user_id", sender.AppId))
 		return imerror.ErrNotInGroup
 	}
 
-	seq, err := SeqService.GetGroupNext(ctx, appId, send.ReceiverId)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-
-	messageType, messageContent := model.PBToMessageBody(send.MessageBody)
-	selfMessage := model.Message{
-		MessageId:      send.MessageId,
-		AppId:          appId,
-		ObjectType:     model.MessageObjectTypeGroup,
-		ObjectId:       send.ReceiverId,
-		SenderType:     int32(pb.SenderType_ST_USER),
-		SenderId:       userId,
-		SenderDeviceId: deviceId,
-		ReceiverType:   int32(send.ReceiverType),
-		ReceiverId:     send.ReceiverId,
-		ToUserIds:      model.FormatUserIds(send.ToUserIds),
-		Type:           messageType,
-		Content:        messageContent,
-		Seq:            seq,
-		SendTime:       util.UnunixMilliTime(send.SendTime),
-		Status:         int32(pb.MessageStatus_MS_NORMAL),
-	}
-
-	err = MessageService.Add(ctx, selfMessage)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-
-	messageItem := pb.MessageItem{
-		MessageId:      send.MessageId,
-		SenderType:     pb.SenderType_ST_USER,
-		SenderId:       userId,
-		SenderDeviceId: deviceId,
-		ReceiverType:   send.ReceiverType,
-		ReceiverId:     send.ReceiverId,
-		ToUserIds:      send.ToUserIds,
-		MessageBody:    send.MessageBody,
-		Seq:            seq,
-		SendTime:       send.SendTime,
-		Status:         pb.MessageStatus_MS_NORMAL,
+	var seq int64 = 0
+	if req.IsPersist {
+		seq, err = SeqService.GetGroupNext(ctx, sender.AppId, req.ReceiverId)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+		messageType, messageContent := model.PBToMessageBody(req.MessageBody)
+		message := model.Message{
+			MessageId:      req.MessageId,
+			AppId:          sender.AppId,
+			ObjectType:     model.MessageObjectTypeGroup,
+			ObjectId:       req.ReceiverId,
+			SenderType:     int32(sender.SenderType),
+			SenderId:       sender.SenderId,
+			SenderDeviceId: sender.DeviceId,
+			ReceiverType:   int32(req.ReceiverType),
+			ReceiverId:     req.ReceiverId,
+			ToUserIds:      model.FormatUserIds(req.ToUserIds),
+			Type:           messageType,
+			Content:        messageContent,
+			Seq:            seq,
+			SendTime:       util.UnunixMilliTime(req.SendTime),
+			Status:         int32(pb.MessageStatus_MS_NORMAL),
+		}
+		err = MessageService.Add(ctx, message)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
 	}
 
 	// 将消息发送给群组用户，使用读扩散
+	req.IsPersist = false
 	for i := range userIds {
-		err = MessageService.SendToUser(ctx, appId, userId, deviceId, userIds[i].UserId, &messageItem)
+		err = MessageService.SendToUser(ctx, sender, userIds[i].UserId, seq, req)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return err
@@ -190,58 +186,63 @@ func (*messageService) SendToChatRoom(ctx *imctx.Context, appId, userId, deviceI
 }
 
 // StoreAndSendToUser 将消息持久化到数据库,并且消息发送至用户
-func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, deviceId, toUserId int64, send pb.SendMessageReq) error {
+func (*messageService) SendToUser(ctx *imctx.Context, sender model.Sender, toUserId int64, roomSeq int64, req pb.SendMessageReq) error {
 	logger.Logger.Debug("message_store_send_to_user",
-		zap.String("message_id", send.MessageId),
-		zap.Int64("app_id", appId),
+		zap.String("message_id", req.MessageId),
+		zap.Int64("app_id", sender.AppId),
 		zap.Int64("to_user_id", toUserId))
-	seq, err := SeqService.GetUserNext(ctx, appId, userId)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
 
-	messageType, messageContent := model.PBToMessageBody(send.MessageBody)
-	selfMessage := model.Message{
-		MessageId:      send.MessageId,
-		AppId:          appId,
-		ObjectType:     model.MessageObjectTypeUser,
-		ObjectId:       toUserId,
-		SenderType:     int32(pb.SenderType_ST_USER),
-		SenderId:       userId,
-		SenderDeviceId: deviceId,
-		ReceiverType:   int32(send.ReceiverType),
-		ReceiverId:     send.ReceiverId,
-		ToUserIds:      model.FormatUserIds(send.ToUserIds),
-		Type:           messageType,
-		Content:        messageContent,
-		Seq:            seq,
-		SendTime:       util.UnunixMilliTime(send.SendTime),
-		Status:         int32(pb.MessageStatus_MS_NORMAL),
-	}
-
-	err = MessageService.Add(ctx, selfMessage)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+	var (
+		seq = roomSeq
+		err error
+	)
+	if req.IsPersist {
+		seq, err = SeqService.GetUserNext(ctx, sender.AppId, toUserId)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
+		messageType, messageContent := model.PBToMessageBody(req.MessageBody)
+		selfMessage := model.Message{
+			MessageId:      req.MessageId,
+			AppId:          sender.AppId,
+			ObjectType:     model.MessageObjectTypeUser,
+			ObjectId:       toUserId,
+			SenderType:     int32(sender.SenderType),
+			SenderId:       sender.SenderId,
+			SenderDeviceId: sender.DeviceId,
+			ReceiverType:   int32(req.ReceiverType),
+			ReceiverId:     req.ReceiverId,
+			ToUserIds:      model.FormatUserIds(req.ToUserIds),
+			Type:           messageType,
+			Content:        messageContent,
+			Seq:            seq,
+			SendTime:       util.UnunixMilliTime(req.SendTime),
+			Status:         int32(pb.MessageStatus_MS_NORMAL),
+		}
+		err = MessageService.Add(ctx, selfMessage)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return err
+		}
 	}
 
 	messageItem := pb.MessageItem{
-		MessageId:      send.MessageId,
-		SenderType:     pb.SenderType_ST_USER,
-		SenderId:       userId,
-		SenderDeviceId: deviceId,
-		ReceiverType:   send.ReceiverType,
-		ReceiverId:     send.ReceiverId,
-		ToUserIds:      send.ToUserIds,
-		MessageBody:    send.MessageBody,
+		MessageId:      req.MessageId,
+		SenderType:     sender.SenderType,
+		SenderId:       sender.SenderId,
+		SenderDeviceId: sender.DeviceId,
+		ReceiverType:   req.ReceiverType,
+		ReceiverId:     req.ReceiverId,
+		ToUserIds:      req.ToUserIds,
+		MessageBody:    req.MessageBody,
 		Seq:            seq,
-		SendTime:       send.SendTime,
+		SendTime:       req.SendTime,
 		Status:         pb.MessageStatus_MS_NORMAL,
 	}
 
 	// 查询用户在线设备
-	devices, err := DeviceService.ListOnlineByUserId(ctx, appId, toUserId)
+	devices, err := DeviceService.ListOnlineByUserId(ctx, sender.AppId, toUserId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -249,7 +250,7 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 
 	for i := range devices {
 		// 消息不需要投递给发送消息的设备
-		if deviceId == devices[i].DeviceId {
+		if sender.DeviceId == devices[i].DeviceId {
 			continue
 		}
 
@@ -263,48 +264,9 @@ func (*messageService) StoreAndSendToUser(ctx *imctx.Context, appId, userId, dev
 
 		logger.Logger.Debug("message_store_send_to_device",
 			zap.String("message_id", messageItem.MessageId),
-			zap.Int64("app_id", appId),
-			zap.Int64("device_id:", deviceId),
-			zap.Int64("user_id", userId),
-			zap.Int64("seq", messageItem.Seq))
-	}
-	return nil
-}
-
-// SendToUser 消息发送至用户
-func (*messageService) SendToUser(ctx *imctx.Context, appId, userId, deviceId, toUserId int64, messageItem *pb.MessageItem) error {
-	logger.Logger.Info("message_send_to_user",
-		zap.String("message_id", messageItem.MessageId),
-		zap.Int64("app_id", appId),
-		zap.Int64("to_user_id", toUserId),
-		zap.Int64("seq", messageItem.Seq))
-	// 查询用户在线设备
-	devices, err := DeviceService.ListOnlineByUserId(ctx, appId, toUserId)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-
-	for i := range devices {
-		// 消息不需要投递给发消息的设备
-		if deviceId == devices[i].DeviceId {
-			continue
-		}
-
-		message := pb.Message{Message: messageItem}
-
-		_, err = rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(devices[i].ConnAddr), &pb.DeliverMessageReq{
-			DeviceId: devices[i].DeviceId, Message: &message})
-		if err != nil {
-			logger.Sugar.Error(err)
-			return err
-		}
-
-		logger.Logger.Info("message_send_to_device",
-			zap.String("message_id", messageItem.MessageId),
-			zap.Int64("app_id", appId),
-			zap.Int64("device_id:", deviceId),
-			zap.Int64("user_id", userId),
+			zap.Int64("app_id", sender.AppId),
+			zap.Int64("device_id:", devices[i].DeviceId),
+			zap.Int64("user_id", toUserId),
 			zap.Int64("seq", messageItem.Seq))
 	}
 	return nil

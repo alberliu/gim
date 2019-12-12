@@ -1,54 +1,48 @@
 package imerror
 
 import (
-	"gim/public/pb"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"fmt"
+	"runtime"
 )
 
-const (
-	CodeSuccess    = 0         // code成功
-	MessageSuccess = "success" // message成功
-)
+const name = "gim"
 
-// Error 接入层调用错误
-type Error struct {
-	Code    pb.ErrCode  // 错误码
-	Message string      // 错误信息
-	Data    interface{} // 数据
+// UnknownError 位置错误
+type UnknownError struct {
+	Err   error
+	Stack []string
 }
 
-func (e *Error) Error() string {
-	return e.Message
+func (e *UnknownError) Error() string {
+	return e.Err.Error()
 }
 
-func NewError(code pb.ErrCode, message string) *Error {
-	return &Error{
-		Code:    code,
-		Message: message,
+func WrapError(err error) error {
+	e := &UnknownError{
+		Err:   err,
+		Stack: Stack(),
 	}
+	return e
 }
 
-func WrapErrorWithData(err *Error, data interface{}) *Error {
-	return &Error{
-		Code:    err.Code,
-		Message: err.Message,
-		Data:    data,
-	}
-}
+// Stack 获取堆栈信息
+func Stack() []string {
+	var pc = make([]uintptr, 20)
+	n := runtime.Callers(3, pc)
 
-var (
-	ErrUnknown           = status.New(codes.Unknown, "error unknown").Err()                           // 服务器未知错误
-	ErrUnauthorized      = newError(pb.ErrCode_EC_UNAUTHORIZED, "error unauthorized")                 // 未登录
-	ErrNotInGroup        = newError(pb.ErrCode_EC_IS_NOT_IN_GROUP, "error not in group")              // 没有在群组内
-	ErrDeviceNotBindUser = newError(pb.ErrCode_EC_DEVICE_NOT_BIND_USER, "error device not bind user") // 没有在群组内
-	ErrBadRequest        = newError(pb.ErrCode_EC_BAD_REQUEST, "error bad request")                   // 请求参数错误
-	ErrUserAlreadyExist  = newError(pb.ErrCode_EC_USER_ALREADY_EXIST, "error user already exist")     // 用户已经存在
-	ErrGroupAlreadyExist = newError(pb.ErrCode_EC_GROUP_ALREADY_EXIST, "error group already exist")   // 群组已经存在
-	ErrGroupNotExist     = newError(pb.ErrCode_EC_GROUP_NOT_EXIST, "error group not exist")           // 群组不存在
-	ErrUserNotExist      = newError(pb.ErrCode_EC_USER_NOT_EXIST, "error user not exist")             // 用户不存在
-)
+	stack := make([]string, 0, n)
+	/*for i := 0; i < n; i++ {
+		//f := runtime.FuncForPC(pc[i])
+		//file, line := f.FileLine(pc[i])
+		//n := strings.Index(file, name)
+		//if n != -1 {
+		//s := fmt.Sprintf("%s:%d %s", file, line, f.Name())
+		//stack = append(stack, s)
+		//}
 
-func newError(code pb.ErrCode, message string) error {
-	return status.New(codes.Code(code), message).Err()
+		stack = append(stack, fmt.Sprintf("%+v", pc[i]))
+	}*/
+
+	fmt.Printf("%+v", pc[:n])
+	return stack
 }

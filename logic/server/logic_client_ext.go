@@ -4,10 +4,10 @@ import (
 	"context"
 	"gim/logic/model"
 	"gim/logic/service"
+	"gim/public/grpclib"
 	"gim/public/imerror"
 	"gim/public/logger"
 	"gim/public/pb"
-	"gim/public/util"
 )
 
 type LogicClientExtServer struct{}
@@ -38,7 +38,7 @@ func (*LogicClientExtServer) RegisterDevice(ctx context.Context, in *pb.Register
 
 // AddUser 添加用户
 func (*LogicClientExtServer) AddUser(ctx context.Context, in *pb.AddUserReq) (*pb.AddUserResp, error) {
-	appId, userId, _, err := util.GetCtxData(ctx)
+	appId, userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.AddUserResp{}, err
@@ -57,7 +57,7 @@ func (*LogicClientExtServer) AddUser(ctx context.Context, in *pb.AddUserReq) (*p
 
 // GetUser 获取用户信息
 func (*LogicClientExtServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*pb.GetUserResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.GetUserResp{}, err
@@ -87,13 +87,19 @@ func (*LogicClientExtServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*p
 
 // SendMessage 发送消息
 func (*LogicClientExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (*pb.SendMessageResp, error) {
-	appId, userId, deviceId, err := util.GetCtxData(ctx)
+	appId, userId, deviceId, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
 
-	err = service.MessageService.Send(Context(), appId, userId, deviceId, *in)
+	sender := model.Sender{
+		AppId:      appId,
+		SenderType: pb.SenderType_ST_USER,
+		SenderId:   userId,
+		DeviceId:   deviceId,
+	}
+	err = service.MessageService.Send(Context(), sender, *in)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
@@ -103,7 +109,7 @@ func (*LogicClientExtServer) SendMessage(ctx context.Context, in *pb.SendMessage
 
 // CreateGroup 创建群组
 func (*LogicClientExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.CreateGroupResp{}, err
@@ -127,7 +133,7 @@ func (*LogicClientExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroup
 
 // UpdateGroup 更新群组
 func (*LogicClientExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroupReq) (*pb.UpdateGroupResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.UpdateGroupResp{}, err
@@ -151,7 +157,7 @@ func (*LogicClientExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroup
 
 // GetGroup 获取群组信息
 func (*LogicClientExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.GetGroupResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.GetGroupResp{}, err
@@ -183,7 +189,7 @@ func (*LogicClientExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (
 
 // GetUserGroups 获取用户加入的所有群组
 func (*LogicClientExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGroupsReq) (*pb.GetUserGroupsResp, error) {
-	appId, userId, _, err := util.GetCtxData(ctx)
+	appId, userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.GetUserGroupsResp{}, err
@@ -212,7 +218,7 @@ func (*LogicClientExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGr
 
 // AddGroupMember 添加群组成员
 func (*LogicClientExtServer) AddGroupMember(ctx context.Context, in *pb.AddGroupMemberReq) (*pb.AddGroupMemberResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.AddGroupMemberResp{}, err
@@ -229,7 +235,7 @@ func (*LogicClientExtServer) AddGroupMember(ctx context.Context, in *pb.AddGroup
 
 // UpdateGroupMember 更新群组成员信息
 func (*LogicClientExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroupMemberReq) (*pb.UpdateGroupMemberResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.UpdateGroupMemberResp{}, err
@@ -246,7 +252,7 @@ func (*LogicClientExtServer) UpdateGroupMember(ctx context.Context, in *pb.Updat
 
 // DeleteGroupMember 添加群组成员
 func (*LogicClientExtServer) DeleteGroupMember(ctx context.Context, in *pb.DeleteGroupMemberReq) (*pb.DeleteGroupMemberResp, error) {
-	appId, _, _, err := util.GetCtxData(ctx)
+	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return &pb.DeleteGroupMemberResp{}, err

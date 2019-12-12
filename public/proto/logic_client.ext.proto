@@ -39,11 +39,12 @@ message GetUserResp {
 
 message SendMessageReq {
     string message_id = 1; //消息id
-    ReceiverType receiver_type = 5; // 接收者类型，1：user;2:group
-    int64 receiver_id = 6; // 用户id或者群组id
-    repeated int64 to_user_ids = 7; // 需要@的用户id列表
-    MessageBody message_body = 8; // 消息体
-    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
+    ReceiverType receiver_type = 2; // 接收者类型，1：user;2:group
+    int64 receiver_id = 3; // 用户id或者群组id
+    repeated int64 to_user_ids = 4; // 需要@的用户id列表
+    MessageBody message_body = 5; // 消息体
+    int64 send_time = 6; // 消息发送时间戳，精确到毫秒
+    bool is_persist = 7; // 是否将消息持久化到数据库
 }
 message SendMessageResp {
 
