@@ -37,7 +37,7 @@ func (*messageDao) ListBySeq(ctx *imctx.Context, tableName string, appId, object
 	for rows.Next() {
 		message := new(model.Message)
 		err := rows.Scan(&message.MessageId, &message.AppId, &message.ObjectType, &message.ObjectId, &message.SenderType, &message.SenderId, &message.SenderDeviceId, &message.ReceiverType,
-			&message.ReceiverId, &message.ToUserIds, &message.Type, message.Content, &message.Seq, &message.SendTime)
+			&message.ReceiverId, &message.ToUserIds, &message.Type, &message.Content, &message.Seq, &message.SendTime)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return nil, err

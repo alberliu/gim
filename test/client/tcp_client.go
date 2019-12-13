@@ -135,7 +135,7 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 			fmt.Println(err)
 			return err
 		}
-		fmt.Println("离线消息同步响应:code", syncResp.Code, "message:", syncResp.Code)
+		fmt.Println("离线消息同步响应:code", syncResp.Code, "message:", syncResp.Message)
 		for _, msg := range syncResp.Messages {
 			if msg.ReceiverType == pb.ReceiverType_RT_USER {
 				fmt.Println("单聊消息：发送者：", msg.SenderId, "接收者:", msg.SenderId, "内容:", msg.MessageBody.MessageContent.GetText())

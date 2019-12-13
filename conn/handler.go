@@ -6,6 +6,7 @@ import (
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/rpc_cli"
+
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -97,9 +98,12 @@ func (*handler) Sync(ctx *ConnContext, bytes []byte) {
 
 	s, _ := status.FromError(err)
 	var output = pb.SyncOutput{
-		Code:     int32(s.Code()),
-		Message:  s.Message(),
-		Messages: resp.Messages,
+		Code:    int32(s.Code()),
+		Message: s.Message(),
+	}
+
+	if err == nil {
+		output.Messages = resp.Messages
 	}
 
 	ctx.Output(pb.PackageType_PT_SYNC, &output)
