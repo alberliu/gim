@@ -85,12 +85,13 @@ func TestLogicExtServer_SendMessage(t *testing.T) {
 				MessageContent: &pb.MessageContent{
 					Content: &pb.MessageContent_Text{
 						Text: &pb.Text{
-							Text: "hello",
+							Text: "hello11",
 						},
 					},
 				},
 			},
-			SendTime: 0,
+			IsPersist: true,
+			SendTime:  0,
 		})
 	if err != nil {
 		logger.Sugar.Error(err)
