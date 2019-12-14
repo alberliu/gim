@@ -15,8 +15,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 5.分别切换到app的connect和logic目录下，执行go run main.go,启动连接层服务器和逻辑层服务器  
 6.切换到test目录下，启动测试脚本  
 7.使用public/util/aes.go的GetToken获取token  
-8.使用接口发送消息  
-接口地址：https://documenter.getpostman.com/view/4164957/RzZ4q2hJ
+8.使用rpc接口发送消息
 ### 业务服务器如何接入
 1.首先生成秘钥和公钥  
 2.在app表里根据你的私钥添加一条app记录  
@@ -30,16 +29,15 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 ### 项目目录介绍
 ```bash
 ├─ app # 服务启动入口
-│   ├── connect # 连接层启动入口
+│   ├── conn # 连接层启动入口
 │   └── logic   # 逻辑层启动入口
 ├─ conf # 配置
-├─ connect # 连接层服务代码
+├─ conn # 连接层服务代码
 ├─ ligic # 逻辑层服务代码
 ├─ public # 连接层和逻辑层公共代码
 ├─ sql # 数据库建表语句
 ├─ test # 测试脚本
 ├─ docs # 项目文档
-├─ vendor # 项目依赖包
 ```
 ### TCP拆包粘包
 遵循TLV的协议格式，一个消息包分为三部分，消息类型（两个字节），消息包内容长度（两个字节），消息内容。  
