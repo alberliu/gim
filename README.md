@@ -7,7 +7,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 5.支持服务水平扩展
 ### 使用技术：
 数据库：Mysql+Redis  
-组件：gin+jsoniter+zap  
+组件：grpc+jsoniter+zap  
 ### 安装部署
 1.首先安装MySQL，Redis  
 2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建
