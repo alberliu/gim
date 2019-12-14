@@ -141,10 +141,10 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 				fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 			}
 			if msg.ReceiverType == pb.ReceiverType_RT_NORMAL_GROUP {
-				fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+				fmt.Printf("群聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 			}
 			if msg.ReceiverType == pb.ReceiverType_RT_LARGE_GROUP {
-				fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+				fmt.Printf("大群消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 			}
 		}
 		fmt.Println("离线消息同步结束------")
@@ -161,10 +161,10 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 			fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 		}
 		if msg.ReceiverType == pb.ReceiverType_RT_NORMAL_GROUP {
-			fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+			fmt.Printf("群聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 		}
 		if msg.ReceiverType == pb.ReceiverType_RT_LARGE_GROUP {
-			fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+			fmt.Printf("大群消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 		}
 
 		ack := pb.MessageACK{

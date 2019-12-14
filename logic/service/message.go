@@ -26,12 +26,19 @@ func (*messageService) Add(ctx *imctx.Context, message model.Message) error {
 
 // ListByUserIdAndSeq 查询消息
 func (*messageService) ListByUserIdAndSeq(ctx *imctx.Context, appId, userId, seq int64) ([]model.Message, error) {
+	var err error
+	if seq == 0 {
+		seq, err = DeviceAckService.GetMaxByUserId(ctx, appId, userId)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return nil, err
+		}
+	}
 	messages, err := dao.MessageDao.ListBySeq(ctx, "message", appId, model.MessageObjectTypeUser, userId, seq)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-
 	return messages, nil
 }
 

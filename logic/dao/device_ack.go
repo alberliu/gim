@@ -47,7 +47,7 @@ func (*deviceAckDao) GetMaxByUserId(ctx *imctx.Context, appId, userId int64) (in
 	row := db.DBCli.QueryRow(`
 		select max(a.ack) 
 		from device d
-		left join device_ack a d.device_id = a.device_id  
+		left join device_ack a on d.device_id = a.device_id  
 		where d.app_id = ? and d.user_id = ?`, appId, userId)
 	var ack int64
 	err := row.Scan(&ack)

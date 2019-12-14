@@ -1,4 +1,4 @@
-package server
+package rpc
 
 import (
 	"context"
@@ -23,8 +23,8 @@ func getLogicExtClient() pb.LogicClientExtClient {
 }
 
 func getCtx() context.Context {
-	token, _ := util.GetToken(1, 2, 3, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
-	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("app_id", "1", "user_id", "2", "device_id", "3", "token", token))
+	token, _ := util.GetToken(1, 1, 1, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
+	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("app_id", "1", "user_id", "1", "device_id", "1", "token", token))
 }
 
 func TestLogicExtServer_RegisterDevice(t *testing.T) {
@@ -77,15 +77,15 @@ func TestLogicExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicExtClient().SendMessage(getCtx(),
 		&pb.SendMessageReq{
 			MessageId:    "11111",
-			ReceiverType: pb.ReceiverType_RT_USER,
-			ReceiverId:   1,
+			ReceiverType: pb.ReceiverType_RT_LARGE_GROUP,
+			ReceiverId:   2,
 			ToUserIds:    nil,
 			MessageBody: &pb.MessageBody{
 				MessageType: pb.MessageType_MT_TEXT,
 				MessageContent: &pb.MessageContent{
 					Content: &pb.MessageContent_Text{
 						Text: &pb.Text{
-							Text: "hello11",
+							Text: "large group message",
 						},
 					},
 				},
@@ -161,10 +161,10 @@ func TestLogicExtServer_AddGroupMember(t *testing.T) {
 	resp, err := getLogicExtClient().AddGroupMember(getCtx(),
 		&pb.AddGroupMemberReq{
 			GroupUser: &pb.GroupUser{
-				GroupId: 10,
-				UserId:  1,
-				Label:   "1",
-				Extra:   "1",
+				GroupId: 2,
+				UserId:  3,
+				Label:   "3",
+				Extra:   "3",
 			},
 		})
 	if err != nil {

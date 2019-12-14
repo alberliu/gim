@@ -2,7 +2,7 @@ package main
 
 import (
 	"gim/logic/db"
-	"gim/logic/server"
+	"gim/logic/rpc"
 	"gim/public/logger"
 	"gim/public/rpc_cli"
 	"gim/public/util"
@@ -25,7 +25,7 @@ func main() {
 	}()
 	*/
 
-	server.StartRpcServer()
+	rpc.StartRpcServer()
 	logger.Logger.Info("logic server start")
 	select {}
 }

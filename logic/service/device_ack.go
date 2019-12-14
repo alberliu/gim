@@ -13,3 +13,7 @@ var DeviceAckService = new(deviceAckService)
 func (*deviceAckService) Update(ctx *imctx.Context, deviceId, ack int64) error {
 	return dao.DeviceAckDao.Update(ctx, deviceId, ack)
 }
+
+func (*deviceAckService) GetMaxByUserId(ctx *imctx.Context, appId, userId int64) (int64, error) {
+	return dao.DeviceAckDao.GetMaxByUserId(ctx, appId, userId)
+}

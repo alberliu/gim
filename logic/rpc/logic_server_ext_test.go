@@ -1,4 +1,4 @@
-package server
+package rpc
 
 import (
 	"context"
@@ -32,15 +32,15 @@ func TestLogicServerExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicServerExtClient().SendMessage(getServerCtx(),
 		&pb.SendMessageReq{
 			MessageId:    "11111",
-			ReceiverType: pb.ReceiverType_RT_USER,
-			ReceiverId:   1,
+			ReceiverType: pb.ReceiverType_RT_LARGE_GROUP,
+			ReceiverId:   2,
 			ToUserIds:    nil,
 			MessageBody: &pb.MessageBody{
 				MessageType: pb.MessageType_MT_TEXT,
 				MessageContent: &pb.MessageContent{
 					Content: &pb.MessageContent_Text{
 						Text: &pb.Text{
-							Text: "hello",
+							Text: "l group b",
 						},
 					},
 				},
