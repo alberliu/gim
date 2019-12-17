@@ -30,7 +30,7 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	defer func() {
 		p := recover()
 		if p != nil {
-			logger.Logger.Debug("logic_client_ext_interceptor panic", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+			logger.Logger.Error("logic_client_ext_interceptor panic", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
 				zap.Any("panic", p), zap.String("stack", util.GetStackInfo()))
 			err = imerror.ErrUnknown
 		}
@@ -71,7 +71,7 @@ func LogicServerExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	defer func() {
 		p := recover()
 		if p != nil {
-			logger.Logger.Debug("logic_server_ext_interceptor panic", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+			logger.Logger.Error("logic_server_ext_interceptor panic", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
 				zap.Any("panic", p), zap.String("stack", util.GetStackInfo()))
 			err = imerror.ErrUnknown
 		}
