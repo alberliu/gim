@@ -10,21 +10,27 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 组件：grpc+jsoniter+zap  
 ### 安装部署
 1.首先安装MySQL，Redis  
-2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建  
-3.下载代码到你本地  
-4.修改conf/conf.go配置文件，使之和你本地配置一致  
-5.分别切换到app的connect和logic目录下，执行go run main.go,启动连接层服务器和逻辑层服务器  
-6.切换到test目录下，启动测试脚本  
-7.使用public/util/aes.go的GetToken获取token  
-8.使用rpc接口发送消息
+2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）   
+3.修改conf/conf.go配置文件，使之和你本地配置一致  
+4.分别切换到app的connect和logic目录下，执行go run main.go,启动连接层服务器和逻辑层服务器  
 ### 业务服务器如何接入
 1.首先生成私钥和公钥  
 2.在app表里根据你的私钥添加一条app记录    
 3.将app_id和公钥保存到业务服务器  
 4.将用户通过LogicClientExtServer.AddUser接口添加到IM服务器  
-5.通过LogicClientExtServer.RegisterDevice接口初始化设备，获取设备id(device_id)  
+5.通过LogicClientExtServer.RegisterDevice接口注册设备，获取设备id(device_id)  
 6.将app_id，user_id,device_id用公钥通过公钥加密，生成token,相应库的代码在public/util/aes.go  
 7.接下来使用这个token，app就可以和IM服务器交互
+### rpc接口简介
+项目所有的proto协议在gim/public/proto/目录下  
+1.logic_client.ext.proto  
+对客户端（Android设备，IOS设备）提供的rpc协议  
+2.logic_server.ext.proto    
+对业务服务器提供的rpc协议  
+3.logic.int.proto  
+对conn服务层提供的rpc协议  
+4.conn.int.proto  
+对logic服务层提供的rpc协议  
 ### 项目目录介绍
 ```bash
 ├─ app # 服务启动入口
