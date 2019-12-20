@@ -32,15 +32,15 @@ func TestLogicServerExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicServerExtClient().SendMessage(getServerCtx(),
 		&pb.SendMessageReq{
 			MessageId:    "11111",
-			ReceiverType: pb.ReceiverType_RT_LARGE_GROUP,
-			ReceiverId:   2,
+			ReceiverType: pb.ReceiverType_RT_USER,
+			ReceiverId:   1,
 			ToUserIds:    nil,
 			MessageBody: &pb.MessageBody{
 				MessageType: pb.MessageType_MT_TEXT,
 				MessageContent: &pb.MessageContent{
 					Content: &pb.MessageContent_Text{
 						Text: &pb.Text{
-							Text: "l group b",
+							Text: "hello ws",
 						},
 					},
 				},

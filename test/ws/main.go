@@ -1,124 +1,131 @@
-package client
+package main
 
 import (
+	"encoding/binary"
 	"fmt"
-	"gim/conn"
-	"gim/public/logger"
+	"gim/public/grpclib"
 	"gim/public/pb"
 	"gim/public/util"
-	"net"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/golang/protobuf/proto"
 )
+
+func main() {
+	client := WSClient{}
+	fmt.Println("input AppId,UserId,DeviceId,SyncSequence")
+	fmt.Scanf("%d %d %d %d", &client.AppId, &client.UserId, &client.DeviceId, &client.Seq)
+	client.Start()
+	select {}
+}
 
 func Json(i interface{}) string {
 	bytes, _ := jsoniter.Marshal(i)
 	return string(bytes)
 }
 
-var codecFactory = conn.NewCodecFactory(2, 2, 65536, 1024)
-
-type TcpClient struct {
+type WSClient struct {
 	AppId    int64
 	UserId   int64
 	DeviceId int64
 	Seq      int64
-	codec    *conn.Codec
+	Conn     *websocket.Conn
 }
 
-func (c *TcpClient) Start() {
-	connect, err := net.Dial("tcp", "localhost:8080")
+func (c *WSClient) Start() {
+	u := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/ws"}
+
+	header := http.Header{}
+	header.Set(grpclib.CtxAppId, strconv.FormatInt(c.AppId, 10))
+	header.Set(grpclib.CtxUserId, strconv.FormatInt(c.UserId, 10))
+	header.Set(grpclib.CtxDeviceId, strconv.FormatInt(c.DeviceId, 10))
+
+	token, err := util.GetToken(c.AppId, c.UserId, c.DeviceId, time.Now().Add(24*30*time.Hour).Unix(), util.PublicKey)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	header.Set(grpclib.CtxToken, token)
+
+	conn, resp, err := websocket.DefaultDialer.Dial(u.String(), header)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	c.codec = codecFactory.GetCodec(connect)
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(bytes))
+	c.Conn = conn
 
-	c.SignIn()
 	c.SyncTrigger()
 	go c.Heartbeat()
 	go c.Receive()
 }
 
-func (c *TcpClient) SignIn() {
-	token, err := util.GetToken(c.AppId, c.UserId, c.DeviceId, time.Now().Add(24*30*time.Hour).Unix(), util.PublicKey)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return
-	}
-	signIn := pb.SignInInput{
-		AppId:    c.AppId,
-		UserId:   c.UserId,
-		DeviceId: c.DeviceId,
-		Token:    token,
-	}
-
-	signInBytes, err := proto.Marshal(&signIn)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	pack := conn.Package{Code: int(pb.PackageType_PT_SIGN_IN), Content: signInBytes}
-	c.codec.Encode(pack, 10*time.Second)
-}
-
-func (c *TcpClient) SyncTrigger() {
-	bytes, err := proto.Marshal(&pb.SyncInput{Seq: c.Seq})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_SYNC), Content: bytes}, 10*time.Second)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (c *TcpClient) Heartbeat() {
-	ticker := time.NewTicker(time.Minute * 4)
-	for _ = range ticker.C {
-		err := c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_HEARTBEAT), Content: []byte{}}, 10*time.Second)
+func (c *WSClient) Output(pt int, message proto.Message) {
+	var (
+		bytes []byte
+		err   error
+	)
+	if message != nil {
+		bytes, err = proto.Marshal(message)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
+	}
+
+	writeBytes := make([]byte, len(bytes)+2)
+	binary.BigEndian.PutUint16(writeBytes[0:2], uint16(pt))
+	copy(writeBytes[2:], bytes)
+	err = c.Conn.WriteMessage(websocket.BinaryMessage, writeBytes)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (c *WSClient) SyncTrigger() {
+	c.Output(int(pb.PackageType_PT_SYNC), &pb.SyncInput{Seq: c.Seq})
+}
+
+func (c *WSClient) Heartbeat() {
+	ticker := time.NewTicker(time.Minute * 4)
+	for range ticker.C {
+		c.Output(int(pb.PackageType_PT_HEARTBEAT), nil)
 		fmt.Println("心跳发送")
 	}
 }
 
-func (c *TcpClient) Receive() {
+func (c *WSClient) Receive() {
 	for {
-		_, err := c.codec.Read()
+		_, bytes, err := c.Conn.ReadMessage()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		for {
-			pack, ok, err := c.codec.Decode()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			if ok {
-				c.HandlePackage(*pack)
-				continue
-			}
-			break
-		}
+		pt := int(binary.BigEndian.Uint16(bytes[0:2]))
+		c.HandlePackage(pt, bytes[2:])
 	}
 }
 
-func (c *TcpClient) HandlePackage(pack conn.Package) error {
-	switch pb.PackageType(pack.Code) {
+func (c *WSClient) HandlePackage(pt int, bytes []byte) error {
+	switch pb.PackageType(pt) {
 	case pb.PackageType_PT_SIGN_IN:
 		resp := pb.SignInOutput{}
-		err := proto.Unmarshal(pack.Content, &resp)
+		err := proto.Unmarshal(bytes, &resp)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -130,7 +137,7 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 		fmt.Println("离线消息同步开始------")
 
 		syncResp := pb.SyncOutput{}
-		err := proto.Unmarshal(pack.Content, &syncResp)
+		err := proto.Unmarshal(bytes, &syncResp)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -150,7 +157,7 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 		fmt.Println("离线消息同步结束------")
 	case pb.PackageType_PT_MESSAGE:
 		message := pb.Message{}
-		err := proto.Unmarshal(pack.Content, &message)
+		err := proto.Unmarshal(bytes, &message)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -167,19 +174,12 @@ func (c *TcpClient) HandlePackage(pack conn.Package) error {
 			fmt.Printf("大群消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
 		}
 
-		ack := pb.MessageACK{
+		c.Seq = msg.Seq
+		c.Output(int(pb.PackageType_PT_MESSAGE), &pb.MessageACK{
 			MessageId:   msg.MessageId,
 			DeviceAck:   msg.Seq,
 			ReceiveTime: util.UnixMilliTime(time.Now()),
-		}
-		ackBytes, err := proto.Marshal(&ack)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		c.Seq = msg.Seq
-		err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_MESSAGE), Content: ackBytes}, 10*time.Second)
+		})
 		if err != nil {
 			fmt.Println(err)
 			return err

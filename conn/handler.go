@@ -36,6 +36,8 @@ func (h *handler) Handler(ctx *ConnContext, pack *Package) {
 		h.Heartbeat(ctx, pack.Content)
 	case pb.PackageType_PT_MESSAGE:
 		h.MessageACK(ctx, pack.Content)
+	default:
+		logger.Logger.Error("handler switch other")
 	}
 	return
 }
