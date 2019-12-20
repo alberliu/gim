@@ -1,13 +1,14 @@
-package conn
+package tcp_conn
 
 import (
 	"encoding/binary"
 	"errors"
 	"gim/public/logger"
-	"go.uber.org/zap"
 	"net"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 var (

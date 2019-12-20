@@ -1,29 +1,26 @@
-package conn
+package tcp_conn
 
 import (
+	"gim/public/logger"
 	"time"
 
-	"gim/public/logger"
-
-	"gim/conf"
-
-	"github.com/nsqio/go-nsq"
+	gonsq "github.com/nsqio/go-nsq"
 )
 
-var producer *nsq.Producer
+var producer *gonsq.Producer
 
 // NsqConsumer 消费消息
-func NsqConsumer(topic, channel string, handle func(message *nsq.Message) error, concurrency int) {
-	config := nsq.NewConfig()
+func NsqConsumer(topic, channel string, handle func(message *gonsq.Message) error, concurrency int) {
+	config := gonsq.NewConfig()
 	config.LookupdPollInterval = 1 * time.Second
 
-	consumer, err := nsq.NewConsumer(topic, channel, config)
+	consumer, err := gonsq.NewConsumer(topic, channel, config)
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
-	consumer.AddConcurrentHandlers(nsq.HandlerFunc(handle), concurrency)
-	err = consumer.ConnectToNSQD(conf.NSQIP)
+	consumer.AddConcurrentHandlers(gonsq.HandlerFunc(handle), concurrency)
+	err = consumer.ConnectToNSQD("")
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +33,7 @@ func StartNsqConsumer() {
 }
 
 // HandleMessage 处理消息投递
-func HandleMessage(msg *nsq.Message) error {
+func HandleMessage(msg *gonsq.Message) error {
 	// nsq消息解码
 	/*var message transfer.Message
 	err := json.Unmarshal(msg.Body, &message)
@@ -87,7 +84,7 @@ func HandleMessage(msg *nsq.Message) error {
 }
 
 // HandleMessageSendACK 处理消息发送回执
-func HandleMessageSendACK(msg *nsq.Message) error {
+func HandleMessageSendACK(msg *gonsq.Message) error {
 	// nsq消息解码
 	/*var ack transfer.MessageSendACK
 	err := json.Unmarshal(msg.Body, &ack)
@@ -121,8 +118,8 @@ func HandleMessageSendACK(msg *nsq.Message) error {
 
 func initNsqProducer() {
 	var err error
-	cfg := nsq.NewConfig()
-	producer, err = nsq.NewProducer(conf.NSQIP, cfg)
+	cfg := gonsq.NewConfig()
+	producer, err = gonsq.NewProducer("", cfg)
 	if nil != err {
 		panic("nsq new panic")
 	}

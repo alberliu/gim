@@ -14,7 +14,7 @@ func StartRpcServer() {
 	go func() {
 		defer util.RecoverPanic()
 
-		intListen, err := net.Listen("tcp", conf.LogicRPCIntListenAddr)
+		intListen, err := net.Listen("tcp", conf.LogicConf.RPCIntListenAddr)
 		if err != nil {
 			panic(err)
 		}
@@ -29,7 +29,7 @@ func StartRpcServer() {
 	go func() {
 		defer util.RecoverPanic()
 
-		extListen, err := net.Listen("tcp", conf.LogicClientRPCExtListenAddr)
+		extListen, err := net.Listen("tcp", conf.LogicConf.ClientRPCExtListenAddr)
 		if err != nil {
 			panic(err)
 		}
@@ -44,7 +44,7 @@ func StartRpcServer() {
 	go func() {
 		defer util.RecoverPanic()
 
-		intListen, err := net.Listen("tcp", conf.LogicServerRPCExtListenAddr)
+		intListen, err := net.Listen("tcp", conf.LogicConf.ServerRPCExtListenAddr)
 		if err != nil {
 			panic(err)
 		}

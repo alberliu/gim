@@ -1,4 +1,4 @@
-package ws
+package ws_conn
 
 import (
 	"context"
@@ -36,7 +36,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 
 // StartRPCServer 启动rpc服务器
 func StartRPCServer() {
-	listener, err := net.Listen("tcp", conf.ConnRPCListenAddr)
+	listener, err := net.Listen("tcp", conf.WSConf.RPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

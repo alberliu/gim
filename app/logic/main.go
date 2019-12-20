@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gim/conf"
 	"gim/logic/db"
 	"gim/logic/rpc"
 	"gim/public/logger"
@@ -16,7 +17,7 @@ func main() {
 	util.InitUID(db.DBCli)
 
 	// 初始化RpcClient
-	rpc_cli.InitConnIntClient()
+	rpc_cli.InitConnIntClient(conf.LogicConf.ConnRPCAddrs)
 
 	/*// 启动nsq消费服务
 	go func() {

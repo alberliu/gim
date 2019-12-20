@@ -3,13 +3,14 @@ package db
 import (
 	"gim/conf"
 	"gim/public/logger"
+
 	"github.com/go-redis/redis"
 )
 
 var RedisCli *redis.Client
 
 func InitDB() {
-	addr := conf.RedisIP
+	addr := conf.LogicConf.RedisIP
 
 	RedisCli = redis.NewClient(&redis.Options{
 		Addr: addr,

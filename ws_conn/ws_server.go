@@ -1,4 +1,4 @@
-package ws
+package ws_conn
 
 import (
 	"context"
@@ -46,7 +46,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		UserId:   userId,
 		DeviceId: deviceId,
 		Token:    token,
-		ConnAddr: conf.LocalAddr,
+		ConnAddr: conf.WSConf.LocalAddr,
 	})
 
 	s, _ := status.FromError(err)

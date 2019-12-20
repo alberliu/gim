@@ -1,4 +1,4 @@
-package conn
+package tcp_conn
 
 import "sync"
 

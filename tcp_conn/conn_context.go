@@ -1,14 +1,15 @@
-package conn
+package tcp_conn
 
 import (
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/util"
-	"github.com/golang/protobuf/proto"
 	"io"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/golang/protobuf/proto"
 
 	"go.uber.org/zap"
 )

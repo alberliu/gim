@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gim/conn"
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/util"
@@ -27,14 +26,14 @@ func Json(i interface{}) string {
 	return string(bytes)
 }
 
-var codecFactory = conn.NewCodecFactory(2, 2, 65536, 1024)
+var codecFactory = tcp_conn.NewCodecFactory(2, 2, 65536, 1024)
 
 type TcpClient struct {
 	AppId    int64
 	UserId   int64
 	DeviceId int64
 	Seq      int64
-	codec    *conn.Codec
+	codec    *tcp_conn.Codec
 }
 
 func (c *TcpClient) Start() {
@@ -71,7 +70,7 @@ func (c *TcpClient) SignIn() {
 		return
 	}
 
-	pack := conn.Package{Code: int(pb.PackageType_PT_SIGN_IN), Content: signInBytes}
+	pack := tcp_conn.Package{Code: int(pb.PackageType_PT_SIGN_IN), Content: signInBytes}
 	c.codec.Encode(pack, 10*time.Second)
 }
 
@@ -81,7 +80,7 @@ func (c *TcpClient) SyncTrigger() {
 		fmt.Println(err)
 		return
 	}
-	err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_SYNC), Content: bytes}, 10*time.Second)
+	err = c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_SYNC), Content: bytes}, 10*time.Second)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -90,7 +89,7 @@ func (c *TcpClient) SyncTrigger() {
 func (c *TcpClient) Heartbeat() {
 	ticker := time.NewTicker(time.Minute * 4)
 	for _ = range ticker.C {
-		err := c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_HEARTBEAT), Content: []byte{}}, 10*time.Second)
+		err := c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_HEARTBEAT), Content: []byte{}}, 10*time.Second)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -187,7 +186,7 @@ func (c *TcpClient) HandlePackage(pt int, bytes []byte) error {
 		}
 
 		c.Seq = msg.Seq
-		err = c.codec.Encode(conn.Package{Code: int(pb.PackageType_PT_MESSAGE), Content: ackBytes}, 10*time.Second)
+		err = c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_MESSAGE), Content: ackBytes}, 10*time.Second)
 		if err != nil {
 			fmt.Println(err)
 			return err

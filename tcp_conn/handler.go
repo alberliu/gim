@@ -1,4 +1,4 @@
-package conn
+package tcp_conn
 
 import (
 	"context"
@@ -57,7 +57,7 @@ func (*handler) SignIn(ctx *ConnContext, bytes []byte) {
 		UserId:   input.UserId,
 		DeviceId: input.DeviceId,
 		Token:    input.Token,
-		ConnAddr: conf.LocalAddr,
+		ConnAddr: conf.ConnConf.LocalAddr,
 	})
 
 	s, _ := status.FromError(err)

@@ -11,7 +11,7 @@ var DBCli *sql.DB
 
 func init() {
 	var err error
-	DBCli, err = sql.Open("mysql", conf.MySQL)
+	DBCli, err = sql.Open("mysql", conf.LogicConf.MySQL)
 	if err != nil {
 		panic(err)
 	}
