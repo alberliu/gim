@@ -5,6 +5,7 @@ import (
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/util"
+	"gim/tcp_conn"
 	"net"
 	"time"
 
