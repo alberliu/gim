@@ -36,7 +36,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 ```bash
 ├─ app # 服务启动入口
 │   ├── tcp_conn # TCP连接层启动入口
-|   ├── tcp_conn # WebSocket连接层启动入口
+|   ├── ws_conn # WebSocket连接层启动入口
 │   └── logic   # 逻辑层启动入口
 ├─ conf # 配置
 ├─ tcp_conn # TCP连接层服务代码
