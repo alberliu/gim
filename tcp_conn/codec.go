@@ -17,9 +17,7 @@ var (
 
 // CodecFactory 编解码器工厂
 type CodecFactory struct {
-	TypeLen            int       // 消息类型字节数组长度
 	LenLen             int       // 消息长度字节数组长度
-	HeadLen            int       // 消息头部字节数组长度（消息类型字节数组长度+消息长度字节数组长度）
 	ReadContentMaxLen  int       // 读缓存区内容最大长度
 	WriteContentMaxLen int       // 写缓存区内容最大长度
 	ReadBufferPool     sync.Pool // 读缓存内存池
@@ -27,22 +25,20 @@ type CodecFactory struct {
 }
 
 // NewCodecFactory 创建一个编解码工厂
-func NewCodecFactory(typeLen, lenLen, readContentMaxLen, writeContentMaxLen int) *CodecFactory {
+func NewCodecFactory(lenLen, readContentMaxLen, writeContentMaxLen int) *CodecFactory {
 	return &CodecFactory{
-		TypeLen:            typeLen,
 		LenLen:             lenLen,
-		HeadLen:            typeLen + lenLen,
 		ReadContentMaxLen:  readContentMaxLen,
 		WriteContentMaxLen: writeContentMaxLen,
 		ReadBufferPool: sync.Pool{
 			New: func() interface{} {
-				b := make([]byte, readContentMaxLen+typeLen+lenLen)
+				b := make([]byte, readContentMaxLen+lenLen)
 				return b
 			},
 		},
 		WriteBufferPool: sync.Pool{
 			New: func() interface{} {
-				b := make([]byte, writeContentMaxLen+typeLen+lenLen)
+				b := make([]byte, writeContentMaxLen+lenLen)
 				return b
 			},
 		},
@@ -73,22 +69,15 @@ func (c *Codec) Read() (int, error) {
 // Decode 解码数据
 // Package 代表一个解码包
 // bool 标识是否还有可读数据
-func (c *Codec) Decode() (*Package, bool, error) {
+func (c *Codec) Decode() ([]byte, bool, error) {
 	var err error
-	// 读取数据类型
-	typeBuf, err := c.ReadBuf.seek(0, c.f.TypeLen)
-	if err != nil {
-		return nil, false, nil
-	}
-
 	// 读取数据长度
-	lenBuf, err := c.ReadBuf.seek(c.f.TypeLen, c.f.HeadLen)
+	lenBuf, err := c.ReadBuf.seek(0, c.f.LenLen)
 	if err != nil {
 		return nil, false, nil
 	}
 
 	// 读取数据内容
-	valueType := int(binary.BigEndian.Uint16(typeBuf))
 	valueLen := int(binary.BigEndian.Uint16(lenBuf))
 
 	// 数据的字节数组长度大于buffer的长度，返回错误
@@ -97,32 +86,29 @@ func (c *Codec) Decode() (*Package, bool, error) {
 		return nil, false, ErrIllegalValueLen
 	}
 
-	valueBuf, err := c.ReadBuf.read(c.f.HeadLen, valueLen)
+	valueBuf, err := c.ReadBuf.read(c.f.LenLen, valueLen)
 	if err != nil {
 		return nil, false, nil
 	}
-	message := Package{Code: valueType, Content: valueBuf}
-	return &message, true, nil
+	return valueBuf, true, nil
 }
 
 // Encode 编码数据
-func (c *Codec) Encode(pack Package, duration time.Duration) error {
+func (c *Codec) Encode(bytes []byte, duration time.Duration) error {
 	var buffer []byte
-	if len(pack.Content) <= c.f.WriteContentMaxLen {
+	if len(bytes) <= c.f.WriteContentMaxLen {
 		bufferCache := c.f.WriteBufferPool.Get().([]byte)
-		buffer = bufferCache[0 : c.f.HeadLen+len(pack.Content)]
+		buffer = bufferCache[0 : c.f.LenLen+len(bytes)]
 
 		defer c.f.WriteBufferPool.Put(bufferCache)
 	} else {
-		buffer = make([]byte, c.f.HeadLen+len(pack.Content))
+		buffer = make([]byte, c.f.LenLen+len(bytes))
 	}
 
-	// 将消息类型写入buffer
-	binary.BigEndian.PutUint16(buffer[0:c.f.TypeLen], uint16(pack.Code))
 	// 将消息长度写入buffer
-	binary.BigEndian.PutUint16(buffer[c.f.LenLen:c.f.HeadLen], uint16(len(pack.Content)))
+	binary.BigEndian.PutUint16(buffer[0:c.f.LenLen], uint16(len(bytes)))
 	// 将消息内容内容写入buffer
-	copy(buffer[c.f.HeadLen:], pack.Content)
+	copy(buffer[c.f.LenLen:], bytes)
 
 	err := c.Conn.SetWriteDeadline(time.Now().Add(duration))
 	if err != nil {

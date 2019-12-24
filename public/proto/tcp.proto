@@ -99,7 +99,7 @@ message Custom {
 
 // 单条消息投递内容,todo 通知栏提醒
 message MessageItem {
-    string message_id = 1; //消息id
+    int64 request_id = 1; // 请求id
     SenderType sender_type = 2; // 发送者类型，1:系统,2:用户,3:第三方业务系统
     int64 sender_id = 3; // 发送者id
     int64 sender_device_id = 4; // 发送者设备id
@@ -113,7 +113,21 @@ message MessageItem {
 }
 /************************************消息体定义结束************************************/
 
+// 上行数据
+message Input {
+    PackageType type = 1; // 包的类型
+    int64 request_id = 2; // 请求id
+    bytes data = 3; // 数据
+}
 
+// 下行数据
+message Output {
+    PackageType type = 1; // 包的类型
+    int64 request_id = 2; // 请求id
+    int32 code = 3; // 错误码
+    string message = 4; // 错误信息
+    bytes data = 5; // 数据
+}
 
 // 设备登录,package_type:1
 message SignInInput {
@@ -123,12 +137,6 @@ message SignInInput {
     string token = 4; // 秘钥
 }
 
-// 设备登录回执,package_type:1
-message SignInOutput {
-    int32 code = 1; // 错误码
-    string message = 2; // 错误信息
-}
-
 // 消息同步请求,package_type:2
 message SyncInput {
     int64 seq = 1; // 客户端已经同步的序列号
@@ -136,8 +144,6 @@ message SyncInput {
 
 // 消息同步响应,package_type:2
 message SyncOutput {
-    int32 code = 1; // 错误码
-    string message = 2; // 错误信息
     repeated MessageItem messages = 3; // 消息列表
 }
 
@@ -168,7 +174,6 @@ enum MessageStatus {
 
 // 投递消息回执,package_type:4
 message MessageACK {
-    string message_id = 1; // 消息id
     int64 device_ack = 2; // 设备收到消息的确认号
     int64 receive_time = 3; // 消息接收时间戳，精确到毫秒
 }

@@ -1,11 +1,10 @@
 package service
 
 import (
+	"context"
 	"gim/logic/cache"
 	"gim/logic/dao"
 	"gim/logic/model"
-	"gim/public/imctx"
-	"gim/public/logger"
 )
 
 type groupUserService struct{}
@@ -13,20 +12,18 @@ type groupUserService struct{}
 var GroupUserService = new(groupUserService)
 
 // ListByUserId 获取用户所加入的群组
-func (*groupUserService) ListByUserId(ctx *imctx.Context, appId, userId int64) ([]model.Group, error) {
-	groups, err := dao.GroupUserDao.ListByUserId(ctx, appId, userId)
+func (*groupUserService) ListByUserId(ctx context.Context, appId, userId int64) ([]model.Group, error) {
+	groups, err := dao.GroupUserDao.ListByUserId(appId, userId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return groups, nil
 }
 
 // GetUsers 获取群组的所有用户信息
-func (*groupUserService) GetUsers(ctx *imctx.Context, appId, groupId int64) ([]model.GroupUser, error) {
+func (*groupUserService) GetUsers(ctx context.Context, appId, groupId int64) ([]model.GroupUser, error) {
 	users, err := cache.GroupUserCache.Get(appId, groupId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -34,37 +31,32 @@ func (*groupUserService) GetUsers(ctx *imctx.Context, appId, groupId int64) ([]m
 		return users, nil
 	}
 
-	users, err = dao.GroupUserDao.ListUser(ctx, appId, groupId)
+	users, err = dao.GroupUserDao.ListUser(appId, groupId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 
 	err = cache.GroupUserCache.Set(appId, groupId, users)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return users, err
 }
 
 // AddUser 给群组添加用户
-func (*groupUserService) AddUser(ctx *imctx.Context, appId, groupId, userId int64, label, extra string) error {
-	err := dao.GroupUserDao.Add(ctx, appId, groupId, userId, label, extra)
+func (*groupUserService) AddUser(ctx context.Context, appId, groupId, userId int64, label, extra string) error {
+	err := dao.GroupUserDao.Add(appId, groupId, userId, label, extra)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
-	err = dao.GroupDao.UpdateUserNum(ctx, appId, groupId, 1)
+	err = dao.GroupDao.UpdateUserNum(appId, groupId, 1)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = cache.GroupUserCache.Del(appId, groupId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -72,22 +64,19 @@ func (*groupUserService) AddUser(ctx *imctx.Context, appId, groupId, userId int6
 }
 
 // DeleteUser 从群组移除用户
-func (*groupUserService) DeleteUser(ctx *imctx.Context, appId, groupId, userId int64) error {
-	err := dao.GroupUserDao.Delete(ctx, appId, groupId, userId)
+func (*groupUserService) DeleteUser(ctx context.Context, appId, groupId, userId int64) error {
+	err := dao.GroupUserDao.Delete(appId, groupId, userId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
-	err = dao.GroupDao.UpdateUserNum(ctx, appId, groupId, -1)
+	err = dao.GroupDao.UpdateUserNum(appId, groupId, -1)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = cache.GroupUserCache.Del(appId, groupId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -95,16 +84,14 @@ func (*groupUserService) DeleteUser(ctx *imctx.Context, appId, groupId, userId i
 }
 
 // Update 更新群组用户信息
-func (*groupUserService) Update(ctx *imctx.Context, appId, groupId int64, userId int64, label, extra string) error {
-	err := dao.GroupUserDao.Update(ctx, appId, groupId, userId, label, extra)
+func (*groupUserService) Update(ctx context.Context, appId, groupId int64, userId int64, label, extra string) error {
+	err := dao.GroupUserDao.Update(appId, groupId, userId, label, extra)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = cache.GroupUserCache.Del(appId, groupId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 	return nil

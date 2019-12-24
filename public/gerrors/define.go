@@ -1,4 +1,4 @@
-package imerror
+package gerrors
 
 import (
 	"gim/public/pb"

@@ -2,7 +2,7 @@ package cache
 
 import (
 	"gim/logic/db"
-	"gim/public/logger"
+	"gim/public/gerrors"
 	"strconv"
 )
 
@@ -27,8 +27,7 @@ func (*seqCache) GroupKey(appId, groupId int64) string {
 func (c *seqCache) Incr(key string) (int64, error) {
 	seq, err := db.RedisCli.Incr(key).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return 0, err
+		return 0, gerrors.WrapError(err)
 	}
 	return seq, nil
 }

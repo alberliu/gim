@@ -5,7 +5,7 @@ import (
 	"gim/public/logger"
 	"time"
 
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
 )
 
 // set 将指定值设置到redis中，使用json的序列化方式

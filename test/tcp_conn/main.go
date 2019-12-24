@@ -27,7 +27,7 @@ func Json(i interface{}) string {
 	return string(bytes)
 }
 
-var codecFactory = tcp_conn.NewCodecFactory(2, 2, 65536, 1024)
+var codecFactory = tcp_conn.NewCodecFactory(2, 65536, 1024)
 
 type TcpClient struct {
 	AppId    int64
@@ -35,6 +35,33 @@ type TcpClient struct {
 	DeviceId int64
 	Seq      int64
 	codec    *tcp_conn.Codec
+}
+
+func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Message) {
+	var input = pb.Input{
+		Type:      pt,
+		RequestId: requestId,
+	}
+
+	if message != nil {
+		bytes, err := proto.Marshal(message)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		input.Data = bytes
+	}
+
+	inputByf, err := proto.Marshal(&input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = c.codec.Encode(inputByf, time.Second)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (c *TcpClient) Start() {
@@ -64,37 +91,17 @@ func (c *TcpClient) SignIn() {
 		DeviceId: c.DeviceId,
 		Token:    token,
 	}
-
-	signInBytes, err := proto.Marshal(&signIn)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	pack := tcp_conn.Package{Code: int(pb.PackageType_PT_SIGN_IN), Content: signInBytes}
-	c.codec.Encode(pack, 10*time.Second)
+	c.Output(pb.PackageType_PT_SIGN_IN, time.Now().UnixNano(), &signIn)
 }
 
 func (c *TcpClient) SyncTrigger() {
-	bytes, err := proto.Marshal(&pb.SyncInput{Seq: c.Seq})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	err = c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_SYNC), Content: bytes}, 10*time.Second)
-	if err != nil {
-		fmt.Println(err)
-	}
+	c.Output(pb.PackageType_PT_SYNC, time.Now().UnixNano(), &pb.SyncInput{Seq: c.Seq})
 }
 
 func (c *TcpClient) Heartbeat() {
-	ticker := time.NewTicker(time.Minute * 4)
-	for _ = range ticker.C {
-		err := c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_HEARTBEAT), Content: []byte{}}, 10*time.Second)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("心跳发送")
+	ticker := time.NewTicker(time.Minute * 5)
+	for range ticker.C {
+		c.Output(pb.PackageType_PT_HEARTBEAT, time.Now().UnixNano(), nil)
 	}
 }
 
@@ -107,14 +114,14 @@ func (c *TcpClient) Receive() {
 		}
 
 		for {
-			pack, ok, err := c.codec.Decode()
+			bytes, ok, err := c.codec.Decode()
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
 			if ok {
-				c.HandlePackage(pack.Code, pack.Content)
+				c.HandlePackage(bytes)
 				continue
 			}
 			break
@@ -122,78 +129,59 @@ func (c *TcpClient) Receive() {
 	}
 }
 
-func (c *TcpClient) HandlePackage(pt int, bytes []byte) error {
-	switch pb.PackageType(pt) {
+func (c *TcpClient) HandlePackage(bytes []byte) {
+	var output pb.Output
+	err := proto.Unmarshal(bytes, &output)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	switch output.Type {
 	case pb.PackageType_PT_SIGN_IN:
-		resp := pb.SignInOutput{}
-		err := proto.Unmarshal(bytes, &resp)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		fmt.Println(Json(resp))
+		fmt.Println(Json(output))
 	case pb.PackageType_PT_HEARTBEAT:
 		fmt.Println("心跳响应")
 	case pb.PackageType_PT_SYNC:
 		fmt.Println("离线消息同步开始------")
-
 		syncResp := pb.SyncOutput{}
-		err := proto.Unmarshal(bytes, &syncResp)
+		err := proto.Unmarshal(output.Data, &syncResp)
 		if err != nil {
 			fmt.Println(err)
-			return err
+			return
 		}
-		fmt.Println("离线消息同步响应:code", syncResp.Code, "message:", syncResp.Message)
+		fmt.Println("离线消息同步响应:code", output.Code, "message:", output.Message)
 		for _, msg := range syncResp.Messages {
-			if msg.ReceiverType == pb.ReceiverType_RT_USER {
-				fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
-			}
-			if msg.ReceiverType == pb.ReceiverType_RT_NORMAL_GROUP {
-				fmt.Printf("群聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
-			}
-			if msg.ReceiverType == pb.ReceiverType_RT_LARGE_GROUP {
-				fmt.Printf("大群消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
-			}
-		}
-		fmt.Println("离线消息同步结束------")
-	case pb.PackageType_PT_MESSAGE:
-		message := pb.Message{}
-		err := proto.Unmarshal(bytes, &message)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		msg := message.Message
-		if msg.ReceiverType == pb.ReceiverType_RT_USER {
-			fmt.Printf("单聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
-		}
-		if msg.ReceiverType == pb.ReceiverType_RT_NORMAL_GROUP {
-			fmt.Printf("群聊消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
-		}
-		if msg.ReceiverType == pb.ReceiverType_RT_LARGE_GROUP {
-			fmt.Printf("大群消息：发送者类型：%d 发送者id：%d 接受者id：%d  消息内容：%+v seq：%d \n", msg.SenderType, msg.SenderId, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+			fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
+				msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+			c.Seq = msg.Seq
 		}
 
 		ack := pb.MessageACK{
-			MessageId:   msg.MessageId,
+			DeviceAck:   c.Seq,
+			ReceiveTime: util.UnixMilliTime(time.Now()),
+		}
+		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
+		fmt.Println("离线消息同步结束------")
+	case pb.PackageType_PT_MESSAGE:
+		message := pb.Message{}
+		err := proto.Unmarshal(output.Data, &message)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		msg := message.Message
+		fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
+			msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+
+		c.Seq = msg.Seq
+		ack := pb.MessageACK{
 			DeviceAck:   msg.Seq,
 			ReceiveTime: util.UnixMilliTime(time.Now()),
 		}
-		ackBytes, err := proto.Marshal(&ack)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		c.Seq = msg.Seq
-		err = c.codec.Encode(tcp_conn.Package{Code: int(pb.PackageType_PT_MESSAGE), Content: ackBytes}, 10*time.Second)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
+		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
 	default:
 		fmt.Println("switch other")
 	}
-	return nil
 }

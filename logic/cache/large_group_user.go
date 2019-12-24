@@ -3,11 +3,12 @@ package cache
 import (
 	"gim/logic/db"
 	"gim/logic/model"
+	"gim/public/gerrors"
 	"gim/public/logger"
 	"gim/public/util"
 	"strconv"
 
-	"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
 )
 
 const (
@@ -27,8 +28,7 @@ func (*largeGroupUserCache) Key(appId, groupId int64) string {
 func (c *largeGroupUserCache) Members(appId, groupId int64) ([]model.GroupUser, error) {
 	userMap, err := db.RedisCli.HGetAll(c.Key(appId, groupId)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return nil, err
+		return nil, gerrors.WrapError(err)
 	}
 
 	users := make([]model.GroupUser, 0, len(userMap))
@@ -48,8 +48,7 @@ func (c *largeGroupUserCache) Members(appId, groupId int64) ([]model.GroupUser, 
 func (c *largeGroupUserCache) IsMember(appId, groupId, userId int64) (bool, error) {
 	is, err := db.RedisCli.HExists(c.Key(appId, groupId), strconv.FormatInt(userId, 10)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return false, err
+		return false, gerrors.WrapError(err)
 	}
 
 	return is, nil
@@ -59,8 +58,7 @@ func (c *largeGroupUserCache) IsMember(appId, groupId, userId int64) (bool, erro
 func (c *largeGroupUserCache) MembersNum(appId, groupId int64) (int64, error) {
 	membersNum, err := db.RedisCli.HLen(c.Key(appId, groupId)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return 0, err
+		return 0, gerrors.WrapError(err)
 	}
 	return membersNum, nil
 }
@@ -76,13 +74,11 @@ func (c *largeGroupUserCache) Set(appId, groupId, userId int64, label, extra str
 	}
 	bytes, err := jsoniter.Marshal(user)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+		return gerrors.WrapError(err)
 	}
 	_, err = db.RedisCli.HSet(c.Key(user.AppId, user.GroupId), strconv.FormatInt(user.UserId, 10), bytes).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return nil
+		return gerrors.WrapError(err)
 	}
 	return nil
 }
@@ -91,8 +87,7 @@ func (c *largeGroupUserCache) Set(appId, groupId, userId int64, label, extra str
 func (c *largeGroupUserCache) Del(appId, groupId int64, userId int64) error {
 	_, err := db.RedisCli.HDel(c.Key(appId, groupId), strconv.FormatInt(userId, 10)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return nil
+		return gerrors.WrapError(err)
 	}
 	return nil
 }

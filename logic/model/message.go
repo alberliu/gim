@@ -16,10 +16,10 @@ const (
 // Message 消息
 type Message struct {
 	Id             int64     // 自增主键
-	MessageId      string    // 消息id
 	AppId          int64     // appId
 	ObjectType     int       // 所属类型
 	ObjectId       int64     // 所属类型id
+	RequestId      int64     // 请求id
 	SenderType     int32     // 发送者类型
 	SenderId       int64     // 发送者账户id
 	SenderDeviceId int64     // 发送者设备id
@@ -77,7 +77,7 @@ func UnformatUserIds(userIdStr string) []int64 {
 
 func MessageToPB(message *Message) *pb.MessageItem {
 	return &pb.MessageItem{
-		MessageId:      message.MessageId,
+		RequestId:      message.RequestId,
 		SenderType:     pb.SenderType(message.SenderType),
 		SenderId:       message.SenderId,
 		SenderDeviceId: message.SenderDeviceId,

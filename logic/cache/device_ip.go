@@ -2,7 +2,7 @@ package cache
 
 import (
 	"gim/logic/db"
-	"gim/public/logger"
+	"gim/public/gerrors"
 	"strconv"
 
 	"github.com/go-redis/redis"
@@ -24,8 +24,7 @@ func (c *deviceIPCache) Key(deviceId int64) string {
 func (c *deviceIPCache) Get(deviceId int64) (string, error) {
 	ip, err := db.RedisCli.Get(DeviceIPKey + strconv.FormatInt(deviceId, 10)).Result()
 	if err != nil && err != redis.Nil {
-		logger.Sugar.Error(err)
-		return "", err
+		return "", gerrors.WrapError(err)
 	}
 	if err == redis.Nil {
 		return "", nil
@@ -36,18 +35,14 @@ func (c *deviceIPCache) Get(deviceId int64) (string, error) {
 // Set 设置设备所建立长连接的主机IP
 func (c *deviceIPCache) Set(deviceId int64, ip string) error {
 	_, err := db.RedisCli.Set(DeviceIPKey+strconv.FormatInt(deviceId, 10), ip, 0).Result()
-	if err != nil {
-		logger.Sugar.Error(err)
-	}
-	return err
+	return gerrors.WrapError(err)
 }
 
 // Del 删除设备所建立长连接的主机IP
 func (c *deviceIPCache) Del(deviceId int64) error {
 	_, err := db.RedisCli.Del(DeviceIPKey + strconv.FormatInt(deviceId, 10)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+		return gerrors.WrapError(err)
 	}
 
 	return nil

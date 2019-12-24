@@ -6,6 +6,7 @@ import (
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/util"
+	"strconv"
 	"testing"
 	"time"
 
@@ -23,8 +24,13 @@ func getLogicExtClient() pb.LogicClientExtClient {
 }
 
 func getCtx() context.Context {
-	token, _ := util.GetToken(1, 1, 1, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
-	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("app_id", "1", "user_id", "1", "device_id", "1", "token", token))
+	token, _ := util.GetToken(1, 2, 3, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
+	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
+		"app_id", "1",
+		"user_id", "2",
+		"device_id", "3",
+		"token", token,
+		"request_id", strconv.FormatInt(time.Now().UnixNano(), 10)))
 }
 
 func TestLogicExtServer_RegisterDevice(t *testing.T) {
@@ -77,15 +83,15 @@ func TestLogicExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicExtClient().SendMessage(getCtx(),
 		&pb.SendMessageReq{
 			MessageId:    "11111",
-			ReceiverType: pb.ReceiverType_RT_LARGE_GROUP,
-			ReceiverId:   2,
+			ReceiverType: pb.ReceiverType_RT_USER,
+			ReceiverId:   1,
 			ToUserIds:    nil,
 			MessageBody: &pb.MessageBody{
 				MessageType: pb.MessageType_MT_TEXT,
 				MessageContent: &pb.MessageContent{
 					Content: &pb.MessageContent_Text{
 						Text: &pb.Text{
-							Text: "large group message",
+							Text: "test",
 						},
 					},
 				},

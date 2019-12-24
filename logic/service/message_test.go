@@ -2,23 +2,8 @@ package service
 
 import (
 	"fmt"
-	"gim/logic/model"
-	"gim/public/pb"
 	"testing"
-
-	"github.com/json-iterator/go"
 )
-
-func TestMessageToJson(t *testing.T) {
-	message := model.SendMessage{
-		MessageBody: &pb.MessageBody{
-			MessageContent: &pb.MessageContent{},
-		},
-	}
-	bytes, err := jsoniter.Marshal(message)
-	fmt.Println(err)
-	fmt.Println(string(bytes))
-}
 
 func TestMessageService_Add(t *testing.T) {
 

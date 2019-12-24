@@ -3,7 +3,7 @@ package cache
 import (
 	"gim/logic/db"
 	"gim/logic/model"
-	"gim/public/logger"
+	"gim/public/gerrors"
 	"strconv"
 	"time"
 
@@ -28,8 +28,7 @@ func (c *groupCache) Get(appId, groupId int64) (*model.Group, error) {
 	var user model.Group
 	err := get(c.Key(appId, groupId), &user)
 	if err != nil && err != redis.Nil {
-		logger.Sugar.Error(err)
-		return nil, err
+		return nil, gerrors.WrapError(err)
 	}
 	if err == redis.Nil {
 		return nil, nil
@@ -41,8 +40,7 @@ func (c *groupCache) Get(appId, groupId int64) (*model.Group, error) {
 func (c *groupCache) Set(group *model.Group) error {
 	err := set(c.Key(group.AppId, group.GroupId), group, GroupExpire)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+		return gerrors.WrapError(err)
 	}
 	return nil
 }
@@ -51,8 +49,7 @@ func (c *groupCache) Set(group *model.Group) error {
 func (c *groupCache) Del(appId, groupId int64) error {
 	_, err := db.RedisCli.Del(c.Key(appId, groupId)).Result()
 	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+		return gerrors.WrapError(err)
 	}
 	return nil
 }

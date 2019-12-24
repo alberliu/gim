@@ -4,8 +4,8 @@ import (
 	"context"
 	"gim/logic/model"
 	"gim/logic/service"
+	"gim/public/gerrors"
 	"gim/public/grpclib"
-	"gim/public/imerror"
 	"gim/public/logger"
 	"gim/public/pb"
 )
@@ -25,12 +25,11 @@ func (*LogicClientExtServer) RegisterDevice(ctx context.Context, in *pb.Register
 
 	if device.AppId == 0 || device.Type == 0 || device.Brand == "" || device.Model == "" ||
 		device.SystemVersion == "" || device.SDKVersion == "" {
-		return nil, imerror.ErrBadRequest
+		return nil, gerrors.ErrBadRequest
 	}
 
-	id, err := service.DeviceService.Register(Context(), device)
+	id, err := service.DeviceService.Register(ctx, device)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return &pb.RegisterDeviceResp{DeviceId: id}, nil
@@ -40,7 +39,6 @@ func (*LogicClientExtServer) RegisterDevice(ctx context.Context, in *pb.Register
 func (*LogicClientExtServer) AddUser(ctx context.Context, in *pb.AddUserReq) (*pb.AddUserResp, error) {
 	appId, userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return &pb.AddUserResp{}, err
 	}
 	user := model.User{
@@ -52,25 +50,23 @@ func (*LogicClientExtServer) AddUser(ctx context.Context, in *pb.AddUserReq) (*p
 		Extra:     in.User.Extra,
 	}
 
-	return &pb.AddUserResp{}, service.UserService.Add(Context(), user)
+	return &pb.AddUserResp{}, service.UserService.Add(ctx, user)
 }
 
 // GetUser 获取用户信息
 func (*LogicClientExtServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*pb.GetUserResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return &pb.GetUserResp{}, err
 	}
 
-	user, err := service.UserService.Get(Context(), appId, in.UserId)
+	user, err := service.UserService.Get(ctx, appId, in.UserId)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return &pb.GetUserResp{}, nil
 	}
 
 	if user == nil {
-		return nil, imerror.ErrUserNotExist
+		return nil, gerrors.ErrUserNotExist
 	}
 
 	pbUser := pb.User{
@@ -89,7 +85,6 @@ func (*LogicClientExtServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*p
 func (*LogicClientExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (*pb.SendMessageResp, error) {
 	appId, userId, deviceId, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -99,9 +94,8 @@ func (*LogicClientExtServer) SendMessage(ctx context.Context, in *pb.SendMessage
 		SenderId:   userId,
 		DeviceId:   deviceId,
 	}
-	err = service.MessageService.Send(Context(), sender, *in)
+	err = service.MessageService.Send(ctx, sender, *in)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return &pb.SendMessageResp{}, nil
@@ -111,7 +105,6 @@ func (*LogicClientExtServer) SendMessage(ctx context.Context, in *pb.SendMessage
 func (*LogicClientExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return &pb.CreateGroupResp{}, err
 	}
 
@@ -123,10 +116,9 @@ func (*LogicClientExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroup
 		Type:         in.Group.Type,
 		Extra:        in.Group.Extra,
 	}
-	err = service.GroupService.Create(Context(), group)
+	err = service.GroupService.Create(ctx, group)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.CreateGroupResp{}, err
+		return nil, err
 	}
 	return &pb.CreateGroupResp{}, nil
 }
@@ -135,8 +127,7 @@ func (*LogicClientExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroup
 func (*LogicClientExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroupReq) (*pb.UpdateGroupResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.UpdateGroupResp{}, err
+		return nil, err
 	}
 
 	var group = model.Group{
@@ -147,10 +138,9 @@ func (*LogicClientExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroup
 		Type:         in.Group.Type,
 		Extra:        in.Group.Extra,
 	}
-	err = service.GroupService.Update(Context(), group)
+	err = service.GroupService.Update(ctx, group)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.UpdateGroupResp{}, err
+		return nil, err
 	}
 	return &pb.UpdateGroupResp{}, nil
 }
@@ -159,18 +149,16 @@ func (*LogicClientExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroup
 func (*LogicClientExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.GetGroupResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.GetGroupResp{}, err
+		return nil, err
 	}
 
-	group, err := service.GroupService.Get(Context(), appId, in.GroupId)
+	group, err := service.GroupService.Get(ctx, appId, in.GroupId)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.GetGroupResp{}, err
+		return nil, err
 	}
 
 	if group == nil {
-		return nil, imerror.ErrGroupNotExist
+		return nil, gerrors.ErrGroupNotExist
 	}
 
 	return &pb.GetGroupResp{
@@ -191,14 +179,13 @@ func (*LogicClientExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (
 func (*LogicClientExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGroupsReq) (*pb.GetUserGroupsResp, error) {
 	appId, userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.GetUserGroupsResp{}, err
+		return nil, err
 	}
 
-	groups, err := service.GroupUserService.ListByUserId(Context(), appId, userId)
+	groups, err := service.GroupUserService.ListByUserId(ctx, appId, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return &pb.GetUserGroupsResp{}, err
+		return nil, err
 	}
 	pbGroups := make([]*pb.Group, 0, len(groups))
 	for i := range groups {
@@ -221,13 +208,13 @@ func (*LogicClientExtServer) AddGroupMember(ctx context.Context, in *pb.AddGroup
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return &pb.AddGroupMemberResp{}, err
+		return nil, err
 	}
 
-	err = service.GroupService.AddUser(Context(), appId, in.GroupUser.GroupId, in.GroupUser.UserId, in.GroupUser.Label, in.GroupUser.Extra)
+	err = service.GroupService.AddUser(ctx, appId, in.GroupUser.GroupId, in.GroupUser.UserId, in.GroupUser.Label, in.GroupUser.Extra)
 	if err != nil {
 		logger.Sugar.Error(err)
-		return &pb.AddGroupMemberResp{}, err
+		return nil, err
 	}
 
 	return &pb.AddGroupMemberResp{}, nil
@@ -237,14 +224,12 @@ func (*LogicClientExtServer) AddGroupMember(ctx context.Context, in *pb.AddGroup
 func (*LogicClientExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroupMemberReq) (*pb.UpdateGroupMemberResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.UpdateGroupMemberResp{}, err
+		return nil, err
 	}
 
-	err = service.GroupService.UpdateUser(Context(), appId, in.GroupUser.GroupId, in.GroupUser.UserId, in.GroupUser.Label, in.GroupUser.Extra)
+	err = service.GroupService.UpdateUser(ctx, appId, in.GroupUser.GroupId, in.GroupUser.UserId, in.GroupUser.Label, in.GroupUser.Extra)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.UpdateGroupMemberResp{}, err
+		return nil, err
 	}
 
 	return &pb.UpdateGroupMemberResp{}, nil
@@ -254,14 +239,12 @@ func (*LogicClientExtServer) UpdateGroupMember(ctx context.Context, in *pb.Updat
 func (*LogicClientExtServer) DeleteGroupMember(ctx context.Context, in *pb.DeleteGroupMemberReq) (*pb.DeleteGroupMemberResp, error) {
 	appId, _, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.DeleteGroupMemberResp{}, err
+		return nil, err
 	}
 
-	err = service.GroupService.DeleteUser(Context(), appId, in.GroupId, in.UserId)
+	err = service.GroupService.DeleteUser(ctx, appId, in.GroupId, in.UserId)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return &pb.DeleteGroupMemberResp{}, err
+		return nil, err
 	}
 
 	return &pb.DeleteGroupMemberResp{}, nil

@@ -1,16 +1,19 @@
 package logger
 
 import (
-	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"time"
+
+	lumberjackv2 "gopkg.in/natefinch/lumberjack.v2"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var Logger *zap.Logger
-var Sugar *zap.SugaredLogger
+var (
+	Logger *zap.Logger
+	Sugar  *zap.SugaredLogger
+)
 
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
@@ -34,7 +37,7 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 }
 
 func init() {
-	w := zapcore.AddSync(&lumberjack.Logger{
+	w := zapcore.AddSync(&lumberjackv2.Logger{
 		Filename:   "log/im.log",
 		MaxSize:    500, // megabytes
 		MaxBackups: 3,

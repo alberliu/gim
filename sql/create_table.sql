@@ -14,7 +14,6 @@ CREATE TABLE `app`
     `update_time` datetime                          NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 2
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='app';
 
@@ -51,7 +50,6 @@ CREATE TABLE `device`
     UNIQUE KEY `uk_device_id` (`device_id`) USING BTREE,
     KEY `idx_app_id_user_id` (`app_id`, `user_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='设备';
 
@@ -61,17 +59,23 @@ CREATE TABLE `device`
 BEGIN;
 INSERT INTO `device`
 VALUES (1, 1, 1, 1, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 1, '127.0.0.1:60000', '2019-10-15 17:11:09',
-        '2019-12-07 00:24:51');
+        '2019-12-24 14:23:56');
 INSERT INTO `device`
-VALUES (2, 2, 1, 1, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '', '2019-10-17 10:49:13', '2019-10-18 09:50:55');
+VALUES (2, 2, 1, 1, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '127.0.0.1:60000', '2019-10-17 10:49:13',
+        '2019-12-14 13:35:40');
 INSERT INTO `device`
-VALUES (3, 3, 1, 2, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '', '2019-10-15 17:11:09', '2019-10-18 09:50:56');
+VALUES (3, 3, 1, 2, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '127.0.0.1:60000', '2019-10-15 17:11:09',
+        '2019-12-14 13:35:40');
 INSERT INTO `device`
 VALUES (4, 4, 1, 2, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '', '2019-10-15 17:11:09', '2019-12-07 00:28:48');
 INSERT INTO `device`
-VALUES (5, 5, 1, 3, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '', '2019-10-15 17:11:09', '2019-12-07 00:28:49');
+VALUES (5, 5, 1, 3, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '127.0.0.1:60000', '2019-10-15 17:11:09',
+        '2019-12-14 13:35:40');
 INSERT INTO `device`
 VALUES (6, 6, 1, 3, 1, 'huawei', 'HUAWEI P10', '8.0.0', '1.0.0', 0, '', '2019-10-15 17:11:09', '2019-12-07 00:28:50');
+INSERT INTO `device`
+VALUES (16, 1501, 1, 0, 1, 'huawei', 'huawei P30', '1.0.0', '1.0.0', 0, '', '2019-12-23 10:15:17',
+        '2019-12-23 10:15:17');
 COMMIT;
 
 -- ----------------------------
@@ -88,7 +92,6 @@ CREATE TABLE `device_ack`
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `uk_device_id` (`device_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 16
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='设备消息同步序列号';
 
@@ -97,15 +100,15 @@ CREATE TABLE `device_ack`
 -- ----------------------------
 BEGIN;
 INSERT INTO `device_ack`
-VALUES (1, 1, 0, '2019-10-15 17:11:09', '2019-12-07 00:33:10');
+VALUES (1, 1, 34, '2019-10-15 17:11:09', '2019-12-24 14:24:35');
 INSERT INTO `device_ack`
-VALUES (2, 2, 0, '2019-10-15 17:23:31', '2019-10-18 09:51:06');
+VALUES (2, 2, 14, '2019-10-15 17:23:31', '2019-12-14 13:32:34');
 INSERT INTO `device_ack`
-VALUES (3, 3, 0, '2019-10-17 14:37:20', '2019-10-18 09:51:07');
+VALUES (3, 3, 14, '2019-10-17 14:37:20', '2019-12-14 13:33:10');
 INSERT INTO `device_ack`
 VALUES (4, 4, 0, '2019-10-17 14:37:27', '2019-10-18 09:51:08');
 INSERT INTO `device_ack`
-VALUES (5, 5, 0, '2019-10-17 14:37:54', '2019-10-18 09:51:10');
+VALUES (5, 5, 14, '2019-10-17 14:37:54', '2019-12-14 13:33:10');
 INSERT INTO `device_ack`
 VALUES (6, 6, 0, '2019-10-17 14:37:58', '2019-10-18 09:51:10');
 COMMIT;
@@ -129,7 +132,6 @@ CREATE TABLE `group`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_app_id_group_id` (`app_id`, `group_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 4
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='群组';
 
@@ -142,7 +144,7 @@ VALUES (1, 1, 1, '1', '1', 1, 1, '1', '2019-08-24 18:11:44', '2019-10-17 14:41:4
 INSERT INTO `group`
 VALUES (2, 1, 2, '2', '2', 2, 2, '2', '2019-10-17 14:46:11', '2019-10-18 09:51:18');
 INSERT INTO `group`
-VALUES (3, 1, 10, '11', '11', 0, 1, '11', '2019-12-04 21:20:21', '2019-12-04 21:30:12');
+VALUES (3, 1, 10, '11', '11', -1, 1, '11', '2019-12-04 21:20:21', '2019-12-23 10:15:17');
 COMMIT;
 
 -- ----------------------------
@@ -163,7 +165,6 @@ CREATE TABLE `group_user`
     UNIQUE KEY `uk_app_id_group_id_user_id` (`app_id`, `group_id`, `user_id`) USING BTREE,
     KEY `idx_app_id_user_id` (`app_id`, `user_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 5
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='群组成员关系';
 
@@ -186,10 +187,10 @@ DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message`
 (
     `id`               bigint(20) unsigned               NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `message_id`       varchar(50) COLLATE utf8mb4_bin   NOT NULL COMMENT '消息id',
     `app_id`           int(11)                           NOT NULL COMMENT 'app_id',
     `object_type`      tinyint(4)                        NOT NULL COMMENT '所属类型，1：用户；2：群组',
     `object_id`        bigint(20) unsigned               NOT NULL COMMENT '所属类型的id',
+    `request_id`       bigint(20)                        NOT NULL COMMENT '请求id',
     `sender_type`      tinyint(3)                        NOT NULL COMMENT '发送者类型',
     `sender_id`        bigint(20) unsigned               NOT NULL COMMENT '发送者id',
     `sender_device_id` bigint(20) unsigned               NOT NULL COMMENT '发送设备id',
@@ -205,9 +206,8 @@ CREATE TABLE `message`
     `update_time`      datetime                          NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_app_id_user_id_seq` (`app_id`, `object_type`, `object_id`, `seq`) USING BTREE,
-    KEY `idx_message_id` (`message_id`)
+    KEY `idx_request_id` (`request_id`) USING BTREE
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 33
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='消息';
 
@@ -227,7 +227,6 @@ CREATE TABLE `uid`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_business_id` (`business_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 2
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='分布式自增主键';
 
@@ -236,7 +235,7 @@ CREATE TABLE `uid`
 -- ----------------------------
 BEGIN;
 INSERT INTO `uid`
-VALUES (1, 'device_id', 1150, 5, '设备id', '2019-10-15 16:42:05', '2019-12-07 00:32:41');
+VALUES (1, 'device_id', 1580, 5, '设备id', '2019-10-15 16:42:05', '2019-12-24 14:23:13');
 COMMIT;
 
 -- ----------------------------
@@ -257,7 +256,6 @@ CREATE TABLE `user`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_app_id_user_id` (`app_id`, `user_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 7
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='用户';
 
@@ -271,5 +269,8 @@ INSERT INTO `user`
 VALUES (2, 1, 2, '2', 2, 'avatar_url', 'extra', '2019-10-15 18:10:39', '2019-10-18 09:50:47');
 INSERT INTO `user`
 VALUES (3, 1, 3, '3', 2, 'avatar_url', 'extra', '2019-10-15 18:45:01', '2019-10-18 09:50:48');
+INSERT INTO `user`
+VALUES (6, 1, 10, '10', 1, '10', '10', '2019-12-04 20:40:45', '2019-12-04 20:40:45');
 COMMIT;
 
+SET FOREIGN_KEY_CHECKS = 1;

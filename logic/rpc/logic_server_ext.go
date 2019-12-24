@@ -5,7 +5,6 @@ import (
 	"gim/logic/model"
 	"gim/logic/service"
 	"gim/public/grpclib"
-	"gim/public/logger"
 	"gim/public/pb"
 )
 
@@ -15,7 +14,6 @@ type LogicServerExtServer struct{}
 func (*LogicServerExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (*pb.SendMessageResp, error) {
 	appId, err := grpclib.GetCtxAppId(ctx)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -23,9 +21,8 @@ func (*LogicServerExtServer) SendMessage(ctx context.Context, in *pb.SendMessage
 		AppId:      appId,
 		SenderType: pb.SenderType_ST_BUSINESS,
 	}
-	err = service.MessageService.Send(Context(), sender, *in)
+	err = service.MessageService.Send(ctx, sender, *in)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return &pb.SendMessageResp{}, nil

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGroupDao_Get(t *testing.T) {
-	fmt.Println(GroupDao.Get(ctx, 1, 1))
+	fmt.Println(GroupDao.Get(1, 1))
 }
 
 func TestGroupDao_Add(t *testing.T) {
@@ -19,13 +19,13 @@ func TestGroupDao_Add(t *testing.T) {
 		Type:         1,
 		Extra:        "1",
 	}
-	fmt.Println(GroupDao.Add(ctx, group))
+	fmt.Println(GroupDao.Add(group))
 }
 
 func TestGroupDao_Update(t *testing.T) {
-	fmt.Println(GroupDao.Update(ctx, 1, 1, "2", "2", "3"))
+	fmt.Println(GroupDao.Update(1, 1, "2", "2", "3"))
 }
 
 func TestGroupDao_AddUserNum(t *testing.T) {
-	fmt.Println(GroupDao.AddUserNum(ctx, 1, 1, -1))
+	fmt.Println(GroupDao.AddUserNum(1, 1, -1))
 }

@@ -2,8 +2,8 @@ package ws_conn
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
+	"gim/public/grpclib"
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/rpc_cli"
@@ -15,12 +15,10 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 const PreConn = -1 // 设备第二次重连时，标记设备的上一条连接
-const TypeLen = 2
 
 type WSConnContext struct {
 	Conn     *websocket.Conn // websocket连接
@@ -50,105 +48,111 @@ func (c *WSConnContext) DoConn() {
 			return
 		}
 
-		pt := int(binary.BigEndian.Uint16(data[0:2]))
-		c.HandlePackage(pt, data[2:])
+		c.HandlePackage(data)
 	}
 }
 
 // HandlePackage 处理请求发包
-func (c *WSConnContext) HandlePackage(t int, bytes []byte) {
-	switch pb.PackageType(t) {
+func (c *WSConnContext) HandlePackage(bytes []byte) {
+	var input pb.Input
+	err := proto.Unmarshal(bytes, &input)
+	if err != nil {
+		logger.Sugar.Error(err)
+		c.Release()
+	}
+
+	switch input.Type {
 	case pb.PackageType_PT_SYNC:
-		c.Sync(bytes)
+		c.Sync(input)
 	case pb.PackageType_PT_HEARTBEAT:
-		c.Heartbeat(bytes)
+		c.Heartbeat(input)
 	case pb.PackageType_PT_MESSAGE:
-		c.MessageACK(bytes)
+		c.MessageACK(input)
 	default:
-		logger.Logger.Info("switch other", zap.Int("type", t))
+		logger.Logger.Info("switch other")
 	}
 
 }
 
 // Sync 离线消息同步
-func (c *WSConnContext) Sync(bytes []byte) {
-	var input pb.SyncInput
-	err := proto.Unmarshal(bytes, &input)
+func (c *WSConnContext) Sync(input pb.Input) {
+	var sync pb.SyncInput
+	err := proto.Unmarshal(input.Data, &sync)
 	if err != nil {
 		logger.Sugar.Error(err)
 		c.Release()
 		return
 	}
 
-	resp, err := rpc_cli.LogicIntClient.Sync(context.TODO(), &pb.SyncReq{
+	resp, err := rpc_cli.LogicIntClient.Sync(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.SyncReq{
 		AppId:    c.AppId,
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
-		Seq:      input.Seq,
+		Seq:      sync.Seq,
 	})
 
-	s, _ := status.FromError(err)
-	var output = pb.SyncOutput{
-		Code:    int32(s.Code()),
-		Message: s.Message(),
-	}
-
+	var message proto.Message
 	if err == nil {
-		output.Messages = resp.Messages
+		message = &pb.SyncOutput{Messages: resp.Messages}
 	}
 
-	c.Output(pb.PackageType_PT_SYNC, &output)
-	if s.Code() != codes.OK {
-		logger.Sugar.Error(err)
-		return
-	}
+	c.Output(pb.PackageType_PT_SYNC, input.RequestId, err, message)
 }
 
 // Heartbeat 心跳
-func (c *WSConnContext) Heartbeat(bytes []byte) {
-	c.Output(pb.PackageType_PT_HEARTBEAT, nil)
+func (c *WSConnContext) Heartbeat(input pb.Input) {
+	c.Output(pb.PackageType_PT_HEARTBEAT, input.RequestId, nil, nil)
 	logger.Sugar.Infow("heartbeat", "device_id", c.DeviceId, "user_id", c.UserId)
 }
 
 // MessageACK 消息回执
-func (c *WSConnContext) MessageACK(bytes []byte) {
-	var input pb.MessageACK
-	err := proto.Unmarshal(bytes, &input)
+func (c *WSConnContext) MessageACK(input pb.Input) {
+	var messageACK pb.MessageACK
+	err := proto.Unmarshal(input.Data, &messageACK)
 	if err != nil {
 		logger.Sugar.Error(err)
 		c.Release()
 		return
 	}
 
-	_, _ = rpc_cli.LogicIntClient.MessageACK(context.TODO(), &pb.MessageACKReq{
+	_, _ = rpc_cli.LogicIntClient.MessageACK(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.MessageACKReq{
 		AppId:       c.AppId,
 		UserId:      c.UserId,
 		DeviceId:    c.DeviceId,
-		MessageId:   input.MessageId,
-		DeviceAck:   input.DeviceAck,
-		ReceiveTime: input.ReceiveTime,
+		DeviceAck:   messageACK.DeviceAck,
+		ReceiveTime: messageACK.ReceiveTime,
 	})
 }
 
 // Output
-func (c *WSConnContext) Output(pt pb.PackageType, message proto.Message) {
-	var (
-		bytes []byte
-		err   error
-	)
+func (c *WSConnContext) Output(pt pb.PackageType, requestId int64, err error, message proto.Message) {
+	var output = pb.Output{
+		Type:      pt,
+		RequestId: requestId,
+	}
+
+	if err != nil {
+		status, _ := status.FromError(err)
+		output.Code = int32(status.Code())
+		output.Message = status.Message()
+	}
 
 	if message != nil {
-		bytes, err = proto.Marshal(message)
+		msgBytes, err := proto.Marshal(message)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return
 		}
+		output.Data = msgBytes
 	}
 
-	writeBytes := make([]byte, len(bytes)+TypeLen)
-	binary.BigEndian.PutUint16(writeBytes[0:TypeLen], uint16(pt))
-	copy(writeBytes[TypeLen:], bytes)
-	err = c.Conn.WriteMessage(websocket.BinaryMessage, writeBytes)
+	outputBytes, err := proto.Marshal(&output)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return
+	}
+
+	err = c.Conn.WriteMessage(websocket.BinaryMessage, outputBytes)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return

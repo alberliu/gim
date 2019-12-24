@@ -3,6 +3,7 @@ package grpclib
 import (
 	"context"
 	"errors"
+
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
 	"google.golang.org/grpc/resolver"
@@ -12,14 +13,14 @@ const Name = "addr"
 
 const addrKey = "addr"
 
-var ErrNoSubConnSelect = errors.New("no_sub_conn_select")
+var ErrNoSubConnSelect = errors.New("no sub conn select")
 
 func init() {
 	balancer.Register(newBuilder())
 }
 
-func ContextWithAddr(addr string) context.Context {
-	return context.WithValue(context.TODO(), addrKey, addr)
+func ContextWithAddr(ctx context.Context, addr string) context.Context {
+	return context.WithValue(ctx, addrKey, addr)
 }
 
 type addrPickerBuilder struct{}

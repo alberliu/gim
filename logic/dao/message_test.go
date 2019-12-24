@@ -25,11 +25,11 @@ func TestMessageDao_Add(t *testing.T) {
 		Seq:            2,
 		SendTime:       time.Now(),
 	}
-	fmt.Println(MessageDao.Add(ctx, "message", message))
+	fmt.Println(MessageDao.Add("message", message))
 }
 
 func TestMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
-	messages, err := MessageDao.ListBySeq(ctx, "message", 1, 1, 1, 0)
+	messages, err := MessageDao.ListBySeq("message", 1, 1, 1, 0)
 	fmt.Println(err)
 	bytes, _ := json.Marshal(messages)
 	fmt.Println(string(bytes))

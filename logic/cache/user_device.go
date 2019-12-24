@@ -3,7 +3,7 @@ package cache
 import (
 	"gim/logic/db"
 	"gim/logic/model"
-	"gim/public/logger"
+	"gim/public/gerrors"
 	"strconv"
 	"time"
 
@@ -28,8 +28,7 @@ func (c *userDeviceCache) Get(appId, userId int64) ([]model.Device, error) {
 	var devices []model.Device
 	err := get(c.Key(appId, userId), &devices)
 	if err != nil && err != redis.Nil {
-		logger.Sugar.Error(err)
-		return nil, err
+		return nil, gerrors.WrapError(err)
 	}
 
 	if err == redis.Nil {
@@ -41,20 +40,11 @@ func (c *userDeviceCache) Get(appId, userId int64) ([]model.Device, error) {
 // Set 将指定用户的所有在线设备存入缓存
 func (c *userDeviceCache) Set(appId, userId int64, devices []model.Device) error {
 	err := set(c.Key(appId, userId), devices, DeviceExpire)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-	return nil
+	return gerrors.WrapError(err)
 }
 
 // Del 删除某一用户的在线设备列表
 func (c *userDeviceCache) Del(appId, userId int64) error {
 	_, err := db.RedisCli.Del(c.Key(appId, userId)).Result()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-
-	return nil
+	return gerrors.WrapError(err)
 }

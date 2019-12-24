@@ -2,7 +2,7 @@ package cache
 
 import (
 	"gim/logic/model"
-	"gim/public/logger"
+	"gim/public/gerrors"
 	"strconv"
 	"time"
 
@@ -23,8 +23,7 @@ func (c *appCache) Get(appId int64) (*model.App, error) {
 	var app model.App
 	err := get(AppKey+strconv.FormatInt(appId, 10), &app)
 	if err != nil && err != redis.Nil {
-		logger.Sugar.Error(err)
-		return nil, err
+		return nil, gerrors.WrapError(err)
 	}
 
 	if err == redis.Nil {
@@ -37,8 +36,7 @@ func (c *appCache) Get(appId int64) (*model.App, error) {
 func (c *appCache) Set(app *model.App) error {
 	err := set(AppKey+strconv.FormatInt(app.Id, 10), app, AppExpire)
 	if err != nil {
-		logger.Sugar.Error(err)
-		return err
+		return gerrors.WrapError(err)
 	}
 	return nil
 }

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/grpc/status"
+
 	"github.com/golang/protobuf/proto"
 
 	"go.uber.org/zap"
@@ -26,7 +28,7 @@ const (
 	WriteContentMaxLen = 508 // 写缓存区内容最大长度
 )
 
-var codecFactory = NewCodecFactory(TypeLen, LenLen, ReadContentMaxLen, WriteContentMaxLen)
+var codecFactory = NewCodecFactory(LenLen, ReadContentMaxLen, WriteContentMaxLen)
 
 // ConnContext 连接上下文
 type ConnContext struct {
@@ -68,7 +70,7 @@ func (c *ConnContext) DoConn() {
 		}
 
 		for {
-			message, ok, err := c.Codec.Decode()
+			bytes, ok, err := c.Codec.Decode()
 			// 解码出错，需要中断连接
 			if err != nil {
 				logger.Logger.Error(err.Error())
@@ -76,7 +78,7 @@ func (c *ConnContext) DoConn() {
 				return
 			}
 			if ok {
-				c.HandlePackage(message)
+				c.HandlePackage(bytes)
 				continue
 			}
 			break
@@ -90,25 +92,39 @@ func (c *ConnContext) HandleConnect() {
 }
 
 // HandlePackage 处理消息包
-func (c *ConnContext) HandlePackage(pack *Package) {
+func (c *ConnContext) HandlePackage(pack []byte) {
 	Handler.Handler(c, pack)
 }
 
 // Output
-func (c *ConnContext) Output(pt pb.PackageType, message proto.Message) {
-	var (
-		bytes []byte
-		err   error
-	)
+func (c *ConnContext) Output(pt pb.PackageType, requestId int64, err error, message proto.Message) {
+	var output = pb.Output{
+		Type:      pt,
+		RequestId: requestId,
+	}
+
+	if err != nil {
+		status, _ := status.FromError(err)
+		output.Code = int32(status.Code())
+		output.Message = status.Message()
+	}
 
 	if message != nil {
-		bytes, err = proto.Marshal(message)
+		msgBytes, err := proto.Marshal(message)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return
 		}
+		output.Data = msgBytes
 	}
-	err = c.Codec.Encode(Package{Code: int(pt), Content: bytes}, WriteDeadline)
+
+	outputBytes, err := proto.Marshal(&output)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return
+	}
+
+	err = c.Codec.Encode(outputBytes, WriteDeadline)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return

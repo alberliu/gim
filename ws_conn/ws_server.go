@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"gim/conf"
+	"gim/public/gerrors"
 	"gim/public/grpclib"
-	"gim/public/imerror"
 	"gim/public/logger"
 	"gim/public/pb"
 	"gim/public/rpc_cli"
@@ -30,9 +30,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	userId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxUserId), 10, 64)
 	deviceId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxDeviceId), 10, 64)
 	token := r.Header.Get(grpclib.CtxToken)
+	requestId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxRequestId), 10, 64)
 
 	if appId == 0 || userId == 0 || deviceId == 0 || token == "" {
-		s, _ := status.FromError(imerror.ErrUnauthorized)
+		s, _ := status.FromError(gerrors.ErrUnauthorized)
 		bytes, err := json.Marshal(s.Proto())
 		if err != nil {
 			logger.Sugar.Error(err)
@@ -41,7 +42,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(bytes)
 	}
 
-	_, err := rpc_cli.LogicIntClient.SignIn(context.TODO(), &pb.SignInReq{
+	_, err := rpc_cli.LogicIntClient.SignIn(grpclib.ContextWithRequstId(context.TODO(), requestId), &pb.SignInReq{
 		AppId:    appId,
 		UserId:   userId,
 		DeviceId: deviceId,

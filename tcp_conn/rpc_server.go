@@ -3,6 +3,7 @@ package tcp_conn
 import (
 	"context"
 	"gim/conf"
+	"gim/public/grpclib"
 	"gim/public/logger"
 	"gim/public/pb"
 	"net"
@@ -23,7 +24,7 @@ func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessa
 	}
 
 	// 发送消息
-	conn.Output(pb.PackageType_PT_MESSAGE, req.Message)
+	conn.Output(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.Message)
 	return &pb.DeliverMessageResp{}, nil
 }
 
