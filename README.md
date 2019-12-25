@@ -90,7 +90,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 #### 长连接登录
 ![eaf3a08af9c64bbd.png](http://www.wailian.work/images/2019/10/26/eaf3a08af9c64bbd.png)
 #### 离线消息同步
-![17ae1726b66ee7da.png](http://www.wailian.work/images/2019/10/26/17ae1726b66ee7da.png)
+![ef9c9452e65be3ced63573164fec7ed5.png](http://s1.wailian.download/2019/12/25/ef9c9452e65be3ced63573164fec7ed5.png)
 #### 心跳
 ![6ea6acf2cd4b956e.png](http://www.wailian.work/images/2019/10/26/6ea6acf2cd4b956e.png)
 #### 消息单发
