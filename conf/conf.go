@@ -1,6 +1,8 @@
 package conf
 
-import "os"
+import (
+	"os"
+)
 
 var (
 	LogicConf logicConf
@@ -38,11 +40,13 @@ type wsConf struct {
 func init() {
 	env := os.Getenv("gim_env")
 	switch env {
+	case "dev":
+		initDevConf()
 	case "pre":
 		initPreConf()
 	case "prod":
 		initProdConf()
 	default:
-		initDevConf()
+		initLocalConf()
 	}
 }

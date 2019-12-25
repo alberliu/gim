@@ -40,7 +40,7 @@ type WSClient struct {
 }
 
 func (c *WSClient) Start() {
-	u := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/ws"}
+	u := url.URL{Scheme: "ws", Host: "localhost:8081", Path: "/ws"}
 
 	header := http.Header{}
 	header.Set(grpclib.CtxAppId, strconv.FormatInt(c.AppId, 10))

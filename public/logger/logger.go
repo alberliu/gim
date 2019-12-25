@@ -10,6 +10,16 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	Console = "console"
+	File    = "file"
+)
+
+var (
+	Leavel = zap.DebugLevel
+	Target = Console
+)
+
 var (
 	Logger *zap.Logger
 	Sugar  *zap.SugaredLogger
@@ -39,15 +49,23 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 func init() {
 	w := zapcore.AddSync(&lumberjackv2.Logger{
 		Filename:   "log/im.log",
-		MaxSize:    500, // megabytes
-		MaxBackups: 3,
-		MaxAge:     28, // days
+		MaxSize:    1024, // megabytes
+		MaxBackups: 10,
+		MaxAge:     7, // days
 	})
+
+	var writeSyncer zapcore.WriteSyncer
+	if Target == Console {
+		writeSyncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout))
+	}
+	if Target == File {
+		writeSyncer = zapcore.NewMultiWriteSyncer(w)
+	}
+
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(NewEncoderConfig()),
-		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout),
-			w),
-		zap.DebugLevel,
+		writeSyncer,
+		Leavel,
 	)
 	Logger = zap.New(core, zap.AddCaller())
 	Sugar = Logger.Sugar()

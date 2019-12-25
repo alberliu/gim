@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func initProdConf() {
+func initLocalConf() {
 	LogicConf = logicConf{
 		MySQL:                  "root:liu123456@tcp(localhost:3306)/gim?charset=utf8&parseTime=true",
 		NSQIP:                  "127.0.0.1:4150",
@@ -31,6 +31,6 @@ func initProdConf() {
 		LogicRPCAddrs: "addrs:///127.0.0.1:50000",
 	}
 
-	logger.Leavel = zap.InfoLevel
-	logger.Target = logger.File
+	logger.Leavel = zap.DebugLevel
+	logger.Target = logger.Console
 }
