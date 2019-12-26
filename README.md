@@ -24,13 +24,15 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 7.接下来使用这个token，app就可以和IM服务器交互
 ### rpc接口简介
 项目所有的proto协议在gim/public/proto/目录下  
-1.logic_client.ext.proto  
+1.tcp.proto  
+长连接通讯协议  
+2.logic_client.ext.proto  
 对客户端（Android设备，IOS设备）提供的rpc协议  
-2.logic_server.ext.proto    
+3.logic_server.ext.proto    
 对业务服务器提供的rpc协议  
-3.logic.int.proto  
+4.logic.int.proto  
 对conn服务层提供的rpc协议  
-4.conn.int.proto  
+5.conn.int.proto  
 对logic服务层提供的rpc协议  
 ### 项目目录介绍
 ```bash
