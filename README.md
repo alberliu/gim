@@ -36,18 +36,24 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 对logic服务层提供的rpc协议  
 ### 项目目录介绍
 ```bash
-├─ app # 服务启动入口
+├─ app           # 服务启动入口
 │   ├── tcp_conn # TCP连接层启动入口
-|   ├── ws_conn # WebSocket连接层启动入口
-│   └── logic   # 逻辑层启动入口
+|   ├── ws_conn  # WebSocket连接层启动入口
+│   └── logic    # 逻辑层启动入口
 ├─ conf # 配置
-├─ tcp_conn # TCP连接层服务代码
-├─ ws_conn # WebSocket连接层服务代码
-├─ ligic # 逻辑层服务代码
-├─ public # 连接层和逻辑层公共代码
-├─ sql # 数据库建表语句
-├─ test # 测试脚本
-├─ docs # 项目文档
+├─ tcp_conn      # TCP连接层服务代码
+├─ ws_conn       # WebSocket连接层服务代码
+├─ ligic         # 逻辑层服务代码
+│   ├── cache    # 缓存，操作redis封装
+|   ├── dao      # 操作数据库的封装
+│   └── db       # Redis以及MySQL实例
+│   └── model    # 模型层
+│   └── service  # 业务逻辑层
+│   └── rpc      # 对外提供的rpc接口
+├─ public        # 连接层和逻辑层公共代码
+├─ sql           # 数据库建表语句
+├─ test          # 测试脚本
+├─ docs          # 项目文档
 ```
 ### TCP拆包粘包
 遵循TLV的协议格式，一个消息包分为三部分，消息类型（两个字节），消息包内容长度（两个字节），消息内容。  
@@ -107,5 +113,132 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 ![749fc468746055a8ecf3fba913b66885.png](http://s1.wailian.download/2019/12/26/749fc468746055a8ecf3fba913b66885.png)
 #### 大群消息群发
 ![e3f92bdbb3eef199d185c28292307497.png](http://s1.wailian.download/2019/12/26/e3f92bdbb3eef199d185c28292307497.png)
+### 错误处理,链路追踪,日志打印
+   系统中的错误一般可以归类为两种，一种是业务定义的错误，一种就是未知的错误，在业务正式上线的时候，业务定义的错误的属于正常业务逻辑，不需要打印出来，
+但是未知的错误，我们就需要打印出来，我们不仅要知道是什么错误，还要知道错误的调用堆栈，所以这里我对GRPC的错误进行了一些封装，使之包含调用堆栈。
+```
+func WrapError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	s := &spb.Status{
+		Code:    int32(codes.Unknown),
+		Message: err.Error(),
+		Details: []*any.Any{
+			{
+				TypeUrl: TypeUrlStack,
+				Value:   util.Str2bytes(stack()),
+			},
+		},
+	}
+	return status.FromProto(s).Err()
+}
+// Stack 获取堆栈信息
+func stack() string {
+	var pc = make([]uintptr, 20)
+	n := runtime.Callers(3, pc)
+
+	var build strings.Builder
+	for i := 0; i < n; i++ {
+		f := runtime.FuncForPC(pc[i] - 1)
+		file, line := f.FileLine(pc[i] - 1)
+		n := strings.Index(file, name)
+		if n != -1 {
+			s := fmt.Sprintf(" %s:%d \n", file[n:], line)
+			build.WriteString(s)
+		}
+	}
+	return build.String()
+}
+```
+这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，但是这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
+B服务，当B服务发生错误时，在A服务通过日志打印错误的时候，我们只打印了B服务的调用堆栈，怎样可以把A服务的堆栈打印出来。我们在A服务调用的地方也获取
+一次堆栈。
+```
+func WrapRPCError(err error) error {
+	if err == nil {
+		return nil
+	}
+	e, _ := status.FromError(err)
+	s := &spb.Status{
+		Code:    int32(e.Code()),
+		Message: e.Message(),
+		Details: []*any.Any{
+			{
+				TypeUrl: TypeUrlStack,
+				Value:   util.Str2bytes(GetErrorStack(e) + " --grpc-- \n" + stack()),
+			},
+		},
+	}
+	return status.FromProto(s).Err()
+}
+
+func interceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	err := invoker(ctx, method, req, reply, cc, opts...)
+	return gerrors.WrapRPCError(err)
+}
+
+var LogicIntClient   pb.LogicIntClient
+
+func InitLogicIntClient(addr string) {
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
+	if err != nil {
+		logger.Sugar.Error(err)
+		panic(err)
+	}
+
+	LogicIntClient = pb.NewLogicIntClient(conn)
+}
+```
+像这样，就可以获取完整一次调用堆栈。
+错误打印也没有必要在函数返回错误的时候，每次都去打印。因为错误已经包含了堆栈信息
+```
+// 错误的方式
+if err != nil {
+	logger.Sugar.Error(err)
+	return err
+}
+
+// 正确的方式
+if err != nil {
+	return err
+}
+```
+然后，我们在上层统一打印就可以
+```
+func startServer {
+    extListen, err := net.Listen("tcp", conf.LogicConf.ClientRPCExtListenAddr)
+    if err != nil {
+    	panic(err)
+    }
+	extServer := grpc.NewServer(grpc.UnaryInterceptor(LogicClientExtInterceptor))
+	pb.RegisterLogicClientExtServer(extServer, &LogicClientExtServer{})
+	err = extServer.Serve(extListen)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	defer func() {
+		logPanic("logic_client_ext_interceptor", ctx, req, info, &err)
+	}()
+
+	resp, err = handler(ctx, req)
+	logger.Logger.Debug("logic_client_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+		zap.Any("resp", resp), zap.Error(err))
+
+	s, _ := status.FromError(err)
+	if s.Code() != 0 && s.Code() < 1000 {
+		md, _ := metadata.FromIncomingContext(ctx)
+		logger.Logger.Error("logic_client_ext_interceptor", zap.String("method", info.FullMethod), zap.Any("md", md), zap.Any("req", req),
+			zap.Any("resp", resp), zap.Error(err), zap.String("stack", gerrors.GetErrorStack(s)))
+	}
+	return
+}
+这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，gim中，service函数的第一个参数
+都是context
+```
 ### github
 https://github.com/alberliu/gim
