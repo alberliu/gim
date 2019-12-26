@@ -98,6 +98,8 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 #### 消息单发
 ![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
 #### 消息群发
-![cee48420191412c3.png](http://www.wailian.work/images/2019/10/26/cee48420191412c3.png)
+![f8ec11008763d3305657ff7b3e214b91.png](http://s1.wailian.download/2019/12/26/f8ec11008763d3305657ff7b3e214b91.png)
+#### 大群消息群发
+![749fc468746055a8ecf3fba913b66885.png](http://s1.wailian.download/2019/12/26/749fc468746055a8ecf3fba913b66885.png)
 ### github
 https://github.com/alberliu/gim
