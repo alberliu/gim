@@ -237,8 +237,8 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	}
 	return
 }
-这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，gim中，service函数的第一个参数
-都是context
 ```
+这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，gim中，service层函数的第一个参数
+都是context，但是dao层和cache层就不需要了，不然，显得代码臃肿。
 ### github
 https://github.com/alberliu/gim
