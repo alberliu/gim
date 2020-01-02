@@ -116,7 +116,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 ### 错误处理,链路追踪,日志打印
    系统中的错误一般可以归类为两种，一种是业务定义的错误，一种就是未知的错误，在业务正式上线的时候，业务定义的错误的属于正常业务逻辑，不需要打印出来，
 但是未知的错误，我们就需要打印出来，我们不仅要知道是什么错误，还要知道错误的调用堆栈，所以这里我对GRPC的错误进行了一些封装，使之包含调用堆栈。
-```
+```go
 func WrapError(err error) error {
 	if err == nil {
 		return nil
@@ -155,7 +155,7 @@ func stack() string {
 这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，但是这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
 B服务，当B服务发生错误时，在A服务通过日志打印错误的时候，我们只打印了B服务的调用堆栈，怎样可以把A服务的堆栈打印出来。我们在A服务调用的地方也获取
 一次堆栈。
-```
+```go
 func WrapRPCError(err error) error {
 	if err == nil {
 		return nil
@@ -193,7 +193,7 @@ func InitLogicIntClient(addr string) {
 ```
 像这样，就可以获取完整一次调用堆栈。
 错误打印也没有必要在函数返回错误的时候，每次都去打印。因为错误已经包含了堆栈信息
-```
+```go
 // 错误的方式
 if err != nil {
 	logger.Sugar.Error(err)
@@ -206,7 +206,7 @@ if err != nil {
 }
 ```
 然后，我们在上层统一打印就可以
-```
+```go
 func startServer {
     extListen, err := net.Listen("tcp", conf.LogicConf.ClientRPCExtListenAddr)
     if err != nil {
