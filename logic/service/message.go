@@ -243,27 +243,25 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 			continue
 		}
 
-		message := pb.Message{Message: &messageItem}
-		_, err = rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, devices[i].ConnAddr), &pb.DeliverMessageReq{
-			DeviceId: devices[i].DeviceId, Message: &message})
+		err = MessageService.SendToDevice(ctx, devices[i], messageItem)
 		if err != nil {
 			return err
 		}
-
-		logger.Logger.Debug("message_store_send_to_device",
-			zap.Int64("request_id", messageItem.RequestId),
-			zap.Int64("app_id", sender.AppId),
-			zap.Int64("device_id:", devices[i].DeviceId),
-			zap.Int64("user_id", toUserId),
-			zap.Int64("seq", messageItem.Seq))
 	}
 	return nil
 }
 
-func (*messageService) GetMessageSeqs(messages []model.Message) []int64 {
-	seqs := make([]int64, 0, len(messages))
-	for i := range messages {
-		seqs = append(seqs, messages[i].Seq)
+// SendToDevice 将消息发送给设备
+func (*messageService) SendToDevice(ctx context.Context, device model.Device, msgItem pb.MessageItem) error {
+	if device.Status == model.DeviceOnLine {
+		message := pb.Message{Message: &msgItem}
+		_, err := rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
+			DeviceId: device.DeviceId, Message: &message})
+		if err != nil {
+			return err
+		}
 	}
-	return seqs
+
+	// todo 其他推送厂商
+	return nil
 }
