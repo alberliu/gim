@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"gim/public/logger"
-	"gim/public/pb"
-	"gim/public/util"
-	"gim/tcp_conn"
+	"gim/internal/tcp_conn"
+	"gim/pkg/logger"
+	"gim/pkg/pb"
+	"gim/pkg/util"
 	"net"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
-
 	"github.com/golang/protobuf/proto"
+	jsoniter "github.com/json-iterator/go"
 )
 
 func main() {

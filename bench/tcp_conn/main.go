@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gim/public/logger"
-	"gim/public/pb"
-	"gim/public/util"
-	"gim/tcp_conn"
+	"gim/internal/tcp_conn"
+	"gim/pkg/logger"
+	"gim/pkg/pb"
+	"gim/pkg/util"
 	"net"
 	"time"
 

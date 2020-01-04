@@ -2,20 +2,18 @@ package main
 
 import (
 	"fmt"
-	"gim/public/grpclib"
-	"gim/public/pb"
-	"gim/public/util"
+	"gim/pkg/grpclib"
+	"gim/pkg/pb"
+	"gim/pkg/util"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
-
-	"github.com/gorilla/websocket"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
 )
 
 func main() {
