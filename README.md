@@ -34,27 +34,6 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 对conn服务层提供的rpc协议  
 5.conn.int.proto  
 对logic服务层提供的rpc协议  
-### 项目目录介绍
-```bash
-├─ app           # 服务启动入口
-│   ├── tcp_conn # TCP连接层启动入口
-|   ├── ws_conn  # WebSocket连接层启动入口
-│   └── logic    # 逻辑层启动入口
-├─ conf # 配置
-├─ tcp_conn      # TCP连接层服务代码
-├─ ws_conn       # WebSocket连接层服务代码
-├─ ligic         # 逻辑层服务代码
-│   ├── cache    # 缓存，操作redis封装
-|   ├── dao      # 操作数据库的封装
-│   └── db       # Redis以及MySQL实例
-│   └── model    # 模型层
-│   └── service  # 业务逻辑层
-│   └── rpc      # 对外提供的rpc接口
-├─ public        # 连接层和逻辑层公共代码
-├─ sql           # 数据库建表语句
-├─ test          # 测试脚本
-├─ docs          # 项目文档
-```
 ### TCP拆包粘包
 遵循LV的协议格式，一个消息包分为两部分，消息字节长度以及消息内容。
 这里为了减少内存分配，拆出来的包的内存复用读缓存区内存。  
