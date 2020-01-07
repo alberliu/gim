@@ -8,19 +8,25 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 6.支持服务水平扩展
 ### 使用技术：
 数据库：Mysql+Redis  
-组件：grpc+jsoniter+zap  
+通讯框架：Grpc  
+长连接通讯协议：Protocol Buffers  
+日志框架：Zap  
 ### 安装部署
 1.首先安装MySQL，Redis  
 2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）   
-3.修改conf下配置文件，使之和你本地配置一致  
-4.分别切换到app的tcp_conn,ws_conn,logic目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器  
+3.修改config下配置文件，使之和你本地配置一致  
+4.分别切换到cmd的tcp_conn,ws_conn,logic目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器  
+### 迅速跑通本地测试
+1.在test目录下，tcp_conn或者ws_conn目录下，执行go run main,启动测试脚本  
+2.根据提示,依次填入app_id,user_id,device_id,sync_sequence(中间空格空开)，进行长连接登录；数据库device表中已经初始化了一些设备信息，用作测试  
+3.执行api/logic/logic_client_ext_test.go下的TestLogicExtServer_SendMessage函数，发送消息
 ### 业务服务器如何接入
 1.首先生成私钥和公钥  
 2.在app表里根据你的私钥添加一条app记录    
 3.将app_id和公钥保存到业务服务器  
 4.将用户通过LogicClientExtServer.AddUser接口添加到IM服务器  
 5.通过LogicClientExtServer.RegisterDevice接口注册设备，获取设备id(device_id)  
-6.将app_id，user_id,device_id用公钥通过公钥加密，生成token,相应库的代码在public/util/aes.go  
+6.将app_id，user_id,device_id用公钥通过公钥加密，生成token,相应库的代码在pkg/util/aes.go  
 7.接下来使用这个token，app就可以和IM服务器交互
 ### rpc接口简介
 项目所有的proto协议在gim/public/proto/目录下  
@@ -34,6 +40,24 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 对conn服务层提供的rpc协议  
 5.conn.int.proto  
 对logic服务层提供的rpc协议  
+### 项目目录简介
+项目结构遵循 https://github.com/golang-standards/project-layout
+```
+api:          服务对外提供的grpc接口
+cmd:          服务启动入口
+config:       服务配置
+internal:     每个服务私有代码
+pkg:          服务共有代码
+sql:          项目sql文件
+test:         长连接测试脚本
+```
+### 服务简介
+1.tcp_conn  
+维持与客户端的TCP长连接，心跳，以及TCP拆包粘包，消息编解码  
+1.ws_conn  
+维持与客户端的WebSocket长连接，心跳，消息编解码  
+2.logic  
+设备信息，用户信息，群组信息管理，消息转发逻辑  
 ### TCP拆包粘包
 遵循LV的协议格式，一个消息包分为两部分，消息字节长度以及消息内容。
 这里为了减少内存分配，拆出来的包的内存复用读缓存区内存。  
@@ -42,15 +66,8 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 2.根据包头的length字段，检查报的value字段的长度是否大于等于length  
 3.如果大于，返回一个完整包（此包内存复用），重复步骤2  
 4.如果小于，将buffer的有效字节前移，重复步骤1  
-### 服务简介
-1.tcp_conn  
-维持与客户端的TCP长连接，心跳，以及TCP拆包粘包，消息编解码  
-1.ws_conn  
-维持与客户端的WebSocket长连接，心跳，消息编解码  
-2.logic  
-消息转发逻辑，设备信息，用户信息，群组信息的操作  
 ### 离线消息同步
-用户的消息维护一个自增的序列号，当客户端TCP连接断开重新建立连接时，首先要做TCP长连接的登录，然后用客户端本地已经同步的最大的序列号做消息同步，这样就可以保证离线消息的不丢失。  
+用户的消息维护一个自增的序列号，每次客户端建立长连接时，首先要做TCP长连接的登录，然后用客户端本地已经同步的最大的序列号做消息同步，这样就可以保证离线消息的不丢失。  
 ### 单用户多设备支持
 当用户发送消息时，除了将消息发送目的用户  
 在DB中，每个用户只维护一个自己的消息列表，但是用户的每个设备各自维护自己的同步序列号，设备使用自己的同步序列号在消息列表中做消息同步  
@@ -218,6 +235,18 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 }
 ```
 这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，gim中，service层函数的第一个参数
-都是context，但是dao层和cache层就不需要了，不然，显得代码臃肿。
+都是context，但是dao层和cache层就不需要了，不然，显得代码臃肿。  
+最后可以在客户端的每次请求添加一个随机的request_id，这样客户端到服务的每次请求都可以串起来了。
+```go
+func getCtx() context.Context {
+	token, _ := util.GetToken(1, 2, 3, time.Now().Add(1*time.Hour).Unix(), util.PublicKey)
+	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
+		"app_id", "1",
+		"user_id", "2",
+		"device_id", "3",
+		"token", token,
+		"request_id", strconv.FormatInt(time.Now().UnixNano(), 10)))
+}
+```
 ### github
 https://github.com/alberliu/gim
