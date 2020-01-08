@@ -94,8 +94,10 @@ test:         长连接测试脚本
 #### 心跳
 ![6ea6acf2cd4b956e.png](http://www.wailian.work/images/2019/10/26/6ea6acf2cd4b956e.png)
 #### 消息单发
+c1.d1和c1.d2分别表示c1用户的两个设备d1和d2,c2.d3和c2.d4同理
 ![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
 #### 小群消息群发
+c1,c2.c3表示一个群组中的三个用户
 ![749fc468746055a8ecf3fba913b66885.png](http://s1.wailian.download/2019/12/26/749fc468746055a8ecf3fba913b66885.png)
 #### 大群消息群发
 ![e3f92bdbb3eef199d185c28292307497.png](http://s1.wailian.download/2019/12/26/e3f92bdbb3eef199d185c28292307497.png)
