@@ -18,7 +18,7 @@ func (*deviceDao) Add(device model.Device) error {
 		values(?,?,?,?,?,?,?,?,?)`,
 		device.DeviceId, device.AppId, device.Type, device.Brand, device.Model, device.SystemVersion, device.SDKVersion, device.Status, "")
 	if err != nil {
-		gerrors.WrapError(err)
+		return gerrors.WrapError(err)
 	}
 	return nil
 }
