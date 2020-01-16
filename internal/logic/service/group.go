@@ -25,6 +25,10 @@ func (*groupService) Get(ctx context.Context, appId, groupId int64) (*model.Grou
 	if err != nil {
 		return nil, err
 	}
+	err = cache.GroupCache.Set(group)
+	if err != nil {
+		return nil, err
+	}
 	return group, nil
 }
 
