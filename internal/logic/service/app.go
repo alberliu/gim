@@ -15,7 +15,7 @@ var AppService = new(appService)
 func (*appService) Get(ctx context.Context, appId int64) (*model.App, error) {
 	app, err := cache.AppCache.Get(appId)
 	if err != nil {
-		return app, nil
+		return nil, err
 	}
 	if app != nil {
 		return app, nil
@@ -23,7 +23,7 @@ func (*appService) Get(ctx context.Context, appId int64) (*model.App, error) {
 
 	app, err = dao.AppDao.Get(appId)
 	if err != nil {
-		return app, nil
+		return nil, err
 	}
 
 	if app != nil {
