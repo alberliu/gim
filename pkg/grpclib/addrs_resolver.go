@@ -1,8 +1,9 @@
 package grpclib
 
 import (
-	"google.golang.org/grpc/resolver"
 	"strings"
+
+	"google.golang.org/grpc/resolver"
 )
 
 func init() {
@@ -20,7 +21,7 @@ func NewAddrsBuilder() resolver.Builder {
 	return &addrsBuilder{}
 }
 
-func (b *addrsBuilder) Build(target resolver.Target, clientConn resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
+func (b *addrsBuilder) Build(target resolver.Target, clientConn resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	ips := strings.Split(target.Endpoint, ",")
 
 	state := resolver.State{
@@ -42,7 +43,7 @@ type addrsResolver struct {
 	clientConn resolver.ClientConn
 }
 
-func (r *addrsResolver) ResolveNow(opt resolver.ResolveNowOption) {
+func (r *addrsResolver) ResolveNow(opt resolver.ResolveNowOptions) {
 	state := resolver.State{
 		Addresses: getAddrs(r.addrs),
 	}

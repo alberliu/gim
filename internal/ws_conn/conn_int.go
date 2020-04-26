@@ -1,9 +1,8 @@
-package tcp_conn
+package ws_conn
 
 import (
 	"context"
 	"gim/config"
-	"gim/internal/tcp_conn"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"net"
@@ -16,7 +15,7 @@ type ConnIntServer struct{}
 
 // Message 投递消息
 func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.DeliverMessageResp, error) {
-	return &pb.DeliverMessageResp{}, tcp_conn.DeliverMessage(ctx, req)
+	return &pb.DeliverMessageResp{}, DeliverMessage(ctx, req)
 }
 
 // UnaryServerInterceptor 服务器端的单向调用的拦截器
@@ -28,7 +27,7 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 
 // StartRPCServer 启动rpc服务器
 func StartRPCServer() {
-	listener, err := net.Listen("tcp", config.ConnConf.RPCListenAddr)
+	listener, err := net.Listen("tcp", config.WSConf.RPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

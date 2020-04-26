@@ -11,7 +11,7 @@ type LogicIntServer struct{}
 
 // SignIn 设备登录
 func (*LogicIntServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
-	return &pb.SignInResp{}, service.AuthService.SignIn(ctx, req.AppId, req.UserId, req.DeviceId, req.Token, req.ConnAddr)
+	return &pb.SignInResp{}, service.AuthService.SignIn(ctx, req.AppId, req.UserId, req.DeviceId, req.Token, req.ConnAddr, req.ConnFd)
 }
 
 // Sync 设备同步消息

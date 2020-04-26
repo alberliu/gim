@@ -6,7 +6,8 @@ package pb;
 
 message DeliverMessageReq {
     int64 device_id = 1; // 设备id
-    Message message = 2; // 数据
+    int64 fd = 2; // 文件描述符
+    Message message = 3; // 数据
 }
 message DeliverMessageResp {
 }

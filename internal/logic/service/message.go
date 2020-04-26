@@ -255,8 +255,13 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 func (*messageService) SendToDevice(ctx context.Context, device model.Device, msgItem pb.MessageItem) error {
 	if device.Status == model.DeviceOnLine {
 		message := pb.Message{Message: &msgItem}
-		_, err := rpc_cli.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
-			DeviceId: device.DeviceId, Message: &message})
+		_, err := rpc_cli.ConnIntClient.DeliverMessage(
+			grpclib.ContextWithAddr(ctx, device.ConnAddr),
+			&pb.DeliverMessageReq{
+				DeviceId: device.DeviceId,
+				Fd:       device.ConnFd,
+				Message:  &message,
+			})
 		if err != nil {
 			return err
 		}

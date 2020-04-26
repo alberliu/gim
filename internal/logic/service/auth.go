@@ -12,7 +12,7 @@ type authService struct{}
 var AuthService = new(authService)
 
 // SignIn 长连接登录
-func (*authService) SignIn(ctx context.Context, appId, userId, deviceId int64, token string, connectAddr string) error {
+func (*authService) SignIn(ctx context.Context, appId, userId, deviceId int64, token string, connAddr string, connFd int64) error {
 	// 用户验证
 	err := AuthService.VerifyToken(ctx, appId, userId, deviceId, token)
 	if err != nil {
@@ -20,7 +20,7 @@ func (*authService) SignIn(ctx context.Context, appId, userId, deviceId int64, t
 	}
 
 	// 标记用户在设备上登录
-	err = DeviceService.Online(ctx, appId, deviceId, userId, connectAddr)
+	err = DeviceService.Online(ctx, appId, deviceId, userId, connAddr, connFd)
 	if err != nil {
 		return err
 	}

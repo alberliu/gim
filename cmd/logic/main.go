@@ -1,9 +1,9 @@
 package main
 
 import (
-	"gim/api/logic"
 	"gim/config"
 	"gim/internal/logic/db"
+	"gim/internal/logic/logic"
 	"gim/pkg/logger"
 	"gim/pkg/rpc_cli"
 	"gim/pkg/util"

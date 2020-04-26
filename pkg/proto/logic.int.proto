@@ -8,6 +8,7 @@ message SignInReq {
     int64 user_id = 3; // 用户id
     string token = 4; // 秘钥
     string conn_addr = 5; // 服务器地址
+    int64 conn_fd = 6; // tcp长连接对应的文件描述符
 }
 message SignInResp {
 }

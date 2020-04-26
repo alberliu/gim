@@ -1,9 +1,8 @@
 package main
 
 import (
-	"gim/api/tcp_conn"
 	"gim/config"
-	tcp_conn2 "gim/internal/tcp_conn"
+	"gim/internal/tcp_conn"
 	"gim/pkg/rpc_cli"
 	"gim/pkg/util"
 )
@@ -19,6 +18,6 @@ func main() {
 	rpc_cli.InitLogicIntClient(config.ConnConf.LogicRPCAddrs)
 
 	// 启动长链接服务器
-	server := tcp_conn2.NewTCPServer(config.ConnConf.TCPListenAddr, 10)
-	server.Start()
+	// 启动长链接服务器
+	tcp_conn.StartTCPServer(config.ConnConf.Port)
 }

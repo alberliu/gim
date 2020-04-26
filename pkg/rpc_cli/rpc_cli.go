@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	LogicIntClient   pb.LogicIntClient
-	ConnectIntClient pb.ConnIntClient
+	LogicIntClient pb.LogicIntClient
+	ConnIntClient  pb.ConnIntClient
 )
 
 func InitLogicIntClient(addr string) {
@@ -33,5 +33,5 @@ func InitConnIntClient(addr string) {
 		panic(err)
 	}
 
-	ConnectIntClient = pb.NewConnIntClient(conn)
+	ConnIntClient = pb.NewConnIntClient(conn)
 }

@@ -23,7 +23,7 @@ type logicConf struct {
 
 // conn配置
 type connConf struct {
-	TCPListenAddr string
+	Port          int
 	RPCListenAddr string
 	LocalAddr     string
 	LogicRPCAddrs string

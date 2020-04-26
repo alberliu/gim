@@ -18,7 +18,7 @@ func initLocalConf() {
 	}
 
 	ConnConf = connConf{
-		TCPListenAddr: ":8080",
+		Port:          8080,
 		RPCListenAddr: ":60000",
 		LocalAddr:     "127.0.0.1:60000",
 		LogicRPCAddrs: "addrs:///127.0.0.1:50000",

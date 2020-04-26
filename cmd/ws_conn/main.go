@@ -1,7 +1,6 @@
 package main
 
 import (
-	"gim/api/ws_conn"
 	"gim/config"
 	ws_conn2 "gim/internal/ws_conn"
 	"gim/pkg/rpc_cli"
@@ -12,7 +11,7 @@ func main() {
 	// 启动rpc服务
 	go func() {
 		defer util.RecoverPanic()
-		ws_conn.StartRPCServer()
+		ws_conn2.StartRPCServer()
 	}()
 
 	// 初始化Rpc Client
