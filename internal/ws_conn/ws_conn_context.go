@@ -59,6 +59,7 @@ func (c *WSConnContext) HandlePackage(bytes []byte) {
 	if err != nil {
 		logger.Sugar.Error(err)
 		c.Release()
+		return
 	}
 
 	switch input.Type {
