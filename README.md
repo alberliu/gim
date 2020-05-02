@@ -140,7 +140,7 @@ func stack() string {
 	return build.String()
 }
 ```
-这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，但是这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
+这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
 B服务，当B服务发生错误时，在A服务通过日志打印错误的时候，我们只打印了B服务的调用堆栈，怎样可以把A服务的堆栈打印出来。我们在A服务调用的地方也获取
 一次堆栈。
 ```go
@@ -226,7 +226,7 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	return
 }
 ```
-这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，gim中，service层函数的第一个参数
+这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal，所以只能通过函数参数的形式进行传递，gim中，service层函数的第一个参数
 都是context，但是dao层和cache层就不需要了，不然，显得代码臃肿。  
 最后可以在客户端的每次请求添加一个随机的request_id，这样客户端到服务的每次请求都可以串起来了。
 ```go
