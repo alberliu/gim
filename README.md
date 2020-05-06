@@ -8,7 +8,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 6.支持服务水平扩展
 ### 使用技术：
 数据库：Mysql+Redis  
-通讯框架：Grpc  
+通讯框架：GRPC  
 长连接通讯协议：Protocol Buffers  
 日志框架：Zap  
 ### 安装部署
@@ -16,6 +16,8 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要功�
 2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）   
 3.修改config下配置文件，使之和你本地配置一致  
 4.分别切换到cmd的tcp_conn,ws_conn,logic目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器  
+注意：tcp_conn使用了linux的系统调用，所以只能在linux环境下启动，如果是其他环境，可以在安装docker的前提下，
+执行run.sh启动
 ### 迅速跑通本地测试
 1.在test目录下，tcp_conn或者ws_conn目录下，执行go run main,启动测试脚本  
 2.根据提示,依次填入app_id,user_id,device_id,sync_sequence(中间空格空开)，进行长连接登录；数据库device表中已经初始化了一些设备信息，用作测试  
