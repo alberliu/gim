@@ -49,7 +49,7 @@ func (*userDao) Get(appId, userId int64) (*model.User, error) {
 
 // Update 更新用户信息
 func (*userDao) Update(user model.User) error {
-	_, err := db.DBCli.Exec("update user set nickname = ?,sex = ?,avatar_url = ?,extra = ? where app_id = and user_id = ?",
+	_, err := db.DBCli.Exec("update user set nickname = ?,sex = ?,avatar_url = ?,extra = ? where app_id = ? and user_id = ?",
 		user.Nickname, user.Sex, user.AvatarUrl, user.Extra, user.AppId, user.UserId)
 	if err != nil {
 		return gerrors.WrapError(err)
