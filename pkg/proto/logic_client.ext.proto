@@ -1,0 +1,143 @@
+syntax = "proto3";
+import "tcp.proto";
+package pb;
+
+message RegisterDeviceReq {
+    int64 app_id = 1; // app_id
+    int32 type = 2; // 设备类型
+    string brand = 3; // 厂商
+    string model = 4; // 机型
+    string system_version = 5; // 系统版本
+    string sdk_version = 6; // sdk版本号
+}
+message RegisterDeviceResp {
+    int64 device_id = 1; // 设备id
+}
+
+message User {
+    int64 user_id = 1; // 用户id
+    string nickname = 2; // 昵称
+    int32 sex = 3; // 性别
+    string avatar_url = 4; // 头像地址
+    string extra = 5; // 附加字段
+    int64 create_time = 6; // 创建时间
+    int64 update_time = 7; // 更新时间
+}
+
+message AddUserReq {
+    User user = 1; // 用户信息
+}
+message AddUserResp {
+}
+
+message GetUserReq {
+    int64 user_id = 1; // 用户id
+}
+message GetUserResp {
+    User user = 1; // 用户信息
+}
+
+message SendMessageReq {
+    string message_id = 1; //消息id
+    ReceiverType receiver_type = 2; // 接收者类型，1：user;2:group
+    int64 receiver_id = 3; // 用户id或者群组id
+    repeated int64 to_user_ids = 4; // 需要@的用户id列表
+    MessageBody message_body = 5; // 消息体
+    int64 send_time = 6; // 消息发送时间戳，精确到毫秒
+    bool is_persist = 7; // 是否将消息持久化到数据库
+}
+message SendMessageResp {
+
+}
+
+message Group {
+    int64 group_id = 1; // 群组id
+    string name = 2; // 名称
+    string introduction = 3; // 简介
+    int32 user_mum = 4; // 用户数
+    int32 type = 5; // 群组类型
+    string extra = 6; // 附加字段
+    int64 create_time = 7; // 创建时间
+    int64 update_time = 8; // 更新时间
+}
+
+message CreateGroupReq {
+    Group group = 1;
+}
+message CreateGroupResp {
+}
+
+message UpdateGroupReq {
+    Group group = 1;
+}
+message UpdateGroupResp {
+
+}
+
+message GetGroupReq {
+    int64 group_id = 1;
+}
+message GetGroupResp {
+    Group group = 1;
+}
+
+message GetUserGroupsReq {
+}
+message GetUserGroupsResp {
+    repeated Group groups = 1;
+}
+
+// 群组用户
+message GroupUser {
+    int64 group_id = 1; // 群组id
+    int64 user_id = 2; // 用户id
+    string label = 3; // 标签
+    string extra = 4; // 附加属性
+}
+
+message AddGroupMemberReq {
+    GroupUser group_user = 1;
+}
+message AddGroupMemberResp {
+}
+
+message UpdateGroupMemberReq {
+    GroupUser group_user = 1;
+}
+message UpdateGroupMemberResp {
+}
+
+message DeleteGroupMemberReq {
+    int64 group_id = 1; // 群组id
+    int64 user_id = 2; // 用户id
+}
+message DeleteGroupMemberResp {
+}
+
+service LogicClientExt {
+    // 注册设备
+    rpc RegisterDevice (RegisterDeviceReq) returns (RegisterDeviceResp);
+    // 添加用户
+    rpc AddUser (AddUserReq) returns (AddUserResp);
+    // 获取用户信息
+    rpc GetUser (GetUserReq) returns (GetUserResp);
+
+    // 发送消息
+    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
+
+    // 创建群组
+    rpc CreateGroup (CreateGroupReq) returns (CreateGroupResp);
+    // 更新群组
+    rpc UpdateGroup (UpdateGroupReq) returns (UpdateGroupResp);
+    // 获取群组信息
+    rpc GetGroup (GetGroupReq) returns (GetGroupResp);
+    // 获取用户加入的所有群组
+    rpc GetUserGroups (GetUserGroupsReq) returns (GetUserGroupsResp);
+
+    // 添加群组成员
+    rpc AddGroupMember (AddGroupMemberReq) returns (AddGroupMemberResp);
+    // 更新群组成员信息
+    rpc UpdateGroupMember (UpdateGroupMemberReq) returns (UpdateGroupMemberResp);
+    // 添加群组成员
+    rpc DeleteGroupMember (DeleteGroupMemberReq) returns (DeleteGroupMemberResp);
+}

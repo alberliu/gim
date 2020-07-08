@@ -1,0 +1,18 @@
+syntax = "proto3";
+import "tcp.proto";
+
+
+package pb;
+
+message DeliverMessageReq {
+    int64 device_id = 1; // 设备id
+    int64 fd = 2; // 文件描述符
+    Message message = 3; // 数据
+}
+message DeliverMessageResp {
+}
+
+service ConnInt {
+    //  消息投递
+    rpc DeliverMessage (DeliverMessageReq) returns (DeliverMessageResp);
+}

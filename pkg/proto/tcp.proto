@@ -1,0 +1,179 @@
+syntax = "proto3";
+package pb;
+
+enum PackageType {
+    PT_UNKNOWN = 0; // 未知
+    PT_SIGN_IN = 1; // 设备登录请求
+    PT_SYNC = 2; // 消息同步触发
+    PT_HEARTBEAT = 3; // 心跳
+    PT_MESSAGE = 4; // 消息投递
+}
+
+/************************************消息体定义开始************************************/
+// 消息体
+message MessageBody {
+    MessageType message_type = 1; // 消息类型
+    MessageContent message_content = 2; // 消息内容
+}
+
+// 消息类型
+enum MessageType {
+    MT_UNKNOWN = 0; // 未知
+    MT_TEXT = 1; // 文本
+    MT_FACE = 2; // 表情
+    MT_VOICE = 3; // 语音消息
+    MT_IMAGE = 4; // 图片
+    MT_FILE = 5; // 文件
+    MT_LOCATION = 6; // 地理位置
+    MT_COMMAND = 7; // 指令推送
+    MT_CUSTOM = 8; // 自定义
+}
+
+// 消息内容，MessageType：1
+message MessageContent {
+    oneof content {
+        Text text = 1; // 文本
+        Face face = 2; // 表情
+        Voice voice = 3; // 语音消息
+        Image image = 4; // 图片
+        File file = 5; // 文件
+        Location location = 6; // 地理位置
+        Command command = 7; // 指令
+        Custom custom = 8; // 自定义消息类型数据
+    }
+}
+
+// 文本消息
+message Text {
+    string text = 1; // 文本消息内容
+}
+
+// 表情消息
+message Face {
+    int64 face_id = 1;
+    string face_url = 2;
+}
+
+// 语音消息
+message Voice {
+    string id = 1; // 语音包id
+    int32 size = 2; // 语音包大小
+    int32 duration = 3; // 语音时长
+    string url = 4; // 语音文件URL
+}
+
+// 图片消息
+message Image {
+    string id = 1; // 图片id
+    int32 width = 2; // 图片宽度
+    int32 height = 3; // 图片长度
+    string url = 4; // 图片URL
+    string thumbnail_url = 5; // 图片缩略图url
+}
+
+// 文件消息
+message File {
+    int64 id = 12; // 文件id
+    string name = 13; // 文件名
+    int64 size = 14; // 文件大小
+    string url = 15; // 文件url
+}
+
+// 地理位置消息
+message Location {
+    string desc = 1; // 描述
+    double latitude = 2; // 经度
+    double longitude = 3; // 纬度
+}
+
+// Command 指令推送，1000以下，IM内部用，1000以上，留给业务用
+message Command {
+    int32 code = 1; // 指令码
+    bytes data = 2; // 数据内容
+}
+
+// 自定义消息
+message Custom {
+    string data = 1; // 自定义数据
+}
+
+// 单条消息投递内容,todo 通知栏提醒
+message MessageItem {
+    int64 request_id = 1; // 请求id
+    SenderType sender_type = 2; // 发送者类型，1:系统,2:用户,3:第三方业务系统
+    int64 sender_id = 3; // 发送者id
+    int64 sender_device_id = 4; // 发送者设备id
+    ReceiverType receiver_type = 5; // 接收者类型，1：user;2:group
+    int64 receiver_id = 6; // 用户id或者群组id
+    repeated int64 to_user_ids = 7; // 需要@的用户id列表
+    MessageBody message_body = 8; // 消息体
+    int64 seq = 9; // 用户消息发送序列号
+    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
+    MessageStatus status = 11; // 消息状态
+}
+/************************************消息体定义结束************************************/
+
+// 上行数据
+message Input {
+    PackageType type = 1; // 包的类型
+    int64 request_id = 2; // 请求id
+    bytes data = 3; // 数据
+}
+
+// 下行数据
+message Output {
+    PackageType type = 1; // 包的类型
+    int64 request_id = 2; // 请求id
+    int32 code = 3; // 错误码
+    string message = 4; // 错误信息
+    bytes data = 5; // 数据
+}
+
+// 设备登录,package_type:1
+message SignInInput {
+    int64 app_id = 1; // app_id
+    int64 device_id = 2; // 设备id
+    int64 user_id = 3; // 用户id
+    string token = 4; // 秘钥
+}
+
+// 消息同步请求,package_type:2
+message SyncInput {
+    int64 seq = 1; // 客户端已经同步的序列号
+}
+
+// 消息同步响应,package_type:2
+message SyncOutput {
+    repeated MessageItem messages = 3; // 消息列表
+}
+
+enum ReceiverType {
+    RT_UNKNOWN = 0; // 未知
+    RT_USER = 1; // 用户
+    RT_NORMAL_GROUP = 2; // 普通群组
+    RT_LARGE_GROUP = 3; // 大群组
+}
+
+// 消息投递,package_type:4
+message Message {
+    MessageItem message = 1; // 消息
+}
+
+enum SenderType {
+    ST_UNKNOWN = 0; // 未知的
+    ST_SYSTEM = 1; // IM系统
+    ST_USER = 2; // 用户
+    ST_BUSINESS = 3; // 业务方
+}
+
+enum MessageStatus {
+    MS_UNKNOWN = 0; // 未知的
+    MS_NORMAL = 1; // 正常的
+    MS_RECALL = 2; // 撤回
+}
+
+// 投递消息回执,package_type:4
+message MessageACK {
+    int64 device_ack = 2; // 设备收到消息的确认号
+    int64 receive_time = 3; // 消息接收时间戳，精确到毫秒
+}

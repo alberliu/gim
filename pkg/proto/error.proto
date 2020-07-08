@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+
+
+enum ErrCode {
+    EC_SUCCESS = 0;
+    EC_SERVER_UNKNOWN = 1001; // 服务器未知错误
+    EC_UNAUTHORIZED = 1002; // 未登录或者需要重新登录
+    EC_IS_NOT_FRIEND = 1003; // 不是好友关系
+    EC_IS_NOT_IN_GROUP = 1004; // 用户没有在群组内
+    EC_DEVICE_NOT_BIND_USER = 1005; // 设备没有绑定用户
+    EC_BAD_REQUEST = 1006; // 请求参数错误
+    EC_USER_ALREADY_EXIST = 1007; // 用户已经存在
+    EC_GROUP_ALREADY_EXIST = 1008; // 群组已经存在
+    EC_GROUP_NOT_EXIST = 1009; // 群组不存在
+    EC_USER_NOT_EXIST = 1010; // 用户不存在
+}

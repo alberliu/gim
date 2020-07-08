@@ -1,0 +1,16 @@
+@startuml
+participant client
+participant connect
+participant logic
+
+client -> connect: 离线消息同步
+connect -> logic: 离线消息同步
+
+logic -> logic: 如果seq!=0,同步序列号大于seq的消息，否则，同步用户未收到的消息
+
+logic --> connect: 返回离线消息
+connect --> client: 返回离线消息
+
+client -> connect: 消息ack
+connect -> logic: 消息ack
+@enduml
