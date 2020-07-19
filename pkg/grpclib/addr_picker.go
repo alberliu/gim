@@ -6,7 +6,6 @@ import (
 
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
-	"google.golang.org/grpc/resolver"
 )
 
 const Name = "addr"
@@ -26,17 +25,17 @@ func ContextWithAddr(ctx context.Context, addr string) context.Context {
 type addrPickerBuilder struct{}
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilderWithConfig(Name, &addrPickerBuilder{}, base.Config{HealthCheck: true})
+	return base.NewBalancerBuilder(Name, &addrPickerBuilder{}, base.Config{HealthCheck: true})
 }
 
-func (*addrPickerBuilder) Build(readySCs map[resolver.Address]balancer.SubConn) balancer.Picker {
-	if len(readySCs) == 0 {
+func (*addrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
+	if len(info.ReadySCs) == 0 {
 		return base.NewErrPicker(balancer.ErrNoSubConnAvailable)
 	}
 
-	subConns := make(map[string]balancer.SubConn, len(readySCs))
-	for k, sc := range readySCs {
-		subConns[k.Addr] = sc
+	subConns := make(map[string]balancer.SubConn, len(info.ReadySCs))
+	for k, sc := range info.ReadySCs {
+		subConns[sc.Address.Addr] = k
 	}
 	return &addrPicker{
 		subConns: subConns,
@@ -47,11 +46,14 @@ type addrPicker struct {
 	subConns map[string]balancer.SubConn
 }
 
-func (p *addrPicker) Pick(ctx context.Context, info balancer.PickInfo) (balancer.SubConn, func(balancer.DoneInfo), error) {
-	address := ctx.Value(addrKey).(string)
+func (p *addrPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
+	pr := balancer.PickResult{}
+
+	address := info.Ctx.Value(addrKey).(string)
 	sc, ok := p.subConns[address]
 	if !ok {
-		return nil, nil, ErrNoSubConnSelect
+		return pr, ErrNoSubConnSelect
 	}
-	return sc, nil, nil
+	pr.SubConn = sc
+	return pr, nil
 }
