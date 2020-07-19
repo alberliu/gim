@@ -26,11 +26,11 @@ var upgrader = websocket.Upgrader{
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
-	appId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxAppId), 10, 64)
-	userId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxUserId), 10, 64)
-	deviceId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxDeviceId), 10, 64)
-	token := r.Header.Get(grpclib.CtxToken)
-	requestId, _ := strconv.ParseInt(r.Header.Get(grpclib.CtxRequestId), 10, 64)
+	appId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxAppId), 10, 64)
+	userId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxUserId), 10, 64)
+	deviceId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxDeviceId), 10, 64)
+	token := r.FormValue(grpclib.CtxToken)
+	requestId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxRequestId), 10, 64)
 
 	if appId == 0 || userId == 0 || deviceId == 0 || token == "" {
 		s, _ := status.FromError(gerrors.ErrUnauthorized)
