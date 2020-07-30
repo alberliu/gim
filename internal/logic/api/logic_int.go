@@ -5,6 +5,7 @@ import (
 	"gim/internal/logic/model"
 	"gim/internal/logic/service"
 	"gim/pkg/gerrors"
+	"gim/pkg/logger"
 	"gim/pkg/pb"
 )
 
@@ -73,4 +74,15 @@ func (*LogicIntServer) GetDevice(ctx context.Context, req *pb.GetDeviceReq) (*pb
 			UpdateTime:    device.UpdateTime.Unix(),
 		},
 	}, nil
+}
+
+// ServerStop 服务停止
+func (s *LogicIntServer) ServerStop(ctx context.Context, in *pb.ServerStopReq) (*pb.ServerStopResp, error) {
+	go func() {
+		err := service.DeviceService.ServerStop(ctx, in.ConnAddr)
+		if err != nil {
+			logger.Sugar.Error(err)
+		}
+	}()
+	return &pb.ServerStopResp{}, nil
 }

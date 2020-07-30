@@ -106,3 +106,27 @@ func (*deviceService) Offline(ctx context.Context, userId, deviceId int64) error
 	}
 	return nil
 }
+
+// ServerStop 设备离线
+func (*deviceService) ServerStop(ctx context.Context, connAddr string) error {
+	devices, err := dao.DeviceDao.ListOnlineByConnAddr(connAddr)
+	if err != nil {
+		return err
+	}
+
+	err = dao.DeviceDao.UpdateStatusByCoonAddr(connAddr, model.DeviceOffLine)
+	if err != nil {
+		return err
+	}
+
+	var userIds = make([]int64, 0, len(devices))
+	for i := range devices {
+		userIds = append(userIds, devices[i].UserId)
+	}
+
+	err = cache.UserDeviceCache.Del(userIds...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
