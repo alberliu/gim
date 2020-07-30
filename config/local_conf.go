@@ -8,9 +8,9 @@ import (
 
 func initLocalConf() {
 	Logic = LogicConf{
-		MySQL:            "root:liu123456@tcp(112.126.102.84:3306)/im?charset=utf8&parseTime=true",
-		NSQIP:            "112.126.102.84:4150",
-		RedisIP:          "112.126.102.84:6379",
+		MySQL:            "root:liu123456@tcp(localhost:3306)/im?charset=utf8&parseTime=true",
+		NSQIP:            "127.0.0.1:4150",
+		RedisIP:          "127.0.0.1:6379",
 		RedisPassword:    "liu123456",
 		RPCIntListenAddr: ":50000",
 		RPCExtListenAddr: ":50001",
@@ -33,10 +33,9 @@ func initLocalConf() {
 	}
 
 	User = UserConf{
-		MySQL:            "root:liu123456@tcp(112.126.102.84:3306)/im?charset=utf8&parseTime=true",
-		NSQIP:            "112.126.102.84:4150",
-		RedisIP:          "112.126.102.84:6379",
-		RedisPassword:    "liu123456",
+		MySQL:            "root:liu123456@tcp(localhost:3306)/im?charset=utf8&parseTime=true",
+		NSQIP:            "127.0.0.1:4150",
+		RedisIP:          "127.0.0.1:6379",
 		RPCIntListenAddr: ":50300",
 		RPCExtListenAddr: ":50301",
 		LogicRPCAddrs:    "addrs:///127.0.0.1:50000",
