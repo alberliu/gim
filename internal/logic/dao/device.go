@@ -75,3 +75,23 @@ func (*deviceDao) Upgrade(deviceId int64, systemVersion, sdkVersion string) erro
 	}
 	return nil
 }
+
+// ListUserOnline 查询用户所有的在线设备
+func (*deviceDao) ListOnlineByConnAddr(connAddr string) ([]model.Device, error) {
+	var devices []model.Device
+	err := db.DB.Find(&devices, "conn_addr = ? and status = ?", connAddr, model.DeviceOnLine).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+	return devices, nil
+}
+
+// UpdateStatusByCoonAddr 更新在线状态
+func (*deviceDao) UpdateStatusByCoonAddr(connAddr string, status int) error {
+	err := db.DB.Model(&model.Device{}).Where("conn_addr = ?", connAddr).
+		Update("status", status).Error
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	return nil
+}

@@ -61,6 +61,12 @@ message Device {
     int64 UpdateTime = 10; // 更新时间
 }
 
+message ServerStopReq{
+    string conn_addr = 1;
+}
+message ServerStopResp{
+}
+
 service LogicInt {
     //  登录
     rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
@@ -74,4 +80,6 @@ service LogicInt {
     rpc SendMessage (SendMessageReq) returns (SendMessageResp);
     // 发送消息
     rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
+    //  服务停止
+    rpc ServerStop (ServerStopReq) returns (ServerStopResp);
 }

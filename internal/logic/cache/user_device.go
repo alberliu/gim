@@ -39,8 +39,13 @@ func (c *userDeviceCache) Set(userId int64, devices []model.Device) error {
 	return gerrors.WrapError(err)
 }
 
-// Del 删除某一用户的在线设备列表
-func (c *userDeviceCache) Del(userId int64) error {
-	_, err := db.RedisCli.Del(UserDeviceKey + strconv.FormatInt(userId, 10)).Result()
+// Del 删除用户的在线设备列表
+func (c *userDeviceCache) Del(userIds ...int64) error {
+	var ids = make([]string, len(userIds))
+	for i := range userIds {
+		ids[i] = UserDeviceKey + strconv.FormatInt(userIds[i], 10)
+	}
+
+	_, err := db.RedisCli.Del(ids...).Result()
 	return gerrors.WrapError(err)
 }
