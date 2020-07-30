@@ -1,51 +1,32 @@
 ### 简要介绍
-gim是一个即时通讯服务器，代码全部使用golang完成。主要功能  
+im是一个即时通讯服务器，代码全部使用golang完成。主要功能  
 1.支持tcp，websocket接入  
-2.离线消息同步  
-3.多业务接入  
-4.单用户多设备同时在线    
-5.单聊，群聊，以及超大群聊天场景  
-6.支持服务水平扩展
+2.离线消息同步    
+3.单用户多设备同时在线    
+4.单聊，群聊，以及超大群聊天场景  
+5.支持服务水平扩展  
+gim和im有什么区别？gim可以作为一个im中台提供给业务方使用，而im可以作为以业务服务器的一个组件，
+为业务服务器提供im的能力，业务服务器的user服务只需要实现user.int.proto协议中定义的GRPC接口，为im服务
+提供基本的用户功能即可，其实以我目前的认知，我更推荐这种方式，这种模式相比于gim,我认为最大好处在于
+一下两点：  
+1.im不需要考虑多个app的场景，相比gim,业务复杂度降低了一个维度  
+2.各个业务服务可以互不影响，可以做到风险隔离
 ### 使用技术：
-数据库：Mysql+Redis  
+数据库：MySQL+Redis  
 通讯框架：GRPC  
 长连接通讯协议：Protocol Buffers  
 日志框架：Zap  
+ORM框架：GORM
 ### 安装部署
 1.首先安装MySQL，Redis  
-2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）   
+2.创建数据库im，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）  
 3.修改config下配置文件，使之和你本地配置一致  
-4.分别切换到cmd的tcp_conn,ws_conn,logic目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器  
-注意：tcp_conn使用了linux的系统调用，所以只能在linux环境下启动，如果是其他环境，可以在安装docker的前提下，
-执行run.sh启动
-### 迅速跑通本地测试
-1.在test目录下，tcp_conn或者ws_conn目录下，执行go run main,启动测试脚本  
-2.根据提示,依次填入app_id,user_id,device_id,sync_sequence(中间空格空开)，进行长连接登录；数据库device表中已经初始化了一些设备信息，用作测试  
-3.执行api/logic/logic_client_ext_test.go下的TestLogicExtServer_SendMessage函数，发送消息
-### 业务服务器如何接入
-1.首先生成私钥和公钥  
-2.在app表里根据你的私钥添加一条app记录    
-3.将app_id和公钥保存到业务服务器  
-4.将用户通过LogicClientExtServer.AddUser接口添加到IM服务器  
-5.通过LogicClientExtServer.RegisterDevice接口注册设备，获取设备id(device_id)  
-6.将app_id，user_id,device_id用公钥通过公钥加密，生成token,相应库的代码在pkg/util/aes.go  
-7.接下来使用这个token，app就可以和IM服务器交互
-### rpc接口简介
-项目所有的proto协议在gim/public/proto/目录下  
-1.tcp.proto  
-长连接通讯协议  
-2.logic_client.ext.proto  
-对客户端（Android设备，IOS设备）提供的rpc协议  
-3.logic_server.ext.proto    
-对业务服务器提供的rpc协议  
-4.logic.int.proto  
-对conn服务层提供的rpc协议  
-5.conn.int.proto  
-对logic服务层提供的rpc协议  
+4.分别切换到cmd的tcp_conn,ws_conn,logic,user目录下，执行go run main.go,启动TCP连接层服务器,
+WebSocket连接层服务器,逻辑层服务器,用户服务器  
+（注意：tcp_conn只能在linux下启动，如果想在其他平台下启动，请安装docker，执行run.sh）    
 ### 项目目录简介
 项目结构遵循 https://github.com/golang-standards/project-layout
 ```
-api:          服务对外提供的grpc接口
 cmd:          服务启动入口
 config:       服务配置
 internal:     每个服务私有代码
@@ -59,15 +40,12 @@ test:         长连接测试脚本
 2.ws_conn  
 维持与客户端的WebSocket长连接，心跳，消息编解码  
 3.logic  
-设备信息，用户信息，群组信息管理，消息转发逻辑  
-### TCP拆包粘包
-遵循LV的协议格式，一个消息包分为两部分，消息字节长度以及消息内容。
-这里为了减少内存分配，拆出来的包的内存复用读缓存区内存。  
-**拆包流程：**  
-1.首先从系统缓存区读取字节流到buffer  
-2.根据包头的length字段，检查报的value字段的长度是否大于等于length  
-3.如果大于，返回一个完整包（此包内存复用），重复步骤2  
-4.如果小于，将buffer的有效字节前移，重复步骤1  
+设备信息，好友信息，群组信息管理，消息转发逻辑  
+4.user  
+一个简单的用户服务，可以根据自己的业务需求，进行扩展
+
+### 网络模型
+TCP的网络层使用linux的epoll实现，相比golang原生，能减少goroutine使用，从而节省系统资源占用
 ### 单用户多设备支持，离线消息同步
 每个用户都会维护一个自增的序列号，当用户A给用户B发送消息是，首先会获取A的最大序列号，设置为这条消息的seq，持久化到用户A的消息列表，
 再通过长连接下发到用户A账号登录的所有设备，再获取用户B的最大序列号，设置为这条消息的seq，持久化到用户B的消息列表，再通过长连接下发
@@ -142,7 +120,7 @@ func stack() string {
 	return build.String()
 }
 ```
-这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
+这样，不仅可以拿到错误的堆栈，错误的堆栈也可以跨RPC传输，但是，但是这样你只能拿到当前服务的堆栈，却不能拿到调用方的堆栈，就比如说，A服务调用
 B服务，当B服务发生错误时，在A服务通过日志打印错误的时候，我们只打印了B服务的调用堆栈，怎样可以把A服务的堆栈打印出来。我们在A服务调用的地方也获取
 一次堆栈。
 ```go
@@ -211,9 +189,8 @@ func startServer {
 }
 
 func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	defer func() {
-		logPanic("logic_client_ext_interceptor", ctx, req, info, &err)
-	}()
+	defer logPanic("logic_client_ext_interceptor", ctx, req, info, &err)
+	
 
 	resp, err = handler(ctx, req)
 	logger.Logger.Debug("logic_client_ext_interceptor", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
@@ -228,7 +205,7 @@ func LogicClientExtInterceptor(ctx context.Context, req interface{}, info *grpc.
 	return
 }
 ```
-这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal，所以只能通过函数参数的形式进行传递，gim中，service层函数的第一个参数
+这样做的前提就是，在业务代码中透传context,golang不像其他语言，可以在线程本地保存变量，像Java的ThreadLocal,所以只能通过函数参数的形式进行传递，im中，service层函数的第一个参数
 都是context，但是dao层和cache层就不需要了，不然，显得代码臃肿。  
 最后可以在客户端的每次请求添加一个随机的request_id，这样客户端到服务的每次请求都可以串起来了。
 ```go
@@ -243,4 +220,4 @@ func getCtx() context.Context {
 }
 ```
 ### github
-https://github.com/alberliu/gim
+https://github.com/alberliu/im

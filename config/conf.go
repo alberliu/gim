@@ -5,45 +5,56 @@ import (
 )
 
 var (
-	LogicConf   logicConf
-	TCPConnConf tcpConnConf
-	WSConnConf  wsConnConf
+	Logic   LogicConf
+	TCPConn TCPConnConf
+	WSConn  WSConnConf
+	User    UserConf
 )
 
 // logic配置
-type logicConf struct {
-	MySQL                  string
-	NSQIP                  string
-	RedisIP                string
-	RPCIntListenAddr       string
-	ClientRPCExtListenAddr string
-	ServerRPCExtListenAddr string
-	ConnRPCAddrs           string
+type LogicConf struct {
+	MySQL            string
+	NSQIP            string
+	RedisIP          string
+	RedisPassword    string
+	RPCIntListenAddr string
+	RPCExtListenAddr string
+	ConnRPCAddrs     string
+	UserRPCAddrs     string
 }
 
-// conn配置
-type tcpConnConf struct {
-	Port          int
+// TCPConnConf配置
+type TCPConnConf struct {
+	TCPListenAddr string
 	RPCListenAddr string
 	LocalAddr     string
 	LogicRPCAddrs string
 }
 
 // WS配置
-type wsConnConf struct {
+type WSConnConf struct {
 	WSListenAddr  string
 	RPCListenAddr string
 	LocalAddr     string
 	LogicRPCAddrs string
 }
 
+// User配置
+type UserConf struct {
+	MySQL            string
+	NSQIP            string
+	RedisIP          string
+	RedisPassword    string
+	RPCIntListenAddr string
+	RPCExtListenAddr string
+	LogicRPCAddrs    string
+}
+
 func init() {
-	env := os.Getenv("gim_env")
+	env := os.Getenv("im_env")
 	switch env {
 	case "dev":
 		initDevConf()
-	case "pre":
-		initPreConf()
 	case "prod":
 		initProdConf()
 	default:

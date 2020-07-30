@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/util"
 	"net"
@@ -15,8 +14,8 @@ import (
 
 func main() {
 	client := TcpClient{}
-	fmt.Println("input AppId,UserId,DeviceId,SyncSequence")
-	fmt.Scanf("%d %d %d %d", &client.AppId, &client.UserId, &client.DeviceId, &client.Seq)
+	fmt.Println("input UserId,DeviceId,SyncSequence")
+	fmt.Scanf("%d %d %d", &client.UserId, &client.DeviceId, &client.Seq)
 	client.Start()
 	select {}
 }
@@ -27,7 +26,6 @@ func Json(i interface{}) string {
 }
 
 type TcpClient struct {
-	AppId    int64
 	UserId   int64
 	DeviceId int64
 	Seq      int64
@@ -77,16 +75,10 @@ func (c *TcpClient) Start() {
 }
 
 func (c *TcpClient) SignIn() {
-	token, err := util.GetToken(c.AppId, c.UserId, c.DeviceId, time.Now().Add(24*30*time.Hour).Unix(), util.PublicKey)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return
-	}
 	signIn := pb.SignInInput{
-		AppId:    c.AppId,
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
-		Token:    token,
+		Token:    "0",
 	}
 	c.Output(pb.PackageType_PT_SIGN_IN, time.Now().UnixNano(), &signIn)
 }
@@ -150,7 +142,7 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		fmt.Println("离线消息同步响应:code", output.Code, "message:", output.Message)
 		for _, msg := range syncResp.Messages {
 			fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-				msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+				msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 			c.Seq = msg.Seq
 		}
 
@@ -170,7 +162,7 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 
 		msg := message.Message
 		fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-			msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, msg.MessageBody.MessageContent, msg.Seq)
+			msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 
 		c.Seq = msg.Seq
 		ack := pb.MessageACK{

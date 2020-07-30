@@ -14,6 +14,6 @@ func (*deviceAckService) Update(ctx context.Context, deviceId, ack int64) error 
 	return dao.DeviceAckDao.Update(deviceId, ack)
 }
 
-func (*deviceAckService) GetMaxByUserId(ctx context.Context, appId, userId int64) (int64, error) {
-	return dao.DeviceAckDao.GetMaxByUserId(appId, userId)
+func (*deviceAckService) GetMaxByUserId(ctx context.Context, userId int64) (int64, error) {
+	return dao.DeviceAckDao.GetMaxByUserId(userId)
 }

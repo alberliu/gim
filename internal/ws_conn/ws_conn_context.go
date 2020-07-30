@@ -6,7 +6,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/rpc_cli"
+	"gim/pkg/rpc"
 	"gim/pkg/util"
 	"io"
 	"strings"
@@ -22,15 +22,13 @@ const PreConn = -1 // 设备第二次重连时，标记设备的上一条连接
 
 type WSConnContext struct {
 	Conn     *websocket.Conn // websocket连接
-	AppId    int64           // AppId
 	DeviceId int64           // 设备id
 	UserId   int64           // 用户id
 }
 
-func NewWSConnContext(conn *websocket.Conn, appId, userId, deviceId int64) *WSConnContext {
+func NewWSConnContext(conn *websocket.Conn, userId, deviceId int64) *WSConnContext {
 	return &WSConnContext{
 		Conn:     conn,
-		AppId:    appId,
 		UserId:   userId,
 		DeviceId: deviceId,
 	}
@@ -59,7 +57,6 @@ func (c *WSConnContext) HandlePackage(bytes []byte) {
 	if err != nil {
 		logger.Sugar.Error(err)
 		c.Release()
-		return
 	}
 
 	switch input.Type {
@@ -85,8 +82,7 @@ func (c *WSConnContext) Sync(input pb.Input) {
 		return
 	}
 
-	resp, err := rpc_cli.LogicIntClient.Sync(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.SyncReq{
-		AppId:    c.AppId,
+	resp, err := rpc.LogicIntClient.Sync(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.SyncReq{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		Seq:      sync.Seq,
@@ -116,8 +112,7 @@ func (c *WSConnContext) MessageACK(input pb.Input) {
 		return
 	}
 
-	_, _ = rpc_cli.LogicIntClient.MessageACK(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.MessageACKReq{
-		AppId:       c.AppId,
+	_, _ = rpc.LogicIntClient.MessageACK(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.MessageACKReq{
 		UserId:      c.UserId,
 		DeviceId:    c.DeviceId,
 		DeviceAck:   messageACK.DeviceAck,
@@ -162,7 +157,7 @@ func (c *WSConnContext) Output(pt pb.PackageType, requestId int64, err error, me
 
 // HandleReadErr 读取conn错误
 func (c *WSConnContext) HandleReadErr(err error) {
-	logger.Logger.Debug("read tcp error：", zap.Int64("app_id", c.AppId), zap.Int64("user_id", c.UserId),
+	logger.Logger.Debug("read tcp error：", zap.Int64("user_id", c.UserId),
 		zap.Int64("device_id", c.DeviceId), zap.Error(err))
 	str := err.Error()
 	// 服务器主动关闭连接
@@ -196,8 +191,7 @@ func (c *WSConnContext) Release() {
 
 	// 通知业务服务器设备下线
 	if c.DeviceId != PreConn {
-		_, _ = rpc_cli.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
-			AppId:    c.AppId,
+		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
 			UserId:   c.UserId,
 			DeviceId: c.DeviceId,
 		})

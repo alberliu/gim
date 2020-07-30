@@ -6,10 +6,12 @@ import (
 	"testing"
 )
 
+func init() {
+	fmt.Println("start")
+}
+
 func TestDeviceDao_Add(t *testing.T) {
 	device := model.Device{
-		AppId:         1,
-		DeviceId:      1,
 		UserId:        1,
 		Type:          1,
 		Brand:         "huawei",
@@ -22,17 +24,18 @@ func TestDeviceDao_Add(t *testing.T) {
 }
 
 func TestDeviceDao_Get(t *testing.T) {
-	fmt.Println(DeviceDao.Get(1))
+	device, err := DeviceDao.Get(1)
+	fmt.Printf("%+v\n %+v\n", device, err)
 }
 
 func TestDeviceDao_ListOnlineByUserId(t *testing.T) {
-	devices, err := DeviceDao.ListOnlineByUserId(1, 1)
+	devices, err := DeviceDao.ListOnlineByUserId(1)
 	fmt.Println(err)
-	fmt.Printf("%#v ", devices)
+	fmt.Printf("%+v \n", devices)
 }
 
 func TestDeviceDao_UpdateUserIdAndStatus(t *testing.T) {
-	fmt.Println(DeviceDao.UpdateUserIdAndStatus(1, 1, 1, "172.000.000.1:80000"))
+	fmt.Println(DeviceDao.UpdateUserIdAndStatus(1, 1, 1, "172.0.0.1:80000", 1))
 }
 
 func TestDeviceDao_UpdateStatus(t *testing.T) {

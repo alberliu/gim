@@ -9,9 +9,9 @@ import (
 
 var server *gn.Server
 
-func StartTCPServer(port int) {
+func StartTCPServer() {
 	var err error
-	server, err = gn.NewServer(port, &handler{}, 2, 254, 1024, 1000)
+	server, err = gn.NewServer(8080, &handler{}, 2, 254, 1024, 1000)
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)

@@ -2,9 +2,8 @@ package service
 
 import (
 	"context"
-	"gim/pkg/gerrors"
-	"gim/pkg/util"
-	"time"
+	"gim/pkg/pb"
+	"gim/pkg/rpc"
 )
 
 type authService struct{}
@@ -12,49 +11,25 @@ type authService struct{}
 var AuthService = new(authService)
 
 // SignIn 长连接登录
-func (*authService) SignIn(ctx context.Context, appId, userId, deviceId int64, token string, connAddr string, connFd int64) error {
-	// 用户验证
-	err := AuthService.VerifyToken(ctx, appId, userId, deviceId, token)
+func (*authService) SignIn(ctx context.Context, userId, deviceId int64, token string, connAddr string, connFd int64) error {
+	_, err := rpc.UserIntClient.Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
 	if err != nil {
 		return err
 	}
 
 	// 标记用户在设备上登录
-	err = DeviceService.Online(ctx, appId, deviceId, userId, connAddr, connFd)
+	err = DeviceService.Online(ctx, deviceId, userId, connAddr, connFd)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-// Auth 验证用户是否登录
-func (*authService) Auth(ctx context.Context, appId, userId, deviceId int64, token string) error {
-	return AuthService.VerifyToken(ctx, appId, userId, deviceId, token)
-}
-
-// VerifySecretKey 对用户秘钥进行校验
-func (*authService) VerifyToken(ctx context.Context, appId, userId, deviceId int64, token string) error {
-	app, err := AppService.Get(ctx, appId)
+// Auth 权限验证
+func (*authService) Auth(ctx context.Context, userId, deviceId int64, token string) error {
+	_, err := rpc.UserIntClient.Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
 	if err != nil {
 		return err
-	}
-
-	if app == nil {
-		return gerrors.ErrBadRequest
-	}
-
-	info, err := util.DecryptToken(token, app.PrivateKey)
-	if err != nil {
-		return gerrors.ErrUnauthorized
-	}
-
-	if !(info.AppId == appId && info.UserId == userId && info.DeviceId == deviceId) {
-		return gerrors.ErrUnauthorized
-	}
-
-	if info.Expire < time.Now().Unix() {
-		return gerrors.ErrUnauthorized
 	}
 	return nil
 }

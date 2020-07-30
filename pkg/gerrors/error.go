@@ -1,8 +1,14 @@
 package gerrors
 
 import (
+	"context"
 	"fmt"
+	"gim/pkg/logger"
 	"gim/pkg/util"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+
 	"runtime"
 	"strings"
 
@@ -12,7 +18,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const name = "gim"
+const name = "im"
 
 const TypeUrlStack = "type_url_stack"
 
@@ -78,4 +84,13 @@ func stack() string {
 		}
 	}
 	return build.String()
+}
+
+func LogPanic(serverName string, ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, err *error) {
+	p := recover()
+	if p != nil {
+		logger.Logger.Error(serverName+" panic", zap.Any("info", info), zap.Any("ctx", ctx), zap.Any("req", req),
+			zap.Any("panic", p), zap.String("stack", util.GetStackInfo()))
+		*err = ErrUnknown
+	}
 }

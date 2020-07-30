@@ -8,7 +8,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/rpc_cli"
+	"gim/pkg/rpc"
 	"net/http"
 	"strconv"
 
@@ -26,13 +26,12 @@ var upgrader = websocket.Upgrader{
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
-	appId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxAppId), 10, 64)
 	userId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxUserId), 10, 64)
 	deviceId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxDeviceId), 10, 64)
 	token := r.FormValue(grpclib.CtxToken)
 	requestId, _ := strconv.ParseInt(r.FormValue(grpclib.CtxRequestId), 10, 64)
 
-	if appId == 0 || userId == 0 || deviceId == 0 || token == "" {
+	if userId == 0 || deviceId == 0 || token == "" {
 		s, _ := status.FromError(gerrors.ErrUnauthorized)
 		bytes, err := json.Marshal(s.Proto())
 		if err != nil {
@@ -43,12 +42,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := rpc_cli.LogicIntClient.SignIn(grpclib.ContextWithRequstId(context.TODO(), requestId), &pb.SignInReq{
-		AppId:    appId,
+	_, err := rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequstId(context.TODO(), requestId), &pb.ConnSignInReq{
 		UserId:   userId,
 		DeviceId: deviceId,
 		Token:    token,
-		ConnAddr: config.WSConnConf.LocalAddr,
+		ConnAddr: config.WSConn.LocalAddr,
 	})
 
 	s, _ := status.FromError(err)
@@ -74,7 +72,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		preCtx.DeviceId = PreConn
 	}
 
-	ctx := NewWSConnContext(conn, appId, userId, deviceId)
+	ctx := NewWSConnContext(conn, userId, deviceId)
 	store(deviceId, ctx)
 	ctx.DoConn()
 }

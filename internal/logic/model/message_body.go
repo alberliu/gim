@@ -1,13 +1,6 @@
 package model
 
-import (
-	"gim/pkg/logger"
-	"gim/pkg/pb"
-	"gim/pkg/util"
-
-	jsoniter "github.com/json-iterator/go"
-)
-
+/*
 // PBToMessageBody 将pb协议转化为消息体
 func PBToMessageBody(pbBody *pb.MessageBody) (int, string) {
 	if pbBody.MessageType == pb.MessageType_MT_UNKNOWN {
@@ -119,3 +112,4 @@ func NewMessageBody(msgType int, msgContent string) *pb.MessageBody {
 		MessageContent: &content,
 	}
 }
+*/

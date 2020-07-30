@@ -4,9 +4,7 @@ import (
 	"context"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/util"
 	"testing"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -22,11 +20,10 @@ func getLogicIntClient() pb.LogicIntClient {
 }
 
 func TestLogicIntServer_SignIn(t *testing.T) {
-	token, _ := util.GetToken(1, 1, 1, time.Now().Add(time.Hour).Unix(), util.PublicKey)
+	token := ""
 
-	resp, err := getLogicIntClient().SignIn(context.TODO(),
-		&pb.SignInReq{
-			AppId:    1,
+	resp, err := getLogicIntClient().ConnSignIn(context.TODO(),
+		&pb.ConnSignInReq{
 			DeviceId: 1,
 			UserId:   1,
 			Token:    token,
@@ -42,7 +39,6 @@ func TestLogicIntServer_SignIn(t *testing.T) {
 func TestLogicIntServer_Sync(t *testing.T) {
 	resp, err := getLogicIntClient().Sync(metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("key", "val")),
 		&pb.SyncReq{
-			AppId:    1,
 			UserId:   1,
 			DeviceId: 1,
 			Seq:      0,
@@ -57,10 +53,8 @@ func TestLogicIntServer_Sync(t *testing.T) {
 func TestLogicIntServer_MessageACK(t *testing.T) {
 	resp, err := getLogicIntClient().MessageACK(metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("key", "val")),
 		&pb.MessageACKReq{
-			AppId:       1,
 			UserId:      1,
 			DeviceId:    1,
-			MessageId:   "",
 			DeviceAck:   1,
 			ReceiveTime: 1,
 		})
@@ -74,7 +68,6 @@ func TestLogicIntServer_MessageACK(t *testing.T) {
 func TestLogicIntServer_Offline(t *testing.T) {
 	resp, err := getLogicIntClient().Offline(metadata.NewOutgoingContext(context.TODO(), metadata.Pairs("key", "val")),
 		&pb.OfflineReq{
-			AppId:    1,
 			UserId:   1,
 			DeviceId: 1,
 		})

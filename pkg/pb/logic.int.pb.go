@@ -24,121 +24,112 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type SignInReq struct {
-	AppId                int64    `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	DeviceId             int64    `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	UserId               int64    `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Token                string   `protobuf:"bytes,4,opt,name=token,proto3" json:"token,omitempty"`
-	ConnAddr             string   `protobuf:"bytes,5,opt,name=conn_addr,json=connAddr,proto3" json:"conn_addr,omitempty"`
-	ConnFd               int64    `protobuf:"varint,6,opt,name=conn_fd,json=connFd,proto3" json:"conn_fd,omitempty"`
+type ConnSignInReq struct {
+	DeviceId             int64    `protobuf:"varint,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	UserId               int64    `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Token                string   `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
+	ConnAddr             string   `protobuf:"bytes,4,opt,name=conn_addr,json=connAddr,proto3" json:"conn_addr,omitempty"`
+	ConnFd               int64    `protobuf:"varint,5,opt,name=conn_fd,json=connFd,proto3" json:"conn_fd,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SignInReq) Reset()         { *m = SignInReq{} }
-func (m *SignInReq) String() string { return proto.CompactTextString(m) }
-func (*SignInReq) ProtoMessage()    {}
-func (*SignInReq) Descriptor() ([]byte, []int) {
+func (m *ConnSignInReq) Reset()         { *m = ConnSignInReq{} }
+func (m *ConnSignInReq) String() string { return proto.CompactTextString(m) }
+func (*ConnSignInReq) ProtoMessage()    {}
+func (*ConnSignInReq) Descriptor() ([]byte, []int) {
 	return fileDescriptor_aa14331f3fd0015e, []int{0}
 }
 
-func (m *SignInReq) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SignInReq.Unmarshal(m, b)
+func (m *ConnSignInReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConnSignInReq.Unmarshal(m, b)
 }
-func (m *SignInReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SignInReq.Marshal(b, m, deterministic)
+func (m *ConnSignInReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConnSignInReq.Marshal(b, m, deterministic)
 }
-func (m *SignInReq) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignInReq.Merge(m, src)
+func (m *ConnSignInReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConnSignInReq.Merge(m, src)
 }
-func (m *SignInReq) XXX_Size() int {
-	return xxx_messageInfo_SignInReq.Size(m)
+func (m *ConnSignInReq) XXX_Size() int {
+	return xxx_messageInfo_ConnSignInReq.Size(m)
 }
-func (m *SignInReq) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignInReq.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_SignInReq proto.InternalMessageInfo
-
-func (m *SignInReq) GetAppId() int64 {
-	if m != nil {
-		return m.AppId
-	}
-	return 0
+func (m *ConnSignInReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConnSignInReq.DiscardUnknown(m)
 }
 
-func (m *SignInReq) GetDeviceId() int64 {
+var xxx_messageInfo_ConnSignInReq proto.InternalMessageInfo
+
+func (m *ConnSignInReq) GetDeviceId() int64 {
 	if m != nil {
 		return m.DeviceId
 	}
 	return 0
 }
 
-func (m *SignInReq) GetUserId() int64 {
+func (m *ConnSignInReq) GetUserId() int64 {
 	if m != nil {
 		return m.UserId
 	}
 	return 0
 }
 
-func (m *SignInReq) GetToken() string {
+func (m *ConnSignInReq) GetToken() string {
 	if m != nil {
 		return m.Token
 	}
 	return ""
 }
 
-func (m *SignInReq) GetConnAddr() string {
+func (m *ConnSignInReq) GetConnAddr() string {
 	if m != nil {
 		return m.ConnAddr
 	}
 	return ""
 }
 
-func (m *SignInReq) GetConnFd() int64 {
+func (m *ConnSignInReq) GetConnFd() int64 {
 	if m != nil {
 		return m.ConnFd
 	}
 	return 0
 }
 
-type SignInResp struct {
+type ConnSignInResp struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SignInResp) Reset()         { *m = SignInResp{} }
-func (m *SignInResp) String() string { return proto.CompactTextString(m) }
-func (*SignInResp) ProtoMessage()    {}
-func (*SignInResp) Descriptor() ([]byte, []int) {
+func (m *ConnSignInResp) Reset()         { *m = ConnSignInResp{} }
+func (m *ConnSignInResp) String() string { return proto.CompactTextString(m) }
+func (*ConnSignInResp) ProtoMessage()    {}
+func (*ConnSignInResp) Descriptor() ([]byte, []int) {
 	return fileDescriptor_aa14331f3fd0015e, []int{1}
 }
 
-func (m *SignInResp) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SignInResp.Unmarshal(m, b)
+func (m *ConnSignInResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ConnSignInResp.Unmarshal(m, b)
 }
-func (m *SignInResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SignInResp.Marshal(b, m, deterministic)
+func (m *ConnSignInResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ConnSignInResp.Marshal(b, m, deterministic)
 }
-func (m *SignInResp) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignInResp.Merge(m, src)
+func (m *ConnSignInResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConnSignInResp.Merge(m, src)
 }
-func (m *SignInResp) XXX_Size() int {
-	return xxx_messageInfo_SignInResp.Size(m)
+func (m *ConnSignInResp) XXX_Size() int {
+	return xxx_messageInfo_ConnSignInResp.Size(m)
 }
-func (m *SignInResp) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignInResp.DiscardUnknown(m)
+func (m *ConnSignInResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConnSignInResp.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SignInResp proto.InternalMessageInfo
+var xxx_messageInfo_ConnSignInResp proto.InternalMessageInfo
 
 type SyncReq struct {
-	AppId                int64    `protobuf:"varint,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	UserId               int64    `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	DeviceId             int64    `protobuf:"varint,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	Seq                  int64    `protobuf:"varint,5,opt,name=seq,proto3" json:"seq,omitempty"`
+	UserId               int64    `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	DeviceId             int64    `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	Seq                  int64    `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -168,13 +159,6 @@ func (m *SyncReq) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_SyncReq proto.InternalMessageInfo
-
-func (m *SyncReq) GetAppId() int64 {
-	if m != nil {
-		return m.AppId
-	}
-	return 0
-}
 
 func (m *SyncReq) GetUserId() int64 {
 	if m != nil {
@@ -237,12 +221,10 @@ func (m *SyncResp) GetMessages() []*MessageItem {
 }
 
 type MessageACKReq struct {
-	AppId                int64    `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	UserId               int64    `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	DeviceId             int64    `protobuf:"varint,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	MessageId            string   `protobuf:"bytes,4,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	DeviceAck            int64    `protobuf:"varint,5,opt,name=device_ack,json=deviceAck,proto3" json:"device_ack,omitempty"`
-	ReceiveTime          int64    `protobuf:"varint,6,opt,name=receive_time,json=receiveTime,proto3" json:"receive_time,omitempty"`
+	UserId               int64    `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	DeviceId             int64    `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	DeviceAck            int64    `protobuf:"varint,3,opt,name=device_ack,json=deviceAck,proto3" json:"device_ack,omitempty"`
+	ReceiveTime          int64    `protobuf:"varint,4,opt,name=receive_time,json=receiveTime,proto3" json:"receive_time,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -273,13 +255,6 @@ func (m *MessageACKReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MessageACKReq proto.InternalMessageInfo
 
-func (m *MessageACKReq) GetAppId() int64 {
-	if m != nil {
-		return m.AppId
-	}
-	return 0
-}
-
 func (m *MessageACKReq) GetUserId() int64 {
 	if m != nil {
 		return m.UserId
@@ -292,13 +267,6 @@ func (m *MessageACKReq) GetDeviceId() int64 {
 		return m.DeviceId
 	}
 	return 0
-}
-
-func (m *MessageACKReq) GetMessageId() string {
-	if m != nil {
-		return m.MessageId
-	}
-	return ""
 }
 
 func (m *MessageACKReq) GetDeviceAck() int64 {
@@ -347,9 +315,8 @@ func (m *MessageACKResp) XXX_DiscardUnknown() {
 var xxx_messageInfo_MessageACKResp proto.InternalMessageInfo
 
 type OfflineReq struct {
-	AppId                int64    `protobuf:"varint,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	UserId               int64    `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	DeviceId             int64    `protobuf:"varint,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	UserId               int64    `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	DeviceId             int64    `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -379,13 +346,6 @@ func (m *OfflineReq) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_OfflineReq proto.InternalMessageInfo
-
-func (m *OfflineReq) GetAppId() int64 {
-	if m != nil {
-		return m.AppId
-	}
-	return 0
-}
 
 func (m *OfflineReq) GetUserId() int64 {
 	if m != nil {
@@ -432,83 +392,288 @@ func (m *OfflineResp) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_OfflineResp proto.InternalMessageInfo
 
+type GetDeviceReq struct {
+	DeviceId             int64    `protobuf:"varint,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetDeviceReq) Reset()         { *m = GetDeviceReq{} }
+func (m *GetDeviceReq) String() string { return proto.CompactTextString(m) }
+func (*GetDeviceReq) ProtoMessage()    {}
+func (*GetDeviceReq) Descriptor() ([]byte, []int) {
+	return fileDescriptor_aa14331f3fd0015e, []int{8}
+}
+
+func (m *GetDeviceReq) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetDeviceReq.Unmarshal(m, b)
+}
+func (m *GetDeviceReq) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetDeviceReq.Marshal(b, m, deterministic)
+}
+func (m *GetDeviceReq) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetDeviceReq.Merge(m, src)
+}
+func (m *GetDeviceReq) XXX_Size() int {
+	return xxx_messageInfo_GetDeviceReq.Size(m)
+}
+func (m *GetDeviceReq) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetDeviceReq.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetDeviceReq proto.InternalMessageInfo
+
+func (m *GetDeviceReq) GetDeviceId() int64 {
+	if m != nil {
+		return m.DeviceId
+	}
+	return 0
+}
+
+type GetDeviceResp struct {
+	Device               *Device  `protobuf:"bytes,1,opt,name=device,proto3" json:"device,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetDeviceResp) Reset()         { *m = GetDeviceResp{} }
+func (m *GetDeviceResp) String() string { return proto.CompactTextString(m) }
+func (*GetDeviceResp) ProtoMessage()    {}
+func (*GetDeviceResp) Descriptor() ([]byte, []int) {
+	return fileDescriptor_aa14331f3fd0015e, []int{9}
+}
+
+func (m *GetDeviceResp) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetDeviceResp.Unmarshal(m, b)
+}
+func (m *GetDeviceResp) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetDeviceResp.Marshal(b, m, deterministic)
+}
+func (m *GetDeviceResp) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetDeviceResp.Merge(m, src)
+}
+func (m *GetDeviceResp) XXX_Size() int {
+	return xxx_messageInfo_GetDeviceResp.Size(m)
+}
+func (m *GetDeviceResp) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetDeviceResp.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetDeviceResp proto.InternalMessageInfo
+
+func (m *GetDeviceResp) GetDevice() *Device {
+	if m != nil {
+		return m.Device
+	}
+	return nil
+}
+
+type Device struct {
+	DeviceId             int64    `protobuf:"varint,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	UserId               int64    `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Type                 int32    `protobuf:"varint,3,opt,name=Type,proto3" json:"Type,omitempty"`
+	Brand                string   `protobuf:"bytes,4,opt,name=Brand,proto3" json:"Brand,omitempty"`
+	Model                string   `protobuf:"bytes,5,opt,name=Model,proto3" json:"Model,omitempty"`
+	SystemVersion        string   `protobuf:"bytes,6,opt,name=SystemVersion,proto3" json:"SystemVersion,omitempty"`
+	SDKVersion           string   `protobuf:"bytes,7,opt,name=SDKVersion,proto3" json:"SDKVersion,omitempty"`
+	Status               int32    `protobuf:"varint,8,opt,name=Status,proto3" json:"Status,omitempty"`
+	CreateTime           int64    `protobuf:"varint,9,opt,name=CreateTime,proto3" json:"CreateTime,omitempty"`
+	UpdateTime           int64    `protobuf:"varint,10,opt,name=UpdateTime,proto3" json:"UpdateTime,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Device) Reset()         { *m = Device{} }
+func (m *Device) String() string { return proto.CompactTextString(m) }
+func (*Device) ProtoMessage()    {}
+func (*Device) Descriptor() ([]byte, []int) {
+	return fileDescriptor_aa14331f3fd0015e, []int{10}
+}
+
+func (m *Device) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Device.Unmarshal(m, b)
+}
+func (m *Device) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Device.Marshal(b, m, deterministic)
+}
+func (m *Device) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Device.Merge(m, src)
+}
+func (m *Device) XXX_Size() int {
+	return xxx_messageInfo_Device.Size(m)
+}
+func (m *Device) XXX_DiscardUnknown() {
+	xxx_messageInfo_Device.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Device proto.InternalMessageInfo
+
+func (m *Device) GetDeviceId() int64 {
+	if m != nil {
+		return m.DeviceId
+	}
+	return 0
+}
+
+func (m *Device) GetUserId() int64 {
+	if m != nil {
+		return m.UserId
+	}
+	return 0
+}
+
+func (m *Device) GetType() int32 {
+	if m != nil {
+		return m.Type
+	}
+	return 0
+}
+
+func (m *Device) GetBrand() string {
+	if m != nil {
+		return m.Brand
+	}
+	return ""
+}
+
+func (m *Device) GetModel() string {
+	if m != nil {
+		return m.Model
+	}
+	return ""
+}
+
+func (m *Device) GetSystemVersion() string {
+	if m != nil {
+		return m.SystemVersion
+	}
+	return ""
+}
+
+func (m *Device) GetSDKVersion() string {
+	if m != nil {
+		return m.SDKVersion
+	}
+	return ""
+}
+
+func (m *Device) GetStatus() int32 {
+	if m != nil {
+		return m.Status
+	}
+	return 0
+}
+
+func (m *Device) GetCreateTime() int64 {
+	if m != nil {
+		return m.CreateTime
+	}
+	return 0
+}
+
+func (m *Device) GetUpdateTime() int64 {
+	if m != nil {
+		return m.UpdateTime
+	}
+	return 0
+}
+
 func init() {
-	proto.RegisterType((*SignInReq)(nil), "pb.SignInReq")
-	proto.RegisterType((*SignInResp)(nil), "pb.SignInResp")
+	proto.RegisterType((*ConnSignInReq)(nil), "pb.ConnSignInReq")
+	proto.RegisterType((*ConnSignInResp)(nil), "pb.ConnSignInResp")
 	proto.RegisterType((*SyncReq)(nil), "pb.SyncReq")
 	proto.RegisterType((*SyncResp)(nil), "pb.SyncResp")
 	proto.RegisterType((*MessageACKReq)(nil), "pb.MessageACKReq")
 	proto.RegisterType((*MessageACKResp)(nil), "pb.MessageACKResp")
 	proto.RegisterType((*OfflineReq)(nil), "pb.OfflineReq")
 	proto.RegisterType((*OfflineResp)(nil), "pb.OfflineResp")
+	proto.RegisterType((*GetDeviceReq)(nil), "pb.GetDeviceReq")
+	proto.RegisterType((*GetDeviceResp)(nil), "pb.GetDeviceResp")
+	proto.RegisterType((*Device)(nil), "pb.Device")
 }
 
 func init() { proto.RegisterFile("logic.int.proto", fileDescriptor_aa14331f3fd0015e) }
 
 var fileDescriptor_aa14331f3fd0015e = []byte{
-	// 428 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x53, 0x4d, 0x8b, 0xd3, 0x50,
-	0x14, 0x25, 0x4d, 0x9b, 0x26, 0xb7, 0xed, 0x74, 0xbc, 0x28, 0x86, 0x88, 0xd0, 0xc9, 0xc6, 0xa2,
-	0xd0, 0xc5, 0xcc, 0xc2, 0x75, 0x11, 0x84, 0xa0, 0x22, 0x64, 0xdc, 0xb8, 0x2a, 0x69, 0xde, 0x6b,
-	0x7d, 0x74, 0xf2, 0x72, 0x27, 0x2f, 0x0e, 0xf8, 0x7f, 0xfc, 0x0f, 0xae, 0xfc, 0x6f, 0xf2, 0x3e,
-	0xa6, 0x4d, 0x0b, 0x75, 0x35, 0xbb, 0x9c, 0x73, 0x92, 0x7b, 0xcf, 0x3d, 0xf7, 0x06, 0xa6, 0x77,
-	0xf5, 0x56, 0x94, 0x0b, 0x21, 0xdb, 0x05, 0x35, 0x75, 0x5b, 0x63, 0x8f, 0xd6, 0x49, 0xd4, 0x96,
-	0x64, 0x61, 0xfa, 0xdb, 0x83, 0xe8, 0x56, 0x6c, 0x65, 0x26, 0x73, 0x7e, 0x8f, 0x2f, 0x20, 0x28,
-	0x88, 0x56, 0x82, 0xc5, 0xde, 0xcc, 0x9b, 0xfb, 0xf9, 0xa0, 0x20, 0xca, 0x18, 0xbe, 0x82, 0x88,
-	0xf1, 0x07, 0x51, 0x72, 0xad, 0xf4, 0x8c, 0x12, 0x5a, 0x22, 0x63, 0xf8, 0x12, 0x86, 0x3f, 0x15,
-	0x6f, 0xb4, 0xe4, 0x1b, 0x29, 0xd0, 0x30, 0x63, 0xf8, 0x1c, 0x06, 0x6d, 0xbd, 0xe3, 0x32, 0xee,
-	0xcf, 0xbc, 0x79, 0x94, 0x5b, 0xa0, 0x6b, 0x95, 0xb5, 0x94, 0xab, 0x82, 0xb1, 0x26, 0x1e, 0x18,
-	0x25, 0xd4, 0xc4, 0x92, 0xb1, 0x46, 0xd7, 0x32, 0xe2, 0x86, 0xc5, 0x81, 0xad, 0xa5, 0xe1, 0x47,
-	0x96, 0x8e, 0x01, 0x1e, 0x5d, 0x2a, 0x4a, 0x7f, 0xc0, 0xf0, 0xf6, 0x97, 0x2c, 0x8f, 0x1d, 0xf7,
-	0xba, 0x8e, 0xcf, 0x9a, 0x3a, 0x1a, 0xa5, 0x7f, 0x32, 0xca, 0x25, 0xf8, 0x8a, 0xdf, 0x1b, 0x57,
-	0x7e, 0xae, 0x1f, 0xd3, 0xf7, 0x10, 0xda, 0x4e, 0x8a, 0xf0, 0x1d, 0x84, 0x15, 0x57, 0xaa, 0xd8,
-	0x72, 0x15, 0xfb, 0x33, 0x7f, 0x3e, 0xba, 0x9e, 0x2e, 0x68, 0xbd, 0xf8, 0x62, 0xb9, 0xac, 0xe5,
-	0x55, 0xbe, 0x7f, 0x21, 0xfd, 0xeb, 0xc1, 0xc4, 0x29, 0xcb, 0x0f, 0x9f, 0xfe, 0x93, 0x6d, 0xc7,
-	0x69, 0xef, 0xbc, 0x53, 0xff, 0xc4, 0xe9, 0x6b, 0x00, 0xd7, 0xea, 0x71, 0x8e, 0x28, 0x8f, 0x1c,
-	0x63, 0x65, 0xf7, 0x6d, 0x51, 0xee, 0xdc, 0x3c, 0xae, 0xda, 0xb2, 0xdc, 0xe1, 0x15, 0x8c, 0x1b,
-	0x5e, 0x72, 0xf1, 0xc0, 0x57, 0xad, 0xa8, 0xb8, 0xcb, 0x7a, 0xe4, 0xb8, 0x6f, 0xa2, 0xe2, 0xe9,
-	0x25, 0x5c, 0x74, 0xed, 0x2b, 0x4a, 0xbf, 0x03, 0x7c, 0xdd, 0x6c, 0xee, 0x84, 0xe4, 0x4f, 0x9d,
-	0x7b, 0x3a, 0x81, 0xd1, 0xbe, 0xb4, 0xa2, 0xeb, 0x3f, 0x1e, 0x84, 0x9f, 0xf5, 0xd9, 0x66, 0xb2,
-	0xc5, 0x37, 0x10, 0xd8, 0xcd, 0xe3, 0x44, 0xa7, 0xbd, 0xbf, 0xd5, 0xe4, 0xa2, 0x0b, 0x15, 0xe1,
-	0x15, 0xf4, 0xf5, 0xaa, 0x70, 0x64, 0x78, 0x7b, 0x1e, 0xc9, 0xf8, 0x00, 0x14, 0xe1, 0x0d, 0xc0,
-	0x61, 0x28, 0x7c, 0xd6, 0xd9, 0x9e, 0xdd, 0x51, 0x82, 0xa7, 0x94, 0x22, 0x7c, 0x0b, 0x43, 0x67,
-	0x0e, 0x4d, 0xcb, 0x43, 0x08, 0xc9, 0xf4, 0x08, 0x2b, 0x5a, 0x07, 0xe6, 0xa7, 0xba, 0xf9, 0x17,
-	0x00, 0x00, 0xff, 0xff, 0xa7, 0x0f, 0x34, 0xe4, 0x76, 0x03, 0x00, 0x00,
+	// 571 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x41, 0x6f, 0xda, 0x4c,
+	0x14, 0x94, 0x71, 0x62, 0xcc, 0x73, 0x48, 0xc8, 0x7e, 0x9f, 0x5a, 0xcb, 0x55, 0x2b, 0x62, 0xf5,
+	0x80, 0x1a, 0x09, 0x55, 0x20, 0xb5, 0x67, 0x42, 0xd4, 0x0a, 0xa5, 0x51, 0x55, 0x3b, 0xed, 0x15,
+	0x19, 0xef, 0x82, 0x2c, 0x60, 0xbd, 0xf1, 0x3a, 0x51, 0xf9, 0x05, 0x3d, 0xf7, 0xde, 0xbf, 0xd0,
+	0xff, 0x58, 0xbd, 0xdd, 0x0d, 0xd8, 0xf4, 0x50, 0x89, 0x9b, 0xdf, 0xcc, 0xec, 0x68, 0xf4, 0x98,
+	0x07, 0x9c, 0xad, 0xf2, 0x45, 0x96, 0xf6, 0x33, 0x5e, 0xf6, 0x45, 0x91, 0x97, 0x39, 0x69, 0x88,
+	0x59, 0x70, 0x9a, 0xe6, 0x9c, 0xf7, 0xd9, 0x77, 0x83, 0x05, 0x46, 0xb4, 0x05, 0xc2, 0x9f, 0x16,
+	0xb4, 0xc7, 0x39, 0xe7, 0x71, 0xb6, 0xe0, 0x13, 0x1e, 0xb1, 0x7b, 0xf2, 0x02, 0x5a, 0x94, 0x3d,
+	0x66, 0x29, 0x9b, 0x66, 0xd4, 0xb7, 0xba, 0x56, 0xcf, 0x8e, 0x5c, 0x0d, 0x4c, 0x28, 0x79, 0x0e,
+	0xcd, 0x07, 0xc9, 0x0a, 0xa4, 0x1a, 0x8a, 0x72, 0x70, 0x9c, 0x50, 0xf2, 0x3f, 0x1c, 0x97, 0xf9,
+	0x92, 0x71, 0xdf, 0xee, 0x5a, 0xbd, 0x56, 0xa4, 0x07, 0xf4, 0xc2, 0x00, 0xd3, 0x84, 0xd2, 0xc2,
+	0x3f, 0x52, 0x8c, 0x8b, 0xc0, 0x88, 0xd2, 0x02, 0xbd, 0x14, 0x39, 0xa7, 0xfe, 0xb1, 0xf6, 0xc2,
+	0xf1, 0x03, 0x0d, 0x3b, 0x70, 0x5a, 0x8d, 0x24, 0x45, 0xf8, 0x05, 0x9a, 0xf1, 0x86, 0xa7, 0x18,
+	0xaf, 0x92, 0xc0, 0xaa, 0x25, 0xa8, 0xe5, 0x6e, 0xec, 0xe5, 0xee, 0x80, 0x2d, 0xd9, 0xbd, 0x0a,
+	0x67, 0x47, 0xf8, 0x19, 0xbe, 0x07, 0x57, 0x5b, 0x4a, 0x41, 0x2e, 0xc1, 0x5d, 0x33, 0x29, 0x93,
+	0x05, 0x93, 0xbe, 0xdd, 0xb5, 0x7b, 0xde, 0xe0, 0xac, 0x2f, 0x66, 0xfd, 0x5b, 0x8d, 0x4d, 0x4a,
+	0xb6, 0x8e, 0xb6, 0x82, 0xf0, 0x87, 0x05, 0x6d, 0xc3, 0x8c, 0xc6, 0x37, 0x87, 0x47, 0x7a, 0x09,
+	0x60, 0xc8, 0x24, 0x5d, 0x9a, 0x64, 0x46, 0x3e, 0x4a, 0x97, 0xe4, 0x02, 0x4e, 0x0a, 0x96, 0xb2,
+	0xec, 0x91, 0x4d, 0xcb, 0x6c, 0xcd, 0xd4, 0xf6, 0xec, 0xc8, 0x33, 0xd8, 0x5d, 0xb6, 0x66, 0xb8,
+	0xa7, 0x6a, 0x10, 0x29, 0xc2, 0x2b, 0x80, 0xcf, 0xf3, 0xf9, 0x2a, 0xe3, 0xec, 0xe0, 0x5c, 0x61,
+	0x1b, 0xbc, 0xad, 0x87, 0x14, 0xe1, 0x25, 0x9c, 0x7c, 0x64, 0xe5, 0xb5, 0x62, 0xff, 0x55, 0x8f,
+	0x70, 0x08, 0xed, 0x8a, 0x58, 0x0a, 0x12, 0x82, 0xa3, 0x49, 0x25, 0xf5, 0x06, 0x80, 0x7b, 0x35,
+	0xbc, 0x61, 0xc2, 0x5f, 0x0d, 0x70, 0x34, 0x74, 0x60, 0xf7, 0x08, 0x1c, 0xdd, 0x6d, 0x04, 0x53,
+	0x3b, 0x3c, 0x8e, 0xd4, 0x37, 0xf6, 0xf1, 0xaa, 0x48, 0x38, 0x35, 0xad, 0xd3, 0x03, 0xa2, 0xb7,
+	0x39, 0x65, 0x2b, 0x55, 0xb8, 0x56, 0xa4, 0x07, 0xf2, 0x1a, 0xda, 0xf1, 0x46, 0x96, 0x6c, 0xfd,
+	0x8d, 0x15, 0x32, 0xcb, 0xb9, 0xef, 0x28, 0xb6, 0x0e, 0x92, 0x57, 0x00, 0xf1, 0xf5, 0xcd, 0x93,
+	0xa4, 0xa9, 0x24, 0x15, 0x84, 0x3c, 0x03, 0x27, 0x2e, 0x93, 0xf2, 0x41, 0xfa, 0xae, 0xca, 0x61,
+	0x26, 0x7c, 0x37, 0x2e, 0x58, 0x52, 0xaa, 0xdf, 0xcc, 0x6f, 0xa9, 0xe4, 0x15, 0x04, 0xf9, 0xaf,
+	0x82, 0x3e, 0xf1, 0xa0, 0xf9, 0x1d, 0x32, 0xf8, 0xdd, 0x00, 0xf7, 0x13, 0x5e, 0xed, 0x84, 0x97,
+	0x64, 0x08, 0xb0, 0x3b, 0x0d, 0x72, 0x8e, 0xdb, 0xac, 0x5d, 0x6f, 0x40, 0xf6, 0x21, 0x29, 0xc8,
+	0x05, 0x1c, 0x61, 0xd5, 0x89, 0x87, 0x9c, 0xb9, 0xa3, 0xe0, 0x64, 0x37, 0x48, 0x81, 0xbe, 0xbb,
+	0x2a, 0x69, 0xdf, 0x5a, 0xc7, 0xb5, 0x6f, 0xbd, 0x6d, 0xe4, 0x0d, 0x34, 0x4d, 0x53, 0xc8, 0x29,
+	0xd2, 0xbb, 0xea, 0x05, 0x67, 0xb5, 0x59, 0x0a, 0xf2, 0x0e, 0xbc, 0x98, 0x71, 0x6a, 0x1c, 0x88,
+	0xb2, 0xab, 0x00, 0xf8, 0xe6, 0xbf, 0xbf, 0x30, 0x29, 0xc8, 0x5b, 0x68, 0x6d, 0x1b, 0x45, 0x3a,
+	0xa8, 0xa8, 0xb6, 0x31, 0x38, 0xdf, 0x43, 0xa4, 0x98, 0x39, 0xea, 0x8f, 0x6d, 0xf8, 0x27, 0x00,
+	0x00, 0xff, 0xff, 0xef, 0xd6, 0xb9, 0x3f, 0x10, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConnInterface
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion4
 
 // LogicIntClient is the client API for LogicInt service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type LogicIntClient interface {
 	//  登录
-	SignIn(ctx context.Context, in *SignInReq, opts ...grpc.CallOption) (*SignInResp, error)
+	ConnSignIn(ctx context.Context, in *ConnSignInReq, opts ...grpc.CallOption) (*ConnSignInResp, error)
 	//  消息同步
 	Sync(ctx context.Context, in *SyncReq, opts ...grpc.CallOption) (*SyncResp, error)
 	//  设备收到消息回执
 	MessageACK(ctx context.Context, in *MessageACKReq, opts ...grpc.CallOption) (*MessageACKResp, error)
 	//  设备离线
 	Offline(ctx context.Context, in *OfflineReq, opts ...grpc.CallOption) (*OfflineResp, error)
+	// 发送消息
+	SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error)
+	// 发送消息
+	GetDevice(ctx context.Context, in *GetDeviceReq, opts ...grpc.CallOption) (*GetDeviceResp, error)
 }
 
 type logicIntClient struct {
-	cc grpc.ClientConnInterface
+	cc *grpc.ClientConn
 }
 
-func NewLogicIntClient(cc grpc.ClientConnInterface) LogicIntClient {
+func NewLogicIntClient(cc *grpc.ClientConn) LogicIntClient {
 	return &logicIntClient{cc}
 }
 
-func (c *logicIntClient) SignIn(ctx context.Context, in *SignInReq, opts ...grpc.CallOption) (*SignInResp, error) {
-	out := new(SignInResp)
-	err := c.cc.Invoke(ctx, "/pb.LogicInt/SignIn", in, out, opts...)
+func (c *logicIntClient) ConnSignIn(ctx context.Context, in *ConnSignInReq, opts ...grpc.CallOption) (*ConnSignInResp, error) {
+	out := new(ConnSignInResp)
+	err := c.cc.Invoke(ctx, "/pb.LogicInt/ConnSignIn", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -542,24 +707,46 @@ func (c *logicIntClient) Offline(ctx context.Context, in *OfflineReq, opts ...gr
 	return out, nil
 }
 
+func (c *logicIntClient) SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error) {
+	out := new(SendMessageResp)
+	err := c.cc.Invoke(ctx, "/pb.LogicInt/SendMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logicIntClient) GetDevice(ctx context.Context, in *GetDeviceReq, opts ...grpc.CallOption) (*GetDeviceResp, error) {
+	out := new(GetDeviceResp)
+	err := c.cc.Invoke(ctx, "/pb.LogicInt/GetDevice", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LogicIntServer is the server API for LogicInt service.
 type LogicIntServer interface {
 	//  登录
-	SignIn(context.Context, *SignInReq) (*SignInResp, error)
+	ConnSignIn(context.Context, *ConnSignInReq) (*ConnSignInResp, error)
 	//  消息同步
 	Sync(context.Context, *SyncReq) (*SyncResp, error)
 	//  设备收到消息回执
 	MessageACK(context.Context, *MessageACKReq) (*MessageACKResp, error)
 	//  设备离线
 	Offline(context.Context, *OfflineReq) (*OfflineResp, error)
+	// 发送消息
+	SendMessage(context.Context, *SendMessageReq) (*SendMessageResp, error)
+	// 发送消息
+	GetDevice(context.Context, *GetDeviceReq) (*GetDeviceResp, error)
 }
 
 // UnimplementedLogicIntServer can be embedded to have forward compatible implementations.
 type UnimplementedLogicIntServer struct {
 }
 
-func (*UnimplementedLogicIntServer) SignIn(ctx context.Context, req *SignInReq) (*SignInResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+func (*UnimplementedLogicIntServer) ConnSignIn(ctx context.Context, req *ConnSignInReq) (*ConnSignInResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConnSignIn not implemented")
 }
 func (*UnimplementedLogicIntServer) Sync(ctx context.Context, req *SyncReq) (*SyncResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
@@ -570,25 +757,31 @@ func (*UnimplementedLogicIntServer) MessageACK(ctx context.Context, req *Message
 func (*UnimplementedLogicIntServer) Offline(ctx context.Context, req *OfflineReq) (*OfflineResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Offline not implemented")
 }
+func (*UnimplementedLogicIntServer) SendMessage(ctx context.Context, req *SendMessageReq) (*SendMessageResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
+}
+func (*UnimplementedLogicIntServer) GetDevice(ctx context.Context, req *GetDeviceReq) (*GetDeviceResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
+}
 
 func RegisterLogicIntServer(s *grpc.Server, srv LogicIntServer) {
 	s.RegisterService(&_LogicInt_serviceDesc, srv)
 }
 
-func _LogicInt_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInReq)
+func _LogicInt_ConnSignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnSignInReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LogicIntServer).SignIn(ctx, in)
+		return srv.(LogicIntServer).ConnSignIn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pb.LogicInt/SignIn",
+		FullMethod: "/pb.LogicInt/ConnSignIn",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogicIntServer).SignIn(ctx, req.(*SignInReq))
+		return srv.(LogicIntServer).ConnSignIn(ctx, req.(*ConnSignInReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -647,13 +840,49 @@ func _LogicInt_Offline_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogicInt_SendMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendMessageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogicIntServer).SendMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.LogicInt/SendMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogicIntServer).SendMessage(ctx, req.(*SendMessageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LogicInt_GetDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeviceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogicIntServer).GetDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.LogicInt/GetDevice",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogicIntServer).GetDevice(ctx, req.(*GetDeviceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _LogicInt_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.LogicInt",
 	HandlerType: (*LogicIntServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SignIn",
-			Handler:    _LogicInt_SignIn_Handler,
+			MethodName: "ConnSignIn",
+			Handler:    _LogicInt_ConnSignIn_Handler,
 		},
 		{
 			MethodName: "Sync",
@@ -666,6 +895,14 @@ var _LogicInt_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Offline",
 			Handler:    _LogicInt_Offline_Handler,
+		},
+		{
+			MethodName: "SendMessage",
+			Handler:    _LogicInt_SendMessage_Handler,
+		},
+		{
+			MethodName: "GetDevice",
+			Handler:    _LogicInt_GetDevice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

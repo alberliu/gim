@@ -2,21 +2,23 @@ package main
 
 import (
 	"gim/config"
-	ws_conn2 "gim/internal/ws_conn"
-	"gim/pkg/rpc_cli"
+	"gim/internal/ws_conn"
+	"gim/pkg/logger"
+	"gim/pkg/rpc"
 	"gim/pkg/util"
 )
 
 func main() {
+	logger.Init()
 	// 启动rpc服务
 	go func() {
 		defer util.RecoverPanic()
-		ws_conn2.StartRPCServer()
+		ws_conn.StartRPCServer()
 	}()
 
 	// 初始化Rpc Client
-	rpc_cli.InitLogicIntClient(config.WSConnConf.LogicRPCAddrs)
+	rpc.InitLogicIntClient(config.WSConn.LogicRPCAddrs)
 
 	// 启动长链接服务器
-	ws_conn2.StartWSServer(config.WSConnConf.WSListenAddr)
+	ws_conn.StartWSServer(config.WSConn.WSListenAddr)
 }

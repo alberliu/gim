@@ -1,57 +1,77 @@
 syntax = "proto3";
-import "tcp.proto";
+import "conn.ext.proto";
 package pb;
 
-message SignInReq {
-    int64 app_id = 1; // app_id
-    int64 device_id = 2; // 设备id
-    int64 user_id = 3; // 用户id
-    string token = 4; // 秘钥
-    string conn_addr = 5; // 服务器地址
-    int64 conn_fd = 6; // tcp长连接对应的文件描述符
+import "logic.ext.proto";
+
+message ConnSignInReq {
+    int64 device_id = 1; // 设备id
+    int64 user_id = 2; // 用户id
+    string token = 3; // 秘钥
+    string conn_addr = 4; // 服务器地址
+    int64 conn_fd = 5; // TCP对应的文件描述符
 }
-message SignInResp {
+message ConnSignInResp {
 }
 
 message SyncReq {
-    int64 app_id = 2; // appId
-    int64 user_id = 3; // 用户id
-    int64 device_id = 4; // 设备id
-    int64 seq = 5; // 客户端已经同步的序列号
+    int64 user_id = 1; // 用户id
+    int64 device_id = 2; // 设备id
+    int64 seq = 3; // 客户端已经同步的序列号
 }
 message SyncResp {
     repeated MessageItem messages = 3; // 消息列表
 }
 
 message MessageACKReq {
-    int64 app_id = 1; // appId
-    int64 user_id = 2; // 用户id
-    int64 device_id = 3; // 设备id
-    string message_id = 4; // 消息id
-    int64 device_ack = 5; // 设备收到消息的确认号
-    int64 receive_time = 6; // 消息接收时间戳，精确到毫秒
+    int64 user_id = 1; // 用户id
+    int64 device_id = 2; // 设备id
+    int64 device_ack = 3; // 设备收到消息的确认号
+    int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
 }
 message MessageACKResp {
 
 }
 
 message OfflineReq {
-    int64 app_id = 2; // appId
-    int64 user_id = 3; // 用户id
-    int64 device_id = 4; // 设备id
+    int64 user_id = 1; // 用户id
+    int64 device_id = 2; // 设备id
 }
 message OfflineResp {
 
 }
 
+message GetDeviceReq {
+    int64 device_id = 1;
+}
+message GetDeviceResp {
+    Device device = 1;
+}
+
+message Device {
+    int64 device_id = 1; // 设备id
+    int64 user_id = 2; // 用户id
+    int32 Type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
+    string Brand = 4; // 手机厂商
+    string Model = 5; // 机型
+    string SystemVersion = 6; // 系统版本
+    string SDKVersion = 7; // SDK版本
+    int32 Status = 8; // 在线状态，0：不在线；1：在线
+    int64 CreateTime = 9; // 创建时间
+    int64 UpdateTime = 10; // 更新时间
+}
 
 service LogicInt {
     //  登录
-    rpc SignIn (SignInReq) returns (SignInResp);
+    rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
     //  消息同步
     rpc Sync (SyncReq) returns (SyncResp);
     //  设备收到消息回执
     rpc MessageACK (MessageACKReq) returns (MessageACKResp);
     //  设备离线
     rpc Offline (OfflineReq) returns (OfflineResp);
+    // 发送消息
+    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
+    // 发送消息
+    rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
 }

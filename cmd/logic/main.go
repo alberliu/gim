@@ -3,21 +3,19 @@ package main
 import (
 	"gim/config"
 	"gim/internal/logic/api"
-	"gim/internal/logic/db"
+	"gim/pkg/db"
 	"gim/pkg/logger"
-	"gim/pkg/rpc_cli"
-	"gim/pkg/util"
+	"gim/pkg/rpc"
 )
 
 func main() {
-	// 初始化数据库
-	db.InitDB()
-
-	// 初始化自增id配置
-	util.InitUID(db.DBCli)
+	logger.Init()
+	db.InitMysql(config.Logic.MySQL)
+	db.InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
 
 	// 初始化RpcClient
-	rpc_cli.InitConnIntClient(config.LogicConf.ConnRPCAddrs)
+	rpc.InitConnIntClient(config.Logic.ConnRPCAddrs)
+	rpc.InitUserIntClient(config.Logic.UserRPCAddrs)
 
 	api.StartRpcServer()
 	logger.Logger.Info("logic server start")

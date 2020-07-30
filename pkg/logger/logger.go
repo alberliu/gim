@@ -45,7 +45,7 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
 }
 
-func init() {
+func Init() {
 	w := zapcore.AddSync(&lumberjackv2.Logger{
 		Filename:   "log/im.log",
 		MaxSize:    1024, // megabytes

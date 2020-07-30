@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"gim/internal/logic/db"
+	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"strconv"
 )
@@ -15,12 +15,12 @@ type seqCache struct{}
 
 var SeqCache = new(seqCache)
 
-func (*seqCache) UserKey(appId, userId int64) string {
-	return UserSeqKey + strconv.FormatInt(appId, 10) + ":" + strconv.FormatInt(userId, 10)
+func (*seqCache) UserKey(userId int64) string {
+	return UserSeqKey + strconv.FormatInt(userId, 10)
 }
 
-func (*seqCache) GroupKey(appId, groupId int64) string {
-	return GroupSeqKey + strconv.FormatInt(appId, 10) + ":" + strconv.FormatInt(groupId, 10)
+func (*seqCache) GroupKey(groupId int64) string {
+	return GroupSeqKey + strconv.FormatInt(groupId, 10)
 }
 
 // Incr 将序列号增加1

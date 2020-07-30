@@ -9,7 +9,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/rpc_cli"
+	"gim/pkg/rpc"
 	"gim/pkg/util"
 
 	"go.uber.org/zap"
@@ -25,15 +25,15 @@ func (*messageService) Add(ctx context.Context, message model.Message) error {
 }
 
 // ListByUserIdAndSeq 查询消息
-func (*messageService) ListByUserIdAndSeq(ctx context.Context, appId, userId, seq int64) ([]model.Message, error) {
+func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64) ([]model.Message, error) {
 	var err error
 	if seq == 0 {
-		seq, err = DeviceAckService.GetMaxByUserId(ctx, appId, userId)
+		seq, err = DeviceAckService.GetMaxByUserId(ctx, userId)
 		if err != nil {
 			return nil, err
 		}
 	}
-	messages, err := dao.MessageDao.ListBySeq("message", appId, model.MessageObjectTypeUser, userId, seq)
+	messages, err := dao.MessageDao.ListBySeq("message", model.MessageObjectTypeUser, userId, seq)
 	if err != nil {
 		return nil, err
 	}
@@ -41,72 +41,64 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, appId, userId, se
 }
 
 // Send 消息发送
-func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) error {
+func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	switch req.ReceiverType {
 	case pb.ReceiverType_RT_USER:
 		if sender.SenderType == pb.SenderType_ST_USER {
-			err := MessageService.SendToFriend(ctx, sender, req)
-			if err != nil {
-				return err
-			}
+			return MessageService.SendToFriend(ctx, sender, req)
 		} else {
-			err := MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
-			if err != nil {
-				return err
-			}
+			return MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
 		}
 	case pb.ReceiverType_RT_NORMAL_GROUP:
-		err := MessageService.SendToGroup(ctx, sender, req)
-		if err != nil {
-			return err
-		}
-	case pb.ReceiverType_RT_LARGE_GROUP:
-		err := MessageService.SendToChatRoom(ctx, sender, req)
-		if err != nil {
-			return err
-		}
-	}
+		return MessageService.SendToGroup(ctx, sender, req)
 
-	return nil
+	case pb.ReceiverType_RT_LARGE_GROUP:
+		return MessageService.SendToLargeGroup(ctx, sender, req)
+	}
+	return 0, nil
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, req pb.SendMessageReq) error {
+func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	// 发给发送者
-	err := MessageService.SendToUser(ctx, sender, sender.SenderId, 0, req)
+	seq, err := MessageService.SendToUser(ctx, sender, sender.SenderId, 0, req)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// 发给接收者
-	err = MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
+	_, err = MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return seq, nil
 }
 
 // SendToGroup 消息发送至群组（使用写扩散）
-func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) error {
-	users, err := GroupUserService.GetUsers(ctx, sender.AppId, req.ReceiverId)
+func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+	users, err := SmallGroupUserService.GetUsers(ctx, req.ReceiverId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if sender.SenderType == pb.SenderType_ST_USER && !IsInGroup(users, sender.SenderId) {
 		logger.Sugar.Error(ctx, sender.SenderId, req.ReceiverId, "不在群组内")
-		return gerrors.ErrNotInGroup
+		return 0, gerrors.ErrNotInGroup
 	}
 
+	var userSeq int64
 	// 将消息发送给群组用户，使用写扩散
 	for _, user := range users {
-		err = MessageService.SendToUser(ctx, sender, user.UserId, 0, req)
+		seq, err := MessageService.SendToUser(ctx, sender, user.UserId, 0, req)
 		if err != nil {
-			return err
+			return 0, err
+		}
+		if user.UserId == sender.SenderId {
+			userSeq = seq
 		}
 	}
-	return nil
+	return userSeq, nil
 }
 
 func IsInGroup(users []model.GroupUser, userId int64) bool {
@@ -118,33 +110,30 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 	return false
 }
 
-// SendToChatRoom 消息发送至聊天室（读扩散）
-func (*messageService) SendToChatRoom(ctx context.Context, sender model.Sender, req pb.SendMessageReq) error {
-	userIds, err := cache.LargeGroupUserCache.Members(sender.AppId, req.ReceiverId)
+// SendToLargeGroup 消息发送至大群组（读扩散）
+func (*messageService) SendToLargeGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+	users, err := cache.LargeGroupUserCache.Members(req.ReceiverId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	isMember, err := cache.LargeGroupUserCache.IsMember(sender.AppId, req.ReceiverId, sender.SenderId)
+	isMember, err := cache.LargeGroupUserCache.IsMember(req.ReceiverId, sender.SenderId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if sender.SenderType == pb.SenderType_ST_USER && !isMember {
-		logger.Logger.Error("not int group", zap.Int64("app_id", sender.AppId), zap.Int64("group_id", req.ReceiverId),
-			zap.Int64("user_id", sender.AppId))
-		return gerrors.ErrNotInGroup
+		logger.Logger.Error("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
+		return 0, gerrors.ErrNotInGroup
 	}
 
 	var seq int64 = 0
 	if req.IsPersist {
-		seq, err = SeqService.GetGroupNext(ctx, sender.AppId, req.ReceiverId)
+		seq, err = SeqService.GetGroupNext(ctx, req.ReceiverId)
 		if err != nil {
-			return err
+			return 0, err
 		}
-		messageType, messageContent := model.PBToMessageBody(req.MessageBody)
 		message := model.Message{
-			AppId:          sender.AppId,
 			ObjectType:     model.MessageObjectTypeGroup,
 			ObjectId:       req.ReceiverId,
 			RequestId:      grpclib.GetCtxRequstId(ctx),
@@ -154,34 +143,33 @@ func (*messageService) SendToChatRoom(ctx context.Context, sender model.Sender, 
 			ReceiverType:   int32(req.ReceiverType),
 			ReceiverId:     req.ReceiverId,
 			ToUserIds:      model.FormatUserIds(req.ToUserIds),
-			Type:           messageType,
-			Content:        messageContent,
+			Type:           int(req.MessageType),
+			Content:        req.MessageContent,
 			Seq:            seq,
 			SendTime:       util.UnunixMilliTime(req.SendTime),
 			Status:         int32(pb.MessageStatus_MS_NORMAL),
 		}
 		err = MessageService.Add(ctx, message)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
 
 	// 将消息发送给群组用户，使用读扩散
 	req.IsPersist = false
-	for i := range userIds {
-		err = MessageService.SendToUser(ctx, sender, userIds[i].UserId, seq, req)
+	for i := range users {
+		_, err = MessageService.SendToUser(ctx, sender, users[i].UserId, seq, req)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
-	return nil
+	return seq, nil
 }
 
 // StoreAndSendToUser 将消息持久化到数据库,并且消息发送至用户
-func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, roomSeq int64, req pb.SendMessageReq) error {
+func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, roomSeq int64, req pb.SendMessageReq) (int64, error) {
 	logger.Logger.Debug("message_store_send_to_user",
-		zap.String("message_id", req.MessageId),
-		zap.Int64("app_id", sender.AppId),
+		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
 		zap.Int64("to_user_id", toUserId))
 
 	var (
@@ -189,13 +177,11 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 		err error
 	)
 	if req.IsPersist {
-		seq, err = SeqService.GetUserNext(ctx, sender.AppId, toUserId)
+		seq, err = SeqService.GetUserNext(ctx, toUserId)
 		if err != nil {
-			return err
+			return 0, err
 		}
-		messageType, messageContent := model.PBToMessageBody(req.MessageBody)
 		selfMessage := model.Message{
-			AppId:          sender.AppId,
 			ObjectType:     model.MessageObjectTypeUser,
 			ObjectId:       toUserId,
 			RequestId:      grpclib.GetCtxRequstId(ctx),
@@ -205,15 +191,15 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 			ReceiverType:   int32(req.ReceiverType),
 			ReceiverId:     req.ReceiverId,
 			ToUserIds:      model.FormatUserIds(req.ToUserIds),
-			Type:           messageType,
-			Content:        messageContent,
+			Type:           int(req.MessageType),
+			Content:        req.MessageContent,
 			Seq:            seq,
 			SendTime:       util.UnunixMilliTime(req.SendTime),
 			Status:         int32(pb.MessageStatus_MS_NORMAL),
 		}
 		err = MessageService.Add(ctx, selfMessage)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
 
@@ -225,43 +211,42 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 		ReceiverType:   req.ReceiverType,
 		ReceiverId:     req.ReceiverId,
 		ToUserIds:      req.ToUserIds,
-		MessageBody:    req.MessageBody,
+		MessageType:    req.MessageType,
+		MessageContent: req.MessageContent,
 		Seq:            seq,
 		SendTime:       req.SendTime,
 		Status:         pb.MessageStatus_MS_NORMAL,
 	}
 
 	// 查询用户在线设备
-	devices, err := DeviceService.ListOnlineByUserId(ctx, sender.AppId, toUserId)
+	devices, err := DeviceService.ListOnlineByUserId(ctx, toUserId)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	for i := range devices {
 		// 消息不需要投递给发送消息的设备
-		if sender.DeviceId == devices[i].DeviceId {
+		if sender.DeviceId == devices[i].Id {
 			continue
 		}
 
 		err = MessageService.SendToDevice(ctx, devices[i], messageItem)
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
-	return nil
+	return seq, nil
 }
 
 // SendToDevice 将消息发送给设备
 func (*messageService) SendToDevice(ctx context.Context, device model.Device, msgItem pb.MessageItem) error {
 	if device.Status == model.DeviceOnLine {
 		message := pb.Message{Message: &msgItem}
-		_, err := rpc_cli.ConnIntClient.DeliverMessage(
-			grpclib.ContextWithAddr(ctx, device.ConnAddr),
-			&pb.DeliverMessageReq{
-				DeviceId: device.DeviceId,
-				Fd:       device.ConnFd,
-				Message:  &message,
-			})
+		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
+			DeviceId: device.Id,
+			Fd:       device.ConnFd,
+			Message:  &message,
+		})
 		if err != nil {
 			return err
 		}

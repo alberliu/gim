@@ -4,95 +4,158 @@ import (
 	"context"
 	"gim/internal/logic/cache"
 	"gim/internal/logic/dao"
-	"gim/internal/logic/model"
+	"gim/pkg/gerrors"
+	"gim/pkg/logger"
+	"gim/pkg/pb"
+	"gim/pkg/rpc"
 )
 
 type groupUserService struct{}
 
 var GroupUserService = new(groupUserService)
 
-// ListByUserId 获取用户所加入的群组
-func (*groupUserService) ListByUserId(ctx context.Context, appId, userId int64) ([]model.Group, error) {
-	groups, err := dao.GroupUserDao.ListByUserId(appId, userId)
+// AddUsers 给群组添加用户
+func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, userIds []int64) ([]int64, error) {
+	group, err := GroupService.Get(ctx, groupId)
 	if err != nil {
 		return nil, err
 	}
-	return groups, nil
+	if group == nil {
+		return nil, gerrors.ErrGroupNotExist
+	}
+
+	var existIds []int64
+	var addedIds []int64
+
+	if group.Type == pb.GroupType_GT_SMALL {
+		for i := range userIds {
+			member, err := dao.GroupUserDao.Get(groupId, userIds[i])
+			if err != nil {
+				return nil, err
+			}
+
+			if member != nil {
+				existIds = append(existIds, userIds[i])
+				continue
+			}
+
+			err = SmallGroupUserService.AddUser(ctx, groupId, userIds[i], "", "")
+			if err != nil {
+				return nil, err
+			}
+			addedIds = append(addedIds, userIds[i])
+		}
+	}
+	if group.Type == pb.GroupType_GT_LARGE {
+		for i := range userIds {
+			isMember, err := cache.LargeGroupUserCache.IsMember(groupId, userIds[i])
+			if err != nil {
+				return nil, err
+			}
+			if isMember {
+				existIds = append(existIds, userIds[i])
+				continue
+			}
+			err = cache.LargeGroupUserCache.Set(groupId, userIds[i], "", "")
+			if err != nil {
+				return nil, err
+			}
+			addedIds = append(addedIds, userIds[i])
+		}
+	}
+
+	var members []*pb.GroupMember
+	for i := range addedIds {
+		userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: addedIds[i]})
+		if err != nil {
+			return nil, err
+		}
+
+		members = append(members, &pb.GroupMember{
+			UserId:    userResp.User.UserId,
+			Nickname:  userResp.User.Nickname,
+			Sex:       userResp.User.Sex,
+			AvatarUrl: userResp.User.AvatarUrl,
+			UserExtra: userResp.User.Extra,
+			Remarks:   "",
+			Extra:     "",
+		})
+	}
+
+	userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	if err != nil {
+		return nil, err
+	}
+
+	err = PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_ADD_GROUP_MEMBERS, &pb.AddGroupMembersPush{
+		UserId:   userResp.User.UserId,
+		Nickname: userResp.User.Nickname,
+		Members:  members,
+	}, true)
+	if err != nil {
+		logger.Sugar.Error(err)
+	}
+
+	return existIds, nil
 }
 
-// GetUsers 获取群组的所有用户信息
-func (*groupUserService) GetUsers(ctx context.Context, appId, groupId int64) ([]model.GroupUser, error) {
-	users, err := cache.GroupUserCache.Get(appId, groupId)
-	if err != nil {
-		return nil, err
-	}
-
-	if users != nil {
-		return users, nil
-	}
-
-	users, err = dao.GroupUserDao.ListUser(appId, groupId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = cache.GroupUserCache.Set(appId, groupId, users)
-	if err != nil {
-		return nil, err
-	}
-	return users, err
-}
-
-// AddUser 给群组添加用户
-func (*groupUserService) AddUser(ctx context.Context, appId, groupId, userId int64, label, extra string) error {
-	err := dao.GroupUserDao.Add(appId, groupId, userId, label, extra)
+// UpdateUser 更新群组用户
+func (*groupUserService) UpdateUser(ctx context.Context, groupId, userId int64, label, extra string) error {
+	group, err := GroupService.Get(ctx, groupId)
 	if err != nil {
 		return err
 	}
 
-	err = dao.GroupDao.UpdateUserNum(appId, groupId, 1)
-	if err != nil {
-		return err
+	if group == nil {
+		return gerrors.ErrGroupNotExist
 	}
 
-	err = cache.GroupUserCache.Del(appId, groupId)
-	if err != nil {
-		return err
+	if group.Type == pb.GroupType_GT_SMALL {
+		err = SmallGroupUserService.Update(ctx, groupId, userId, label, extra)
+		if err != nil {
+			return err
+		}
 	}
-
+	if group.Type == pb.GroupType_GT_LARGE {
+		err = cache.LargeGroupUserCache.Set(groupId, userId, label, extra)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-// DeleteUser 从群组移除用户
-func (*groupUserService) DeleteUser(ctx context.Context, appId, groupId, userId int64) error {
-	err := dao.GroupUserDao.Delete(appId, groupId, userId)
+// DeleteUser 删除用户群组
+func (*groupUserService) DeleteUser(ctx context.Context, optId, groupId, userId int64) error {
+	group, err := GroupService.Get(ctx, groupId)
 	if err != nil {
 		return err
 	}
+	if group == nil {
+		return gerrors.ErrGroupNotExist
+	}
 
-	err = dao.GroupDao.UpdateUserNum(appId, groupId, -1)
+	userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: optId})
 	if err != nil {
 		return err
 	}
+	PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
+		UserId:        optId,
+		Nickname:      userResp.User.Nickname,
+		DeletedUserId: userId,
+	}, true)
 
-	err = cache.GroupUserCache.Del(appId, groupId)
-	if err != nil {
-		return err
+	if group.Type == pb.GroupType_GT_SMALL {
+		err = SmallGroupUserService.DeleteUser(ctx, groupId, userId)
+		if err != nil {
+			return err
+		}
 	}
-
-	return nil
-}
-
-// Update 更新群组用户信息
-func (*groupUserService) Update(ctx context.Context, appId, groupId int64, userId int64, label, extra string) error {
-	err := dao.GroupUserDao.Update(appId, groupId, userId, label, extra)
-	if err != nil {
-		return err
-	}
-
-	err = cache.GroupUserCache.Del(appId, groupId)
-	if err != nil {
-		return err
+	if group.Type == pb.GroupType_GT_LARGE {
+		err = cache.LargeGroupUserCache.Del(groupId, userId)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

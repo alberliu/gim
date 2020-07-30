@@ -10,8 +10,6 @@ const (
 // Device 设备
 type Device struct {
 	Id            int64     // 设备id
-	DeviceId      int64     // 设备id
-	AppId         int64     // app_id
 	UserId        int64     // 用户id
 	Type          int32     // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
 	Brand         string    // 手机厂商
