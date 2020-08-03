@@ -8,7 +8,7 @@ import (
 
 func initProdConf() {
 	Logic = LogicConf{
-		MySQL:            "root:liu123456@tcp(localhost:3306)/im?charset=utf8&parseTime=true",
+		MySQL:            "root:liu123456@tcp(localhost:3306)/gim?charset=utf8&parseTime=true&loc=Local",
 		NSQIP:            "127.0.0.1:4150",
 		RedisIP:          "127.0.0.1:6379",
 		RedisPassword:    "liu123456",
