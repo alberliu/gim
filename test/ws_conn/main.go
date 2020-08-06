@@ -6,7 +6,6 @@ import (
 	"gim/pkg/util"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -29,12 +28,10 @@ type WSClient struct {
 }
 
 func (c *WSClient) Start() {
-	path := fmt.Sprintf("/ws?user_id=%d&device_id=%d&token=%s", c.UserId, c.DeviceId, "0")
-	u := url.URL{Scheme: "ws", Host: "localhost:8081", Path: path}
-
-	conn, resp, err := websocket.DefaultDialer.Dial(u.String(), http.Header{})
+	path := fmt.Sprintf("ws://localhost:8081/ws?user_id=%d&device_id=%d&token=%s", c.UserId, c.DeviceId, "0")
+	conn, resp, err := websocket.DefaultDialer.Dial(path, http.Header{})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("dial error", err)
 		return
 	}
 
