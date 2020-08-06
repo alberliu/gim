@@ -74,5 +74,9 @@ func (*authService) Auth(ctx context.Context, userId, deviceId int64, token stri
 	if device.Expire < time.Now().Unix() {
 		return gerrors.ErrUnauthorized
 	}
+
+	if device.Token != token {
+		return gerrors.ErrUnauthorized
+	}
 	return nil
 }
