@@ -25,7 +25,7 @@ type LogicConf struct {
 
 // TCPConnConf配置
 type TCPConnConf struct {
-	TCPListenAddr string
+	TCPListenAddr int
 	RPCListenAddr string
 	LocalAddr     string
 	LogicRPCAddrs string
