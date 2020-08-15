@@ -39,6 +39,14 @@ test:         长连接测试脚本
 设备信息，好友信息，群组信息管理，消息转发逻辑  
 4.user  
 一个简单的用户服务，可以根据自己的业务需求，进行扩展,也可以替换成自己的业务服务器，但是前提是，你的业务服务器实现了user.int.proto接口
+### 客户端接入流程
+1.调用LogicExt.RegisterDevice接口，完成设备注册，获取设备ID（device_id）,注意，一个设备只需完成一次注册即可，后续如果本地有device_id,就不需要注册了，举个例子，如果是APP第一次安装，就需要调用这个接口，后面即便是换账号登录，也不需要重新注册。  
+2.调用UserExt.SignIn接口，完成账户登录，获取账户登录的token。  
+3.建立长连接，使用步骤2拿到的token，完成长连接登录。  
+如果是web端,需要调用建立WebSocket时,将user_id,device_id,token，以URL参数的形式传递到服务器，完成长连接登录，例如：ws://localhost:8081/ws?user_id={user_id}&device_id={device_id}&token={token}  
+如果是APP端，就需要建立TCP长连接，在完成建立TCP长连接时，第一个包应该是长连接登录包（SignInInput），如果信息无误，客户端就会成功建立长连接。  
+4.使用长连接发送消息同步包（SyncInput），完成离线消息同步，注意：seq字段是客户端接收到消息的最大同步序列号，如果用户是换设备登录或者第一次登录，seq应该传0。  
+接下来，用户可以使用LogicExt.SendMessage接口来发送消息，消息接收方可以使用长连接接收到对应的消息。  
 ### 网络模型
 TCP的网络层使用linux的epoll实现，相比golang原生，能减少goroutine使用，从而节省系统资源占用
 ### 单用户多设备支持，离线消息同步
