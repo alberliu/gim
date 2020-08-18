@@ -59,9 +59,10 @@ message GetFriendsResp {
 
 message CreateGroupReq {
     string name = 1; // 名称
-    string introduction = 2; // 简介
-    GroupType type = 3; // 群组类型
-    string extra = 4; // 附加字段
+    string avatar_url = 2; // 头像
+    string introduction = 3; // 简介
+    GroupType type = 4; // 群组类型
+    string extra = 5; // 附加字段
 }
 message CreateGroupResp {
     int64 group_id = 1; // 群组id
@@ -69,9 +70,10 @@ message CreateGroupResp {
 
 message UpdateGroupReq {
     int64 group_id = 1; // 群组id
-    string name = 2; // 名称
-    string introduction = 3; // 简介
-    string extra = 4; // 附加字段
+    string avatar_url = 2; // 头像
+    string name = 3; // 名称
+    string introduction = 4; // 简介
+    string extra = 5; // 附加字段
 }
 message UpdateGroupResp {
 }
@@ -86,12 +88,13 @@ message GetGroupResp {
 message Group {
     int64 group_id = 1; // 群组id
     string name = 2; // 名称
-    string introduction = 3; // 简介
-    int32 user_mum = 4; // 用户数
-    GroupType type = 5; // 群组类型
-    string extra = 6; // 附加字段
-    int64 create_time = 7; // 创建时间
-    int64 update_time = 8; // 更新时间
+    string avatar_url = 3; // 头像
+    string introduction = 4; // 简介
+    int32 user_mum = 5; // 用户数
+    GroupType type = 6; // 群组类型
+    string extra = 7; // 附加字段
+    int64 create_time = 8; // 创建时间
+    int64 update_time = 9; // 更新时间
 }
 
 enum GroupType {

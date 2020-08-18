@@ -91,6 +91,7 @@ func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.GetFriendsReq) (
 func (*LogicExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {
 	groupId, err := service.GroupService.Create(ctx, model.Group{
 		Name:         in.Name,
+		AvatarUrl:    in.AvatarUrl,
 		Introduction: in.Introduction,
 		Type:         in.Type,
 		Extra:        in.Extra,
@@ -108,6 +109,7 @@ func (*LogicExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroupReq) (
 	return &pb.UpdateGroupResp{}, service.GroupService.Update(ctx, userId, model.Group{
 		Id:           in.GroupId,
 		Name:         in.Name,
+		AvatarUrl:    in.AvatarUrl,
 		Introduction: in.Introduction,
 		Extra:        in.Extra,
 	})

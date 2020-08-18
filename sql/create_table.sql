@@ -67,6 +67,7 @@ CREATE TABLE `group`
 (
     `id`           bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `name`         varchar(50)         NOT NULL COMMENT '群组名称',
+    `avatar_url`   varchar(255)        NOT NULL COMMENT '群组头像',
     `introduction` varchar(255)        NOT NULL COMMENT '群组简介',
     `user_num`     int(11)             NOT NULL DEFAULT '0' COMMENT '群组人数',
     `type`         tinyint(4)          NOT NULL COMMENT '群组类型，1：小群；2：大群',
@@ -77,7 +78,6 @@ CREATE TABLE `group`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='群组';
-
 -- ----------------------------
 -- Table structure for group_user
 -- ----------------------------

@@ -40,7 +40,7 @@ func (*groupService) Create(ctx context.Context, group model.Group) (int64, erro
 
 // Update 更新群组
 func (*groupService) Update(ctx context.Context, userId int64, group model.Group) error {
-	err := dao.GroupDao.Update(group.Id, group.Name, group.Introduction, group.Extra)
+	err := dao.GroupDao.Update(group.Id, group.Name, group.AvatarUrl, group.Introduction, group.Extra)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 type Group struct {
 	Id           int64        // 群组id
 	Name         string       // 组名
+	AvatarUrl    string       // 头像
 	Introduction string       // 群简介
 	UserNum      int32        // 群组人数
 	Type         pb.GroupType // 群组类型

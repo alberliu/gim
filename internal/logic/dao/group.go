@@ -38,9 +38,9 @@ func (*groupDao) Add(group model.Group) (int64, error) {
 }
 
 // Update 更新群组信息
-func (*groupDao) Update(groupId int64, name, introduction, extra string) error {
-	err := db.DB.Exec("update `group` set name = ?,introduction = ?,extra = ? where id = ?",
-		name, introduction, extra, groupId).Error
+func (*groupDao) Update(groupId int64, name, avatarUrl, introduction, extra string) error {
+	err := db.DB.Exec("update `group` set name = ?,avatar_url = ?,introduction = ?,extra = ? where id = ?",
+		name, avatarUrl, introduction, extra, groupId).Error
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
