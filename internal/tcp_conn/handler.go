@@ -56,11 +56,12 @@ func (h *handler) OnMessage(c *gn.Conn, bytes []byte) {
 }
 func (*handler) OnClose(c *gn.Conn, err error) {
 	logger.Logger.Debug("close", zap.Any("data", c.GetData()), zap.Error(err))
-	data := c.GetData().(ConnData)
-	_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
-		UserId:   data.UserId,
-		DeviceId: data.DeviceId,
-	})
+	if data, ok := c.GetData().(ConnData); ok {
+		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
+			UserId:   data.UserId,
+			DeviceId: data.DeviceId,
+		})
+	}
 }
 
 func (h *handler) Send(c *gn.Conn, pt pb.PackageType, requestId int64, err error, message proto.Message) {
