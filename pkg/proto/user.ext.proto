@@ -13,9 +13,21 @@ message SignInResp {
     string token = 2;
 }
 
+message UpdateUserReq {
+    string nickname = 1; // 昵称
+    int32 sex = 2; // 性别
+    string avatar_url = 3; // 头像地址
+    string extra = 4; // 附加字段
+}
+message UpdateUserResp {
+
+}
+
 service UserExt {
     // 登录
     rpc SignIn (SignInReq) returns (SignInResp);
     // 获取用户信息
     rpc GetUser (GetUserReq) returns (GetUserResp);
+    // 更新用户信息
+    rpc UpdateUser (UpdateUserReq) returns (UpdateUserResp);
 }

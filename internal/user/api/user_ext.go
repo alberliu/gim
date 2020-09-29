@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"gim/internal/user/model"
 	"gim/internal/user/service"
 	"gim/pkg/grpclib"
 	"gim/pkg/pb"
@@ -40,4 +41,18 @@ func (s *UserExtServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*pb.Get
 			UpdateTime: user.UpdateTime.Unix(),
 		},
 	}, nil
+}
+
+func (s *UserExtServer) UpdateUser(ctx context.Context, in *pb.UpdateUserReq) (*pb.UpdateUserResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpdateUserResp{}, service.UserService.Update(ctx, model.User{
+		Id:        userId,
+		Nickname:  in.Nickname,
+		Sex:       in.Sex,
+		AvatarUrl: in.AvatarUrl,
+		Extra:     in.Extra,
+	})
 }
