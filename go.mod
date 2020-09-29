@@ -3,7 +3,7 @@ module gim
 go 1.12
 
 require (
-	github.com/alberliu/gn v1.0.2
+	github.com/alberliu/gn v1.1.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
@@ -24,12 +24,10 @@ require (
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
-	github.com/yuin/goldmark v1.1.33 // indirect
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/tools v0.0.0-20200711155855-7342f9734a7d // indirect
 	google.golang.org/genproto v0.0.0-20200709005830-7a2ca40e9dc3

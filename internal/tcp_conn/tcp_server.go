@@ -12,12 +12,11 @@ var server *gn.Server
 
 func StartTCPServer() {
 	var err error
-	server, err = gn.NewServer(config.TCPConn.TCPListenAddr, &handler{}, 2, 254, 1024, 1000)
+	server, err = gn.NewServer(config.TCPConn.TCPListenAddr, &handler{}, gn.WithReadMaxLen(254), gn.WithTimeout(5*time.Minute, 11*time.Minute))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
 
-	server.SetTimeout(5*time.Second, 11*time.Minute)
 	server.Run()
 }
