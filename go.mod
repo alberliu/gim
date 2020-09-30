@@ -3,7 +3,7 @@ module gim
 go 1.12
 
 require (
-	github.com/alberliu/gn v1.1.0
+	github.com/alberliu/gn v1.2.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/go-sql-driver/mysql v1.5.0

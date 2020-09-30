@@ -24,7 +24,7 @@ type handler struct{}
 var Handler = new(handler)
 
 func (*handler) OnConnect(c *gn.Conn) {
-	logger.Logger.Debug("connect:", zap.Int("fd", c.GetFd()), zap.String("addr", c.GetAddr()))
+	logger.Logger.Debug("connect:", zap.Int32("fd", c.GetFd()), zap.String("addr", c.GetAddr()))
 }
 func (h *handler) OnMessage(c *gn.Conn, bytes []byte) {
 	var input pb.Input
@@ -91,7 +91,7 @@ func (h *handler) Send(c *gn.Conn, pt pb.PackageType, requestId int64, err error
 		return
 	}
 
-	err = gn.EncodeToFD(c.GetFd(), outputBytes)
+	err = encoder.EncodeToFD(c.GetFd(), outputBytes)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
