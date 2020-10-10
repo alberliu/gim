@@ -223,4 +223,4 @@ func getCtx() context.Context {
 }
 ```
 ### github
-https://github.com/alberliu/im
+https://github.com/alberliu/gim
