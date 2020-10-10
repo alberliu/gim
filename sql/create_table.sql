@@ -23,23 +23,6 @@ CREATE TABLE `device`
   COLLATE = utf8mb4_bin COMMENT ='设备';
 
 -- ----------------------------
--- Table structure for device_ack
--- ----------------------------
-DROP TABLE IF EXISTS `device_ack`;
-CREATE TABLE `device_ack`
-(
-    `id`          bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `device_id`   bigint(20) unsigned NOT NULL COMMENT '设备id',
-    `ack`         bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '收到消息确认号',
-    `create_time` datetime            NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` datetime            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE KEY `uk_device_id` (`device_id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_bin COMMENT ='设备消息同步序列号';
-
--- ----------------------------
 -- Table structure for friend
 -- ----------------------------
 DROP TABLE IF EXISTS `friend`;
