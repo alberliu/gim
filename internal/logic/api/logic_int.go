@@ -27,7 +27,7 @@ func (*LogicIntServer) Sync(ctx context.Context, req *pb.SyncReq) (*pb.SyncResp,
 
 // MessageACK 设备收到消息ack
 func (*LogicIntServer) MessageACK(ctx context.Context, req *pb.MessageACKReq) (*pb.MessageACKResp, error) {
-	return &pb.MessageACKResp{}, service.DeviceAckService.Update(ctx, req.DeviceId, req.DeviceAck)
+	return &pb.MessageACKResp{}, service.DeviceAckService.Update(ctx, req.UserId, req.DeviceId, req.DeviceAck)
 }
 
 // Offline 设备离线
