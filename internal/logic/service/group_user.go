@@ -139,11 +139,14 @@ func (*groupUserService) DeleteUser(ctx context.Context, optId, groupId, userId 
 	if err != nil {
 		return err
 	}
-	PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
+	err = PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
 		UserId:        optId,
 		Nickname:      userResp.User.Nickname,
 		DeletedUserId: userId,
 	}, true)
+	if err != nil {
+		return err
+	}
 
 	if group.Type == pb.GroupType_GT_SMALL {
 		err = SmallGroupUserService.DeleteUser(ctx, groupId, userId)

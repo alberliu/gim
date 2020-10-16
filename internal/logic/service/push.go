@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-
 	"go.uber.org/zap"
 )
 
@@ -35,7 +34,7 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 		return gerrors.WrapError(err)
 	}
 
-	MessageService.SendToUser(ctx,
+	_, err = MessageService.SendToUser(ctx,
 		model.Sender{
 			SenderType: pb.SenderType_ST_SYSTEM,
 			SenderId:   0,
@@ -53,6 +52,9 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 			IsPersist:      isPersist,
 		},
 	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -73,7 +75,7 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 		return gerrors.WrapError(err)
 	}
 
-	MessageService.SendToGroup(ctx,
+	_, err = MessageService.SendToGroup(ctx,
 		model.Sender{
 			SenderType: pb.SenderType_ST_SYSTEM,
 			SenderId:   0,
@@ -89,5 +91,8 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 			IsPersist:      isPersist,
 		},
 	)
+	if err != nil {
+		return err
+	}
 	return nil
 }
