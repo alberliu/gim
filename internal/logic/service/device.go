@@ -23,11 +23,6 @@ func (*deviceService) Register(ctx context.Context, device model.Device) (int64,
 		return 0, err
 	}
 
-	err = dao.DeviceAckDao.Add(id, 0)
-	if err != nil {
-		return 0, err
-	}
-
 	return id, nil
 }
 
