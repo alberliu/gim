@@ -28,7 +28,7 @@ func TestMessageDao_Add(t *testing.T) {
 }
 
 func TestMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
-	messages, err := MessageDao.ListBySeq("message", 1, 1, 0)
+	messages, err := MessageDao.ListBySeq("message", 1, 1, 0, 100)
 	fmt.Println(err)
 	for i := range messages {
 		fmt.Printf("%+v\n", messages[i])

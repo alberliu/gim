@@ -12,8 +12,13 @@ import (
 	"gim/pkg/rpc"
 	"gim/pkg/util"
 
+	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 )
+
+const MessageLimit = 50 // 最大消息同步数量
+
+const MaxSyncBufLen = 65536 // 最大字节数组长度
 
 type messageService struct{}
 
@@ -24,20 +29,42 @@ func (*messageService) Add(ctx context.Context, message model.Message) error {
 	return dao.MessageDao.Add("message", message)
 }
 
-// ListByUserIdAndSeq 查询消息
-func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64) ([]model.Message, error) {
-	var err error
-	if seq == 0 {
-		seq, err = DeviceAckService.GetMaxByUserId(ctx, userId)
+// Sync 消息同步
+func (*messageService) Sync(ctx context.Context, userId, seq int64) (*pb.SyncResp, error) {
+	messages, hasMore, err := MessageService.ListByUserIdAndSeq(ctx, userId, seq)
+	if err != nil {
+		return nil, err
+	}
+	pbMessages := model.MessagesToPB(messages)
+	length := len(pbMessages)
+
+	resp := &pb.SyncResp{Messages: pbMessages, HasMore: hasMore}
+	bytes, err := proto.Marshal(resp)
+	if err != nil {
+		return nil, err
+	}
+	for len(bytes) > MaxSyncBufLen {
+		length = length * 2 / 3
+		resp = &pb.SyncResp{Messages: pbMessages[0:length], HasMore: true}
+		bytes, err = proto.Marshal(resp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	messages, err := dao.MessageDao.ListBySeq("message", model.MessageObjectTypeUser, userId, seq)
-	if err != nil {
-		return nil, err
+
+	return resp, nil
+}
+
+// ListByUserIdAndSeq 查询消息
+func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64) ([]model.Message, bool, error) {
+	var err error
+	if seq == 0 {
+		seq, err = DeviceAckService.GetMaxByUserId(ctx, userId)
+		if err != nil {
+			return nil, false, err
+		}
 	}
-	return messages, nil
+	return dao.MessageDao.ListBySeq("message", model.MessageObjectTypeUser, userId, seq, MessageLimit)
 }
 
 // Send 消息发送

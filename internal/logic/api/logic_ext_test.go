@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )

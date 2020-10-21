@@ -20,11 +20,20 @@ func (*messageDao) Add(tableName string, message model.Message) error {
 }
 
 // ListBySeq 根据类型和id查询大于序号大于seq的消息
-func (*messageDao) ListBySeq(tableName string, objectType, objectId, seq int64) ([]model.Message, error) {
-	var messages []model.Message
-	err := db.DB.Table(tableName).Find(&messages, "object_type = ? and object_id = ? and seq > ?", objectType, objectId, seq).Error
+func (*messageDao) ListBySeq(tableName string, objectType, objectId, seq, limit int64) ([]model.Message, bool, error) {
+	db := db.DB.Table(tableName).
+		Where("object_type = ? and object_id = ? and seq > ?", objectType, objectId, seq)
+
+	var count int64
+	err := db.Count(&count).Error
 	if err != nil {
-		return nil, gerrors.WrapError(err)
+		return nil, false, gerrors.WrapError(err)
 	}
-	return messages, nil
+
+	var messages []model.Message
+	err = db.Limit(limit).Find(&messages).Error
+	if err != nil {
+		return nil, false, gerrors.WrapError(err)
+	}
+	return messages, count > limit, nil
 }

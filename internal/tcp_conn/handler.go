@@ -145,7 +145,7 @@ func (h *handler) Sync(c *gn.Conn, input pb.Input) {
 
 	var message proto.Message
 	if err == nil {
-		message = &pb.SyncOutput{Messages: resp.Messages}
+		message = &pb.SyncOutput{Messages: resp.Messages, HasMore: resp.HasMore}
 	}
 	h.Send(c, pb.PackageType_PT_SYNC, input.RequestId, err, message)
 }

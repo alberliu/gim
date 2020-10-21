@@ -10,7 +10,7 @@ enum PackageType {
 }
 
 /************************************消息体定义开始************************************/
-// 单条消息投递内容,todo 通知栏提醒
+// 单条消息投递内容（估算大约100个字节）,todo 通知栏提醒
 message MessageItem {
     int64 request_id = 1; // 请求id
     SenderType sender_type = 2; // 发送者类型，1:系统,2:用户,3:第三方业务系统
@@ -20,12 +20,11 @@ message MessageItem {
     int64 receiver_id = 6; // 用户id或者群组id
     repeated int64 to_user_ids = 7; // 需要@的用户id列表
     MessageType message_type = 8; // 消息类型
-    bytes message_content =9; // 消息内容
+    bytes message_content = 9; // 消息内容
     int64 seq = 10; // 用户消息发送序列号
     int64 send_time = 11; // 消息发送时间戳，精确到毫秒
     MessageStatus status = 12; // 消息状态
 }
-
 
 // 消息类型
 enum MessageType {
@@ -126,7 +125,8 @@ message SyncInput {
 
 // 消息同步响应,package_type:2
 message SyncOutput {
-    repeated MessageItem messages = 3; // 消息列表
+    repeated MessageItem messages = 1; // 消息列表
+    bool has_more = 2; // 是否有更多数据
 }
 
 enum ReceiverType {
