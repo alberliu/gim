@@ -2,8 +2,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
-github.com/alberliu/gn v1.2.2 h1:Yy/6S5AwYsu5wPs0D+7oOJpUeYVpIHLHasPKMqFzevc=
-github.com/alberliu/gn v1.2.2/go.mod h1:EAZ/QNlcImJ4AkBwTgqUb73zW2ZuF7FxKIdEbjKLedE=
+github.com/alberliu/gn v1.3.0 h1:GqSpHE8vD42d3DrKTtID80qyrQi0/V/pIySoMhz5NnY=
+github.com/alberliu/gn v1.3.0/go.mod h1:EAZ/QNlcImJ4AkBwTgqUb73zW2ZuF7FxKIdEbjKLedE=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=

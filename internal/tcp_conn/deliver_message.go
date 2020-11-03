@@ -11,7 +11,7 @@ import (
 
 func DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) error {
 	// 获取设备对应的TCP连接
-	conn, ok := server.GetConn(int(req.Fd))
+	conn, ok := server.GetConn(int32(req.Fd))
 	if !ok {
 		logger.Logger.Warn("GetConn warn", zap.Int64("device_id", req.DeviceId), zap.Int64("df", req.Fd))
 		return nil
