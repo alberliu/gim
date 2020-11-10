@@ -1,6 +1,8 @@
 syntax = "proto3";
 package pb;
 
+import "user.ext.proto";
+
 message AuthReq {
     int64 user_id = 1;
     int64 device_id = 2;
@@ -8,23 +10,6 @@ message AuthReq {
 }
 
 message AuthResp {
-}
-
-message User {
-    int64 user_id = 1; // 用户id
-    string nickname = 2; // 昵称
-    int32 sex = 3; // 性别
-    string avatar_url = 4; // 头像地址
-    string extra = 5; // 附加字段
-    int64 create_time = 6; // 创建时间
-    int64 update_time = 7; // 更新时间
-}
-
-message GetUserReq {
-    int64 user_id = 1; // 用户id
-}
-message GetUserResp {
-    User user = 1; // 用户信息
 }
 
 message GetUsersReq {

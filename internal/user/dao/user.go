@@ -73,3 +73,14 @@ func (*userDao) Update(user model.User) error {
 	}
 	return nil
 }
+
+// Search 查询用户,这里简单实现，生产环境建议使用ES
+func (*userDao) Search(key string) ([]model.User, error) {
+	var users []model.User
+	key = "%" + key + "%"
+	err := db.DB.Where("phone_number like ? or nickname like ?", key, key).Find(&users).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+	return users, nil
+}

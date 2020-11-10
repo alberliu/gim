@@ -48,3 +48,8 @@ func TestUserDao_Update(t *testing.T) {
 		Extra:       "e",
 	}))
 }
+
+func TestUserDao_Search(t *testing.T) {
+	users, err := UserDao.Search("哈哈哈")
+	fmt.Printf("%+v\n %+v\n ", users, err)
+}

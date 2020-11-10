@@ -1,6 +1,7 @@
 package model
 
 import (
+	"gim/pkg/pb"
 	"time"
 )
 
@@ -14,4 +15,16 @@ type User struct {
 	Extra       string    // 附加属性
 	CreateTime  time.Time // 创建时间
 	UpdateTime  time.Time // 更新时间
+}
+
+func (u User) ToProto() *pb.User {
+	return &pb.User{
+		UserId:     u.Id,
+		Nickname:   u.Nickname,
+		Sex:        u.Sex,
+		AvatarUrl:  u.AvatarUrl,
+		Extra:      u.Extra,
+		CreateTime: u.CreateTime.Unix(),
+		UpdateTime: u.UpdateTime.Unix(),
+	}
 }
