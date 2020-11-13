@@ -62,7 +62,6 @@ func UnformatUserIds(userIdStr string) []int64 {
 
 func MessageToPB(message *Message) *pb.Message {
 	return &pb.Message{
-		RequestId:      message.RequestId,
 		SenderType:     pb.SenderType(message.SenderType),
 		SenderId:       message.SenderId,
 		SenderDeviceId: message.SenderDeviceId,

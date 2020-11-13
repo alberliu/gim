@@ -231,7 +231,6 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	}
 
 	message := pb.Message{
-		RequestId:      grpclib.GetCtxRequstId(ctx),
 		SenderType:     sender.SenderType,
 		SenderId:       sender.SenderId,
 		SenderDeviceId: sender.DeviceId,
