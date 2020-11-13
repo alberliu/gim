@@ -230,7 +230,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 		}
 	}
 
-	messageItem := pb.MessageItem{
+	message := pb.Message{
 		RequestId:      grpclib.GetCtxRequstId(ctx),
 		SenderType:     sender.SenderType,
 		SenderId:       sender.SenderId,
@@ -257,7 +257,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 			continue
 		}
 
-		err = MessageService.SendToDevice(ctx, devices[i], messageItem)
+		err = MessageService.SendToDevice(ctx, devices[i], message)
 		if err != nil {
 			return 0, err
 		}
@@ -266,13 +266,13 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 }
 
 // SendToDevice 将消息发送给设备
-func (*messageService) SendToDevice(ctx context.Context, device model.Device, msgItem pb.MessageItem) error {
+func (*messageService) SendToDevice(ctx context.Context, device model.Device, message pb.Message) error {
 	if device.Status == model.DeviceOnLine {
-		message := pb.Message{Message: &msgItem}
+		messageSend := pb.MessageSend{Message: &message}
 		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
-			DeviceId: device.Id,
-			Fd:       device.ConnFd,
-			Message:  &message,
+			DeviceId:    device.Id,
+			Fd:          device.ConnFd,
+			MessageSend: &messageSend,
 		})
 		if err != nil {
 			return err

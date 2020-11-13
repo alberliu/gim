@@ -14,7 +14,7 @@ import (
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("localhost:50001", grpc.WithInsecure())
+	conn, err := grpc.Dial("112.126.102.84:50001", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -25,7 +25,7 @@ func getLogicExtClient() pb.LogicExtClient {
 func getCtx() context.Context {
 	token := "0"
 	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
-		"user_id", "3",
+		"user_id", "17",
 		"device_id", "1",
 		"token", token,
 		"request_id", strconv.FormatInt(time.Now().UnixNano(), 10)))
@@ -49,7 +49,7 @@ func TestLogicExtServer_RegisterDevice(t *testing.T) {
 
 func TestLogicExtServer_SendMessage(t *testing.T) {
 	buf, err := proto.Marshal(&pb.Text{
-		Text: "hello friend",
+		Text: "hello alber ",
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -58,7 +58,7 @@ func TestLogicExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicExtClient().SendMessage(getCtx(),
 		&pb.SendMessageReq{
 			ReceiverType:   pb.ReceiverType_RT_USER,
-			ReceiverId:     1,
+			ReceiverId:     24,
 			ToUserIds:      nil,
 			MessageType:    pb.MessageType_MT_TEXT,
 			MessageContent: buf,

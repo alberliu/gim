@@ -16,6 +16,6 @@ func DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) error {
 	}
 
 	// 发送消息
-	conn.Output(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.Message)
+	conn.Output(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.MessageSend)
 	return nil
 }

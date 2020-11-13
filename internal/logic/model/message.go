@@ -60,8 +60,8 @@ func UnformatUserIds(userIdStr string) []int64 {
 	return toUserIds
 }
 
-func MessageToPB(message *Message) *pb.MessageItem {
-	return &pb.MessageItem{
+func MessageToPB(message *Message) *pb.Message {
+	return &pb.Message{
 		RequestId:      message.RequestId,
 		SenderType:     pb.SenderType(message.SenderType),
 		SenderId:       message.SenderId,
@@ -77,8 +77,8 @@ func MessageToPB(message *Message) *pb.MessageItem {
 	}
 }
 
-func MessagesToPB(messages []Message) []*pb.MessageItem {
-	pbMessages := make([]*pb.MessageItem, 0, len(messages))
+func MessagesToPB(messages []Message) []*pb.Message {
+	pbMessages := make([]*pb.Message, 0, len(messages))
 	for i := range messages {
 		pbMessage := MessageToPB(&messages[i])
 		if pbMessages != nil {

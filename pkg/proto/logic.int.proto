@@ -20,7 +20,7 @@ message SyncReq {
     int64 seq = 3; // 客户端已经同步的序列号
 }
 message SyncResp {
-    repeated MessageItem messages = 1; // 消息列表
+    repeated Message messages = 1; // 消息列表
     bool has_more = 2; // 是否有更多数据
 }
 

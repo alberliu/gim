@@ -23,6 +23,6 @@ func DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) error {
 		return nil
 	}
 
-	Handler.Send(conn, pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.Message)
+	Handler.Send(conn, pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.MessageSend)
 	return nil
 }
