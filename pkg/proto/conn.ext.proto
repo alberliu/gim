@@ -14,15 +14,14 @@ enum PackageType {
 message Message {
     SenderType sender_type = 1; // 发送者类型，1:系统,2:用户,3:第三方业务系统
     int64 sender_id = 2; // 发送者id
-    int64 sender_device_id = 3; // 发送者设备id
-    ReceiverType receiver_type = 4; // 接收者类型，1：user;2:group
-    int64 receiver_id = 5; // 用户id或者群组id
-    repeated int64 to_user_ids = 6; // 需要@的用户id列表
-    MessageType message_type = 7; // 消息类型
-    bytes message_content = 8; // 消息内容
-    int64 seq = 9; // 用户消息发送序列号
-    int64 send_time = 10; // 消息发送时间戳，精确到毫秒
-    MessageStatus status = 11; // 消息状态
+    ReceiverType receiver_type = 3; // 接收者类型，1：user;2:group
+    int64 receiver_id = 4; // 用户id或者群组id
+    repeated int64 to_user_ids = 5; // 需要@的用户id列表
+    MessageType message_type = 6; // 消息类型
+    bytes message_content = 7; // 消息内容
+    int64 seq = 8; // 用户消息发送序列号
+    int64 send_time = 9; // 消息发送时间戳，精确到毫秒
+    MessageStatus status = 10; // 消息状态
 }
 
 // 消息类型

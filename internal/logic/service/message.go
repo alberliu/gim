@@ -161,20 +161,19 @@ func (*messageService) SendToLargeGroup(ctx context.Context, sender model.Sender
 			return 0, err
 		}
 		message := model.Message{
-			ObjectType:     model.MessageObjectTypeGroup,
-			ObjectId:       req.ReceiverId,
-			RequestId:      grpclib.GetCtxRequstId(ctx),
-			SenderType:     int32(sender.SenderType),
-			SenderId:       sender.SenderId,
-			SenderDeviceId: sender.DeviceId,
-			ReceiverType:   int32(req.ReceiverType),
-			ReceiverId:     req.ReceiverId,
-			ToUserIds:      model.FormatUserIds(req.ToUserIds),
-			Type:           int(req.MessageType),
-			Content:        req.MessageContent,
-			Seq:            seq,
-			SendTime:       util.UnunixMilliTime(req.SendTime),
-			Status:         int32(pb.MessageStatus_MS_NORMAL),
+			ObjectType:   model.MessageObjectTypeGroup,
+			ObjectId:     req.ReceiverId,
+			RequestId:    grpclib.GetCtxRequstId(ctx),
+			SenderType:   int32(sender.SenderType),
+			SenderId:     sender.SenderId,
+			ReceiverType: int32(req.ReceiverType),
+			ReceiverId:   req.ReceiverId,
+			ToUserIds:    model.FormatUserIds(req.ToUserIds),
+			Type:         int(req.MessageType),
+			Content:      req.MessageContent,
+			Seq:          seq,
+			SendTime:     util.UnunixMilliTime(req.SendTime),
+			Status:       int32(pb.MessageStatus_MS_NORMAL),
 		}
 		err = MessageService.Add(ctx, message)
 		if err != nil {
@@ -209,20 +208,19 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 			return 0, err
 		}
 		selfMessage := model.Message{
-			ObjectType:     model.MessageObjectTypeUser,
-			ObjectId:       toUserId,
-			RequestId:      grpclib.GetCtxRequstId(ctx),
-			SenderType:     int32(sender.SenderType),
-			SenderId:       sender.SenderId,
-			SenderDeviceId: sender.DeviceId,
-			ReceiverType:   int32(req.ReceiverType),
-			ReceiverId:     req.ReceiverId,
-			ToUserIds:      model.FormatUserIds(req.ToUserIds),
-			Type:           int(req.MessageType),
-			Content:        req.MessageContent,
-			Seq:            seq,
-			SendTime:       util.UnunixMilliTime(req.SendTime),
-			Status:         int32(pb.MessageStatus_MS_NORMAL),
+			ObjectType:   model.MessageObjectTypeUser,
+			ObjectId:     toUserId,
+			RequestId:    grpclib.GetCtxRequstId(ctx),
+			SenderType:   int32(sender.SenderType),
+			SenderId:     sender.SenderId,
+			ReceiverType: int32(req.ReceiverType),
+			ReceiverId:   req.ReceiverId,
+			ToUserIds:    model.FormatUserIds(req.ToUserIds),
+			Type:         int(req.MessageType),
+			Content:      req.MessageContent,
+			Seq:          seq,
+			SendTime:     util.UnunixMilliTime(req.SendTime),
+			Status:       int32(pb.MessageStatus_MS_NORMAL),
 		}
 		err = MessageService.Add(ctx, selfMessage)
 		if err != nil {
@@ -233,7 +231,6 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	message := pb.Message{
 		SenderType:     sender.SenderType,
 		SenderId:       sender.SenderId,
-		SenderDeviceId: sender.DeviceId,
 		ReceiverType:   req.ReceiverType,
 		ReceiverId:     req.ReceiverId,
 		ToUserIds:      req.ToUserIds,
