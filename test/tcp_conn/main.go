@@ -141,8 +141,8 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		}
 		fmt.Println("离线消息同步响应:code", output.Code, "message:", output.Message)
 		for _, msg := range syncResp.Messages {
-			fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-				msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+			fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
+				msg.SenderType, msg.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 			c.Seq = msg.Seq
 		}
 
@@ -153,16 +153,16 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
 		fmt.Println("离线消息同步结束------")
 	case pb.PackageType_PT_MESSAGE:
-		message := pb.Message{}
-		err := proto.Unmarshal(output.Data, &message)
+		messageSend := pb.MessageSend{}
+		err := proto.Unmarshal(output.Data, &messageSend)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		msg := message.Message
-		fmt.Printf("消息：发送者类型：%d 发送者id：%d 请求id：%d 接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-			msg.SenderType, msg.SenderId, msg.RequestId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+		msg := messageSend.Message
+		fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
+			msg.SenderType, msg.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 
 		c.Seq = msg.Seq
 		ack := pb.MessageACK{

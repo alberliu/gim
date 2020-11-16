@@ -14,7 +14,7 @@ import (
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("112.126.102.84:50001", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:50001", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil

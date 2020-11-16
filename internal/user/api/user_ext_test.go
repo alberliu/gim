@@ -13,7 +13,7 @@ import (
 )
 
 func getUserExtClient() pb.UserExtClient {
-	conn, err := grpc.Dial("112.126.102.84:50301", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:50301", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
