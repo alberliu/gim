@@ -12,16 +12,23 @@ enum PackageType {
 /************************************消息体定义开始************************************/
 // 单条消息投递内容（估算大约100个字节）,todo 通知栏提醒
 message Message {
+    Sender sender = 1; // 发送者
+    ReceiverType receiver_type = 2; // 接收者类型，1：user;2:group
+    int64 receiver_id = 3; // 用户id或者群组id
+    repeated int64 to_user_ids = 4; // 需要@的用户id列表
+    MessageType message_type = 5; // 消息类型
+    bytes message_content = 6; // 消息内容
+    int64 seq = 7; // 用户消息发送序列号
+    int64 send_time = 8; // 消息发送时间戳，精确到毫秒
+    MessageStatus status = 9; // 消息状态
+}
+
+message Sender{
     SenderType sender_type = 1; // 发送者类型，1:系统,2:用户,3:第三方业务系统
     int64 sender_id = 2; // 发送者id
-    ReceiverType receiver_type = 3; // 接收者类型，1：user;2:group
-    int64 receiver_id = 4; // 用户id或者群组id
-    repeated int64 to_user_ids = 5; // 需要@的用户id列表
-    MessageType message_type = 6; // 消息类型
-    bytes message_content = 7; // 消息内容
-    int64 seq = 8; // 用户消息发送序列号
-    int64 send_time = 9; // 消息发送时间戳，精确到毫秒
-    MessageStatus status = 10; // 消息状态
+    string avatar_url = 3; // 昵称
+    string nickname = 4; // 头像
+    string extra = 5; // 扩展字段
 }
 
 // 消息类型

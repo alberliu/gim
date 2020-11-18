@@ -149,9 +149,19 @@ func (*messageService) SendToLargeGroup(ctx context.Context, sender model.Sender
 		return 0, err
 	}
 
-	if sender.SenderType == pb.SenderType_ST_USER && !isMember {
-		logger.Logger.Error("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
-		return 0, gerrors.ErrNotInGroup
+	if sender.SenderType == pb.SenderType_ST_USER {
+		if !isMember {
+			logger.Logger.Warn("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
+			return 0, gerrors.ErrNotInGroup
+		}
+
+		user, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
+		if err != nil {
+			return 0, err
+		}
+		sender.AvatarUrl = user.User.AvatarUrl
+		sender.Nickname = user.User.Nickname
+		sender.Extra = user.User.Extra
 	}
 
 	var seq int64 = 0
@@ -229,8 +239,13 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	}
 
 	message := pb.Message{
-		SenderType:     sender.SenderType,
-		SenderId:       sender.SenderId,
+		Sender: &pb.Sender{
+			SenderType: sender.SenderType,
+			SenderId:   sender.SenderId,
+			AvatarUrl:  sender.AvatarUrl,
+			Nickname:   sender.Nickname,
+			Extra:      sender.Extra,
+		},
 		ReceiverType:   req.ReceiverType,
 		ReceiverId:     req.ReceiverId,
 		ToUserIds:      req.ToUserIds,
