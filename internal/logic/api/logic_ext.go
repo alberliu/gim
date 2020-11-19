@@ -83,6 +83,9 @@ func (s *LogicExtServer) AgreeAddFriend(ctx context.Context, in *pb.AgreeAddFrie
 
 func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.GetFriendsReq) (*pb.GetFriendsResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
 	friends, err := service.FriendService.List(ctx, userId)
 	return &pb.GetFriendsResp{Friends: friends}, err
 }
@@ -130,6 +133,7 @@ func (*LogicExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.Ge
 		Group: &pb.Group{
 			GroupId:      group.Id,
 			Name:         group.Name,
+			AvatarUrl:    group.AvatarUrl,
 			Introduction: group.Introduction,
 			UserMum:      group.UserNum,
 			Type:         group.Type,
@@ -157,6 +161,7 @@ func (*LogicExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGroupsRe
 		pbGroups = append(pbGroups, &pb.Group{
 			GroupId:      groups[i].Id,
 			Name:         groups[i].Name,
+			AvatarUrl:    groups[i].AvatarUrl,
 			Introduction: groups[i].Introduction,
 			UserMum:      groups[i].UserNum,
 			Type:         groups[i].Type,
