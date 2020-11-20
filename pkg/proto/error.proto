@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package pb;
 
-
 enum ErrCode {
     EC_SUCCESS = 0;
     EC_SERVER_UNKNOWN = 1001; // 服务器未知错误

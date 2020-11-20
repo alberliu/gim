@@ -51,7 +51,20 @@ func (s *friendService) List(ctx context.Context, groupId int64) ([]*pb.Friend, 
 }
 
 func (*friendService) AddFriend(ctx context.Context, userId, friendId int64, remarks, description string) error {
-	err := dao.FriendDao.Add(model.Friend{
+	friend, err := dao.FriendDao.Get(userId, friendId)
+	if err != nil {
+		return err
+	}
+	if friend != nil {
+		if friend.Status == model.FriendStatusApply {
+			return nil
+		}
+		if friend.Status == model.FriendStatusAgree {
+			return gerrors.ErrAlreadyIsFriend
+		}
+	}
+
+	err = dao.FriendDao.Add(model.Friend{
 		UserId:   userId,
 		FriendId: friendId,
 		Remarks:  remarks,
