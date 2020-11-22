@@ -14,8 +14,8 @@ type friendService struct{}
 var FriendService = new(friendService)
 
 // GetUsers 获取群组用户
-func (s *friendService) List(ctx context.Context, groupId int64) ([]*pb.Friend, error) {
-	friends, err := dao.FriendDao.List(groupId)
+func (s *friendService) List(ctx context.Context, userId int64) ([]*pb.Friend, error) {
+	friends, err := dao.FriendDao.List(userId, model.FriendStatusAgree)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (*friendService) AgreeAddFriend(ctx context.Context, userId, friendId int64
 		UserId:   userId,
 		FriendId: friendId,
 		Remarks:  remarks,
-		Status:   model.FriendStatusApply,
+		Status:   model.FriendStatusAgree,
 	})
 	if err != nil {
 		return err

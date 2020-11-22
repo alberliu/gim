@@ -29,6 +29,6 @@ func Test_friendDao_Update(t *testing.T) {
 }
 
 func Test_friendDao_List(t *testing.T) {
-	friends, err := FriendDao.List(1)
+	friends, err := FriendDao.List(1, model.FriendStatusAgree)
 	fmt.Printf("%+v \n %+v \n", friends, err)
 }

@@ -58,8 +58,8 @@ func (*friendDao) UpdateStatus(userId, friendId int64, status int) error {
 }
 
 // List 获取好友列表
-func (*friendDao) List(userId int64) ([]model.Friend, error) {
+func (*friendDao) List(userId int64, status int) ([]model.Friend, error) {
 	var friends []model.Friend
-	err := db.DB.Where("user_id = ?", userId).Find(&friends).Error
+	err := db.DB.Where("user_id = ? and status = ?", userId, status).Find(&friends).Error
 	return friends, gerrors.WrapError(err)
 }
