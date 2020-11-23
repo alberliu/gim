@@ -92,13 +92,17 @@ func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.GetFriendsReq) (
 
 // CreateGroup 创建群组
 func (*LogicExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {
-	groupId, err := service.GroupService.Create(ctx, model.Group{
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+	groupId, err := service.GroupService.Create(ctx, userId, model.Group{
 		Name:         in.Name,
 		AvatarUrl:    in.AvatarUrl,
 		Introduction: in.Introduction,
 		Type:         in.Type,
 		Extra:        in.Extra,
-	})
+	}, in.MemberIds)
 	return &pb.CreateGroupResp{GroupId: groupId}, err
 }
 

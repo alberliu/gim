@@ -63,6 +63,7 @@ message CreateGroupReq {
     string introduction = 3; // 简介
     GroupType type = 4; // 群组类型
     string extra = 5; // 附加字段
+    repeated int64 member_ids = 6;// 群组成员ID列表
 }
 message CreateGroupResp {
     int64 group_id = 1; // 群组id

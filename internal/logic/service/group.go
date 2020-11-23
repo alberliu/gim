@@ -34,8 +34,23 @@ func (*groupService) Get(ctx context.Context, groupId int64) (*model.Group, erro
 }
 
 // Create 创建群组
-func (*groupService) Create(ctx context.Context, group model.Group) (int64, error) {
-	return dao.GroupDao.Add(group)
+func (*groupService) Create(ctx context.Context, userId int64, group model.Group, memberIds []int64) (int64, error) {
+	groupId, err := dao.GroupDao.Add(group)
+	if err != nil {
+		return 0, err
+	}
+
+	err = SmallGroupUserService.AddUser(ctx, groupId, userId, "", "")
+	if err != nil {
+		return 0, err
+	}
+	for i := range memberIds {
+		err = SmallGroupUserService.AddUser(ctx, groupId, memberIds[i], "", "")
+		if err != nil {
+			return 0, err
+		}
+	}
+	return groupId, nil
 }
 
 // Update 更新群组
