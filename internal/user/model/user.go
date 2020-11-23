@@ -17,7 +17,11 @@ type User struct {
 	UpdateTime  time.Time // 更新时间
 }
 
-func (u User) ToProto() *pb.User {
+func (u *User) ToProto() *pb.User {
+	if u == nil {
+		return nil
+	}
+
 	return &pb.User{
 		UserId:     u.Id,
 		Nickname:   u.Nickname,

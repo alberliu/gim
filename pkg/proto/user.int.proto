@@ -13,7 +13,7 @@ message AuthResp {
 }
 
 message GetUsersReq {
-    repeated int64 user_ids = 1; // 用户id
+    map<int64, int32> user_ids = 1; // 用户id
 }
 message GetUsersResp {
     map<int64, User> users = 1; // 用户信息

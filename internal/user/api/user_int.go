@@ -29,7 +29,12 @@ func (*UserIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetU
 }
 
 func (*UserIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
-	users, err := service.UserService.GetByIds(ctx, req.UserIds)
+	var userIds = make([]int64, 0, len(req.UserIds))
+	for k, _ := range req.UserIds {
+		userIds = append(userIds, k)
+	}
+
+	users, err := service.UserService.GetByIds(ctx, userIds)
 	if err != nil {
 		return nil, err
 	}

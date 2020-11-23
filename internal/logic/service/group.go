@@ -84,9 +84,9 @@ func (s *groupService) GetUsers(ctx context.Context, groupId int64) ([]*pb.Group
 		return nil, err
 	}
 
-	userIds := make([]int64, len(members))
+	userIds := make(map[int64]int32, len(members))
 	for i := range members {
-		userIds[i] = members[i].UserId
+		userIds[members[i].UserId] = 0
 	}
 	resp, err := rpc.UserIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {

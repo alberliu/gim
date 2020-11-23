@@ -20,9 +20,9 @@ func (s *friendService) List(ctx context.Context, userId int64) ([]*pb.Friend, e
 		return nil, err
 	}
 
-	userIds := make([]int64, len(friends))
+	userIds := make(map[int64]int32, len(friends))
 	for i := range friends {
-		userIds[i] = friends[i].FriendId
+		userIds[friends[i].FriendId] = 0
 	}
 	resp, err := rpc.UserIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {

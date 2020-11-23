@@ -43,12 +43,37 @@ func (*messageService) Sync(ctx context.Context, userId, seq int64) (*pb.SyncRes
 	if err != nil {
 		return nil, err
 	}
+
+	// 如果字节数组大于一个包的长度，需要减少字节数组
 	for len(bytes) > MaxSyncBufLen {
 		length = length * 2 / 3
 		resp = &pb.SyncResp{Messages: pbMessages[0:length], HasMore: true}
 		bytes, err = proto.Marshal(resp)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	var userIds = make(map[int64]int32, len(resp.Messages))
+	for i := range resp.Messages {
+		if resp.Messages[i].Sender.SenderType == pb.SenderType_ST_USER {
+			userIds[resp.Messages[i].Sender.SenderId] = 0
+		}
+	}
+	usersResp, err := rpc.UserIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	if err != nil {
+		return nil, err
+	}
+	for i := range resp.Messages {
+		if resp.Messages[i].Sender.SenderType == pb.SenderType_ST_USER {
+			user, ok := usersResp.Users[resp.Messages[i].Sender.SenderId]
+			if ok {
+				resp.Messages[i].Sender.Nickname = user.Nickname
+				resp.Messages[i].Sender.AvatarUrl = user.AvatarUrl
+				resp.Messages[i].Sender.Extra = user.Extra
+			} else {
+				logger.Logger.Warn("get user failed", zap.Int64("user_id", resp.Messages[i].Sender.SenderId))
+			}
 		}
 	}
 
@@ -69,6 +94,19 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 
 // Send 消息发送
 func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+	if sender.SenderType == pb.SenderType_ST_USER {
+		user, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
+		if err != nil {
+			return 0, err
+		}
+		if user.User == nil {
+			return 0, gerrors.ErrUserNotFound
+		}
+		sender.AvatarUrl = user.User.AvatarUrl
+		sender.Nickname = user.User.Nickname
+		sender.Extra = user.User.Extra
+	}
+
 	switch req.ReceiverType {
 	case pb.ReceiverType_RT_USER:
 		if sender.SenderType == pb.SenderType_ST_USER {
@@ -149,19 +187,9 @@ func (*messageService) SendToLargeGroup(ctx context.Context, sender model.Sender
 		return 0, err
 	}
 
-	if sender.SenderType == pb.SenderType_ST_USER {
-		if !isMember {
-			logger.Logger.Warn("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
-			return 0, gerrors.ErrNotInGroup
-		}
-
-		user, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
-		if err != nil {
-			return 0, err
-		}
-		sender.AvatarUrl = user.User.AvatarUrl
-		sender.Nickname = user.User.Nickname
-		sender.Extra = user.User.Extra
+	if sender.SenderType == pb.SenderType_ST_USER && !isMember {
+		logger.Logger.Warn("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
+		return 0, gerrors.ErrNotInGroup
 	}
 
 	var seq int64 = 0
