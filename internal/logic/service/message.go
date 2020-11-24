@@ -114,7 +114,7 @@ func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.S
 		} else {
 			return MessageService.SendToUser(ctx, sender, req.ReceiverId, 0, req)
 		}
-	case pb.ReceiverType_RT_NORMAL_GROUP:
+	case pb.ReceiverType_RT_SMALL_GROUP:
 		return MessageService.SendToGroup(ctx, sender, req)
 
 	case pb.ReceiverType_RT_LARGE_GROUP:

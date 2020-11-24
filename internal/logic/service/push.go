@@ -82,7 +82,7 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 			DeviceId:   0,
 		},
 		pb.SendMessageReq{
-			ReceiverType:   pb.ReceiverType_RT_NORMAL_GROUP,
+			ReceiverType:   pb.ReceiverType_RT_SMALL_GROUP,
 			ReceiverId:     groupId,
 			ToUserIds:      nil,
 			MessageType:    pb.MessageType_MT_COMMAND,

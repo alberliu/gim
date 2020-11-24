@@ -105,9 +105,9 @@ enum GroupType {
 }
 
 
-message GetUserGroupsReq {
+message GetGroupsReq {
 }
-message GetUserGroupsResp {
+message GetGroupsResp {
     repeated Group groups = 1;
 }
 
@@ -172,7 +172,7 @@ service LogicExt {
     // 获取群组信息
     rpc GetGroup (GetGroupReq) returns (GetGroupResp);
     // 获取用户加入的所有群组
-    rpc GetUserGroups (GetUserGroupsReq) returns (GetUserGroupsResp);
+    rpc GetGroups (GetGroupsReq) returns (GetGroupsResp);
 
     // 添加群组成员
     rpc AddGroupMembers (AddGroupMembersReq) returns (AddGroupMembersResp);

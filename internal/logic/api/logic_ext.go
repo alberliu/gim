@@ -148,8 +148,8 @@ func (*LogicExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.Ge
 	}, nil
 }
 
-// GetUserGroups 获取用户加入的所有群组
-func (*LogicExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGroupsReq) (*pb.GetUserGroupsResp, error) {
+// GetGroups 获取用户加入的所有群组
+func (*LogicExtServer) GetGroups(ctx context.Context, in *pb.GetGroupsReq) (*pb.GetGroupsResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -174,7 +174,7 @@ func (*LogicExtServer) GetUserGroups(ctx context.Context, in *pb.GetUserGroupsRe
 			UpdateTime:   groups[i].UpdateTime.Unix(),
 		})
 	}
-	return &pb.GetUserGroupsResp{Groups: pbGroups}, err
+	return &pb.GetGroupsResp{Groups: pbGroups}, err
 }
 
 func (s *LogicExtServer) AddGroupMembers(ctx context.Context, in *pb.AddGroupMembersReq) (*pb.AddGroupMembersResp, error) {
