@@ -1,6 +1,3 @@
-# 拉取远程代码
-git pull
-
 cd cmd/user
 rm -f user
 go build -o user main.go
