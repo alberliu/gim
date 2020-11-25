@@ -44,18 +44,18 @@ func (*smallGroupUserService) GetUsers(ctx context.Context, groupId int64) ([]mo
 }
 
 // AddUser 给群组添加用户
-func (*smallGroupUserService) AddUser(ctx context.Context, groupId, userId int64, remarks, extra string) error {
-	err := dao.GroupUserDao.Add(groupId, userId, remarks, extra)
+func (*smallGroupUserService) AddUser(ctx context.Context, groupUser model.GroupUser) error {
+	err := dao.GroupUserDao.Add(groupUser)
 	if err != nil {
 		return err
 	}
 
-	err = dao.GroupDao.UpdateUserNum(groupId, 1)
+	err = dao.GroupDao.UpdateUserNum(groupUser.GroupId, 1)
 	if err != nil {
 		return err
 	}
 
-	err = cache.GroupUserCache.Del(groupId)
+	err = cache.GroupUserCache.Del(groupUser.GroupId)
 	if err != nil {
 		return err
 	}
@@ -84,13 +84,13 @@ func (*smallGroupUserService) DeleteUser(ctx context.Context, groupId, userId in
 }
 
 // Update 更新群组用户信息
-func (*smallGroupUserService) Update(ctx context.Context, groupId int64, userId int64, remarks, extra string) error {
-	err := dao.GroupUserDao.Update(groupId, userId, remarks, extra)
+func (*smallGroupUserService) Update(ctx context.Context, user model.GroupUser) error {
+	err := dao.GroupUserDao.Update(user)
 	if err != nil {
 		return err
 	}
 
-	err = cache.GroupUserCache.Del(groupId)
+	err = cache.GroupUserCache.Del(user.GroupId)
 	if err != nil {
 		return err
 	}

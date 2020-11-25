@@ -60,18 +60,12 @@ func (c *largeGroupUserCache) MembersNum(groupId int64) (int64, error) {
 }
 
 // Set 添加群组成员
-func (c *largeGroupUserCache) Set(groupId, userId int64, remarks, extra string) error {
-	var user = model.GroupUser{
-		GroupId: groupId,
-		UserId:  userId,
-		Remarks: remarks,
-		Extra:   extra,
-	}
+func (c *largeGroupUserCache) Set(user model.GroupUser) error {
 	bytes, err := jsoniter.Marshal(user)
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
-	_, err = db.RedisCli.HSet(LargeGroupUserKey+strconv.FormatInt(groupId, 10), strconv.FormatInt(user.UserId, 10), bytes).Result()
+	_, err = db.RedisCli.HSet(LargeGroupUserKey+strconv.FormatInt(user.GroupId, 10), strconv.FormatInt(user.UserId, 10), bytes).Result()
 	if err != nil {
 		return gerrors.WrapError(err)
 	}

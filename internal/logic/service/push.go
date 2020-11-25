@@ -41,7 +41,6 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 			DeviceId:   0,
 		},
 		userId,
-		0,
 		pb.SendMessageReq{
 			ReceiverType:   pb.ReceiverType_RT_USER,
 			ReceiverId:     userId,

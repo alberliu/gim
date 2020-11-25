@@ -40,12 +40,20 @@ func (*groupService) Create(ctx context.Context, userId int64, group model.Group
 		return 0, err
 	}
 
-	err = SmallGroupUserService.AddUser(ctx, groupId, userId, "", "")
+	err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
+		GroupId:    groupId,
+		UserId:     userId,
+		MemberType: int(pb.MemberType_GMT_ADMIN),
+	})
 	if err != nil {
 		return 0, err
 	}
 	for i := range memberIds {
-		err = SmallGroupUserService.AddUser(ctx, groupId, memberIds[i], "", "")
+		err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
+			GroupId:    groupId,
+			UserId:     memberIds[i],
+			MemberType: int(pb.MemberType_GMT_MEMBER),
+		})
 		if err != nil {
 			return 0, err
 		}
@@ -111,9 +119,10 @@ func (s *groupService) GetUsers(ctx context.Context, groupId int64) ([]*pb.Group
 	var infos = make([]*pb.GroupMember, len(members))
 	for i := range members {
 		member := pb.GroupMember{
-			UserId:  members[i].UserId,
-			Remarks: members[i].Remarks,
-			Extra:   members[i].Extra,
+			UserId:     members[i].UserId,
+			MemberType: pb.MemberType(members[i].MemberType),
+			Remarks:    members[i].Remarks,
+			Extra:      members[i].Extra,
 		}
 
 		user, ok := resp.Users[members[i].UserId]

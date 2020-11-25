@@ -119,11 +119,18 @@ message AddGroupMembersResp {
     repeated int64 user_ids = 1; // 已经在群组的用户id列表
 }
 
+enum MemberType{
+    GMT_UNKNOWN = 0;  // 未知
+    GMT_ADMIN = 1; // 管理员
+    GMT_MEMBER = 2; // 成员
+}
+
 message UpdateGroupMemberReq {
     int64 group_id = 1; // 群组id
     int64 user_id = 2; // 用户id
-    string remarks = 3; // 备注
-    string extra = 4; // 附加字段
+    MemberType member_type = 3; // 成员类型
+    string remarks = 4; // 备注
+    string extra = 5; // 附加字段
 }
 message UpdateGroupMemberResp {
 }
@@ -147,8 +154,9 @@ message GroupMember {
     int32 sex = 3; // 性别
     string avatar_url = 4; // 头像地址
     string user_extra = 5; // 用户附加字段
-    string remarks = 6; // 备注
-    string extra = 7; // 群组成员附加字段
+    MemberType member_type = 6; // 成员类型
+    string remarks = 7; // 备注
+    string extra = 8; // 群组成员附加字段
 }
 
 service LogicExt {

@@ -51,15 +51,10 @@ func (*groupUserDao) Get(groupId, userId int64) (*model.GroupUser, error) {
 }
 
 // Add 将用户添加到群组
-func (*groupUserDao) Add(groupId, userId int64, remarks, extra string) error {
-	err := db.DB.Create(&model.GroupUser{
-		GroupId:    groupId,
-		UserId:     userId,
-		Remarks:    remarks,
-		Extra:      extra,
-		CreateTime: time.Now(),
-		UpdateTime: time.Now(),
-	}).Error
+func (*groupUserDao) Add(groupUser model.GroupUser) error {
+	groupUser.CreateTime = time.Now()
+	groupUser.UpdateTime = time.Now()
+	err := db.DB.Create(&groupUser).Error
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
@@ -77,9 +72,9 @@ func (d *groupUserDao) Delete(groupId int64, userId int64) error {
 }
 
 // Update 更新用户群组信息
-func (*groupUserDao) Update(groupId, userId int64, remarks, extra string) error {
-	err := db.DB.Exec("update group_user set remarks = ?,extra = ? where group_id = ? and user_id = ?",
-		remarks, extra, groupId, userId).Error
+func (*groupUserDao) Update(user model.GroupUser) error {
+	err := db.DB.Exec("update group_user set member_type = ?,remarks = ?,extra = ? where group_id = ? and user_id = ?",
+		user.MemberType, user.Remarks, user.Extra, user.GroupId, user.UserId).Error
 	if err != nil {
 		return gerrors.WrapError(err)
 	}

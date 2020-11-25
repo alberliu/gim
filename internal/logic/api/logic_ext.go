@@ -189,7 +189,13 @@ func (s *LogicExtServer) AddGroupMembers(ctx context.Context, in *pb.AddGroupMem
 
 // UpdateGroupMember 更新群组成员信息
 func (*LogicExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroupMemberReq) (*pb.UpdateGroupMemberResp, error) {
-	err := service.GroupUserService.UpdateUser(ctx, in.GroupId, in.UserId, in.Remarks, in.Extra)
+	err := service.GroupUserService.UpdateUser(ctx, model.GroupUser{
+		GroupId:    in.GroupId,
+		UserId:     in.UserId,
+		MemberType: int(in.MemberType),
+		Remarks:    in.Remarks,
+		Extra:      in.Extra,
+	})
 	if err != nil {
 		return nil, err
 	}

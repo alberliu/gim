@@ -4,6 +4,7 @@ import (
 	"context"
 	"gim/internal/logic/cache"
 	"gim/internal/logic/dao"
+	"gim/internal/logic/model"
 	"gim/pkg/gerrors"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -39,7 +40,11 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 				continue
 			}
 
-			err = SmallGroupUserService.AddUser(ctx, groupId, userIds[i], "", "")
+			err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
+				GroupId:    groupId,
+				UserId:     userIds[i],
+				MemberType: int(pb.MemberType_GMT_MEMBER),
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -56,7 +61,11 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 				existIds = append(existIds, userIds[i])
 				continue
 			}
-			err = cache.LargeGroupUserCache.Set(groupId, userIds[i], "", "")
+			err = cache.LargeGroupUserCache.Set(model.GroupUser{
+				GroupId:    groupId,
+				UserId:     userIds[i],
+				MemberType: int(pb.MemberType_GMT_MEMBER),
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -100,8 +109,8 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 }
 
 // UpdateUser 更新群组用户
-func (*groupUserService) UpdateUser(ctx context.Context, groupId, userId int64, label, extra string) error {
-	group, err := GroupService.Get(ctx, groupId)
+func (*groupUserService) UpdateUser(ctx context.Context, user model.GroupUser) error {
+	group, err := GroupService.Get(ctx, user.GroupId)
 	if err != nil {
 		return err
 	}
@@ -111,13 +120,13 @@ func (*groupUserService) UpdateUser(ctx context.Context, groupId, userId int64, 
 	}
 
 	if group.Type == pb.GroupType_GT_SMALL {
-		err = SmallGroupUserService.Update(ctx, groupId, userId, label, extra)
+		err = SmallGroupUserService.Update(ctx, user)
 		if err != nil {
 			return err
 		}
 	}
 	if group.Type == pb.GroupType_GT_LARGE {
-		err = cache.LargeGroupUserCache.Set(groupId, userId, label, extra)
+		err = cache.LargeGroupUserCache.Set(user)
 		if err != nil {
 			return err
 		}
