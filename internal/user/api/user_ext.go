@@ -12,11 +12,12 @@ import (
 type UserExtServer struct{}
 
 func (s *UserExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
-	userId, token, err := service.AuthService.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
+	isNew, userId, token, err := service.AuthService.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.SignInResp{
+		IsNew:  isNew,
 		UserId: userId,
 		Token:  token,
 	}, nil

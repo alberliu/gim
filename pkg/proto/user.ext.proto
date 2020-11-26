@@ -4,13 +4,14 @@ package pb;
 
 
 message SignInReq {
-    string phone_number = 1;
-    string code = 2;
-    int64 device_id = 3;
+    string phone_number = 1; // 手机号
+    string code = 2; // 验证码
+    int64 device_id = 3; // 设备id
 }
 message SignInResp {
-    int64 user_id = 1;
-    string token = 2;
+    bool is_new = 1; // 是否是新用户
+    int64 user_id = 2; // 用户id
+    string token = 3; // token
 }
 
 message User {

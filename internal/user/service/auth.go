@@ -16,28 +16,30 @@ type authService struct{}
 var AuthService = new(authService)
 
 // SignIn 长连接登录
-func (*authService) SignIn(ctx context.Context, phoneNumber, code string, deviceId int64) (int64, string, error) {
+func (*authService) SignIn(ctx context.Context, phoneNumber, code string, deviceId int64) (bool, int64, string, error) {
 	if !Verify(phoneNumber, code) {
-		return 0, "", gerrors.ErrBadCode
+		return false, 0, "", gerrors.ErrBadCode
 	}
 
 	user, err := dao.UserDao.GetByPhoneNumber(phoneNumber)
 	if err != nil {
-		return 0, "", err
+		return false, 0, "", err
 	}
 
+	var isNew = false
 	if user == nil {
 		user = &model.User{PhoneNumber: phoneNumber}
 		id, err := dao.UserDao.Add(*user)
 		if err != nil {
-			return 0, "", err
+			return false, 0, "", err
 		}
 		user.Id = id
+		isNew = true
 	}
 
 	resp, err := rpc.LogicIntClient.GetDevice(ctx, &pb.GetDeviceReq{DeviceId: deviceId})
 	if err != nil {
-		return 0, "", err
+		return false, 0, "", err
 	}
 
 	// 方便测试
@@ -49,10 +51,10 @@ func (*authService) SignIn(ctx context.Context, phoneNumber, code string, device
 		Expire: time.Now().AddDate(0, 3, 0).Unix(),
 	})
 	if err != nil {
-		return 0, "", err
+		return false, 0, "", err
 	}
 
-	return user.Id, token, nil
+	return isNew, user.Id, token, nil
 }
 
 func Verify(phoneNumber, code string) bool {

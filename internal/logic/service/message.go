@@ -135,6 +135,12 @@ func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, re
 		return 0, err
 	}
 
+	// 用户需要增加自己的已经同步的序列号
+	err = cache.DeviceACKCache.Set(sender.SenderId, sender.DeviceId, seq)
+	if err != nil {
+		return 0, err
+	}
+
 	// 发给接收者
 	_, err = MessageService.SendToUser(ctx, sender, req.ReceiverId, req)
 	if err != nil {
@@ -167,6 +173,15 @@ func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req
 			userSeq = seq
 		}
 	}
+
+	if sender.SenderType == pb.SenderType_ST_USER {
+		// 用户需要增加自己的已经同步的序列号
+		err = cache.DeviceACKCache.Set(sender.SenderId, sender.DeviceId, userSeq)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return userSeq, nil
 }
 
