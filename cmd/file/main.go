@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const baseUrl = "http://112.126.102.84:8085/"
+const baseUrl = "http://112.126.102.84:8085/file/"
 
 type Response struct {
 	Code    int         `json:"code"`
@@ -36,8 +36,9 @@ func main() {
 		}
 
 		filenames := strings.Split(file.Filename, ".")
-		fileUrl := "/root/file/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "-" + util.RandString(30) + "." + filenames[len(filenames)-1]
-		err = c.SaveUploadedFile(file, fileUrl)
+		name := strconv.FormatInt(time.Now().UnixNano(), 10) + "-" + util.RandString(30) + "." + filenames[len(filenames)-1]
+		filePath := "/root/file/" + name
+		err = c.SaveUploadedFile(file, filePath)
 		if err != nil {
 			c.JSON(http.StatusOK, Response{Code: 1001, Message: err.Error()})
 			return
@@ -46,7 +47,7 @@ func main() {
 		c.JSON(http.StatusOK, Response{
 			Code:    0,
 			Message: "success",
-			Data:    map[string]string{"url": baseUrl + fileUrl},
+			Data:    map[string]string{"url": baseUrl + name},
 		})
 	})
 	router.Run(":8085")
