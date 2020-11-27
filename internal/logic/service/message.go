@@ -332,7 +332,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 				continue
 			}
 
-			err = MessageService.SendToDevice(ctx, devices[i], message)
+			err = MessageService.SendToDevice(context.TODO(), devices[i], message)
 			if err != nil {
 				logger.Sugar.Error(err, zap.Any("context canceled", devices[i]))
 				return
