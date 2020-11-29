@@ -15,7 +15,8 @@ var server *gn.Server
 func StartTCPServer() {
 	var err error
 	server, err = gn.NewServer(config.TCPConn.TCPListenAddr, &handler{},
-		gn.NewHeaderLenDecoder(2, 254),
+		gn.NewHeaderLenDecoder(2),
+		gn.WithReadBufferLen(256),
 		gn.WithTimeout(5*time.Minute, 11*time.Minute),
 		gn.WithAcceptGNum(10),
 		gn.WithIOGNum(100))

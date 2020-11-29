@@ -3,7 +3,7 @@ module gim
 go 1.12
 
 require (
-	github.com/alberliu/gn v1.3.0
+	github.com/alberliu/gn v1.5.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-redis/redis v6.14.2+incompatible
@@ -33,7 +33,7 @@ require (
 	golang.org/x/tools v0.0.0-20200711155855-7342f9734a7d // indirect
 	google.golang.org/genproto v0.0.0-20200709005830-7a2ca40e9dc3
 	google.golang.org/grpc v1.30.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
