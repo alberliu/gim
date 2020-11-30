@@ -2,9 +2,12 @@ package api
 
 import (
 	"gim/config"
+	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/util"
 	"net"
+
+	"github.com/alberliu/gn"
 
 	"google.golang.org/grpc"
 )
@@ -28,6 +31,7 @@ func StartRpcServer() {
 
 	go func() {
 		defer util.RecoverPanic()
+		gn.SetLogger(logger.Sugar)
 
 		extListen, err := net.Listen("tcp", config.Logic.RPCExtListenAddr)
 		if err != nil {
