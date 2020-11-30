@@ -32,9 +32,9 @@ func (*deviceDao) Get(deviceId int64) (*model.Device, error) {
 		return nil, gerrors.WrapError(err)
 	}
 	if err == gorm.ErrRecordNotFound {
-		return nil, err
+		return nil, nil
 	}
-	return &device, err
+	return &device, nil
 }
 
 // ListUserOnline 查询用户所有的在线设备
@@ -48,9 +48,9 @@ func (*deviceDao) ListOnlineByUserId(userId int64) ([]model.Device, error) {
 }
 
 // UpdateUserIdAndStatus 更新设备绑定用户和设备在线状态
-func (*deviceDao) UpdateUserIdAndStatus(deviceId, userId int64, status int, connAddr string, connFd int64) error {
-	err := db.DB.Exec("update device  set user_id = ?,status = ?,conn_addr = ?,conn_fd = ? where id = ? ",
-		userId, status, connAddr, connFd, deviceId).Error
+func (*deviceDao) Update(deviceId, userId int64, status int, connAddr string, connFd int64, clientAddr string) error {
+	err := db.DB.Exec("update device set user_id = ?,status = ?,conn_addr = ?,conn_fd = ?,client_addr = ? where id = ? ",
+		userId, status, connAddr, connFd, clientAddr, deviceId).Error
 	if err != nil {
 		return gerrors.WrapError(err)
 	}

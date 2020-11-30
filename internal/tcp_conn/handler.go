@@ -58,8 +58,9 @@ func (*handler) OnClose(c *gn.Conn, err error) {
 	logger.Logger.Debug("close", zap.String("addr", c.GetAddr()), zap.Int32("fd", c.GetFd()), zap.Any("data", c.GetData()), zap.Error(err))
 	if data, ok := c.GetData().(ConnData); ok {
 		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
-			UserId:   data.UserId,
-			DeviceId: data.DeviceId,
+			UserId:     data.UserId,
+			DeviceId:   data.DeviceId,
+			ClientAddr: c.GetAddr(),
 		})
 	}
 }
@@ -108,11 +109,12 @@ func (h *handler) SignIn(c *gn.Conn, input pb.Input) {
 	}
 
 	_, err = rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
-		UserId:   signIn.UserId,
-		DeviceId: signIn.DeviceId,
-		Token:    signIn.Token,
-		ConnAddr: config.TCPConn.LocalAddr,
-		ConnFd:   int64(c.GetFd()),
+		UserId:     signIn.UserId,
+		DeviceId:   signIn.DeviceId,
+		Token:      signIn.Token,
+		ConnAddr:   config.TCPConn.LocalAddr,
+		ConnFd:     int64(c.GetFd()),
+		ClientAddr: c.GetAddr(),
 	})
 
 	h.Send(c, pb.PackageType_PT_SIGN_IN, input.RequestId, err, nil)

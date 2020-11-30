@@ -192,8 +192,9 @@ func (c *WSConnContext) Release() {
 	// 通知业务服务器设备下线
 	if c.DeviceId != PreConn {
 		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
-			UserId:   c.UserId,
-			DeviceId: c.DeviceId,
+			UserId:     c.UserId,
+			DeviceId:   c.DeviceId,
+			ClientAddr: c.Conn.RemoteAddr().String(),
 		})
 	}
 }

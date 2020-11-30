@@ -13,7 +13,8 @@ type LogicIntServer struct{}
 
 // SignIn 设备登录
 func (*LogicIntServer) ConnSignIn(ctx context.Context, req *pb.ConnSignInReq) (*pb.ConnSignInResp, error) {
-	return &pb.ConnSignInResp{}, service.AuthService.SignIn(ctx, req.UserId, req.DeviceId, req.Token, req.ConnAddr, req.ConnFd)
+	return &pb.ConnSignInResp{},
+		service.AuthService.SignIn(ctx, req.UserId, req.DeviceId, req.Token, req.ConnAddr, req.ConnFd, req.ClientAddr)
 }
 
 // Sync 设备同步消息
@@ -28,7 +29,7 @@ func (*LogicIntServer) MessageACK(ctx context.Context, req *pb.MessageACKReq) (*
 
 // Offline 设备离线
 func (*LogicIntServer) Offline(ctx context.Context, req *pb.OfflineReq) (*pb.OfflineResp, error) {
-	return &pb.OfflineResp{}, service.DeviceService.Offline(ctx, req.UserId, req.DeviceId)
+	return &pb.OfflineResp{}, service.DeviceService.Offline(ctx, req.UserId, req.DeviceId, req.ClientAddr)
 }
 
 // SendMessage 发送消息

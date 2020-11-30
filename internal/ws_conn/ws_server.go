@@ -43,10 +43,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequstId(context.TODO(), requestId), &pb.ConnSignInReq{
-		UserId:   userId,
-		DeviceId: deviceId,
-		Token:    token,
-		ConnAddr: config.WSConn.LocalAddr,
+		UserId:     userId,
+		DeviceId:   deviceId,
+		Token:      token,
+		ConnAddr:   config.WSConn.LocalAddr,
+		ClientAddr: r.Host,
 	})
 
 	s, _ := status.FromError(err)

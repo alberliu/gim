@@ -5,6 +5,9 @@ import (
 	"gim/internal/logic/cache"
 	"gim/internal/logic/dao"
 	"gim/internal/logic/model"
+	"gim/pkg/logger"
+
+	"go.uber.org/zap"
 )
 
 const (
@@ -75,8 +78,8 @@ func (*deviceService) ListOnlineByUserId(ctx context.Context, userId int64) ([]m
 }
 
 // Online 设备上线
-func (*deviceService) Online(ctx context.Context, deviceId, userId int64, connAddr string, connFd int64) error {
-	err := dao.DeviceDao.UpdateUserIdAndStatus(deviceId, userId, DeviceOnline, connAddr, connFd)
+func (*deviceService) Online(ctx context.Context, deviceId, userId int64, connAddr string, connFd int64, clientAddr string) error {
+	err := dao.DeviceDao.Update(deviceId, userId, DeviceOnline, connAddr, connFd, clientAddr)
 	if err != nil {
 		return err
 	}
@@ -89,8 +92,20 @@ func (*deviceService) Online(ctx context.Context, deviceId, userId int64, connAd
 }
 
 // Offline 设备离线
-func (*deviceService) Offline(ctx context.Context, userId, deviceId int64) error {
-	err := dao.DeviceDao.UpdateStatus(deviceId, DeviceOffline)
+func (*deviceService) Offline(ctx context.Context, userId, deviceId int64, clientAddr string) error {
+	device, err := dao.DeviceDao.Get(deviceId)
+	if err != nil {
+		return err
+	}
+	if device == nil {
+		logger.Logger.Warn("device is nil", zap.Int64("device_id", deviceId))
+		return nil
+	}
+	if device.ClientAddr != clientAddr {
+		return nil
+	}
+
+	err = dao.DeviceDao.UpdateStatus(deviceId, DeviceOffline)
 	if err != nil {
 		return err
 	}

@@ -19,6 +19,7 @@ type Device struct {
 	Status        int32     // 在线状态，0：不在线；1：在线
 	ConnAddr      string    // 连接层服务层地址
 	ConnFd        int64     // TCP连接对应的文件描述符
+	ClientAddr    string    // 客户端地址
 	CreateTime    time.Time // 创建时间
 	UpdateTime    time.Time // 更新时间
 }
