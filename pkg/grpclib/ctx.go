@@ -106,3 +106,18 @@ func GetCtxToken(ctx context.Context) (string, error) {
 
 	return tokens[0], nil
 }
+
+// NewAndCopyRequestId 创建一个context,并且复制RequestId
+func NewAndCopyRequestId(ctx context.Context) context.Context {
+	newCtx := context.TODO()
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return newCtx
+	}
+
+	requstIds, ok := md[CtxRequestId]
+	if !ok && len(requstIds) == 0 {
+		return newCtx
+	}
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestId, requstIds[0]))
+}

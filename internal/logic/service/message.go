@@ -332,7 +332,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 				continue
 			}
 
-			err = MessageService.SendToDevice(grpclib.ContextWithRequstId(context.TODO(), grpclib.GetCtxRequstId(ctx)),
+			err = MessageService.SendToDevice(grpclib.NewAndCopyRequestId(ctx),
 				devices[i], message)
 			if err != nil {
 				logger.Sugar.Error(err, zap.Any("context canceled", devices[i]))
