@@ -3,6 +3,7 @@ package model
 import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
+	"gim/pkg/util"
 	"strconv"
 	"strings"
 	"time"
@@ -71,7 +72,7 @@ func MessageToPB(message *Message) *pb.Message {
 		MessageType:    pb.MessageType(message.Type),
 		MessageContent: message.Content,
 		Seq:            message.Seq,
-		SendTime:       message.SendTime.Unix(),
+		SendTime:       util.UnixMilliTime(message.SendTime),
 		Status:         pb.MessageStatus(message.Status),
 	}
 }
