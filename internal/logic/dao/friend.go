@@ -35,13 +35,13 @@ func (*friendDao) Add(friend model.Friend) error {
 
 // Update 更新好友
 func (*friendDao) Update(friend model.Friend) error {
-	err := db.DB.Model(&friend).Where("user_id = ? and friend_id = ?", friend.UserId, friend.FriendId).Updates(
-		map[string]interface{}{
-			"remarks": friend.Remarks,
-			"extra":   friend.Extra,
-			"status":  friend.Status,
-		},
-	).Error
+	err := db.DB.Model(&friend).Where("user_id = ? and friend_id = ?", friend.UserId, friend.FriendId).
+		Updates(
+			map[string]interface{}{
+				"remarks": friend.Remarks,
+				"extra":   friend.Extra,
+			},
+		).Error
 	return gerrors.WrapError(err)
 }
 

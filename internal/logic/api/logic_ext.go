@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"gim/internal/logic/dao"
 	"gim/internal/logic/model"
 	"gim/internal/logic/service"
 	"gim/pkg/gerrors"
@@ -79,6 +80,24 @@ func (s *LogicExtServer) AgreeAddFriend(ctx context.Context, in *pb.AgreeAddFrie
 	}
 
 	return &pb.AgreeAddFriendResp{}, nil
+}
+
+func (s *LogicExtServer) SetFriend(ctx context.Context, req *pb.SetFriendReq) (*pb.SetFriendResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = dao.FriendDao.Update(model.Friend{
+		UserId:   userId,
+		FriendId: req.FriendId,
+		Remarks:  req.Remarks,
+		Extra:    req.Extra,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.SetFriendResp{}, nil
 }
 
 func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.GetFriendsReq) (*pb.GetFriendsResp, error) {
