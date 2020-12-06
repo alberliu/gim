@@ -13,6 +13,8 @@ var encoder = gn.NewHeaderLenEncoder(2, 1024)
 var server *gn.Server
 
 func StartTCPServer() {
+	gn.SetLogger(logger.Sugar)
+
 	var err error
 	server, err = gn.NewServer(config.TCPConn.TCPListenAddr, &handler{},
 		gn.NewHeaderLenDecoder(2),
