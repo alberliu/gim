@@ -41,6 +41,17 @@ message AgreeAddFriendReq {
 message AgreeAddFriendResp {
 }
 
+message SetFriendReq {
+    int64 friend_id = 1; // 好友id
+    string remarks = 2; // 备注
+    string extra = 8; // 附加字段
+}
+message SetFriendResp {
+    int64 friend_id = 1; // 好友id
+    string remarks = 2; // 备注
+    string extra = 8; // 附加字段
+}
+
 message Friend {
     int64 user_id = 1; // 用户id
     string phone_number = 2; // 电话号码
@@ -63,7 +74,7 @@ message CreateGroupReq {
     string introduction = 3; // 简介
     GroupType type = 4; // 群组类型
     string extra = 5; // 附加字段
-    repeated int64 member_ids = 6;// 群组成员ID列表
+    repeated int64 member_ids = 6; // 群组成员ID列表
 }
 message CreateGroupResp {
     int64 group_id = 1; // 群组id
@@ -119,8 +130,8 @@ message AddGroupMembersResp {
     repeated int64 user_ids = 1; // 已经在群组的用户id列表
 }
 
-enum MemberType{
-    GMT_UNKNOWN = 0;  // 未知
+enum MemberType {
+    GMT_UNKNOWN = 0; // 未知
     GMT_ADMIN = 1; // 管理员
     GMT_MEMBER = 2; // 成员
 }
@@ -170,6 +181,8 @@ service LogicExt {
     rpc AddFriend (AddFriendReq) returns (AddFriendResp);
     // 同意添加好友
     rpc AgreeAddFriend (AgreeAddFriendReq) returns (AgreeAddFriendResp);
+    // 设置好友信息
+    rpc SetFriend (SetFriendReq) returns (SetFriendResp);
     // 获取好友列表
     rpc GetFriends (GetFriendsReq) returns (GetFriendsResp);
 
