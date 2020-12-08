@@ -119,5 +119,5 @@ func NewAndCopyRequestId(ctx context.Context) context.Context {
 	if !ok && len(requstIds) == 0 {
 		return newCtx
 	}
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestId, requstIds[0]))
+	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestId, requstIds[0]))
 }
