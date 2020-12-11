@@ -122,7 +122,7 @@ func (c *WSClient) HandlePackage(bytes []byte) {
 		fmt.Printf("%+v \n", output)
 		for _, msg := range syncResp.Messages {
 			fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-				msg.SenderType, msg.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+				msg.Sender.SenderId, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 			c.Seq = msg.Seq
 		}
 
@@ -142,7 +142,7 @@ func (c *WSClient) HandlePackage(bytes []byte) {
 
 		msg := message.Message
 		fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-			msg.SenderType, msg.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+			msg.Sender.SenderType, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
 
 		c.Seq = msg.Seq
 		ack := pb.MessageACK{
