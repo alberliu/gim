@@ -77,9 +77,10 @@ func (*groupService) Update(ctx context.Context, userId int64, group model.Group
 		return err
 	}
 	err = PushService.PushToGroup(ctx, group.Id, pb.PushCode_PC_UPDATE_GROUP, &pb.UpdateGroupPush{
-		UserId:       userId,
-		Nickname:     userResp.User.Nickname,
+		OptId:        userId,
+		OptName:      userResp.User.Nickname,
 		Name:         group.Name,
+		AvatarUrl:    group.AvatarUrl,
 		Introduction: group.Introduction,
 		Extra:        group.Extra,
 	}, true)

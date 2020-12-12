@@ -97,9 +97,9 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 	}
 
 	err = PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_ADD_GROUP_MEMBERS, &pb.AddGroupMembersPush{
-		UserId:   userResp.User.UserId,
-		Nickname: userResp.User.Nickname,
-		Members:  members,
+		OptId:   userResp.User.UserId,
+		OptName: userResp.User.Nickname,
+		Members: members,
 	}, true)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -149,8 +149,8 @@ func (*groupUserService) DeleteUser(ctx context.Context, optId, groupId, userId 
 		return err
 	}
 	err = PushService.PushToGroup(ctx, groupId, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
-		UserId:        optId,
-		Nickname:      userResp.User.Nickname,
+		OptId:         optId,
+		OptName:       userResp.User.Nickname,
 		DeletedUserId: userId,
 	}, true)
 	if err != nil {
