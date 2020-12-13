@@ -7,6 +7,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
+	"gim/pkg/util"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -47,7 +48,7 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 			ToUserIds:      nil,
 			MessageType:    pb.MessageType_MT_COMMAND,
 			MessageContent: commandBuf,
-			SendTime:       time.Now().Unix(),
+			SendTime:       util.UnixMilliTime(time.Now()),
 			IsPersist:      isPersist,
 		},
 	)
@@ -86,7 +87,7 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 			ToUserIds:      nil,
 			MessageType:    pb.MessageType_MT_COMMAND,
 			MessageContent: commandBuf,
-			SendTime:       time.Now().Unix(),
+			SendTime:       util.UnixMilliTime(time.Now()),
 			IsPersist:      isPersist,
 		},
 	)
