@@ -47,7 +47,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		DeviceId:   deviceId,
 		Token:      token,
 		ConnAddr:   config.WSConn.LocalAddr,
-		ClientAddr: r.Host,
+		ClientAddr: r.RemoteAddr,
 	})
 
 	s, _ := status.FromError(err)
