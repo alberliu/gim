@@ -43,6 +43,7 @@ func (c *WSConnContext) DoConn() {
 		_, data, err := c.Conn.ReadMessage()
 		if err != nil {
 			fmt.Println(err)
+			c.HandleReadErr(err)
 			return
 		}
 
