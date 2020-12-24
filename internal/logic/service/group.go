@@ -72,7 +72,7 @@ func (*groupService) Update(ctx context.Context, userId int64, group model.Group
 		return err
 	}
 
-	userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (s *groupService) GetUsers(ctx context.Context, groupId int64) ([]*pb.Group
 	for i := range members {
 		userIds[members[i].UserId] = 0
 	}
-	resp, err := rpc.UserIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	resp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {
 		return nil, err
 	}

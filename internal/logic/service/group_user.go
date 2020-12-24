@@ -75,7 +75,7 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 
 	var members []*pb.GroupMember
 	for i := range addedIds {
-		userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: addedIds[i]})
+		userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: addedIds[i]})
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +91,7 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 		})
 	}
 
-	userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (*groupUserService) DeleteUser(ctx context.Context, optId, groupId, userId 
 		return gerrors.ErrGroupNotExist
 	}
 
-	userResp, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: optId})
+	userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: optId})
 	if err != nil {
 		return err
 	}

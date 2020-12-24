@@ -60,7 +60,7 @@ func (*messageService) Sync(ctx context.Context, userId, seq int64) (*pb.SyncRes
 			userIds[resp.Messages[i].Sender.SenderId] = 0
 		}
 	}
-	usersResp, err := rpc.UserIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	usersResp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	// 如果发送者是用户，需要补充用户的信息
 	if sender.SenderType == pb.SenderType_ST_USER {
-		user, err := rpc.UserIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
+		user, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
 		if err != nil {
 			return 0, err
 		}
