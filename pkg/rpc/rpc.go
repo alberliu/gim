@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	LogicIntClient   pb.LogicIntClient
-	ConnectIntClient pb.ConnIntClient
-	UserIntClient    pb.UserIntClient
+	LogicIntClient    pb.LogicIntClient
+	ConnectIntClient  pb.ConnIntClient
+	BusinessIntClient pb.BusinessIntClient
 )
 
 func InitLogicIntClient(addr string) {
@@ -37,12 +37,12 @@ func InitConnIntClient(addr string) {
 	ConnectIntClient = pb.NewConnIntClient(conn)
 }
 
-func InitUserIntClient(addr string) {
+func InitBusinessIntClient(addr string) {
 	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
 
-	UserIntClient = pb.NewUserIntClient(conn)
+	BusinessIntClient = pb.NewBusinessIntClient(conn)
 }

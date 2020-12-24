@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"gim/internal/user/cache"
-	"gim/internal/user/dao"
-	"gim/internal/user/model"
+	"gim/internal/business/cache"
+	"gim/internal/business/dao"
+	"gim/internal/business/model"
 	"gim/pkg/gerrors"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"

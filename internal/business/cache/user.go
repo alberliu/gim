@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"gim/internal/user/model"
+	"gim/internal/business/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"strconv"

@@ -2,7 +2,7 @@ package cache
 
 import (
 	"fmt"
-	"gim/internal/user/model"
+	"gim/internal/business/model"
 	"testing"
 )
 

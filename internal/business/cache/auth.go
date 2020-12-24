@@ -2,7 +2,7 @@ package cache
 
 import (
 	"encoding/json"
-	"gim/internal/user/model"
+	"gim/internal/business/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"gim/pkg/util"

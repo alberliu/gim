@@ -32,7 +32,7 @@ func initProdConf() {
 		LogicRPCAddrs: "addrs:///127.0.0.1:50000",
 	}
 
-	User = UserConf{
+	Business = BusinessConf{
 		MySQL:            "root:liu123456@tcp(localhost:3306)/im?charset=utf8&parseTime=true",
 		NSQIP:            "127.0.0.1:4150",
 		RedisIP:          "127.0.0.1:6379",

@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"gim/internal/user/service"
+	"gim/internal/business/service"
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"

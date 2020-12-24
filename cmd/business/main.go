@@ -2,7 +2,7 @@ package main
 
 import (
 	"gim/config"
-	"gim/internal/user/api"
+	"gim/internal/business/api"
 	"gim/pkg/db"
 	"gim/pkg/logger"
 	"gim/pkg/rpc"
@@ -10,11 +10,11 @@ import (
 
 func main() {
 	logger.Init()
-	db.InitMysql(config.User.MySQL)
-	db.InitRedis(config.User.RedisIP, config.Logic.RedisPassword)
+	db.InitMysql(config.Business.MySQL)
+	db.InitRedis(config.Business.RedisIP, config.Logic.RedisPassword)
 
 	// 初始化RpcClient
-	rpc.InitLogicIntClient(config.User.LogicRPCAddrs)
+	rpc.InitLogicIntClient(config.Business.LogicRPCAddrs)
 
 	api.StartRpcServer()
 	logger.Logger.Info("user server start")

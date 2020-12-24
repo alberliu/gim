@@ -2,7 +2,7 @@ package dao
 
 import (
 	"fmt"
-	"gim/internal/user/model"
+	"gim/internal/business/model"
 	"gim/pkg/db"
 	"testing"
 )

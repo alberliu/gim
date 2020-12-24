@@ -1,8 +1,6 @@
 syntax = "proto3";
 package pb;
 
-
-
 message SignInReq {
     string phone_number = 1; // 手机号
     string code = 2; // 验证码
@@ -48,7 +46,7 @@ message SearchUserResp{
     repeated User users = 1;
 }
 
-service UserExt {
+service BusinessExt {
     // 登录
     rpc SignIn (SignInReq) returns (SignInResp);
     // 获取用户信息

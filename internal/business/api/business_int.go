@@ -2,17 +2,17 @@ package api
 
 import (
 	"context"
-	"gim/internal/user/service"
+	"gim/internal/business/service"
 	"gim/pkg/pb"
 )
 
-type UserIntServer struct{}
+type BusinessIntServer struct{}
 
-func (*UserIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*pb.AuthResp, error) {
+func (*BusinessIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*pb.AuthResp, error) {
 	return &pb.AuthResp{}, service.AuthService.Auth(ctx, req.UserId, req.DeviceId, req.Token)
 }
 
-func (*UserIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
+func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
 	user, err := service.UserService.Get(ctx, req.UserId)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (*UserIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetU
 	}}, nil
 }
 
-func (*UserIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
+func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
 	var userIds = make([]int64, 0, len(req.UserIds))
 	for k, _ := range req.UserIds {
 		userIds = append(userIds, k)

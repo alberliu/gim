@@ -5,10 +5,10 @@ import (
 )
 
 var (
-	Logic   LogicConf
-	TCPConn TCPConnConf
-	WSConn  WSConnConf
-	User    UserConf
+	Logic    LogicConf
+	TCPConn  TCPConnConf
+	WSConn   WSConnConf
+	Business BusinessConf
 )
 
 // logic配置
@@ -39,8 +39,8 @@ type WSConnConf struct {
 	LogicRPCAddrs string
 }
 
-// User配置
-type UserConf struct {
+// Business配置
+type BusinessConf struct {
 	MySQL            string
 	NSQIP            string
 	RedisIP          string

@@ -1,11 +1,11 @@
-cd cmd/user
-rm -f user
-go build -o user main.go
-echo "打包user成功"
-pkill user
-echo "停止user服务"
-nohup ./user &
-echo "启动user服务"
+cd cmd/business
+rm -f business
+go build -o business main.go
+echo "打包business成功"
+pkill business
+echo "停止business服务"
+nohup ./business &
+echo "启动business服务"
 
 cd ../logic
 rm -f logic

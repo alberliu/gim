@@ -14,12 +14,12 @@ func StartRpcServer() {
 	go func() {
 		defer util.RecoverPanic()
 
-		intListen, err := net.Listen("tcp", config.User.RPCIntListenAddr)
+		intListen, err := net.Listen("tcp", config.Business.RPCIntListenAddr)
 		if err != nil {
 			panic(err)
 		}
 		intServer := grpc.NewServer(grpc.UnaryInterceptor(UserIntInterceptor))
-		pb.RegisterUserIntServer(intServer, &UserIntServer{})
+		pb.RegisterBusinessIntServer(intServer, &BusinessIntServer{})
 		err = intServer.Serve(intListen)
 		if err != nil {
 			panic(err)
@@ -29,12 +29,12 @@ func StartRpcServer() {
 	go func() {
 		defer util.RecoverPanic()
 
-		extListen, err := net.Listen("tcp", config.User.RPCExtListenAddr)
+		extListen, err := net.Listen("tcp", config.Business.RPCExtListenAddr)
 		if err != nil {
 			panic(err)
 		}
 		extServer := grpc.NewServer(grpc.UnaryInterceptor(UserExtInterceptor))
-		pb.RegisterUserExtServer(extServer, &UserExtServer{})
+		pb.RegisterBusinessExtServer(extServer, &BusinessExtServer{})
 		err = extServer.Serve(extListen)
 		if err != nil {
 			panic(err)

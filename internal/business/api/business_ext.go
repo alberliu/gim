@@ -2,16 +2,16 @@ package api
 
 import (
 	"context"
-	"gim/internal/user/dao"
-	"gim/internal/user/model"
-	"gim/internal/user/service"
+	"gim/internal/business/dao"
+	"gim/internal/business/model"
+	"gim/internal/business/service"
 	"gim/pkg/grpclib"
 	"gim/pkg/pb"
 )
 
-type UserExtServer struct{}
+type BusinessExtServer struct{}
 
-func (s *UserExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
+func (s *BusinessExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
 	isNew, userId, token, err := service.AuthService.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (s *UserExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.Sign
 	}, nil
 }
 
-func (s *UserExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
+func (s *BusinessExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (s *UserExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.Ge
 	}, nil
 }
 
-func (s *UserExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserResp, error) {
+func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *UserExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (
 	})
 }
 
-func (s *UserExtServer) SearchUser(ctx context.Context, req *pb.SearchUserReq) (*pb.SearchUserResp, error) {
+func (s *BusinessExtServer) SearchUser(ctx context.Context, req *pb.SearchUserReq) (*pb.SearchUserResp, error) {
 	users, err := dao.UserDao.Search(req.Key)
 	if err != nil {
 		return nil, err

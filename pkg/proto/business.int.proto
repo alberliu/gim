@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-import "user.ext.proto";
+import "business.ext.proto";
 
 message AuthReq {
     int64 user_id = 1;
@@ -19,7 +19,7 @@ message GetUsersResp {
     map<int64, User> users = 1; // 用户信息
 }
 
-service UserInt {
+service BusinessInt {
     // 权限校验
     rpc Auth (AuthReq) returns (AuthResp);
     // 批量获取用户信息

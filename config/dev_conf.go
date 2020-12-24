@@ -29,7 +29,7 @@ func initDevConf() {
 		LocalAddr:     "127.0.0.1:50200",
 		LogicRPCAddrs: "addrs:///127.0.0.1:50000",
 	}
-	User = UserConf{
+	Business = BusinessConf{
 		MySQL:            "root:liu123456@tcp(112.126.102.84:3306)/gim?charset=utf8&parseTime=true",
 		NSQIP:            "112.126.102.84:4150",
 		RedisIP:          "112.126.102.84:6379",
