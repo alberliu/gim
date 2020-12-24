@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	IntServerName = "user_int"
-	ExtServerName = "user_ext"
+	IntServerName = "business_int"
+	ExtServerName = "business_ext"
 )
 
 // 服务器端的单向调用的拦截器
@@ -52,7 +52,7 @@ func UserExtInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySe
 }
 
 func doLogicExt(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	if info.FullMethod != "/pb.UserExt/SignIn" {
+	if info.FullMethod != "/pb.BusinessExt/SignIn" {
 		userId, deviceId, err := grpclib.GetCtxData(ctx)
 		if err != nil {
 			return nil, err
