@@ -20,7 +20,7 @@ type LogicConf struct {
 	RPCIntListenAddr string
 	RPCExtListenAddr string
 	ConnRPCAddrs     string
-	UserRPCAddrs     string
+	BusinessRPCAddrs string
 }
 
 // TCPConnConf配置

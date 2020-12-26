@@ -15,7 +15,7 @@ func initProdConf() {
 		RPCIntListenAddr: ":50000",
 		RPCExtListenAddr: ":50001",
 		ConnRPCAddrs:     "addrs:///127.0.0.1:50100,127.0.0.1:50200",
-		UserRPCAddrs:     "addrs:///127.0.0.1:50300",
+		BusinessRPCAddrs: "addrs:///127.0.0.1:50300",
 	}
 
 	TCPConn = TCPConnConf{

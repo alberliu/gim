@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gim/pkg/pb"
+	"gim/pkg/util"
 	"strconv"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("127.0.0.1:50001", grpc.WithInsecure())
+	conn, err := grpc.Dial("112.126.102.84:50001", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -25,7 +26,7 @@ func getLogicExtClient() pb.LogicExtClient {
 func getCtx() context.Context {
 	token := "0"
 	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
-		"user_id", "17",
+		"user_id", "2",
 		"device_id", "1",
 		"token", token,
 		"request_id", strconv.FormatInt(time.Now().UnixNano(), 10)))
@@ -58,12 +59,41 @@ func TestLogicExtServer_SendMessage(t *testing.T) {
 	resp, err := getLogicExtClient().SendMessage(getCtx(),
 		&pb.SendMessageReq{
 			ReceiverType:   pb.ReceiverType_RT_USER,
-			ReceiverId:     24,
+			ReceiverId:     1,
 			ToUserIds:      nil,
 			MessageType:    pb.MessageType_MT_TEXT,
 			MessageContent: buf,
 			IsPersist:      true,
-			SendTime:       0,
+			SendTime:       util.UnixMilliTime(time.Now()),
+		})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%+v\n", resp)
+}
+
+func TestLogicExtServer_SendImageMessage(t *testing.T) {
+	buf, err := proto.Marshal(&pb.Image{
+		Id:           "",
+		Width:        0,
+		Height:       0,
+		Url:          "https://img.iplaysoft.com/wp-content/uploads/2019/free-images/free_stock_photo.jpg",
+		ThumbnailUrl: "",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	resp, err := getLogicExtClient().SendMessage(getCtx(),
+		&pb.SendMessageReq{
+			ReceiverType:   pb.ReceiverType_RT_USER,
+			ReceiverId:     1,
+			ToUserIds:      nil,
+			MessageType:    pb.MessageType_MT_IMAGE,
+			MessageContent: buf,
+			IsPersist:      true,
+			SendTime:       util.UnixMilliTime(time.Now()),
 		})
 	if err != nil {
 		fmt.Println(err)
@@ -115,7 +145,7 @@ func TestLogicExtServer_GetGroup(t *testing.T) {
 }
 
 func TestLogicExtServer_GetUserGroups(t *testing.T) {
-	resp, err := getLogicExtClient().GetUserGroups(getCtx(), &pb.GetUserGroupsReq{})
+	resp, err := getLogicExtClient().GetGroups(getCtx(), &pb.GetGroupsReq{})
 	if err != nil {
 		fmt.Println(err)
 		return

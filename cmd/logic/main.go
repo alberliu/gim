@@ -15,7 +15,7 @@ func main() {
 
 	// 初始化RpcClient
 	rpc.InitConnIntClient(config.Logic.ConnRPCAddrs)
-	rpc.InitBusinessIntClient(config.Logic.UserRPCAddrs)
+	rpc.InitBusinessIntClient(config.Logic.BusinessRPCAddrs)
 
 	api.StartRpcServer()
 	logger.Logger.Info("logic server start")
