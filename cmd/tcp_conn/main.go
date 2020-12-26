@@ -28,7 +28,6 @@ func main() {
 
 	// 启动长链接服务器
 	go func() {
-		defer util.RecoverPanic()
 		tcp_conn.StartTCPServer()
 	}()
 
