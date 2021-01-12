@@ -162,25 +162,35 @@ func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req
 		return 0, gerrors.ErrNotInGroup
 	}
 
+	// 如果发送者是用户，将消息发送给发送者,获取用户seq
 	var userSeq int64
-	// 将消息发送给群组用户，使用写扩散
-	for _, user := range users {
-		seq, err := MessageService.SendToUser(ctx, sender, user.UserId, req)
+	if sender.SenderType == pb.SenderType_ST_USER {
+		userSeq, err = MessageService.SendToUser(ctx, sender, sender.SenderId, req)
 		if err != nil {
 			return 0, err
 		}
-		if user.UserId == sender.SenderId {
-			userSeq = seq
-		}
-	}
 
-	if sender.SenderType == pb.SenderType_ST_USER {
 		// 用户需要增加自己的已经同步的序列号
 		err = cache.DeviceACKCache.Set(sender.SenderId, sender.DeviceId, userSeq)
 		if err != nil {
 			return 0, err
 		}
 	}
+
+	go func() {
+		defer util.RecoverPanic()
+		// 将消息发送给群组用户，使用写扩散
+		for _, user := range users {
+			// 前面已经发送过，这里不需要再发送
+			if sender.SenderType == pb.SenderType_ST_USER && user.UserId == sender.SenderId {
+				continue
+			}
+			_, err := MessageService.SendToUser(grpclib.NewAndCopyRequestId(ctx), sender, user.UserId, req)
+			if err != nil {
+				return
+			}
+		}
+	}()
 
 	return userSeq, nil
 }
@@ -262,7 +272,6 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	logger.Logger.Debug("SendToUser",
 		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
 		zap.Int64("to_user_id", toUserId))
-
 	var (
 		seq int64 = 0
 		err error
@@ -273,73 +282,66 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 		if err != nil {
 			return 0, err
 		}
-	}
 
-	go func() {
-		defer util.RecoverPanic()
-
-		if req.IsPersist {
-			selfMessage := model.Message{
-				ObjectType:   model.MessageObjectTypeUser,
-				ObjectId:     toUserId,
-				RequestId:    grpclib.GetCtxRequstId(ctx),
-				SenderType:   int32(sender.SenderType),
-				SenderId:     sender.SenderId,
-				ReceiverType: int32(req.ReceiverType),
-				ReceiverId:   req.ReceiverId,
-				ToUserIds:    model.FormatUserIds(req.ToUserIds),
-				Type:         int(req.MessageType),
-				Content:      req.MessageContent,
-				Seq:          seq,
-				SendTime:     util.UnunixMilliTime(req.SendTime),
-				Status:       int32(pb.MessageStatus_MS_NORMAL),
-			}
-			err = MessageService.Add(ctx, selfMessage)
-			if err != nil {
-				logger.Sugar.Error(err)
-				return
-			}
+		selfMessage := model.Message{
+			ObjectType:   model.MessageObjectTypeUser,
+			ObjectId:     toUserId,
+			RequestId:    grpclib.GetCtxRequstId(ctx),
+			SenderType:   int32(sender.SenderType),
+			SenderId:     sender.SenderId,
+			ReceiverType: int32(req.ReceiverType),
+			ReceiverId:   req.ReceiverId,
+			ToUserIds:    model.FormatUserIds(req.ToUserIds),
+			Type:         int(req.MessageType),
+			Content:      req.MessageContent,
+			Seq:          seq,
+			SendTime:     util.UnunixMilliTime(req.SendTime),
+			Status:       int32(pb.MessageStatus_MS_NORMAL),
 		}
-
-		message := pb.Message{
-			Sender: &pb.Sender{
-				SenderType: sender.SenderType,
-				SenderId:   sender.SenderId,
-				AvatarUrl:  sender.AvatarUrl,
-				Nickname:   sender.Nickname,
-				Extra:      sender.Extra,
-			},
-			ReceiverType:   req.ReceiverType,
-			ReceiverId:     req.ReceiverId,
-			ToUserIds:      req.ToUserIds,
-			MessageType:    req.MessageType,
-			MessageContent: req.MessageContent,
-			Seq:            seq,
-			SendTime:       req.SendTime,
-			Status:         pb.MessageStatus_MS_NORMAL,
-		}
-
-		// 查询用户在线设备
-		devices, err := DeviceService.ListOnlineByUserId(ctx, toUserId)
+		err = MessageService.Add(ctx, selfMessage)
 		if err != nil {
 			logger.Sugar.Error(err)
-			return
+			return 0, err
+		}
+	}
+
+	message := pb.Message{
+		Sender: &pb.Sender{
+			SenderType: sender.SenderType,
+			SenderId:   sender.SenderId,
+			AvatarUrl:  sender.AvatarUrl,
+			Nickname:   sender.Nickname,
+			Extra:      sender.Extra,
+		},
+		ReceiverType:   req.ReceiverType,
+		ReceiverId:     req.ReceiverId,
+		ToUserIds:      req.ToUserIds,
+		MessageType:    req.MessageType,
+		MessageContent: req.MessageContent,
+		Seq:            seq,
+		SendTime:       req.SendTime,
+		Status:         pb.MessageStatus_MS_NORMAL,
+	}
+
+	// 查询用户在线设备
+	devices, err := DeviceService.ListOnlineByUserId(ctx, toUserId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return 0, err
+	}
+
+	for i := range devices {
+		// 消息不需要投递给发送消息的设备
+		if sender.DeviceId == devices[i].Id {
+			continue
 		}
 
-		for i := range devices {
-			// 消息不需要投递给发送消息的设备
-			if sender.DeviceId == devices[i].Id {
-				continue
-			}
-
-			err = MessageService.SendToDevice(grpclib.NewAndCopyRequestId(ctx),
-				devices[i], message)
-			if err != nil {
-				logger.Sugar.Error(err, zap.Any("context canceled", devices[i]))
-				return
-			}
+		err = MessageService.SendToDevice(ctx, devices[i], message)
+		if err != nil {
+			logger.Sugar.Error(err, zap.Any("context canceled", devices[i]))
+			return 0, err
 		}
-	}()
+	}
 
 	return seq, nil
 }
