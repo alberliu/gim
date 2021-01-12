@@ -2,6 +2,7 @@ package dao
 
 import (
 	"fmt"
+	"gim/internal/logic/model"
 	"testing"
 )
 
@@ -20,7 +21,13 @@ func TestGroupUserDao_Get(t *testing.T) {
 }
 
 func TestGroupUserDao_Add(t *testing.T) {
-	fmt.Println(GroupUserDao.Add(1, 1, "1", "1"))
+	fmt.Println(GroupUserDao.Add(model.GroupUser{
+		GroupId: 1,
+		UserId:  1,
+		Remarks: "1",
+		Extra:   "1",
+		Status:  0,
+	}))
 }
 
 func TestGroupUserDao_Delete(t *testing.T) {
@@ -28,5 +35,11 @@ func TestGroupUserDao_Delete(t *testing.T) {
 }
 
 func TestGroupUserDao_Update(t *testing.T) {
-	fmt.Println(GroupUserDao.Update(1, 1, "2", "2"))
+	fmt.Println(GroupUserDao.Update(model.GroupUser{
+		GroupId: 1,
+		UserId:  1,
+		Remarks: "1",
+		Extra:   "1",
+		Status:  0,
+	}))
 }

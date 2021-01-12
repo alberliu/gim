@@ -22,5 +22,5 @@ func TestGroupDao_Add(t *testing.T) {
 }
 
 func TestGroupDao_Update(t *testing.T) {
-	fmt.Println(GroupDao.Update(1, "2", "2", "2"))
+	fmt.Println(GroupDao.Update(1, "2", "2", "2", ""))
 }
