@@ -23,14 +23,18 @@ func TestMessageDao_Add(t *testing.T) {
 		SendTime:     time.Now(),
 		Status:       0,
 	}
-	fmt.Println(MessageDao.Add("message", message))
+	fmt.Println(MessageDao.Add(message))
 }
 
 func TestMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
-	messages, hasMore, err := MessageDao.ListBySeq("message", 1, 1, 0, 100)
+	messages, hasMore, err := MessageDao.ListBySeq(1, 1, 0, 100)
 	fmt.Println(err)
 	fmt.Println(hasMore)
 	for i := range messages {
 		fmt.Printf("%+v\n", messages[i])
 	}
+}
+
+func Test_messageDao_tableName(t *testing.T) {
+	fmt.Println(MessageDao.tableName(1001))
 }

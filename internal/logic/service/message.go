@@ -26,7 +26,7 @@ var MessageService = new(messageService)
 
 // Add 添加消息
 func (*messageService) Add(ctx context.Context, message model.Message) error {
-	return dao.MessageDao.Add("message", message)
+	return dao.MessageDao.Add(message)
 }
 
 // Sync 消息同步
@@ -89,7 +89,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 			return nil, false, err
 		}
 	}
-	return dao.MessageDao.ListBySeq("message", model.MessageObjectTypeUser, userId, seq, MessageLimit)
+	return dao.MessageDao.ListBySeq(model.MessageObjectTypeUser, userId, seq, MessageLimit)
 }
 
 // Send 消息发送
