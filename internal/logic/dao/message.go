@@ -36,6 +36,9 @@ func (d *messageDao) ListBySeq(objectType, objectId, seq, limit int64) ([]model.
 	if err != nil {
 		return nil, false, gerrors.WrapError(err)
 	}
+	if count == 0 {
+		return nil, false, nil
+	}
 
 	var messages []model.Message
 	err = db.Limit(limit).Find(&messages).Error
