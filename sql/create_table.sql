@@ -122,7 +122,7 @@ CREATE TABLE `seq`
 -- Table structure for message
 -- ----------------------------
 DROP TABLE IF EXISTS `message_000`;
-CREATE TABLE `message`
+CREATE TABLE `message_000`
 (
     `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
     `object_type`   tinyint(4) NOT NULL COMMENT '所属类型，1：用户；2：群组',
