@@ -95,6 +95,7 @@ func (h *handler) Send(c *gn.Conn, pt pb.PackageType, requestId int64, err error
 	err = encoder.EncodeToFD(c.GetFd(), outputBytes)
 	if err != nil {
 		logger.Sugar.Error(err)
+		c.Close()
 		return
 	}
 }
