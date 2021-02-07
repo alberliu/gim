@@ -12,13 +12,13 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func getUserExtClient() pb.UserExtClient {
+func getBusinessExtClient() pb.BusinessExtClient {
 	conn, err := grpc.Dial("127.0.0.1:50301", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
-	return pb.NewUserExtClient(conn)
+	return pb.NewBusinessExtClient(conn)
 }
 
 func getCtx() context.Context {
@@ -31,7 +31,7 @@ func getCtx() context.Context {
 }
 
 func TestUserExtServer_SignIn(t *testing.T) {
-	resp, err := getUserExtClient().SignIn(getCtx(), &pb.SignInReq{
+	resp, err := getBusinessExtClient().SignIn(getCtx(), &pb.SignInReq{
 		PhoneNumber: "18599866595",
 		Code:        "1",
 		DeviceId:    1,
@@ -43,7 +43,7 @@ func TestUserExtServer_SignIn(t *testing.T) {
 }
 
 func TestUserExtServer_GetUser(t *testing.T) {
-	resp, err := getUserExtClient().GetUser(getCtx(), &pb.GetUserReq{UserId: 1})
+	resp, err := getBusinessExtClient().GetUser(getCtx(), &pb.GetUserReq{UserId: 1})
 	if err != nil {
 		fmt.Println(err)
 	}
