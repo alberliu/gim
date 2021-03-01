@@ -95,7 +95,7 @@ APP截图：
 [![2fa211eb51022831c21da470a2d87330.md.png](https://p.130014.xyz/2021/02/07/2fa211eb51022831c21da470a2d87330.md.png)](http://www.wailian.work/image/QauMRb)
 [![8d3b9dfa3b022c727c640e8938b34105.md.png](https://p.130014.xyz/2021/02/07/8d3b9dfa3b022c727c640e8938b34105.md.png)](http://www.wailian.work/image/Qan758)
 [![63c839904f676c69892ef54946094684.md.png](https://p.130014.xyz/2021/02/07/63c839904f676c69892ef54946094684.md.png)](http://www.wailian.work/image/QanLaO)
- 
-
+### 赞赏支持
+[![WechatIMG9.md.jpg](https://p.130014.xyz/2021/03/01/WechatIMG9.md.jpg)](https://www.wailian.work/image/Q90fg0)
 ### github
 https://github.com/alberliu/gim
