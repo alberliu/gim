@@ -25,3 +25,12 @@ echo "停止tcp_conn服务"
 nohup ./tcp_conn &
 echo "启动tcp_conn服务"
 
+cd ../file
+rm -f file
+go build -o file main.go
+echo "打包file成功"
+pkill logic
+echo "停止file服务"
+nohup ./logic &
+echo "启动file服务"
+
