@@ -1,21 +1,19 @@
 package model
 
 import (
-	"gim/pkg/pb"
 	"time"
 )
 
 // Group 群组
 type Group struct {
-	Id           int64        // 群组id
-	Name         string       // 组名
-	AvatarUrl    string       // 头像
-	Introduction string       // 群简介
-	UserNum      int32        // 群组人数
-	Type         pb.GroupType // 群组类型
-	Extra        string       // 附加字段
-	CreateTime   time.Time    // 创建时间
-	UpdateTime   time.Time    // 更新时间
+	Id           int64     // 群组id
+	Name         string    // 组名
+	AvatarUrl    string    // 头像
+	Introduction string    // 群简介
+	UserNum      int32     // 群组人数
+	Extra        string    // 附加字段
+	CreateTime   time.Time // 创建时间
+	UpdateTime   time.Time // 更新时间
 }
 
 type GroupUserUpdate struct {

@@ -89,7 +89,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 			return nil, false, err
 		}
 	}
-	return dao.MessageDao.ListBySeq(model.MessageObjectTypeUser, userId, seq, MessageLimit)
+	return dao.MessageDao.ListBySeq(userId, seq, MessageLimit)
 }
 
 // Send 消息发送
@@ -117,12 +117,9 @@ func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.S
 		} else {
 			return MessageService.SendToUser(ctx, sender, req.ReceiverId, req)
 		}
-	// 消息接收者是小群组
-	case pb.ReceiverType_RT_SMALL_GROUP:
+	// 消息接收者是群组
+	case pb.ReceiverType_RT_GROUP:
 		return MessageService.SendToGroup(ctx, sender, req)
-	// 消息接收者是大群组
-	case pb.ReceiverType_RT_LARGE_GROUP:
-		return MessageService.SendToLargeGroup(ctx, sender, req)
 	}
 	return 0, nil
 }
@@ -152,7 +149,7 @@ func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, re
 
 // SendToGroup 消息发送至群组（使用写扩散）
 func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
-	users, err := SmallGroupUserService.GetUsers(ctx, req.ReceiverId)
+	users, err := GroupUserService.GetUsers(ctx, req.ReceiverId)
 	if err != nil {
 		return 0, err
 	}
@@ -204,69 +201,6 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 	return false
 }
 
-// SendToLargeGroup 消息发送至大群组（读扩散）
-func (*messageService) SendToLargeGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
-	users, err := cache.LargeGroupUserCache.Members(req.ReceiverId)
-	if err != nil {
-		return 0, err
-	}
-
-	isMember, err := cache.LargeGroupUserCache.IsMember(req.ReceiverId, sender.SenderId)
-	if err != nil {
-		return 0, err
-	}
-
-	if sender.SenderType == pb.SenderType_ST_USER && !isMember {
-		logger.Logger.Warn("not int group", zap.Int64("group_id", req.ReceiverId), zap.Int64("user_id", sender.SenderId))
-		return 0, gerrors.ErrNotInGroup
-	}
-
-	var seq int64 = 0
-	if req.IsPersist {
-		seq, err = SeqService.GetGroupNext(ctx, req.ReceiverId)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	go func() {
-		defer util.RecoverPanic()
-
-		if req.IsPersist {
-			message := model.Message{
-				ObjectType:   model.MessageObjectTypeGroup,
-				ObjectId:     req.ReceiverId,
-				RequestId:    grpclib.GetCtxRequstId(ctx),
-				SenderType:   int32(sender.SenderType),
-				SenderId:     sender.SenderId,
-				ReceiverType: int32(req.ReceiverType),
-				ReceiverId:   req.ReceiverId,
-				ToUserIds:    model.FormatUserIds(req.ToUserIds),
-				Type:         int(req.MessageType),
-				Content:      req.MessageContent,
-				Seq:          seq,
-				SendTime:     util.UnunixMilliTime(req.SendTime),
-				Status:       int32(pb.MessageStatus_MS_NORMAL),
-			}
-			err = MessageService.Add(ctx, message)
-			if err != nil {
-				logger.Sugar.Error(err)
-				return
-			}
-		}
-
-		// 将消息发送给群组用户，使用读扩散
-		for i := range users {
-			err = MessageService.SendToLargeGroupUser(ctx, sender, users[i].UserId, seq, req)
-			if err != nil {
-				return
-			}
-		}
-	}()
-
-	return seq, nil
-}
-
 // SendToUser 将消息发送给用户
 func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, req pb.SendMessageReq) (int64, error) {
 	logger.Logger.Debug("SendToUser",
@@ -284,8 +218,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 		}
 
 		selfMessage := model.Message{
-			ObjectType:   model.MessageObjectTypeUser,
-			ObjectId:     toUserId,
+			UserId:       toUserId,
 			RequestId:    grpclib.GetCtxRequstId(ctx),
 			SenderType:   int32(sender.SenderType),
 			SenderId:     sender.SenderId,
@@ -344,50 +277,6 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	}
 
 	return seq, nil
-}
-
-// SendToLargeGroupUser 发送消息给大群组用户
-func (*messageService) SendToLargeGroupUser(ctx context.Context, sender model.Sender, toUserId int64, roomSeq int64, req pb.SendMessageReq) error {
-	logger.Logger.Debug("SendToLargeGroupUser",
-		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
-		zap.Int64("to_user_id", toUserId))
-
-	message := pb.Message{
-		Sender: &pb.Sender{
-			SenderType: sender.SenderType,
-			SenderId:   sender.SenderId,
-			AvatarUrl:  sender.AvatarUrl,
-			Nickname:   sender.Nickname,
-			Extra:      sender.Extra,
-		},
-		ReceiverType:   req.ReceiverType,
-		ReceiverId:     req.ReceiverId,
-		ToUserIds:      req.ToUserIds,
-		MessageType:    req.MessageType,
-		MessageContent: req.MessageContent,
-		Seq:            roomSeq,
-		SendTime:       req.SendTime,
-		Status:         pb.MessageStatus_MS_NORMAL,
-	}
-
-	// 查询用户在线设备
-	devices, err := DeviceService.ListOnlineByUserId(ctx, toUserId)
-	if err != nil {
-		return err
-	}
-
-	for i := range devices {
-		// 消息不需要投递给发送消息的设备
-		if sender.DeviceId == devices[i].Id {
-			continue
-		}
-
-		err = MessageService.SendToDevice(ctx, devices[i], message)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // SendToDevice 将消息发送给设备

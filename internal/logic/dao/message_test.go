@@ -9,8 +9,7 @@ import (
 
 func TestMessageDao_Add(t *testing.T) {
 	message := model.Message{
-		ObjectType:   1,
-		ObjectId:     1,
+		UserId:       1,
 		RequestId:    1,
 		SenderType:   1,
 		SenderId:     1,

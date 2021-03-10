@@ -54,7 +54,6 @@ CREATE TABLE `group`
     `avatar_url`   varchar(255)  NOT NULL COMMENT '群组头像',
     `introduction` varchar(255)  NOT NULL COMMENT '群组简介',
     `user_num`     int(11) NOT NULL DEFAULT '0' COMMENT '群组人数',
-    `type`         tinyint(4) NOT NULL COMMENT '群组类型，1：小群；2：大群',
     `extra`        varchar(1024) NOT NULL COMMENT '附加属性',
     `create_time`  datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -125,8 +124,7 @@ DROP TABLE IF EXISTS `message_000`;
 CREATE TABLE `message_000`
 (
     `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-    `object_type`   tinyint(4) NOT NULL COMMENT '所属类型，1：用户；2：群组',
-    `object_id`     bigint(20) unsigned NOT NULL COMMENT '所属类型的id',
+    `user_id`       bigint(20) unsigned NOT NULL COMMENT '所属类型的id',
     `request_id`    bigint(20) NOT NULL COMMENT '请求id',
     `sender_type`   tinyint(3) NOT NULL COMMENT '发送者类型',
     `sender_id`     bigint(20) unsigned NOT NULL COMMENT '发送者id',
@@ -141,8 +139,7 @@ CREATE TABLE `message_000`
     `create_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_object_seq` (`object_type`, `object_id`, `seq`) USING BTREE,
-    KEY             `idx_request_id` (`request_id`) USING BTREE
+    UNIQUE KEY `uk_user_id_seq` (`user_id`, `seq`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin COMMENT ='消息';

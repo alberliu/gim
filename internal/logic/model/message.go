@@ -9,16 +9,10 @@ import (
 	"time"
 )
 
-const (
-	MessageObjectTypeUser  = 1 // 用户
-	MessageObjectTypeGroup = 2 // 群组
-)
-
 // Message 消息
 type Message struct {
 	Id           int64     // 自增主键
-	ObjectType   int       // 所属类型
-	ObjectId     int64     // 所属类型id
+	UserId       int64     // 所属类型id
 	RequestId    int64     // 请求id
 	SenderType   int32     // 发送者类型
 	SenderId     int64     // 发送者账户id

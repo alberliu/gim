@@ -37,7 +37,7 @@ func (*groupUserDao) ListUser(groupId int64) ([]model.GroupUser, error) {
 	return groupUsers, nil
 }
 
-// GetGroupUser 获取群组用户信息,用户不存在返回nil
+// Get 获取群组用户信息,用户不存在返回nil
 func (*groupUserDao) Get(groupId, userId int64) (*model.GroupUser, error) {
 	var groupUser model.GroupUser
 	err := db.DB.First(&groupUser, "group_id = ? and user_id = ?", groupId, userId).Error
@@ -48,6 +48,25 @@ func (*groupUserDao) Get(groupId, userId int64) (*model.GroupUser, error) {
 		return nil, nil
 	}
 	return &groupUser, nil
+}
+
+// BatchGet 批量获取群组用户信息
+func (*groupUserDao) BatchGet(groupId int64, userIds []int64) (map[int64]model.GroupUser, error) {
+	var users []model.GroupUser
+	err := db.DB.Find(&users, "group_id = ? and user_id in (?)", groupId, userIds).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+
+	userMap := make(map[int64]model.GroupUser, len(users))
+	for i := range users {
+		userMap[users[i].UserId] = users[i]
+	}
+
+	return userMap, nil
 }
 
 // Add 将用户添加到群组

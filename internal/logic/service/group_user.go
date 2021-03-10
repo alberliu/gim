@@ -15,6 +15,58 @@ type groupUserService struct{}
 
 var GroupUserService = new(groupUserService)
 
+// ListByUserId 获取用户所加入的群组
+func (*groupUserService) ListByUserId(ctx context.Context, userId int64) ([]model.Group, error) {
+	groups, err := dao.GroupUserDao.ListByUserId(userId)
+	if err != nil {
+		return nil, err
+	}
+	return groups, nil
+}
+
+// GetUsers 获取群组的所有用户信息
+func (*groupUserService) GetUsers(ctx context.Context, groupId int64) ([]model.GroupUser, error) {
+	users, err := cache.GroupUserCache.Get(groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	if users != nil {
+		return users, nil
+	}
+
+	users, err = dao.GroupUserDao.ListUser(groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = cache.GroupUserCache.Set(groupId, users)
+	if err != nil {
+		return nil, err
+	}
+	return users, err
+}
+
+// AddUser 给群组添加用户
+func (*groupUserService) AddUser(ctx context.Context, groupUser model.GroupUser) error {
+	err := dao.GroupUserDao.Add(groupUser)
+	if err != nil {
+		return err
+	}
+
+	err = dao.GroupDao.UpdateUserNum(groupUser.GroupId, 1)
+	if err != nil {
+		return err
+	}
+
+	err = cache.GroupUserCache.Del(groupUser.GroupId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // AddUsers 给群组添加用户
 func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, userIds []int64) ([]int64, error) {
 	group, err := GroupService.Get(ctx, groupId)
@@ -28,64 +80,56 @@ func (*groupUserService) AddUsers(ctx context.Context, userId, groupId int64, us
 	var existIds []int64
 	var addedIds []int64
 
-	if group.Type == pb.GroupType_GT_SMALL {
-		for i := range userIds {
-			member, err := dao.GroupUserDao.Get(groupId, userIds[i])
-			if err != nil {
-				return nil, err
-			}
-
-			if member != nil {
-				existIds = append(existIds, userIds[i])
-				continue
-			}
-
-			err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
-				GroupId:    groupId,
-				UserId:     userIds[i],
-				MemberType: int(pb.MemberType_GMT_MEMBER),
-			})
-			if err != nil {
-				return nil, err
-			}
-			addedIds = append(addedIds, userIds[i])
-		}
-	}
-	if group.Type == pb.GroupType_GT_LARGE {
-		for i := range userIds {
-			isMember, err := cache.LargeGroupUserCache.IsMember(groupId, userIds[i])
-			if err != nil {
-				return nil, err
-			}
-			if isMember {
-				existIds = append(existIds, userIds[i])
-				continue
-			}
-			err = cache.LargeGroupUserCache.Set(model.GroupUser{
-				GroupId:    groupId,
-				UserId:     userIds[i],
-				MemberType: int(pb.MemberType_GMT_MEMBER),
-			})
-			if err != nil {
-				return nil, err
-			}
-			addedIds = append(addedIds, userIds[i])
-		}
+	users, err := dao.GroupUserDao.BatchGet(groupId, userIds)
+	if err != nil {
+		return nil, err
 	}
 
-	var members []*pb.GroupMember
-	for i := range addedIds {
-		userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: addedIds[i]})
+	for i := range userIds {
+		if _, ok := users[userIds[i]]; ok {
+			existIds = append(existIds, userIds[i])
+			continue
+		}
+
+		err = dao.GroupUserDao.Add(model.GroupUser{
+			GroupId:    groupId,
+			UserId:     userIds[i],
+			MemberType: int(pb.MemberType_GMT_MEMBER),
+		})
 		if err != nil {
 			return nil, err
 		}
 
+		addedIds = append(addedIds, userIds[i])
+	}
+
+	err = dao.GroupDao.UpdateUserNum(groupId, len(addedIds))
+	if err != nil {
+		return nil, err
+	}
+
+	err = cache.GroupUserCache.Del(groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	var addIdMap = make(map[int64]int32, len(addedIds))
+	for i := range addedIds {
+		addIdMap[addedIds[i]] = 0
+	}
+
+	usersResp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: addIdMap})
+	if err != nil {
+		return nil, err
+	}
+	var members []*pb.GroupMember
+	for _, v := range usersResp.Users {
 		members = append(members, &pb.GroupMember{
-			UserId:    userResp.User.UserId,
-			Nickname:  userResp.User.Nickname,
-			Sex:       userResp.User.Sex,
-			AvatarUrl: userResp.User.AvatarUrl,
-			UserExtra: userResp.User.Extra,
+			UserId:    v.UserId,
+			Nickname:  v.Nickname,
+			Sex:       v.Sex,
+			AvatarUrl: v.AvatarUrl,
+			UserExtra: v.Extra,
 			Remarks:   "",
 			Extra:     "",
 		})
@@ -119,18 +163,17 @@ func (*groupUserService) UpdateUser(ctx context.Context, user model.GroupUser) e
 		return gerrors.ErrGroupNotExist
 	}
 
-	if group.Type == pb.GroupType_GT_SMALL {
-		err = SmallGroupUserService.Update(ctx, user)
-		if err != nil {
-			return err
-		}
+	err = dao.GroupUserDao.Update(user)
+	if err != nil {
+		return err
 	}
-	if group.Type == pb.GroupType_GT_LARGE {
-		err = cache.LargeGroupUserCache.Set(user)
-		if err != nil {
-			return err
-		}
+
+	err = cache.GroupUserCache.Del(user.GroupId)
+	if err != nil {
+		return err
 	}
+	return nil
+
 	return nil
 }
 
@@ -157,17 +200,20 @@ func (*groupUserService) DeleteUser(ctx context.Context, optId, groupId, userId 
 		return err
 	}
 
-	if group.Type == pb.GroupType_GT_SMALL {
-		err = SmallGroupUserService.DeleteUser(ctx, groupId, userId)
-		if err != nil {
-			return err
-		}
+	err = dao.GroupUserDao.Delete(groupId, userId)
+	if err != nil {
+		return err
 	}
-	if group.Type == pb.GroupType_GT_LARGE {
-		err = cache.LargeGroupUserCache.Del(groupId, userId)
-		if err != nil {
-			return err
-		}
+
+	err = dao.GroupDao.UpdateUserNum(groupId, -1)
+	if err != nil {
+		return err
 	}
+
+	err = cache.GroupUserCache.Del(groupId)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

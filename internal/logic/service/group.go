@@ -40,7 +40,8 @@ func (*groupService) Create(ctx context.Context, userId int64, group model.Group
 		return 0, err
 	}
 
-	err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
+	// 创建者添加为管理员
+	err = GroupUserService.AddUser(ctx, model.GroupUser{
 		GroupId:    groupId,
 		UserId:     userId,
 		MemberType: int(pb.MemberType_GMT_ADMIN),
@@ -48,8 +49,10 @@ func (*groupService) Create(ctx context.Context, userId int64, group model.Group
 	if err != nil {
 		return 0, err
 	}
+
+	// 其让人添加为成员
 	for i := range memberIds {
-		err = SmallGroupUserService.AddUser(ctx, model.GroupUser{
+		err = GroupUserService.AddUser(ctx, model.GroupUser{
 			GroupId:    groupId,
 			UserId:     memberIds[i],
 			MemberType: int(pb.MemberType_GMT_MEMBER),
@@ -99,11 +102,8 @@ func (s *groupService) GetUsers(ctx context.Context, groupId int64) ([]*pb.Group
 	if group == nil {
 		return nil, nil
 	}
-	if group.Type != pb.GroupType_GT_SMALL {
-		return nil, nil
-	}
 
-	members, err := SmallGroupUserService.GetUsers(ctx, groupId)
+	members, err := GroupUserService.GetUsers(ctx, groupId)
 	if err != nil {
 		return nil, err
 	}

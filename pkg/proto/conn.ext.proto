@@ -137,8 +137,7 @@ message SyncOutput {
 enum ReceiverType {
     RT_UNKNOWN = 0; // 未知
     RT_USER = 1; // 用户
-    RT_SMALL_GROUP = 2; // 小群组
-    RT_LARGE_GROUP = 3; // 大群组
+    RT_GROUP = 2; // 群组
 }
 
 // 消息投递,package_type:4

@@ -72,9 +72,8 @@ message CreateGroupReq {
     string name = 1; // 名称
     string avatar_url = 2; // 头像
     string introduction = 3; // 简介
-    GroupType type = 4; // 群组类型
-    string extra = 5; // 附加字段
-    repeated int64 member_ids = 6; // 群组成员ID列表
+    string extra = 4; // 附加字段
+    repeated int64 member_ids = 5; // 群组成员ID列表
 }
 message CreateGroupResp {
     int64 group_id = 1; // 群组id
@@ -103,18 +102,10 @@ message Group {
     string avatar_url = 3; // 头像
     string introduction = 4; // 简介
     int32 user_mum = 5; // 用户数
-    GroupType type = 6; // 群组类型
-    string extra = 7; // 附加字段
-    int64 create_time = 8; // 创建时间
-    int64 update_time = 9; // 更新时间
+    string extra = 6; // 附加字段
+    int64 create_time = 7; // 创建时间
+    int64 update_time = 8; // 更新时间
 }
-
-enum GroupType {
-    GT_UNKNOWN = 0;
-    GT_SMALL = 1; // 小群组
-    GT_LARGE = 2; // 大群组
-}
-
 
 message GetGroupsReq {
 }

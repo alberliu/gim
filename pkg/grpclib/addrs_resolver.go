@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/resolver"
 )
 
+// 实现多个IP地址解析，比如，addrs:///127.0.0.1:50000,127.0.0.1:50001
 func init() {
 	RegisterResolver()
 }

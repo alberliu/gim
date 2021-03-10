@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/balancer/base"
 )
 
+// 实现指定地址调用的RPC调用
 const Name = "addr"
 
 const addrKey = "addr"
@@ -38,19 +39,19 @@ func (*addrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 		subConns[sc.Address.Addr] = k
 	}
 	return &addrPicker{
-		subConns: subConns,
+		subConnes: subConns,
 	}
 }
 
 type addrPicker struct {
-	subConns map[string]balancer.SubConn
+	subConnes map[string]balancer.SubConn
 }
 
 func (p *addrPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	pr := balancer.PickResult{}
 
 	address := info.Ctx.Value(addrKey).(string)
-	sc, ok := p.subConns[address]
+	sc, ok := p.subConnes[address]
 	if !ok {
 		return pr, ErrNoSubConnSelect
 	}

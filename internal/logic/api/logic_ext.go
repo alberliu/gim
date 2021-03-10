@@ -119,7 +119,6 @@ func (*LogicExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (
 		Name:         in.Name,
 		AvatarUrl:    in.AvatarUrl,
 		Introduction: in.Introduction,
-		Type:         in.Type,
 		Extra:        in.Extra,
 	}, in.MemberIds)
 	return &pb.CreateGroupResp{GroupId: groupId}, err
@@ -159,7 +158,6 @@ func (*LogicExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.Ge
 			AvatarUrl:    group.AvatarUrl,
 			Introduction: group.Introduction,
 			UserMum:      group.UserNum,
-			Type:         group.Type,
 			Extra:        group.Extra,
 			CreateTime:   group.CreateTime.Unix(),
 			UpdateTime:   group.UpdateTime.Unix(),
@@ -174,7 +172,7 @@ func (*LogicExtServer) GetGroups(ctx context.Context, in *pb.GetGroupsReq) (*pb.
 		return nil, err
 	}
 
-	groups, err := service.SmallGroupUserService.ListByUserId(ctx, userId)
+	groups, err := service.GroupUserService.ListByUserId(ctx, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
@@ -187,7 +185,6 @@ func (*LogicExtServer) GetGroups(ctx context.Context, in *pb.GetGroupsReq) (*pb.
 			AvatarUrl:    groups[i].AvatarUrl,
 			Introduction: groups[i].Introduction,
 			UserMum:      groups[i].UserNum,
-			Type:         groups[i].Type,
 			Extra:        groups[i].Extra,
 			CreateTime:   groups[i].CreateTime.Unix(),
 			UpdateTime:   groups[i].UpdateTime.Unix(),
