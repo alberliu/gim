@@ -51,7 +51,7 @@ type BusinessConf struct {
 }
 
 func init() {
-	env := os.Getenv("im_env")
+	env := os.Getenv("gim_env")
 	switch env {
 	case "dev":
 		initDevConf()

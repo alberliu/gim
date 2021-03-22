@@ -8,9 +8,9 @@ import (
 
 func initDevConf() {
 	Logic = LogicConf{
-		MySQL:            "root:alber123456@tcp(47.242.224.6:3306)/gim?charset=utf8&parseTime=true",
-		NSQIP:            "47.242.224.6:4150",
-		RedisIP:          "47.242.224.6:6379",
+		MySQL:            "root:gim123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true",
+		NSQIP:            "111.229.238.28:4150",
+		RedisIP:          "111.229.238.28:6379",
 		RedisPassword:    "",
 		RPCIntListenAddr: ":50000",
 		RPCExtListenAddr: ":50001",
@@ -30,9 +30,9 @@ func initDevConf() {
 		LogicRPCAddrs: "addrs:///127.0.0.1:50000",
 	}
 	Business = BusinessConf{
-		MySQL:            "root:alber123456@tcp(47.242.224.6:3306)/gim?charset=utf8&parseTime=true",
-		NSQIP:            "47.242.224.6:4150",
-		RedisIP:          "47.242.224.6:6379",
+		MySQL:            "root:alber123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true",
+		NSQIP:            "111.229.238.28:4150",
+		RedisIP:          "111.229.238.28:6379",
 		RedisPassword:    "",
 		RPCIntListenAddr: ":50300",
 		RPCExtListenAddr: ":50301",
