@@ -29,8 +29,8 @@ cd ../file
 rm -f file
 go build -o file main.go
 echo "打包file成功"
-pkill logic
+pkill file
 echo "停止file服务"
-nohup ./logic &
+nohup ./file &
 echo "启动file服务"
 
