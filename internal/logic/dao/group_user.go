@@ -30,7 +30,7 @@ func (*groupUserDao) ListByUserId(userId int64) ([]model.Group, error) {
 // ListGroupUser 获取群组用户信息
 func (*groupUserDao) ListUser(groupId int64) ([]model.GroupUser, error) {
 	var groupUsers []model.GroupUser
-	err := db.DB.Find(&groupUsers, " group_id = ?", groupId).Error
+	err := db.DB.Find(&groupUsers, "group_id = ?", groupId).Error
 	if err != nil {
 		return nil, gerrors.WrapError(err)
 	}
