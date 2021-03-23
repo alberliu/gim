@@ -87,7 +87,7 @@ c1,c2.c3表示一个群组中的三个用户
 #### APP
 基于Flutter写了一个简单的客户端  
 GitHub地址：https://github.com/alberliu/fim  
-APP下载：https://github.com/alberliu/fim/releases/download/v1.0.0/FIM.apk  
+APP下载：https://github.com/alberliu/fim/releases/download/v1.0.1/FIM.apk    
 APP截图：  
 [![8a3937b2c4a53b568fea418ff6f0ee4a.md.png](https://p.130014.xyz/2021/02/07/8a3937b2c4a53b568fea418ff6f0ee4a.md.png)](http://www.wailian.work/image/QauQqB)
 [![dd47b5027e4983a068ca91b2ef1b8b1c.md.png](https://p.130014.xyz/2021/02/07/dd47b5027e4983a068ca91b2ef1b8b1c.md.png)](http://www.wailian.work/image/Qau58S)
