@@ -1,6 +1,17 @@
 syntax = "proto3";
 package pb;
 
+service BusinessExt {
+    // 登录
+    rpc SignIn (SignInReq) returns (SignInResp);
+    // 获取用户信息
+    rpc GetUser (GetUserReq) returns (GetUserResp);
+    // 更新用户信息
+    rpc UpdateUser (UpdateUserReq) returns (UpdateUserResp);
+    // 搜索用户(这里简单数据库实现，生产环境建议使用ES)
+    rpc SearchUser (SearchUserReq) returns (SearchUserResp);
+}
+
 message SignInReq {
     string phone_number = 1; // 手机号
     string code = 2; // 验证码
@@ -46,13 +57,3 @@ message SearchUserResp{
     repeated User users = 1;
 }
 
-service BusinessExt {
-    // 登录
-    rpc SignIn (SignInReq) returns (SignInResp);
-    // 获取用户信息
-    rpc GetUser (GetUserReq) returns (GetUserResp);
-    // 更新用户信息
-    rpc UpdateUser (UpdateUserReq) returns (UpdateUserResp);
-    // 搜索用户(这里简单数据库实现，生产环境建议使用ES)
-    rpc SearchUser (SearchUserReq) returns (SearchUserResp);
-}

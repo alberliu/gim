@@ -95,18 +95,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 // Send 消息发送
 func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	// 如果发送者是用户，需要补充用户的信息
-	if sender.SenderType == pb.SenderType_ST_USER {
-		user, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: sender.SenderId})
-		if err != nil {
-			return 0, err
-		}
-		if user.User == nil {
-			return 0, gerrors.ErrUserNotFound
-		}
-		sender.AvatarUrl = user.User.AvatarUrl
-		sender.Nickname = user.User.Nickname
-		sender.Extra = user.User.Extra
-	}
+	s.AddInfo(&sender)
 
 	switch req.ReceiverType {
 	// 消息接收者为用户
@@ -239,13 +228,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 	}
 
 	message := pb.Message{
-		Sender: &pb.Sender{
-			SenderType: sender.SenderType,
-			SenderId:   sender.SenderId,
-			AvatarUrl:  sender.AvatarUrl,
-			Nickname:   sender.Nickname,
-			Extra:      sender.Extra,
-		},
+		Sender:         model.SenderToPB(sender),
 		ReceiverType:   req.ReceiverType,
 		ReceiverId:     req.ReceiverId,
 		ToUserIds:      req.ToUserIds,
@@ -285,7 +268,6 @@ func (*messageService) SendToDevice(ctx context.Context, device model.Device, me
 		messageSend := pb.MessageSend{Message: &message}
 		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
 			DeviceId:    device.Id,
-			Fd:          device.ConnFd,
 			MessageSend: &messageSend,
 		})
 		if err != nil {
@@ -295,4 +277,15 @@ func (*messageService) SendToDevice(ctx context.Context, device model.Device, me
 
 	// todo 其他推送厂商
 	return nil
+}
+
+func (*messageService) AddInfo(sender *model.Sender) {
+	if sender.SenderType == pb.SenderType_ST_USER {
+		user, err := rpc.BusinessIntClient.GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
+		if err == nil && user != nil {
+			sender.AvatarUrl = user.User.AvatarUrl
+			sender.Nickname = user.User.Nickname
+			sender.Extra = user.User.Extra
+		}
+	}
 }

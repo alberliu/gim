@@ -48,9 +48,9 @@ func (*deviceDao) ListOnlineByUserId(userId int64) ([]model.Device, error) {
 }
 
 // UpdateUserIdAndStatus 更新设备绑定用户和设备在线状态
-func (*deviceDao) Update(deviceId, userId int64, status int, connAddr string, connFd int64, clientAddr string) error {
-	err := db.DB.Exec("update device set user_id = ?,status = ?,conn_addr = ?,conn_fd = ?,client_addr = ? where id = ? ",
-		userId, status, connAddr, connFd, clientAddr, deviceId).Error
+func (*deviceDao) Update(deviceId, userId int64, status int, connAddr string, clientAddr string) error {
+	err := db.DB.Exec("update device set user_id = ?,status = ?,conn_addr = ?,client_addr = ? where id = ? ",
+		userId, status, connAddr, clientAddr, deviceId).Error
 	if err != nil {
 		return gerrors.WrapError(err)
 	}

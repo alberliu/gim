@@ -1,6 +1,43 @@
 syntax = "proto3";
-import "conn.ext.proto";
+import "connect.ext.proto";
 package pb;
+
+service LogicExt {
+    // 注册设备
+    rpc RegisterDevice (RegisterDeviceReq) returns (RegisterDeviceResp);
+
+    // 发送消息
+    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
+    // 推送消息到房间
+    rpc PushRoom(PushRoomReq)returns(PushRoomResp);
+
+    // 添加好友
+    rpc AddFriend (AddFriendReq) returns (AddFriendResp);
+    // 同意添加好友
+    rpc AgreeAddFriend (AgreeAddFriendReq) returns (AgreeAddFriendResp);
+    // 设置好友信息
+    rpc SetFriend (SetFriendReq) returns (SetFriendResp);
+    // 获取好友列表
+    rpc GetFriends (GetFriendsReq) returns (GetFriendsResp);
+
+    // 创建群组
+    rpc CreateGroup (CreateGroupReq) returns (CreateGroupResp);
+    // 更新群组
+    rpc UpdateGroup (UpdateGroupReq) returns (UpdateGroupResp);
+    // 获取群组信息
+    rpc GetGroup (GetGroupReq) returns (GetGroupResp);
+    // 获取用户加入的所有群组
+    rpc GetGroups (GetGroupsReq) returns (GetGroupsResp);
+
+    // 添加群组成员
+    rpc AddGroupMembers (AddGroupMembersReq) returns (AddGroupMembersResp);
+    // 更新群组成员信息
+    rpc UpdateGroupMember (UpdateGroupMemberReq) returns (UpdateGroupMemberResp);
+    // 添加群组成员
+    rpc DeleteGroupMember (DeleteGroupMemberReq) returns (DeleteGroupMemberResp);
+    // 获取群组成员
+    rpc GetGroupMembers (GetGroupMembersReq) returns (GetGroupMembersResp);
+}
 
 message RegisterDeviceReq {
     int32 type = 2; // 设备类型
@@ -24,6 +61,15 @@ message SendMessageReq {
 }
 message SendMessageResp {
     int64 seq = 1; // 消息序列号
+}
+
+message PushRoomReq{
+    int64 room_id = 1; // 房间id
+    MessageType message_type = 2; // 消息类型
+    bytes message_content = 3; // 消息内容
+    int64 send_time = 4; // 消息发送时间戳，精确到毫秒
+}
+message PushRoomResp{
 }
 
 message AddFriendReq {
@@ -159,39 +205,4 @@ message GroupMember {
     MemberType member_type = 6; // 成员类型
     string remarks = 7; // 备注
     string extra = 8; // 群组成员附加字段
-}
-
-service LogicExt {
-    // 注册设备
-    rpc RegisterDevice (RegisterDeviceReq) returns (RegisterDeviceResp);
-
-    // 发送消息
-    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
-
-    // 添加好友
-    rpc AddFriend (AddFriendReq) returns (AddFriendResp);
-    // 同意添加好友
-    rpc AgreeAddFriend (AgreeAddFriendReq) returns (AgreeAddFriendResp);
-    // 设置好友信息
-    rpc SetFriend (SetFriendReq) returns (SetFriendResp);
-    // 获取好友列表
-    rpc GetFriends (GetFriendsReq) returns (GetFriendsResp);
-
-    // 创建群组
-    rpc CreateGroup (CreateGroupReq) returns (CreateGroupResp);
-    // 更新群组
-    rpc UpdateGroup (UpdateGroupReq) returns (UpdateGroupResp);
-    // 获取群组信息
-    rpc GetGroup (GetGroupReq) returns (GetGroupResp);
-    // 获取用户加入的所有群组
-    rpc GetGroups (GetGroupsReq) returns (GetGroupsResp);
-
-    // 添加群组成员
-    rpc AddGroupMembers (AddGroupMembersReq) returns (AddGroupMembersResp);
-    // 更新群组成员信息
-    rpc UpdateGroupMember (UpdateGroupMemberReq) returns (UpdateGroupMemberResp);
-    // 添加群组成员
-    rpc DeleteGroupMember (DeleteGroupMemberReq) returns (DeleteGroupMemberResp);
-    // 获取群组成员
-    rpc GetGroupMembers (GetGroupMembersReq) returns (GetGroupMembersResp);
 }

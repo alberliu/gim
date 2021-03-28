@@ -16,14 +16,14 @@ echo "停止logic服务"
 nohup ./logic &
 echo "启动logic服务"
 
-cd ../tcp_conn
-rm -f tcp_conn
-go build -o tcp_conn main.go
-echo "打包tcp_conn成功"
-pkill tcp_conn
-echo "停止tcp_conn服务"
-nohup ./tcp_conn &
-echo "启动tcp_conn服务"
+cd ../connect
+rm -f connect
+go build -o connect main.go
+echo "打包connect成功"
+pkill connect
+echo "停止connect服务"
+nohup ./connect &
+echo "启动connect服务"
 
 cd ../file
 rm -f file

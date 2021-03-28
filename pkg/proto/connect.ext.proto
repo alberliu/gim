@@ -7,6 +7,7 @@ enum PackageType {
     PT_SYNC = 2; // 消息同步触发
     PT_HEARTBEAT = 3; // 心跳
     PT_MESSAGE = 4; // 消息投递
+    PT_SUBSCRIBE_ROOM = 5; // 订阅房间
 }
 
 /************************************消息体定义开始************************************/
@@ -127,17 +128,26 @@ message SignInInput {
 message SyncInput {
     int64 seq = 1; // 客户端已经同步的序列号
 }
-
 // 消息同步响应,package_type:2
 message SyncOutput {
     repeated Message messages = 1; // 消息列表
     bool has_more = 2; // 是否有更多数据
 }
 
+// 订阅房间请求
+message SubscribeRoomInput{
+    int64 room_id = 1; // 房间ID，如果为0，取消房间订阅
+    int64 seq = 2; // 消息消息序列号，
+}
+// 订阅房间响应
+message SubscribeRoomOutput{
+}
+
 enum ReceiverType {
     RT_UNKNOWN = 0; // 未知
     RT_USER = 1; // 用户
     RT_GROUP = 2; // 群组
+    RT_ROOM = 3; // 房间
 }
 
 // 消息投递,package_type:4

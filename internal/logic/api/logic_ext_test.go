@@ -15,7 +15,7 @@ import (
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("47.242.224.6:50001", grpc.WithInsecure())
+	conn, err := grpc.Dial("111.229.238.28:50001", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -107,7 +107,6 @@ func TestLogicExtServer_CreateGroup(t *testing.T) {
 		&pb.CreateGroupReq{
 			Name:         "10",
 			Introduction: "10",
-			Type:         1,
 			Extra:        "10",
 		})
 	if err != nil {

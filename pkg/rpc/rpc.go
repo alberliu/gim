@@ -12,7 +12,7 @@ import (
 
 var (
 	LogicIntClient    pb.LogicIntClient
-	ConnectIntClient  pb.ConnIntClient
+	ConnectIntClient  pb.ConnectIntClient
 	BusinessIntClient pb.BusinessIntClient
 )
 
@@ -26,7 +26,7 @@ func InitLogicIntClient(addr string) {
 	LogicIntClient = pb.NewLogicIntClient(conn)
 }
 
-func InitConnIntClient(addr string) {
+func InitConnectIntClient(addr string) {
 	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.Name)))
 	if err != nil {
@@ -34,7 +34,7 @@ func InitConnIntClient(addr string) {
 		panic(err)
 	}
 
-	ConnectIntClient = pb.NewConnIntClient(conn)
+	ConnectIntClient = pb.NewConnectIntClient(conn)
 }
 
 func InitBusinessIntClient(addr string) {

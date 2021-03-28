@@ -13,7 +13,6 @@ CREATE TABLE `device`
     `sdk_version`    varchar(10) NOT NULL COMMENT 'app版本',
     `status`         tinyint(3) NOT NULL DEFAULT '0' COMMENT '在线状态，0：离线；1：在线',
     `conn_addr`      varchar(25) NOT NULL COMMENT '连接层服务器地址',
-    `conn_fd`        bigint(20) NOT NULL COMMENT 'TCP连接对应的文件描述符',
     `client_addr`    varchar(25) NOT NULL COMMENT '客户端地址',
     `create_time`    datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`    datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

@@ -78,8 +78,8 @@ func (*deviceService) ListOnlineByUserId(ctx context.Context, userId int64) ([]m
 }
 
 // Online 设备上线
-func (*deviceService) Online(ctx context.Context, deviceId, userId int64, connAddr string, connFd int64, clientAddr string) error {
-	err := dao.DeviceDao.Update(deviceId, userId, DeviceOnline, connAddr, connFd, clientAddr)
+func (*deviceService) Online(ctx context.Context, deviceId, userId int64, connAddr string, clientAddr string) error {
+	err := dao.DeviceDao.Update(deviceId, userId, DeviceOnline, connAddr, clientAddr)
 	if err != nil {
 		return err
 	}

@@ -10,3 +10,13 @@ type Sender struct {
 	AvatarUrl  string        // 头像
 	Extra      string        // 扩展字段
 }
+
+func SenderToPB(sender Sender) *pb.Sender {
+	return &pb.Sender{
+		SenderType: sender.SenderType,
+		SenderId:   sender.SenderId,
+		AvatarUrl:  sender.AvatarUrl,
+		Nickname:   sender.Nickname,
+		Extra:      sender.Extra,
+	}
+}

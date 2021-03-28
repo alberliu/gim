@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"gim/internal/logic/cache"
 	"gim/internal/logic/model"
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
+	"gim/pkg/topic"
 	"gim/pkg/util"
 	"time"
 
@@ -19,7 +21,7 @@ type pushService struct{}
 var PushService = new(pushService)
 
 func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.PushCode, message proto.Message, isPersist bool) error {
-	logger.Logger.Debug("push",
+	logger.Logger.Debug("push_to_user",
 		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
 		zap.Int64("user_id", userId),
 		zap.Int32("code", int32(code)),
@@ -94,5 +96,55 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *pushService) PushRoom(ctx context.Context, sender model.Sender, req *pb.PushRoomReq) error {
+	MessageService.AddInfo(&sender)
+
+	msg := pb.PushRoomMsg{
+		RoomId: req.RoomId,
+		MessageSend: &pb.MessageSend{
+			Message: &pb.Message{
+				Sender:         model.SenderToPB(sender),
+				ReceiverType:   pb.ReceiverType_RT_ROOM,
+				ReceiverId:     req.RoomId,
+				ToUserIds:      nil,
+				MessageType:    req.MessageType,
+				MessageContent: req.MessageContent,
+				Seq:            0,
+				SendTime:       util.UnixMilliTime(time.Now()),
+				Status:         0,
+			},
+		},
+	}
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	cache.Queue.Publish(topic.PushAllQueue, bytes)
+	return nil
+}
+
+func (s *pushService) PushAll(ctx context.Context, req *pb.PushAllReq) error {
+	msg := pb.PushAllMsg{
+		MessageSend: &pb.MessageSend{
+			Message: &pb.Message{
+				Sender:         &pb.Sender{SenderType: pb.SenderType_ST_BUSINESS},
+				ReceiverType:   pb.ReceiverType_RT_ROOM,
+				ToUserIds:      nil,
+				MessageType:    req.MessageType,
+				MessageContent: req.MessageContent,
+				Seq:            0,
+				SendTime:       util.UnixMilliTime(time.Now()),
+				Status:         0,
+			},
+		},
+	}
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	cache.Queue.Publish(topic.PushAllQueue, bytes)
 	return nil
 }

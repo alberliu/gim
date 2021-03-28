@@ -14,7 +14,7 @@ func main() {
 	db.InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
 
 	// 初始化RpcClient
-	rpc.InitConnIntClient(config.Logic.ConnRPCAddrs)
+	rpc.InitConnectIntClient(config.Logic.ConnectRPCAddrs)
 	rpc.InitBusinessIntClient(config.Logic.BusinessRPCAddrs)
 
 	api.StartRpcServer()

@@ -6,8 +6,7 @@ import (
 
 var (
 	Logic    LogicConf
-	TCPConn  TCPConnConf
-	WSConn   WSConnConf
+	Connect  ConnectConf
 	Business BusinessConf
 )
 
@@ -19,24 +18,20 @@ type LogicConf struct {
 	RedisPassword    string
 	RPCIntListenAddr string
 	RPCExtListenAddr string
-	ConnRPCAddrs     string
+	ConnectRPCAddrs  string
 	BusinessRPCAddrs string
 }
 
 // TCPConnConf配置
-type TCPConnConf struct {
+type ConnectConf struct {
 	TCPListenAddr int
-	RPCListenAddr string
-	LocalAddr     string
-	LogicRPCAddrs string
-}
-
-// WS配置
-type WSConnConf struct {
 	WSListenAddr  string
 	RPCListenAddr string
 	LocalAddr     string
 	LogicRPCAddrs string
+	RedisIP       string
+	RedisPassword string
+	SubscribeNum  int
 }
 
 // Business配置

@@ -54,6 +54,19 @@ func (*LogicExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (
 	return &pb.SendMessageResp{Seq: seq}, nil
 }
 
+// PushToRoom  推送房间
+func (s *LogicExtServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
+	userId, deviceId, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.PushRoomResp{}, service.PushService.PushRoom(ctx, model.Sender{
+		SenderType: pb.SenderType_ST_USER,
+		SenderId:   userId,
+		DeviceId:   deviceId,
+	}, req)
+}
+
 func (s *LogicExtServer) AddFriend(ctx context.Context, in *pb.AddFriendReq) (*pb.AddFriendResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {

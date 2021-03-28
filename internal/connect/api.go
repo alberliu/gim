@@ -1,9 +1,10 @@
-package tcp_conn
+package connect
 
 import (
 	"context"
 	"gim/config"
 	"gim/pkg/gerrors"
+	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"net"
@@ -19,7 +20,22 @@ type ConnIntServer struct{}
 
 // Message 投递消息
 func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.DeliverMessageResp, error) {
-	return &pb.DeliverMessageResp{}, DeliverMessage(ctx, req)
+	resp := &pb.DeliverMessageResp{}
+
+	// 获取设备对应的TCP连接
+	conn := GetConn(req.DeviceId)
+	if conn == nil {
+		logger.Logger.Warn("GetConn warn", zap.Int64("device_id", req.DeviceId))
+		return resp, nil
+	}
+
+	if conn.DeviceId != req.DeviceId {
+		logger.Logger.Warn("GetConn warn", zap.Int64("device_id", req.DeviceId))
+		return resp, nil
+	}
+
+	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), nil, req.MessageSend)
+	return resp, nil
 }
 
 // UnaryServerInterceptor 服务器端的单向调用的拦截器
@@ -40,12 +56,12 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.Una
 
 // StartRPCServer 启动rpc服务器
 func StartRPCServer() {
-	listener, err := net.Listen("tcp", config.TCPConn.RPCListenAddr)
+	listener, err := net.Listen("tcp", config.Connect.RPCListenAddr)
 	if err != nil {
 		panic(err)
 	}
 	server := grpc.NewServer(grpc.UnaryInterceptor(UnaryServerInterceptor))
-	pb.RegisterConnIntServer(server, &ConnIntServer{})
+	pb.RegisterConnectIntServer(server, &ConnIntServer{})
 	logger.Logger.Debug("rpc服务已经开启")
 	err = server.Serve(listener)
 	if err != nil {

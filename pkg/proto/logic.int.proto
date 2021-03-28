@@ -1,16 +1,36 @@
 syntax = "proto3";
-import "conn.ext.proto";
+import "connect.ext.proto";
+import "logic.ext.proto";
 package pb;
 
-import "logic.ext.proto";
+service LogicInt {
+    //  登录
+    rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
+    //  消息同步
+    rpc Sync (SyncReq) returns (SyncResp);
+    //  设备收到消息回执
+    rpc MessageACK (MessageACKReq) returns (MessageACKResp);
+    //  设备离线
+    rpc Offline (OfflineReq) returns (OfflineResp);
+    // 发送消息
+    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
+    // 推送消息到房间
+    rpc PushRoom(PushRoomReq)returns(PushRoomResp);
+    // 全服推送
+    rpc PushAll(PushAllReq)returns(PushAllResp);
+
+    // 发送消息
+    rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
+    //  服务停止
+    rpc ServerStop (ServerStopReq) returns (ServerStopResp);
+}
 
 message ConnSignInReq {
     int64 device_id = 1; // 设备id
     int64 user_id = 2; // 用户id
     string token = 3; // 秘钥
     string conn_addr = 4; // 服务器地址
-    int64 conn_fd = 5; // TCP对应的文件描述符
-    string client_addr = 6; // 客户端地址
+    string client_addr = 5; // 客户端地址
 }
 message ConnSignInResp {
 }
@@ -44,6 +64,14 @@ message OfflineResp {
 
 }
 
+message PushAllReq{
+    MessageType message_type = 1; // 消息类型
+    bytes message_content = 2; // 消息内容
+    int64 send_time = 3; // 消息发送时间戳，精确到毫秒
+}
+message PushAllResp{
+}
+
 message GetDeviceReq {
     int64 device_id = 1;
 }
@@ -68,21 +96,4 @@ message ServerStopReq {
     string conn_addr = 1;
 }
 message ServerStopResp {
-}
-
-service LogicInt {
-    //  登录
-    rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
-    //  消息同步
-    rpc Sync (SyncReq) returns (SyncResp);
-    //  设备收到消息回执
-    rpc MessageACK (MessageACKReq) returns (MessageACKResp);
-    //  设备离线
-    rpc Offline (OfflineReq) returns (OfflineResp);
-    // 发送消息
-    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
-    // 发送消息
-    rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
-    //  服务停止
-    rpc ServerStop (ServerStopReq) returns (ServerStopResp);
 }
