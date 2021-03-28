@@ -29,7 +29,7 @@ func DeleteConn(deviceId int64) {
 func PushAll(message *pb.MessageSend) {
 	ConnsManager.Range(func(key, value interface{}) bool {
 		conn := value.(*Conn)
-		conn.Send(pb.PackageType_PT_MESSAGE, 0, nil, message)
+		conn.Send(pb.PackageType_PT_MESSAGE, 0, message, nil)
 		return true
 	})
 }

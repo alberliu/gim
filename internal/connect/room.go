@@ -94,7 +94,7 @@ func (r *Room) Push(message *pb.MessageSend) {
 	element := r.Conns.Front()
 	for {
 		conn := element.Value.(*Conn)
-		conn.Send(pb.PackageType_PT_MESSAGE, 0, nil, message)
+		conn.Send(pb.PackageType_PT_MESSAGE, 0, message, nil)
 
 		element = element.Next()
 		if element == nil {

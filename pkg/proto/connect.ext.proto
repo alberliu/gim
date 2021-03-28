@@ -24,7 +24,7 @@ message Message {
     MessageStatus status = 9; // 消息状态
 }
 
-message Sender{
+message Sender {
     SenderType sender_type = 1; // 发送者类型，1:系统,2:用户,3:第三方业务系统
     int64 sender_id = 2; // 发送者id
     string avatar_url = 3; // 昵称
@@ -135,12 +135,9 @@ message SyncOutput {
 }
 
 // 订阅房间请求
-message SubscribeRoomInput{
+message SubscribeRoomInput {
     int64 room_id = 1; // 房间ID，如果为0，取消房间订阅
     int64 seq = 2; // 消息消息序列号，
-}
-// 订阅房间响应
-message SubscribeRoomOutput{
 }
 
 enum ReceiverType {

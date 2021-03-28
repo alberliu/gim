@@ -36,7 +36,7 @@ type Conn struct {
 // Write 写入数据
 func (c *Conn) Write(bytes []byte) error {
 	if c.CoonType == CoonTypeTCP {
-		return encoder.EncodeToFD(c.TCP.GetFd(), bytes)
+		return encoder.EncodeToWriter(c.TCP, bytes)
 	} else if c.CoonType == ConnTypeWS {
 		return c.WS.WriteMessage(websocket.BinaryMessage, bytes)
 	}
@@ -111,7 +111,7 @@ func (c *Conn) HandleMessage(bytes []byte) {
 }
 
 // Send 下发消息
-func (c *Conn) Send(pt pb.PackageType, requestId int64, err error, message proto.Message) {
+func (c *Conn) Send(pt pb.PackageType, requestId int64, message proto.Message, err error) {
 	var output = pb.Output{
 		Type:      pt,
 		RequestId: requestId,
@@ -163,7 +163,7 @@ func (c *Conn) SignIn(input pb.Input) {
 		ClientAddr: c.GetAddr(),
 	})
 
-	c.Send(pb.PackageType_PT_SIGN_IN, input.RequestId, err, nil)
+	c.Send(pb.PackageType_PT_SIGN_IN, input.RequestId, nil, err)
 	if err != nil {
 		return
 	}
@@ -192,7 +192,7 @@ func (c *Conn) Sync(input pb.Input) {
 	if err == nil {
 		message = &pb.SyncOutput{Messages: resp.Messages, HasMore: resp.HasMore}
 	}
-	c.Send(pb.PackageType_PT_SYNC, input.RequestId, err, message)
+	c.Send(pb.PackageType_PT_SYNC, input.RequestId, message, err)
 }
 
 // Heartbeat 心跳
@@ -229,5 +229,5 @@ func (c *Conn) SubscribedRoom(input pb.Input) {
 	}
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
-	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, &pb.SubscribeRoomOutput{})
+	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, nil)
 }
