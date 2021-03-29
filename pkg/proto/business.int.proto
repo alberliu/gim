@@ -4,26 +4,26 @@ package pb;
 import "business.ext.proto";
 
 service BusinessInt {
-    // 权限校验
-    rpc Auth (AuthReq) returns (AuthResp);
-    // 批量获取用户信息
-    rpc GetUser (GetUserReq) returns (GetUserResp);
-    // 批量获取用户信息
-    rpc GetUsers (GetUsersReq) returns (GetUsersResp);
+  // 权限校验
+  rpc Auth (AuthReq) returns (AuthResp);
+  // 批量获取用户信息
+  rpc GetUser (GetUserReq) returns (GetUserResp);
+  // 批量获取用户信息
+  rpc GetUsers (GetUsersReq) returns (GetUsersResp);
 }
 
 message AuthReq {
-    int64 user_id = 1;
-    int64 device_id = 2;
-    string token = 3;
+  int64 user_id = 1;
+  int64 device_id = 2;
+  string token = 3;
 }
 
 message AuthResp {
 }
 
 message GetUsersReq {
-    map<int64, int32> user_ids = 1; // 用户id
+  map<int64, int32> user_ids = 1; // 用户id
 }
 message GetUsersResp {
-    map<int64, User> users = 1; // 用户信息
+  map<int64, User> users = 1; // 用户信息
 }

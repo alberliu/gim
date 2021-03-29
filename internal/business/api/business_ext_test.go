@@ -13,7 +13,7 @@ import (
 )
 
 func getBusinessExtClient() pb.BusinessExtClient {
-	conn, err := grpc.Dial("127.0.0.1:50301", grpc.WithInsecure())
+	conn, err := grpc.Dial("111.229.238.28:50301", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -32,7 +32,7 @@ func getCtx() context.Context {
 
 func TestUserExtServer_SignIn(t *testing.T) {
 	resp, err := getBusinessExtClient().SignIn(getCtx(), &pb.SignInReq{
-		PhoneNumber: "18599866595",
+		PhoneNumber: "11111111111",
 		Code:        "1",
 		DeviceId:    1,
 	})

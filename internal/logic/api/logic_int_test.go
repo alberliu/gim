@@ -2,16 +2,21 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
+	"gim/pkg/util"
 	"testing"
+	"time"
+
+	"github.com/golang/protobuf/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 func getLogicIntClient() pb.LogicIntClient {
-	conn, err := grpc.Dial("localhost:50000", grpc.WithInsecure())
+	conn, err := grpc.Dial("111.229.238.28:50000", grpc.WithInsecure())
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil
@@ -76,4 +81,48 @@ func TestLogicIntServer_Offline(t *testing.T) {
 		return
 	}
 	logger.Sugar.Info(resp)
+}
+
+func TestLogicIntServer_PushRoom(t *testing.T) {
+	buf, err := proto.Marshal(&pb.Text{
+		Text: "hello alber ",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	resp, err := getLogicIntClient().PushRoom(getCtx(),
+		&pb.PushRoomReq{
+			RoomId:         1,
+			MessageType:    pb.MessageType_MT_TEXT,
+			MessageContent: buf,
+			SendTime:       util.UnixMilliTime(time.Now()),
+			IsPersist:      true,
+		})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%+v\n", resp)
+}
+
+func TestLogicIntServer_PushAll(t *testing.T) {
+	buf, err := proto.Marshal(&pb.Text{
+		Text: "hello alber ",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	resp, err := getLogicIntClient().PushAll(getCtx(),
+		&pb.PushAllReq{
+			MessageType:    pb.MessageType_MT_TEXT,
+			MessageContent: buf,
+			SendTime:       util.UnixMilliTime(time.Now()),
+		})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%+v\n", resp)
 }

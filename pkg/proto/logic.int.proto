@@ -4,96 +4,106 @@ import "logic.ext.proto";
 package pb;
 
 service LogicInt {
-    //  登录
-    rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
-    //  消息同步
-    rpc Sync (SyncReq) returns (SyncResp);
-    //  设备收到消息回执
-    rpc MessageACK (MessageACKReq) returns (MessageACKResp);
-    //  设备离线
-    rpc Offline (OfflineReq) returns (OfflineResp);
-    // 发送消息
-    rpc SendMessage (SendMessageReq) returns (SendMessageResp);
-    // 推送消息到房间
-    rpc PushRoom(PushRoomReq)returns(PushRoomResp);
-    // 全服推送
-    rpc PushAll(PushAllReq)returns(PushAllResp);
+  // 登录
+  rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
+  // 消息同步
+  rpc Sync (SyncReq) returns (SyncResp);
+  // 设备收到消息回执
+  rpc MessageACK (MessageACKReq) returns (MessageACKResp);
+  // 设备离线
+  rpc Offline (OfflineReq) returns (OfflineResp);
+  // 订阅房间
+  rpc SubscribeRoom(SubscribeRoomReq)returns(SubscribeRoomResp);
+  // 发送消息
+  rpc SendMessage (SendMessageReq) returns (SendMessageResp);
+  // 推送消息到房间
+  rpc PushRoom(PushRoomReq)returns(PushRoomResp);
+  // 全服推送
+  rpc PushAll(PushAllReq)returns(PushAllResp);
 
-    // 发送消息
-    rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
-    //  服务停止
-    rpc ServerStop (ServerStopReq) returns (ServerStopResp);
+  // 获取设备信息
+  rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
+  // 服务停止
+  rpc ServerStop (ServerStopReq) returns (ServerStopResp);
 }
 
 message ConnSignInReq {
-    int64 device_id = 1; // 设备id
-    int64 user_id = 2; // 用户id
-    string token = 3; // 秘钥
-    string conn_addr = 4; // 服务器地址
-    string client_addr = 5; // 客户端地址
+  int64 device_id = 1; // 设备id
+  int64 user_id = 2; // 用户id
+  string token = 3; // 秘钥
+  string conn_addr = 4; // 服务器地址
+  string client_addr = 5; // 客户端地址
 }
 message ConnSignInResp {
 }
 
 message SyncReq {
-    int64 user_id = 1; // 用户id
-    int64 device_id = 2; // 设备id
-    int64 seq = 3; // 客户端已经同步的序列号
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 seq = 3; // 客户端已经同步的序列号
 }
 message SyncResp {
-    repeated Message messages = 1; // 消息列表
-    bool has_more = 2; // 是否有更多数据
+  repeated Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
 }
 
 message MessageACKReq {
-    int64 user_id = 1; // 用户id
-    int64 device_id = 2; // 设备id
-    int64 device_ack = 3; // 设备收到消息的确认号
-    int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 device_ack = 3; // 设备收到消息的确认号
+  int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
 }
 message MessageACKResp {
-
 }
 
 message OfflineReq {
-    int64 user_id = 1; // 用户id
-    int64 device_id = 2; // 设备id
-    string client_addr = 3; // 客户端地址
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  string client_addr = 3; // 客户端地址
 }
 message OfflineResp {
+}
 
+message SubscribeRoomReq{
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 room_id = 3; // 房间id
+  int64 seq = 4; // 消息序列号
+  string conn_addr = 5; // 服务器地址
+}
+message SubscribeRoomResp{
 }
 
 message PushAllReq{
-    MessageType message_type = 1; // 消息类型
-    bytes message_content = 2; // 消息内容
-    int64 send_time = 3; // 消息发送时间戳，精确到毫秒
+  MessageType message_type = 1; // 消息类型
+  bytes message_content = 2; // 消息内容
+  int64 send_time = 3; // 消息发送时间戳，精确到毫秒
 }
 message PushAllResp{
 }
 
 message GetDeviceReq {
-    int64 device_id = 1;
+  int64 device_id = 1;
 }
 message GetDeviceResp {
-    Device device = 1;
+  Device device = 1;
 }
 
 message Device {
-    int64 device_id = 1; // 设备id
-    int64 user_id = 2; // 用户id
-    int32 Type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
-    string Brand = 4; // 手机厂商
-    string Model = 5; // 机型
-    string SystemVersion = 6; // 系统版本
-    string SDKVersion = 7; // SDK版本
-    int32 Status = 8; // 在线状态，0：不在线；1：在线
-    int64 CreateTime = 9; // 创建时间
-    int64 UpdateTime = 10; // 更新时间
+  int64 device_id = 1; // 设备id
+  int64 user_id = 2; // 用户id
+  int32 Type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
+  string Brand = 4; // 手机厂商
+  string Model = 5; // 机型
+  string SystemVersion = 6; // 系统版本
+  string SDKVersion = 7; // SDK版本
+  int32 Status = 8; // 在线状态，0：不在线；1：在线
+  int64 CreateTime = 9; // 创建时间
+  int64 UpdateTime = 10; // 更新时间
 }
 
 message ServerStopReq {
-    string conn_addr = 1;
+  string conn_addr = 1;
 }
 message ServerStopResp {
 }

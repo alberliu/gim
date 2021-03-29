@@ -32,6 +32,10 @@ func (*LogicIntServer) Offline(ctx context.Context, req *pb.OfflineReq) (*pb.Off
 	return &pb.OfflineResp{}, service.DeviceService.Offline(ctx, req.UserId, req.DeviceId, req.ClientAddr)
 }
 
+func (s *LogicIntServer) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) (*pb.SubscribeRoomResp, error) {
+	return &pb.SubscribeRoomResp{}, service.RoomService.SubscribeRoom(ctx, *req)
+}
+
 // SendMessage 发送消息
 func (*LogicIntServer) SendMessage(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
 	sender := model.Sender{

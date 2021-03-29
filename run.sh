@@ -22,6 +22,7 @@ go build -o connect main.go
 echo "打包connect成功"
 pkill connect
 echo "停止connect服务"
+sleep 2
 nohup ./connect &
 echo "启动connect服务"
 

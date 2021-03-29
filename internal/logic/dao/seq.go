@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	SeqObjectTypeUser  = 1 // 用户
-	SeqObjectTypeGroup = 2 // 群组
+	SeqObjectTypeUser = 1 // 用户
+	SeqObjectTypeRoom = 2 // 群组
 )
 
 type seqDao struct{}

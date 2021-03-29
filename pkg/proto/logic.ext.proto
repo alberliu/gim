@@ -68,6 +68,7 @@ message PushRoomReq{
     MessageType message_type = 2; // 消息类型
     bytes message_content = 3; // 消息内容
     int64 send_time = 4; // 消息发送时间戳，精确到毫秒
+    bool is_persist = 5; // 是否将消息持久化
 }
 message PushRoomResp{
 }

@@ -230,4 +230,11 @@ func (c *Conn) SubscribedRoom(input pb.Input) {
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, nil)
+	rpc.LogicIntClient.SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
+		UserId:   c.UserId,
+		DeviceId: c.DeviceId,
+		RoomId:   subscribeRoom.RoomId,
+		Seq:      subscribeRoom.Seq,
+		ConnAddr: config.Connect.LocalAddr,
+	})
 }
