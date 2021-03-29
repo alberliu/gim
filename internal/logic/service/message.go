@@ -95,7 +95,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 // Send 消息发送
 func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	// 如果发送者是用户，需要补充用户的信息
-	s.AddInfo(&sender)
+	s.AddSenderInfo(&sender)
 
 	switch req.ReceiverType {
 	// 消息接收者为用户
@@ -279,7 +279,7 @@ func (*messageService) SendToDevice(ctx context.Context, device model.Device, me
 	return nil
 }
 
-func (*messageService) AddInfo(sender *model.Sender) {
+func (*messageService) AddSenderInfo(sender *model.Sender) {
 	if sender.SenderType == pb.SenderType_ST_USER {
 		user, err := rpc.BusinessIntClient.GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
 		if err == nil && user != nil {

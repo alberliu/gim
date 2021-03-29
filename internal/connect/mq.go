@@ -14,7 +14,7 @@ import (
 )
 
 func StartSubscribe() {
-	channel := db.RedisCli.Subscribe(topic.PushRoomQueue, topic.PushAllQueue).Channel()
+	channel := db.RedisCli.Subscribe(topic.PushRoomTopic, topic.PushAllTopic).Channel()
 	for i := 0; i < config.Connect.SubscribeNum; i++ {
 		go handleMsg(channel)
 	}
@@ -22,10 +22,10 @@ func StartSubscribe() {
 
 func handleMsg(channel <-chan *redis.Message) {
 	for msg := range channel {
-		if msg.Channel == topic.PushRoomQueue {
+		if msg.Channel == topic.PushRoomTopic {
 			handlePushRoom([]byte(msg.Payload))
 		}
-		if msg.Channel == topic.PushRoomQueue {
+		if msg.Channel == topic.PushAllTopic {
 			handlePushAll([]byte(msg.Payload))
 		}
 	}

@@ -99,33 +99,6 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 	return nil
 }
 
-func (s *pushService) PushRoom(ctx context.Context, sender model.Sender, req *pb.PushRoomReq) error {
-	MessageService.AddInfo(&sender)
-
-	msg := pb.PushRoomMsg{
-		RoomId: req.RoomId,
-		MessageSend: &pb.MessageSend{
-			Message: &pb.Message{
-				Sender:         model.SenderToPB(sender),
-				ReceiverType:   pb.ReceiverType_RT_ROOM,
-				ReceiverId:     req.RoomId,
-				ToUserIds:      nil,
-				MessageType:    req.MessageType,
-				MessageContent: req.MessageContent,
-				Seq:            0,
-				SendTime:       util.UnixMilliTime(time.Now()),
-				Status:         0,
-			},
-		},
-	}
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		return gerrors.WrapError(err)
-	}
-	cache.Queue.Publish(topic.PushAllQueue, bytes)
-	return nil
-}
-
 func (s *pushService) PushAll(ctx context.Context, req *pb.PushAllReq) error {
 	msg := pb.PushAllMsg{
 		MessageSend: &pb.MessageSend{
@@ -145,6 +118,6 @@ func (s *pushService) PushAll(ctx context.Context, req *pb.PushAllReq) error {
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
-	cache.Queue.Publish(topic.PushAllQueue, bytes)
+	cache.Queue.Publish(topic.PushAllTopic, bytes)
 	return nil
 }

@@ -60,7 +60,7 @@ func (s *LogicExtServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb
 	if err != nil {
 		return nil, err
 	}
-	return &pb.PushRoomResp{}, service.PushService.PushRoom(ctx, model.Sender{
+	return &pb.PushRoomResp{}, service.RoomService.Push(ctx, model.Sender{
 		SenderType: pb.SenderType_ST_USER,
 		SenderId:   userId,
 		DeviceId:   deviceId,

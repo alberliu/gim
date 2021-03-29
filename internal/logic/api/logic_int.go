@@ -48,7 +48,7 @@ func (*LogicIntServer) SendMessage(ctx context.Context, req *pb.SendMessageReq) 
 
 // PushToRoom 推送房间
 func (s *LogicIntServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
-	return &pb.PushRoomResp{}, service.PushService.PushRoom(ctx, model.Sender{
+	return &pb.PushRoomResp{}, service.RoomService.Push(ctx, model.Sender{
 		SenderType: pb.SenderType_ST_BUSINESS,
 	}, req)
 }

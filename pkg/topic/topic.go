@@ -1,6 +1,6 @@
 package topic
 
 const (
-	PushRoomQueue = "push_room_queue" // 房间消息队列
-	PushAllQueue  = "push_all_queue"  // 全服消息队列
+	PushRoomTopic = "push_room_topic" // 房间消息队列
+	PushAllTopic  = "push_all_topic"  // 全服消息队列
 )
