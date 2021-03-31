@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"gim/pkg/db"
 	"testing"
 
 	jsoniter "github.com/json-iterator/go"
@@ -34,7 +33,6 @@ func TestJson(t *testing.T) {
 }
 
 func Test_messageService_Sync(t *testing.T) {
-	db.InitByTest()
 	resp, err := MessageService.Sync(context.TODO(), 6, 0)
 	fmt.Println(err)
 	fmt.Println(resp.HasMore)

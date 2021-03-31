@@ -5,6 +5,8 @@ import (
 	"gim/internal/logic/model"
 	"gim/pkg/util"
 	"testing"
+
+	_ "gim/pkg/db"
 )
 
 func TestGroupUserCache_Get(t *testing.T) {
@@ -18,7 +20,7 @@ func TestGroupUserCache_Set(t *testing.T) {
 		{
 			UserId:  1,
 			GroupId: 0,
-			Label:   "2",
+			Remarks: "2",
 			Extra:   "2",
 		},
 	}))
