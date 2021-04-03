@@ -3,7 +3,7 @@ im是一个即时通讯服务器，代码全部使用golang完成。主要功能
 1.支持tcp，websocket接入  
 2.离线消息同步    
 3.单用户多设备同时在线    
-4.单聊，群聊，以及超大群聊天场景  
+4.单聊，群聊，以及房间聊天场景  
 5.支持服务水平扩展  
 gim和im有什么区别？im可以作为一个im中台提供给业务方使用，而gim可以作为以业务服务器的一个组件，为业务服务器提供im的能力，业务服务器的user服务只需要实现user.int.proto协议中定义的GRPC接口，为im服务提供基本的用户功能即可，其实以我目前的认知，我更推荐这种方式，这种模式相比于im,我认为最大好处在于一下两点：  
 1.gim不需要考虑多个app的场景，相比im,业务复杂度降低了一个维度  
@@ -18,7 +18,7 @@ ORM框架：GORM
 1.首先安装MySQL，Redis  
 2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）  
 3.修改config下配置文件，使之和你本地配置一致  
-4.分别切换到cmd的tcp_conn,ws_conn,logic,user目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器,用户服务器  
+4.分别切换到cmd的connect,logic,business目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器,用户服务器  
 （注意：tcp_conn只能在linux下启动，如果想在其他平台下启动，请安装docker，执行run.sh）  
 ### 项目目录简介
 项目结构遵循 https://github.com/golang-standards/project-layout
@@ -31,20 +31,18 @@ sql:          项目sql文件
 test:         长连接测试脚本
 ```
 ### 服务简介
-1.tcp_conn  
-维持与客户端的TCP长连接，心跳，以及TCP拆包粘包，消息编解码  
-2.ws_conn  
-维持与客户端的WebSocket长连接，心跳，消息编解码  
-3.logic  
+1.connect  
+维持与客户端的TCP和WebSocket长连接，心跳，以及TCP拆包粘包，消息编解码   
+2.logic  
 设备信息，好友信息，群组信息管理，消息转发逻辑  
-4.business  
+3.business  
 一个简单的业务服务器服务，可以根据自己的业务需求，进行扩展,但是前提是，你的业务服务器实现了user.int.proto接口
 ### 客户端接入流程
 1.调用LogicExt.RegisterDevice接口，完成设备注册，获取设备ID（device_id）,注意，一个设备只需完成一次注册即可，后续如果本地有device_id,就不需要注册了，举个例子，如果是APP第一次安装，就需要调用这个接口，后面即便是换账号登录，也不需要重新注册。  
 2.调用UserExt.SignIn接口，完成账户登录，获取账户登录的token。  
 3.建立长连接，使用步骤2拿到的token，完成长连接登录。  
-如果是web端,需要调用建立WebSocket时,将user_id,device_id,token，以URL参数的形式传递到服务器，完成长连接登录，例如：ws://localhost:8081/ws?user_id={user_id}&device_id={device_id}&token={token}  
-如果是APP端，就需要建立TCP长连接，在完成建立TCP长连接时，第一个包应该是长连接登录包（SignInInput），如果信息无误，客户端就会成功建立长连接。  
+如果是web端,需要调用建立WebSocket时,如果是APP端，就需要建立TCP长连接。  
+在完成建立TCP长连接时，第一个包应该是长连接登录包（SignInInput），如果信息无误，客户端就会成功建立长连接。  
 4.使用长连接发送消息同步包（SyncInput），完成离线消息同步，注意：seq字段是客户端接收到消息的最大同步序列号，如果用户是换设备登录或者第一次登录，seq应该传0。  
 接下来，用户可以使用LogicExt.SendMessage接口来发送消息，消息接收方可以使用长连接接收到对应的消息。  
 ### 网络模型
@@ -65,10 +63,10 @@ TCP的网络层使用linux的epoll实现，相比golang原生，能减少gorouti
 **优点**：每个用户只需要维护一个序列号和消息列表  
 **缺点**：一个群组有多少人，就要插入多少条消息，当群组成员很多时，DB的压力会增大
 ### 消息转发逻辑选型以及特点
-#### 普通群组：
+#### 群组：
 采用写扩散，群组成员信息持久化到数据库保存。支持消息离线同步。  
-#### 超大群组：  
-采用读扩散，群组成员信息保存到redis,不支持离线消息同步。
+#### 房间：  
+采用读扩散，会将消息短暂的保存到Redis，长连接登录消息同步不会同步离线消息。
 ### 核心流程时序图
 #### 长连接登录
 ![eaf3a08af9c64bbd.png](http://www.wailian.work/images/2019/10/26/eaf3a08af9c64bbd.png)
@@ -79,11 +77,9 @@ TCP的网络层使用linux的epoll实现，相比golang原生，能减少gorouti
 #### 消息单发
 c1.d1和c1.d2分别表示c1用户的两个设备d1和d2,c2.d3和c2.d4同理
 ![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
-#### 小群消息群发
+#### 群组消息群发
 c1,c2.c3表示一个群组中的三个用户
 ![749fc468746055a8ecf3fba913b66885.png](http://s1.wailian.download/2019/12/26/749fc468746055a8ecf3fba913b66885.png)
-#### 大群消息群发
-![e3f92bdbb3eef199d185c28292307497.png](http://s1.wailian.download/2019/12/26/e3f92bdbb3eef199d185c28292307497.png)
 #### APP
 基于Flutter写了一个简单的客户端  
 GitHub地址：https://github.com/alberliu/fim  
