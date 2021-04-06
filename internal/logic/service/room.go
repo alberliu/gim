@@ -108,16 +108,20 @@ func (s *roomService) DelExpireMessage(roomId int64) error {
 
 // DelExpireMessage 删除过期消息
 func (s *roomService) SubscribeRoom(ctx context.Context, req pb.SubscribeRoomReq) error {
-	msgs, err := cache.RoomMessageCache.List(req.RoomId, req.Seq)
+	if req.Seq == 0 {
+		return nil
+	}
+
+	messages, err := cache.RoomMessageCache.List(req.RoomId, req.Seq)
 	if err != nil {
 		return err
 	}
 
-	for i := range msgs {
+	for i := range messages {
 		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, req.ConnAddr), &pb.DeliverMessageReq{
 			DeviceId: req.DeviceId,
 			MessageSend: &pb.MessageSend{
-				Message: msgs[i],
+				Message: messages[i],
 			},
 		})
 		if err != nil {
