@@ -14,7 +14,7 @@ func (*seqService) GetUserNext(ctx context.Context, userId int64) (int64, error)
 	return dao.SeqDao.Incr(dao.SeqObjectTypeUser, userId)
 }
 
-// GetGroupNext 获取下一个序列号
+// GetRoomNext 获取下一个序列号
 func (*seqService) GetRoomNext(ctx context.Context, roomId int64) (int64, error) {
 	return dao.SeqDao.Incr(dao.SeqObjectTypeRoom, roomId)
 }

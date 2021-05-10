@@ -20,6 +20,7 @@ type pushService struct{}
 
 var PushService = new(pushService)
 
+// PushToUser 向用户推送消息
 func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.PushCode, message proto.Message, isPersist bool) error {
 	logger.Logger.Debug("push_to_user",
 		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
@@ -60,6 +61,7 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 	return nil
 }
 
+// PushToGroup 向群组推送消息
 func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.PushCode, message proto.Message, isPersist bool) error {
 	logger.Logger.Debug("push_to_group",
 		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
@@ -99,6 +101,7 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 	return nil
 }
 
+// PushAll 全服推送
 func (s *pushService) PushAll(ctx context.Context, req *pb.PushAllReq) error {
 	msg := pb.PushAllMsg{
 		MessageSend: &pb.MessageSend{

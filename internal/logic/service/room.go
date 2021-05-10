@@ -106,7 +106,7 @@ func (s *roomService) DelExpireMessage(roomId int64) error {
 	return cache.RoomMessageCache.DelBySeq(roomId, min, max)
 }
 
-// DelExpireMessage 删除过期消息
+// SubscribeRoom 订阅房间
 func (s *roomService) SubscribeRoom(ctx context.Context, req pb.SubscribeRoomReq) error {
 	if req.Seq == 0 {
 		return nil

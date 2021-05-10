@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// 服务器端的单向调用的拦截器
+// LogicIntInterceptor 服务器端的单向调用的拦截器
 func LogicIntInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	defer gerrors.LogPanic("logic_int_interceptor", ctx, req, info, &err)
 
@@ -29,7 +29,7 @@ func LogicIntInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 	return resp, err
 }
 
-// 服务器端的单向调用的拦截器
+// LogicExtInterceptor 服务器端的单向调用的拦截器
 func LogicExtInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	defer gerrors.LogPanic("logic_ext_interceptor", ctx, req, info, &err)
 

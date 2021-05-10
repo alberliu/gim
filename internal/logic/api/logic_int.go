@@ -11,7 +11,7 @@ import (
 
 type LogicIntServer struct{}
 
-// SignIn 设备登录
+// ConnSignIn 设备登录
 func (*LogicIntServer) ConnSignIn(ctx context.Context, req *pb.ConnSignInReq) (*pb.ConnSignInResp, error) {
 	return &pb.ConnSignInResp{},
 		service.AuthService.SignIn(ctx, req.UserId, req.DeviceId, req.Token, req.ConnAddr, req.ClientAddr)
@@ -50,7 +50,7 @@ func (*LogicIntServer) SendMessage(ctx context.Context, req *pb.SendMessageReq) 
 	return &pb.SendMessageResp{Seq: seq}, nil
 }
 
-// PushToRoom 推送房间
+// PushRoom 推送房间
 func (s *LogicIntServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
 	return &pb.PushRoomResp{}, service.RoomService.Push(ctx, model.Sender{
 		SenderType: pb.SenderType_ST_BUSINESS,

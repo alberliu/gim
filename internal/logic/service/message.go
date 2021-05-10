@@ -113,7 +113,7 @@ func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.S
 	return 0, nil
 }
 
-// SendToUser 消息发送至用户
+// SendToFriend 消息发送至好友
 func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
 	// 发给发送者
 	seq, err := MessageService.SendToUser(ctx, sender, sender.SenderId, req)

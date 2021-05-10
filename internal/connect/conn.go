@@ -44,7 +44,7 @@ func (c *Conn) Write(bytes []byte) error {
 	return nil
 }
 
-// Write 写入数据
+// Close 关闭
 func (c *Conn) Close() error {
 	// 取消设备和连接的对应关系
 	if c.DeviceId != 0 {
