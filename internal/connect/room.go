@@ -8,7 +8,7 @@ import (
 
 var RoomsManager sync.Map
 
-// subscribedRoom 订阅房间
+// SubscribedRoom 订阅房间
 func SubscribedRoom(conn *Conn, roomId int64) {
 	if roomId == conn.RoomId {
 		return
@@ -67,7 +67,7 @@ func NewRoom(roomId int64) *Room {
 	}
 }
 
-// subscribe 订阅房间
+// Subscribe 订阅房间
 func (r *Room) Subscribe(conn *Conn) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -76,7 +76,7 @@ func (r *Room) Subscribe(conn *Conn) {
 	conn.RoomId = r.RoomId
 }
 
-// unsubscribe 取消订阅
+// Unsubscribe 取消订阅
 func (r *Room) Unsubscribe(conn *Conn) {
 	r.lock.Lock()
 	defer r.lock.Unlock()

@@ -18,7 +18,7 @@ import (
 
 type ConnIntServer struct{}
 
-// Message 投递消息
+// DeliverMessage 投递消息
 func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.DeliverMessageResp, error) {
 	resp := &pb.DeliverMessageResp{}
 

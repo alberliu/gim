@@ -13,7 +13,7 @@ type friendService struct{}
 
 var FriendService = new(friendService)
 
-// GetUsers 获取群组用户
+// List 获取好友列表
 func (s *friendService) List(ctx context.Context, userId int64) ([]*pb.Friend, error) {
 	friends, err := dao.FriendDao.List(userId, model.FriendStatusAgree)
 	if err != nil {
@@ -50,6 +50,7 @@ func (s *friendService) List(ctx context.Context, userId int64) ([]*pb.Friend, e
 	return infos, nil
 }
 
+// AddFriend 添加好友
 func (*friendService) AddFriend(ctx context.Context, userId, friendId int64, remarks, description string) error {
 	friend, err := dao.FriendDao.Get(userId, friendId)
 	if err != nil {
@@ -91,6 +92,7 @@ func (*friendService) AddFriend(ctx context.Context, userId, friendId int64, rem
 	return nil
 }
 
+// AgreeAddFriend 同意添加好友
 func (*friendService) AgreeAddFriend(ctx context.Context, userId, friendId int64, remarks string) error {
 	friend, err := dao.FriendDao.Get(friendId, userId)
 	if err != nil {
