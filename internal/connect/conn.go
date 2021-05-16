@@ -86,6 +86,7 @@ func (c *Conn) HandleMessage(bytes []byte) {
 		logger.Logger.Error("unmarshal error", zap.Error(err))
 		return
 	}
+	logger.Logger.Debug("HandleMessage", zap.Any("input", input))
 
 	// 对未登录的用户进行拦截
 	if input.Type != pb.PackageType_PT_SIGN_IN && c.UserId == 0 {
