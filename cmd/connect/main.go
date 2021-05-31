@@ -36,7 +36,6 @@ func main() {
 
 	// 启动WebSocket长链接服务器
 	go func() {
-		defer util.RecoverPanic()
 		connect.StartWSServer(config.Connect.WSListenAddr)
 	}()
 
