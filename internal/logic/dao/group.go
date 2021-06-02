@@ -26,7 +26,7 @@ func (*groupDao) Get(groupId int64) (*model.Group, error) {
 	return &group, nil
 }
 
-// Insert 插入一条群组
+// Add 插入一条群组
 func (*groupDao) Add(group model.Group) (int64, error) {
 	group.CreateTime = time.Now()
 	group.UpdateTime = time.Now()

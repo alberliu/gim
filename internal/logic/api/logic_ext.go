@@ -54,7 +54,7 @@ func (*LogicExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (
 	return &pb.SendMessageResp{Seq: seq}, nil
 }
 
-// PushToRoom  推送房间
+// PushRoom  推送房间
 func (s *LogicExtServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
 	userId, deviceId, err := grpclib.GetCtxData(ctx)
 	if err != nil {

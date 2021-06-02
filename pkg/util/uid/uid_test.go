@@ -15,14 +15,14 @@ func TestLid(t *testing.T) {
 		panic(err)
 	}
 
-	lid, err := NewLid(db, "test", 100)
+	lid, err := NewUid(db, "test", 100)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	i := 0
 	for i < 100 {
-		id := lid.Get()
+		id, _ := lid.Get()
 		fmt.Println(id)
 		i++
 	}
@@ -42,14 +42,14 @@ func getLid(index string) {
 		panic(err)
 	}
 
-	lid, err := NewLid(db, "test", 1000)
+	lid, err := NewUid(db, "test", 1000)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	i := 0
 	for i < 100 {
-		id := lid.Get()
+		id, _ := lid.Get()
 		fmt.Println(index, id)
 		i++
 	}
@@ -62,7 +62,7 @@ func BenchmarkLeafKey(b *testing.B) {
 		panic(err)
 	}
 
-	lid, err := NewLid(db, "test", 1000)
+	lid, err := NewUid(db, "test", 1000)
 	if err != nil {
 		fmt.Println(err)
 		return

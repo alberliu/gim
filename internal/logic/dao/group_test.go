@@ -15,7 +15,6 @@ func TestGroupDao_Add(t *testing.T) {
 	group := model.Group{
 		Name:         "1",
 		Introduction: "1",
-		Type:         1,
 		Extra:        "1",
 	}
 	fmt.Println(GroupDao.Add(group))

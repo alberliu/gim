@@ -26,7 +26,7 @@ func TestMessageDao_Add(t *testing.T) {
 }
 
 func TestMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
-	messages, hasMore, err := MessageDao.ListBySeq(1, 1, 0, 100)
+	messages, hasMore, err := MessageDao.ListBySeq(1, 0, 100)
 	fmt.Println(err)
 	fmt.Println(hasMore)
 	for i := range messages {

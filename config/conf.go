@@ -10,7 +10,7 @@ var (
 	Business BusinessConf
 )
 
-// logic配置
+// LogicConf logic配置
 type LogicConf struct {
 	MySQL            string
 	NSQIP            string
@@ -22,7 +22,7 @@ type LogicConf struct {
 	BusinessRPCAddrs string
 }
 
-// TCPConnConf配置
+// ConnectConf Connect配置
 type ConnectConf struct {
 	TCPListenAddr int
 	WSListenAddr  string
@@ -34,7 +34,7 @@ type ConnectConf struct {
 	SubscribeNum  int
 }
 
-// Business配置
+// BusinessConf Business配置
 type BusinessConf struct {
 	MySQL            string
 	NSQIP            string

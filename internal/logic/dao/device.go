@@ -13,7 +13,7 @@ type deviceDao struct{}
 
 var DeviceDao = new(deviceDao)
 
-// Insert 插入一条设备信息
+// Add 插入一条设备信息
 func (*deviceDao) Add(device model.Device) (int64, error) {
 	device.CreateTime = time.Now()
 	device.UpdateTime = time.Now()
@@ -37,7 +37,7 @@ func (*deviceDao) Get(deviceId int64) (*model.Device, error) {
 	return &device, nil
 }
 
-// ListUserOnline 查询用户所有的在线设备
+// ListOnlineByUserId 查询用户所有的在线设备
 func (*deviceDao) ListOnlineByUserId(userId int64) ([]model.Device, error) {
 	var devices []model.Device
 	err := db.DB.Find(&devices, "user_id = ? and status = ?", userId, model.DeviceOnLine).Error
@@ -47,7 +47,7 @@ func (*deviceDao) ListOnlineByUserId(userId int64) ([]model.Device, error) {
 	return devices, nil
 }
 
-// UpdateUserIdAndStatus 更新设备绑定用户和设备在线状态
+// Update 更新设备绑定用户和设备在线状态
 func (*deviceDao) Update(deviceId, userId int64, status int, connAddr string, clientAddr string) error {
 	err := db.DB.Exec("update device set user_id = ?,status = ?,conn_addr = ?,client_addr = ? where id = ? ",
 		userId, status, connAddr, clientAddr, deviceId).Error
@@ -76,7 +76,7 @@ func (*deviceDao) Upgrade(deviceId int64, systemVersion, sdkVersion string) erro
 	return nil
 }
 
-// ListUserOnline 查询用户所有的在线设备
+// ListOnlineByConnAddr 查询用户所有的在线设备
 func (*deviceDao) ListOnlineByConnAddr(connAddr string) ([]model.Device, error) {
 	var devices []model.Device
 	err := db.DB.Find(&devices, "conn_addr = ? and status = ?", connAddr, model.DeviceOnLine).Error
