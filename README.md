@@ -17,9 +17,9 @@ ORM框架：GORM
 ### 安装部署
 1.首先安装MySQL，Redis  
 2.创建数据库gim，执行sql/create_table.sql，完成初始化表的创建（数据库包含提供测试的一些初始数据）  
-3.修改config下配置文件，使之和你本地配置一致  
+3.修改config下配置文件，使之和你本地配置一致，如果没有配置gim_env环境变量，默认会加载config/local_conf.go配置    
 4.分别切换到cmd的connect,logic,business目录下，执行go run main.go,启动TCP连接层服务器,WebSocket连接层服务器,逻辑层服务器,用户服务器  
-（注意：connect只能在linux下启动，如果想在其他平台下启动，请安装docker，执行run.sh）  
+（注意：connect只能在linux下启动，如果想在其他平台下启动，请安装docker，执行cmd/connect/run.sh）  
 ### 项目目录简介
 项目结构遵循 https://github.com/golang-standards/project-layout
 ```
