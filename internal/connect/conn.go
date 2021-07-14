@@ -156,7 +156,7 @@ func (c *Conn) SignIn(input pb.Input) {
 		return
 	}
 
-	_, err = rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
+	_, err = rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
@@ -183,7 +183,7 @@ func (c *Conn) Sync(input pb.Input) {
 		return
 	}
 
-	resp, err := rpc.LogicIntClient.Sync(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.SyncReq{
+	resp, err := rpc.LogicIntClient.Sync(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.SyncReq{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		Seq:      sync.Seq,
@@ -212,7 +212,7 @@ func (c *Conn) MessageACK(input pb.Input) {
 		return
 	}
 
-	_, _ = rpc.LogicIntClient.MessageACK(grpclib.ContextWithRequstId(context.TODO(), input.RequestId), &pb.MessageACKReq{
+	_, _ = rpc.LogicIntClient.MessageACK(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.MessageACKReq{
 		UserId:      c.UserId,
 		DeviceId:    c.DeviceId,
 		DeviceAck:   messageACK.DeviceAck,
