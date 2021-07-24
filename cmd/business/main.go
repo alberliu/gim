@@ -24,7 +24,8 @@ func main() {
 	db.InitRedis(config.Business.RedisIP, config.Logic.RedisPassword)
 
 	// 初始化RpcClient
-	rpc.InitLogicIntClient(config.Business.LogicRPCAddrs)
+	rpc.InitLogicIntClient(config.RPCAddr.LogicRPCAddr)
+	rpc.InitBusinessIntClient(config.RPCAddr.BusinessRPCAddr)
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", urlwhitelist.Business)))
 

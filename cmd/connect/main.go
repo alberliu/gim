@@ -25,7 +25,7 @@ func main() {
 	db.InitRedis(config.Connect.RedisIP, config.Connect.RedisPassword)
 
 	// 初始化Rpc Client
-	rpc.InitLogicIntClient(config.Connect.LogicRPCAddrs)
+	rpc.InitLogicIntClient(config.RPCAddr.LogicRPCAddr)
 
 	// 启动TCP长链接服务器
 	go func() {

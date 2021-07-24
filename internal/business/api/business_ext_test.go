@@ -18,7 +18,7 @@ func init() {
 }
 
 func getBusinessExtClient() pb.BusinessExtClient {
-	conn, err := grpc.Dial("111.229.238.28:50301", grpc.WithInsecure())
+	conn, err := grpc.Dial("111.229.238.28:50200", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
