@@ -7,6 +7,7 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
+	"strings"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -36,26 +37,28 @@ func NewInterceptor(name string, urlWhitelist map[string]int) grpc.UnaryServerIn
 
 // handleWithAuth 处理鉴权逻辑
 func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, urlWhitelist map[string]int) (interface{}, error) {
-	if _, ok := urlWhitelist[info.FullMethod]; !ok {
-		userId, deviceId, err := grpclib.GetCtxData(ctx)
-		if err != nil {
-			return nil, err
-		}
-		token, err := grpclib.GetCtxToken(ctx)
-		if err != nil {
-			return nil, err
-		}
+	serverName := strings.Split(info.FullMethod, "/")[0]
+	if !strings.HasSuffix(serverName, "Int") {
+		if _, ok := urlWhitelist[info.FullMethod]; !ok {
+			userId, deviceId, err := grpclib.GetCtxData(ctx)
+			if err != nil {
+				return nil, err
+			}
+			token, err := grpclib.GetCtxToken(ctx)
+			if err != nil {
+				return nil, err
+			}
 
-		_, err = rpc.BusinessIntClient.Auth(ctx, &pb.AuthReq{
-			UserId:   userId,
-			DeviceId: deviceId,
-			Token:    token,
-		})
+			_, err = rpc.BusinessIntClient.Auth(ctx, &pb.AuthReq{
+				UserId:   userId,
+				DeviceId: deviceId,
+				Token:    token,
+			})
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
-
 	return handler(ctx, req)
 }
