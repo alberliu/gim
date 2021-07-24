@@ -193,7 +193,7 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 // SendToUser 将消息发送给用户
 func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, req pb.SendMessageReq) (int64, error) {
 	logger.Logger.Debug("SendToUser",
-		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
+		zap.Int64("request_id", grpclib.GetCtxRequestId(ctx)),
 		zap.Int64("to_user_id", toUserId))
 	var (
 		seq int64 = 0
@@ -208,7 +208,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 
 		selfMessage := model.Message{
 			UserId:       toUserId,
-			RequestId:    grpclib.GetCtxRequstId(ctx),
+			RequestId:    grpclib.GetCtxRequestId(ctx),
 			SenderType:   int32(sender.SenderType),
 			SenderId:     sender.SenderId,
 			ReceiverType: int32(req.ReceiverType),

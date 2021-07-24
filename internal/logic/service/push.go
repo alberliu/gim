@@ -23,7 +23,7 @@ var PushService = new(pushService)
 // PushToUser 向用户推送消息
 func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.PushCode, message proto.Message, isPersist bool) error {
 	logger.Logger.Debug("push_to_user",
-		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
+		zap.Int64("request_id", grpclib.GetCtxRequestId(ctx)),
 		zap.Int64("user_id", userId),
 		zap.Int32("code", int32(code)),
 		zap.Any("message", message))
@@ -64,7 +64,7 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 // PushToGroup 向群组推送消息
 func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.PushCode, message proto.Message, isPersist bool) error {
 	logger.Logger.Debug("push_to_group",
-		zap.Int64("request_id", grpclib.GetCtxRequstId(ctx)),
+		zap.Int64("request_id", grpclib.GetCtxRequestId(ctx)),
 		zap.Int64("group_id", groupId),
 		zap.Int32("code", int32(code)),
 		zap.Any("message", message))

@@ -27,6 +27,6 @@ func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessa
 		return resp, nil
 	}
 
-	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequstId(ctx), req.MessageSend, nil)
+	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequestId(ctx), req.MessageSend, nil)
 	return resp, nil
 }

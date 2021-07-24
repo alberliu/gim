@@ -20,8 +20,8 @@ func ContextWithRequstId(ctx context.Context, requestId int64) context.Context {
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestId, strconv.FormatInt(requestId, 10)))
 }
 
-// GetCtxAppId 获取ctx的app_id
-func GetCtxRequstId(ctx context.Context) int64 {
+// GetCtxRequestId 获取ctx的app_id
+func GetCtxRequestId(ctx context.Context) int64 {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return 0
