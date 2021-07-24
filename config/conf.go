@@ -16,8 +16,7 @@ type LogicConf struct {
 	NSQIP            string
 	RedisIP          string
 	RedisPassword    string
-	RPCIntListenAddr string
-	RPCExtListenAddr string
+	RPCListenAddr    string
 	ConnectRPCAddrs  string
 	BusinessRPCAddrs string
 }
@@ -36,13 +35,12 @@ type ConnectConf struct {
 
 // BusinessConf Business配置
 type BusinessConf struct {
-	MySQL            string
-	NSQIP            string
-	RedisIP          string
-	RedisPassword    string
-	RPCIntListenAddr string
-	RPCExtListenAddr string
-	LogicRPCAddrs    string
+	MySQL         string
+	NSQIP         string
+	RedisIP       string
+	RedisPassword string
+	RPCListenAddr string
+	LogicRPCAddrs string
 }
 
 func init() {
