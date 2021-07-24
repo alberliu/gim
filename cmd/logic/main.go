@@ -8,6 +8,7 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
+	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
 	"os/signal"
@@ -26,7 +27,7 @@ func main() {
 	rpc.InitConnectIntClient(config.Logic.ConnectRPCAddrs)
 	rpc.InitBusinessIntClient(config.Logic.BusinessRPCAddrs)
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_int_interceptor", nil)))
+	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_int_interceptor", urlwhitelist.Logic)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {

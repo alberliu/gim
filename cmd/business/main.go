@@ -8,6 +8,7 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
+	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
 	"os/signal"
@@ -17,10 +18,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-var whitelistMethed = map[string]int{
-	"/pb.BusinessExt/SignIn": 0,
-}
-
 func main() {
 	logger.Init()
 	db.InitMysql(config.Business.MySQL)
@@ -29,7 +26,7 @@ func main() {
 	// 初始化RpcClient
 	rpc.InitLogicIntClient(config.Business.LogicRPCAddrs)
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", whitelistMethed)))
+	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", urlwhitelist.Business)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
