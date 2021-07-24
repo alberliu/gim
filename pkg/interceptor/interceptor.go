@@ -37,7 +37,7 @@ func NewInterceptor(name string, urlWhitelist map[string]int) grpc.UnaryServerIn
 
 // handleWithAuth 处理鉴权逻辑
 func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, urlWhitelist map[string]int) (interface{}, error) {
-	serverName := strings.Split(info.FullMethod, "/")[0]
+	serverName := strings.Split(info.FullMethod, "/")[1]
 	if !strings.HasSuffix(serverName, "Int") {
 		if _, ok := urlWhitelist[info.FullMethod]; !ok {
 			userId, deviceId, err := grpclib.GetCtxData(ctx)
