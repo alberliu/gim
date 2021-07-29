@@ -8,6 +8,7 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
+	"sync"
 
 	"go.uber.org/zap"
 
@@ -26,6 +27,7 @@ const (
 type Conn struct {
 	CoonType int8            // 连接类型
 	TCP      *gn.Conn        // tcp连接
+	WSMutex  sync.Mutex      // WS写锁
 	WS       *websocket.Conn // websocket连接
 	UserId   int64           // 用户ID
 	DeviceId int64           // 设备ID
@@ -38,10 +40,17 @@ func (c *Conn) Write(bytes []byte) error {
 	if c.CoonType == CoonTypeTCP {
 		return encoder.EncodeToWriter(c.TCP, bytes)
 	} else if c.CoonType == ConnTypeWS {
-		return c.WS.WriteMessage(websocket.BinaryMessage, bytes)
+		return c.WriteToWS(bytes)
 	}
 	logger.Logger.Error("unknown conn type", zap.Any("conn", c))
 	return nil
+}
+
+func (c *Conn) WriteToWS(bytes []byte) error {
+	c.WSMutex.Lock()
+	defer c.WSMutex.Unlock()
+
+	return c.WS.WriteMessage(websocket.BinaryMessage, bytes)
 }
 
 // Close 关闭
