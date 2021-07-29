@@ -11,6 +11,9 @@ var DeviceAckService = new(deviceAckService)
 
 // Update 更新ack
 func (*deviceAckService) Update(ctx context.Context, userId, deviceId, ack int64) error {
+	if ack <= 0 {
+		return nil
+	}
 	return cache.DeviceACKCache.Set(userId, deviceId, ack)
 }
 
