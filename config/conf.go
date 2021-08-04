@@ -20,7 +20,7 @@ type RPCAddrConf struct {
 
 // ConnectConf Connect配置
 type ConnectConf struct {
-	TCPListenAddr int
+	TCPListenAddr string
 	WSListenAddr  string
 	RPCListenAddr string
 	LocalAddr     string

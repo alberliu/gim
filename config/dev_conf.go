@@ -14,7 +14,7 @@ func initDevConf() {
 	}
 
 	Connect = ConnectConf{
-		TCPListenAddr: 8080,
+		TCPListenAddr: ":8080",
 		WSListenAddr:  ":8081",
 		RPCListenAddr: ":50000",
 		LocalAddr:     "127.0.0.1:50000",
