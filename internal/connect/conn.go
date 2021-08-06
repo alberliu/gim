@@ -9,6 +9,7 @@ import (
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -50,6 +51,7 @@ func (c *Conn) WriteToWS(bytes []byte) error {
 	c.WSMutex.Lock()
 	defer c.WSMutex.Unlock()
 
+	c.WS.SetWriteDeadline(time.Now().Add(10 * time.Millisecond))
 	return c.WS.WriteMessage(websocket.BinaryMessage, bytes)
 }
 
