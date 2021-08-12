@@ -12,8 +12,8 @@ import (
 	"gim/pkg/rpc"
 	"gim/pkg/util"
 
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 const MessageLimit = 50 // 最大消息同步数量

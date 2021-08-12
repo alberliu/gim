@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 func StartSubscribe() {

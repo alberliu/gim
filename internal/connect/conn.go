@@ -13,8 +13,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/alberliu/gn"
 	"github.com/gorilla/websocket"
@@ -246,11 +246,14 @@ func (c *Conn) SubscribedRoom(input *pb.Input) {
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, nil)
-	rpc.LogicIntClient.SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
+	_, err = rpc.LogicIntClient.SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		RoomId:   subscribeRoom.RoomId,
 		Seq:      subscribeRoom.Seq,
 		ConnAddr: config.Connect.LocalAddr,
 	})
+	if err != nil {
+		logger.Logger.Error("SubscribedRoom error", zap.Error(err))
+	}
 }

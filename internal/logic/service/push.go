@@ -12,8 +12,8 @@ import (
 	"gim/pkg/util"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 type pushService struct{}

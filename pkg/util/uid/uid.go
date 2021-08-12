@@ -92,7 +92,7 @@ func (u *Uid) getFromDB() error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	row := tx.QueryRow("SELECT max_id,step FROM uid WHERE business_id = ? FOR UPDATE", u.businessId)
 	err = row.Scan(&maxId, &step)

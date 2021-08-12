@@ -8,8 +8,8 @@ import (
 	"time"
 
 	util2 "github.com/alberliu/gn/test/util"
-	"github.com/golang/protobuf/proto"
 	jsoniter "github.com/json-iterator/go"
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {

@@ -22,12 +22,12 @@ func Test_roomService_List(t *testing.T) {
 
 func Test_roomService_AddMessage(t *testing.T) {
 	for i := 1; i <= 20; i++ {
-		RoomService.AddMessage(1, &pb.Message{
+		err := RoomService.AddMessage(1, &pb.Message{
 			Seq:      int64(i),
 			SendTime: util.UnixMilliTime(time.Now()),
 		})
+		fmt.Println(i, err)
 		time.Sleep(time.Second)
-		fmt.Println(i)
 	}
 
 	err := RoomService.DelExpireMessage(1)

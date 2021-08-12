@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 const RoomMessageKey = "room_message:%d"

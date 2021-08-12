@@ -5,8 +5,8 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 
-	"github.com/golang/protobuf/proto"
 	jsoniter "github.com/json-iterator/go"
+	"google.golang.org/protobuf/proto"
 
 	"go.uber.org/zap"
 )

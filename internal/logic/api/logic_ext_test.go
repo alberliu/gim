@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
 )
 
 func getLogicExtClient() pb.LogicExtClient {
@@ -22,6 +22,8 @@ func getLogicExtClient() pb.LogicExtClient {
 	}
 	return pb.NewLogicExtClient(conn)
 }
+
+// deprecated:
 
 func getCtx() context.Context {
 	token := "0"

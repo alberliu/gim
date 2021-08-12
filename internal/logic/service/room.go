@@ -13,7 +13,7 @@ import (
 	"gim/pkg/util"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 type roomService struct{}
@@ -57,7 +57,10 @@ func (s *roomService) Push(ctx context.Context, sender model.Sender, req *pb.Pus
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
-	cache.Queue.Publish(topic.PushRoomTopic, bytes)
+	err = cache.Queue.Publish(topic.PushRoomTopic, bytes)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
