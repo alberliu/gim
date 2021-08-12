@@ -44,11 +44,11 @@ func main() {
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
-		c := make(chan os.Signal, 0)
+		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
 		logger.Logger.Info("server stop start", zap.Any("signal", s))
-		rpc.LogicIntClient.ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Connect.LocalAddr})
+		_, _ = rpc.LogicIntClient.ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Connect.LocalAddr})
 		logger.Logger.Info("server stop end")
 
 		server.GracefulStop()

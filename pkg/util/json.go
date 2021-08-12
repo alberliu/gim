@@ -54,6 +54,10 @@ func FormatMessage(messageType pb.MessageType, messageContent []byte) string {
 		msg = &pb.Text{}
 		err = proto.Unmarshal(messageContent, msg)
 	}
+	if err != nil {
+		logger.Sugar.Error(err)
+		return ""
+	}
 
 	bytes, err := jsoniter.Marshal(msg)
 	if err != nil {

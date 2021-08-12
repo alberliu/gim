@@ -33,7 +33,7 @@ func (*LogicIntServer) Offline(ctx context.Context, req *pb.OfflineReq) (*pb.Off
 }
 
 func (s *LogicIntServer) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) (*pb.SubscribeRoomResp, error) {
-	return &pb.SubscribeRoomResp{}, service.RoomService.SubscribeRoom(ctx, *req)
+	return &pb.SubscribeRoomResp{}, service.RoomService.SubscribeRoom(ctx, req)
 }
 
 // SendMessage 发送消息
@@ -43,7 +43,7 @@ func (*LogicIntServer) SendMessage(ctx context.Context, req *pb.SendMessageReq) 
 		SenderId:   0,
 		DeviceId:   0,
 	}
-	seq, err := service.MessageService.Send(ctx, sender, *req)
+	seq, err := service.MessageService.Send(ctx, sender, req)
 	if err != nil {
 		return nil, err
 	}

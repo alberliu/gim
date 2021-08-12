@@ -41,7 +41,7 @@ func (s *roomService) Push(ctx context.Context, sender model.Sender, req *pb.Pus
 	}
 
 	if req.IsPersist {
-		err = s.AddMessage(req.RoomId, *msg)
+		err = s.AddMessage(req.RoomId, msg)
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func (s *roomService) Push(ctx context.Context, sender model.Sender, req *pb.Pus
 	return nil
 }
 
-func (s *roomService) AddMessage(roomId int64, msg pb.Message) error {
+func (s *roomService) AddMessage(roomId int64, msg *pb.Message) error {
 	err := cache.RoomMessageCache.Add(roomId, msg)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (s *roomService) DelExpireMessage(roomId int64) error {
 }
 
 // SubscribeRoom 订阅房间
-func (s *roomService) SubscribeRoom(ctx context.Context, req pb.SubscribeRoomReq) error {
+func (s *roomService) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) error {
 	if req.Seq == 0 {
 		return nil
 	}

@@ -22,9 +22,9 @@ type roomMessageCache struct{}
 var RoomMessageCache = new(roomMessageCache)
 
 // Add 将消息添加到队列
-func (*roomMessageCache) Add(roomId int64, msg pb.Message) error {
+func (*roomMessageCache) Add(roomId int64, msg *pb.Message) error {
 	key := fmt.Sprintf(RoomMessageKey, roomId)
-	buf, err := proto.Marshal(&msg)
+	buf, err := proto.Marshal(msg)
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
@@ -55,7 +55,10 @@ func (*roomMessageCache) List(roomId int64, seq int64) ([]*pb.Message, error) {
 	for i := range result {
 		buf := util.Str2bytes(result[i])
 		var msg pb.Message
-		proto.Unmarshal(buf, &msg)
+		err = proto.Unmarshal(buf, &msg)
+		if err != nil {
+			return nil, gerrors.WrapError(err)
+		}
 		msgs = append(msgs, &msg)
 	}
 	return msgs, nil
@@ -72,7 +75,10 @@ func (*roomMessageCache) ListByIndex(roomId int64, start, stop int64) ([]*pb.Mes
 	for i := range result {
 		buf := util.Str2bytes(result[i])
 		var msg pb.Message
-		proto.Unmarshal(buf, &msg)
+		err = proto.Unmarshal(buf, &msg)
+		if err != nil {
+			return nil, gerrors.WrapError(err)
+		}
 		msgs = append(msgs, &msg)
 	}
 	return msgs, nil

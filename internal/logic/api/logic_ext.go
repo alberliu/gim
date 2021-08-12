@@ -47,7 +47,7 @@ func (*LogicExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (
 		SenderId:   userId,
 		DeviceId:   deviceId,
 	}
-	seq, err := service.MessageService.Send(ctx, sender, *in)
+	seq, err := service.MessageService.Send(ctx, sender, in)
 	if err != nil {
 		return nil, err
 	}

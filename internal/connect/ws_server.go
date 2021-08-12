@@ -1,7 +1,6 @@
 package connect
 
 import (
-	"fmt"
 	"gim/pkg/logger"
 	"gim/pkg/util"
 	"io"
@@ -42,9 +41,12 @@ func DoConn(conn *Conn) {
 
 	for {
 		err := conn.WS.SetReadDeadline(time.Now().Add(12 * time.Minute))
+		if err != nil {
+			HandleReadErr(conn, err)
+			return
+		}
 		_, data, err := conn.WS.ReadMessage()
 		if err != nil {
-			fmt.Println(err)
 			HandleReadErr(conn, err)
 			return
 		}

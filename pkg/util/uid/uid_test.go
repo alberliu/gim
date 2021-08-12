@@ -69,6 +69,6 @@ func BenchmarkLeafKey(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		lid.Get()
+		_, _ = lid.Get()
 	}
 }

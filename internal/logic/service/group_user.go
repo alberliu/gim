@@ -173,8 +173,6 @@ func (*groupUserService) UpdateUser(ctx context.Context, user model.GroupUser) e
 		return err
 	}
 	return nil
-
-	return nil
 }
 
 // DeleteUser 删除用户群组

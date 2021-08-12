@@ -50,11 +50,11 @@ func (u *Uid) Get() (int64, error) {
 
 // productId 生产id，当ch达到最大容量时，这个方法会阻塞，直到ch中的id被消费
 func (u *Uid) productId() {
-	u.reLoad()
+	_ = u.reLoad()
 
 	for {
 		if u.min >= u.max {
-			u.reLoad()
+			_ = u.reLoad()
 		}
 
 		u.min++

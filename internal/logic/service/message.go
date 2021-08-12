@@ -93,7 +93,7 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 }
 
 // Send 消息发送
-func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+func (s *messageService) Send(ctx context.Context, sender model.Sender, req *pb.SendMessageReq) (int64, error) {
 	// 如果发送者是用户，需要补充用户的信息
 	s.AddSenderInfo(&sender)
 
@@ -114,7 +114,7 @@ func (s *messageService) Send(ctx context.Context, sender model.Sender, req pb.S
 }
 
 // SendToFriend 消息发送至好友
-func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, req *pb.SendMessageReq) (int64, error) {
 	// 发给发送者
 	seq, err := MessageService.SendToUser(ctx, sender, sender.SenderId, req)
 	if err != nil {
@@ -137,7 +137,7 @@ func (*messageService) SendToFriend(ctx context.Context, sender model.Sender, re
 }
 
 // SendToGroup 消息发送至群组（使用写扩散）
-func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req pb.SendMessageReq) (int64, error) {
+func (*messageService) SendToGroup(ctx context.Context, sender model.Sender, req *pb.SendMessageReq) (int64, error) {
 	users, err := GroupUserService.GetUsers(ctx, req.ReceiverId)
 	if err != nil {
 		return 0, err
@@ -191,7 +191,7 @@ func IsInGroup(users []model.GroupUser, userId int64) bool {
 }
 
 // SendToUser 将消息发送给用户
-func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, req pb.SendMessageReq) (int64, error) {
+func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUserId int64, req *pb.SendMessageReq) (int64, error) {
 	logger.Logger.Debug("SendToUser",
 		zap.Int64("request_id", grpclib.GetCtxRequestId(ctx)),
 		zap.Int64("to_user_id", toUserId))
@@ -252,7 +252,7 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 			continue
 		}
 
-		err = MessageService.SendToDevice(ctx, devices[i], message)
+		err = MessageService.SendToDevice(ctx, devices[i], &message)
 		if err != nil {
 			logger.Sugar.Error(err, zap.Any("SendToUser error", devices[i]), zap.Error(err))
 		}
@@ -262,9 +262,9 @@ func (*messageService) SendToUser(ctx context.Context, sender model.Sender, toUs
 }
 
 // SendToDevice 将消息发送给设备
-func (*messageService) SendToDevice(ctx context.Context, device model.Device, message pb.Message) error {
+func (*messageService) SendToDevice(ctx context.Context, device model.Device, message *pb.Message) error {
 	if device.Status == model.DeviceOnLine {
-		messageSend := pb.MessageSend{Message: &message}
+		messageSend := pb.MessageSend{Message: message}
 		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
 			DeviceId:    device.Id,
 			MessageSend: &messageSend,

@@ -45,7 +45,7 @@ func (s *pushService) PushToUser(ctx context.Context, userId int64, code pb.Push
 			DeviceId:   0,
 		},
 		userId,
-		pb.SendMessageReq{
+		&pb.SendMessageReq{
 			ReceiverType:   pb.ReceiverType_RT_USER,
 			ReceiverId:     userId,
 			ToUserIds:      nil,
@@ -85,7 +85,7 @@ func (s *pushService) PushToGroup(ctx context.Context, groupId int64, code pb.Pu
 			SenderId:   0,
 			DeviceId:   0,
 		},
-		pb.SendMessageReq{
+		&pb.SendMessageReq{
 			ReceiverType:   pb.ReceiverType_RT_GROUP,
 			ReceiverId:     groupId,
 			ToUserIds:      nil,
@@ -121,6 +121,9 @@ func (s *pushService) PushAll(ctx context.Context, req *pb.PushAllReq) error {
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
-	cache.Queue.Publish(topic.PushAllTopic, bytes)
+	err = cache.Queue.Publish(topic.PushAllTopic, bytes)
+	if err != nil {
+		return err
+	}
 	return nil
 }

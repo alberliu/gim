@@ -16,7 +16,7 @@ const (
 	CtxRequestId = "request_id"
 )
 
-func ContextWithRequstId(ctx context.Context, requestId int64) context.Context {
+func ContextWithRequestId(ctx context.Context, requestId int64) context.Context {
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestId, strconv.FormatInt(requestId, 10)))
 }
 
@@ -27,15 +27,15 @@ func GetCtxRequestId(ctx context.Context) int64 {
 		return 0
 	}
 
-	requstIds, ok := md[CtxRequestId]
-	if !ok && len(requstIds) == 0 {
+	requestIds, ok := md[CtxRequestId]
+	if !ok && len(requestIds) == 0 {
 		return 0
 	}
-	requstId, err := strconv.ParseInt(requstIds[0], 10, 64)
+	requestId, err := strconv.ParseInt(requestIds[0], 10, 64)
 	if err != nil {
 		return 0
 	}
-	return requstId
+	return requestId
 }
 
 // GetCtxData 获取ctx的用户数据，依次返回user_id,device_id
@@ -115,9 +115,9 @@ func NewAndCopyRequestId(ctx context.Context) context.Context {
 		return newCtx
 	}
 
-	requstIds, ok := md[CtxRequestId]
-	if !ok && len(requstIds) == 0 {
+	requestIds, ok := md[CtxRequestId]
+	if !ok && len(requestIds) == 0 {
 		return newCtx
 	}
-	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestId, requstIds[0]))
+	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestId, requestIds[0]))
 }

@@ -22,7 +22,7 @@ func Test_roomService_List(t *testing.T) {
 
 func Test_roomService_AddMessage(t *testing.T) {
 	for i := 1; i <= 20; i++ {
-		RoomService.AddMessage(1, pb.Message{
+		RoomService.AddMessage(1, &pb.Message{
 			Seq:      int64(i),
 			SendTime: util.UnixMilliTime(time.Now()),
 		})

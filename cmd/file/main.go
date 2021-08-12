@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -50,5 +52,8 @@ func main() {
 			Data:    map[string]string{"url": baseUrl + name},
 		})
 	})
-	router.Run(":8085")
+	err := router.Run(":8085")
+	if err != nil {
+		logger.Logger.Error("Run error", zap.Error(err))
+	}
 }

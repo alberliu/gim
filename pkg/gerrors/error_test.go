@@ -13,6 +13,7 @@ func TestError(t *testing.T) {
 	fmt.Println(ok)
 	fmt.Printf("%+v", *s)
 	fmt.Println(s.Code())
+	fmt.Println(a())
 }
 
 func a() error {

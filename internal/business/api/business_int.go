@@ -30,7 +30,7 @@ func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.
 
 func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
 	var userIds = make([]int64, 0, len(req.UserIds))
-	for k, _ := range req.UserIds {
+	for k := range req.UserIds {
 		userIds = append(userIds, k)
 	}
 

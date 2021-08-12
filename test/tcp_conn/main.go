@@ -142,7 +142,7 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 
 	switch output.Type {
 	case pb.PackageType_PT_SIGN_IN:
-		log.Println(Json(output))
+		log.Println(Json(&output))
 	case pb.PackageType_PT_HEARTBEAT:
 		log.Println("心跳响应")
 	case pb.PackageType_PT_SYNC:

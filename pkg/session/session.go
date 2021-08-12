@@ -55,7 +55,7 @@ func (s *Session) Begin() error {
 
 // Rollback 回滚事务
 func (s *Session) Rollback() error {
-	if s.tx != nil && s.rollbackSign == true {
+	if s.tx != nil && s.rollbackSign {
 		err := s.tx.Rollback()
 		if err != nil {
 			return err
