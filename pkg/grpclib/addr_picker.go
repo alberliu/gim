@@ -14,7 +14,7 @@ import (
 // 实现指定地址调用的RPC调用
 const Name = "addr"
 
-const addrKey = "addr"
+type addrKey struct{}
 
 var ErrNoSubConnSelect = errors.New("no sub conn select")
 
@@ -23,7 +23,7 @@ func init() {
 }
 
 func ContextWithAddr(ctx context.Context, addr string) context.Context {
-	return context.WithValue(ctx, addrKey, addr)
+	return context.WithValue(ctx, addrKey{}, addr)
 }
 
 type addrPickerBuilder struct{}
@@ -53,7 +53,7 @@ type addrPicker struct {
 func (p *addrPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	pr := balancer.PickResult{}
 
-	address := info.Ctx.Value(addrKey).(string)
+	address := info.Ctx.Value(addrKey{}).(string)
 	sc, ok := p.subConnes[address]
 	if !ok {
 		logger.Logger.Error("Pick error", zap.String("address", address), zap.Any("subConnes", p.subConnes))

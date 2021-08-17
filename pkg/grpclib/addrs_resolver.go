@@ -58,7 +58,6 @@ func getAddrs(ips []string) []resolver.Address {
 	addresses := make([]resolver.Address, len(ips))
 	for i := range ips {
 		addresses[i].Addr = ips[i]
-		addresses[i].Type = resolver.Backend
 	}
 	return addresses
 }
