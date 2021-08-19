@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// StartSubscribe 启动MQ消息处理逻辑
 func StartSubscribe() {
 	channel := db.RedisCli.Subscribe(topic.PushRoomTopic, topic.PushAllTopic).Channel()
 	for i := 0; i < config.Connect.SubscribeNum; i++ {

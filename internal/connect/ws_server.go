@@ -21,6 +21,16 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// StartWSServer 启动WebSocket服务器
+func StartWSServer(address string) {
+	http.HandleFunc("/ws", wsHandler)
+	logger.Logger.Info("websocket server start")
+	err := http.ListenAndServe(address, nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -73,14 +83,5 @@ func HandleReadErr(conn *Conn, err error) {
 	// SetReadDeadline 之后，超时返回的错误
 	if strings.HasSuffix(str, "i/o timeout") {
 		return
-	}
-}
-
-func StartWSServer(address string) {
-	http.HandleFunc("/ws", wsHandler)
-	logger.Logger.Info("websocket server start")
-	err := http.ListenAndServe(address, nil)
-	if err != nil {
-		panic(err)
 	}
 }

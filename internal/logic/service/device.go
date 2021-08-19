@@ -29,6 +29,7 @@ func (*deviceService) Register(ctx context.Context, device model.Device) (int64,
 	return id, nil
 }
 
+// Get 获取设备信息
 func (*deviceService) Get(ctx context.Context, deviceId int64) (*model.Device, error) {
 	device, err := cache.DeviceCache.Get(deviceId)
 	if err != nil {

@@ -26,6 +26,7 @@ func DeleteConn(deviceId int64) {
 	ConnsManager.Delete(deviceId)
 }
 
+// PushAll 全服推送
 func PushAll(message *pb.MessageSend) {
 	ConnsManager.Range(func(key, value interface{}) bool {
 		conn := value.(*Conn)

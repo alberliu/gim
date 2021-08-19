@@ -17,6 +17,7 @@ var encoder = gn.NewHeaderLenEncoder(2, 1024)
 
 var server *gn.Server
 
+// StartTCPServer 启动TCP服务器
 func StartTCPServer() {
 	gn.SetLogger(logger.Sugar)
 

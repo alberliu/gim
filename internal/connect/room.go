@@ -45,6 +45,7 @@ func SubscribedRoom(conn *Conn, roomId int64) {
 	}
 }
 
+// PushRoom 房间消息推送
 func PushRoom(roomId int64, message *pb.MessageSend) {
 	value, ok := RoomsManager.Load(roomId)
 	if !ok {

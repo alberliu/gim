@@ -47,6 +47,7 @@ func (c *Conn) Write(bytes []byte) error {
 	return nil
 }
 
+// WriteToWS 消息写入WebSocket
 func (c *Conn) WriteToWS(bytes []byte) error {
 	c.WSMutex.Lock()
 	defer c.WSMutex.Unlock()
@@ -95,6 +96,7 @@ func (c *Conn) GetAddr() string {
 	return ""
 }
 
+// HandleMessage 消息处理
 func (c *Conn) HandleMessage(bytes []byte) {
 	var input = new(pb.Input)
 	err := proto.Unmarshal(bytes, input)

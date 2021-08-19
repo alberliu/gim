@@ -35,12 +35,12 @@ func (*userService) Get(ctx context.Context, userId int64) (*model.User, error) 
 	return user, err
 }
 
-// Get 获取用户信息
+// GetByIds 获取用户信息
 func (*userService) GetByIds(ctx context.Context, userIds []int64) ([]model.User, error) {
 	return dao.UserDao.GetByIds(userIds)
 }
 
-// Get 获取用户信息
+// Update 获取用户信息
 func (*userService) Update(ctx context.Context, user model.User) error {
 	err := dao.UserDao.Update(user)
 	if err != nil {
