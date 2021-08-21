@@ -6,6 +6,7 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/topic"
+	"time"
 
 	"github.com/go-redis/redis"
 
@@ -37,6 +38,7 @@ func handlePushRoomMsg(priorityChannel, channel <-chan *redis.Message) {
 			case msg := <-channel:
 				handlePushRoom([]byte(msg.Payload))
 			default:
+				time.Sleep(100 * time.Millisecond)
 				continue
 			}
 		}
