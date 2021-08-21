@@ -36,6 +36,8 @@ func handlePushRoomMsg(priorityChannel, channel <-chan *redis.Message) {
 			select {
 			case msg := <-priorityChannel:
 				handlePushRoom([]byte(msg.Payload))
+			default:
+				continue
 			}
 		}
 	}
