@@ -20,13 +20,14 @@ type RPCAddrConf struct {
 
 // ConnectConf Connect配置
 type ConnectConf struct {
-	TCPListenAddr string
-	WSListenAddr  string
-	RPCListenAddr string
-	LocalAddr     string
-	RedisIP       string
-	RedisPassword string
-	SubscribeNum  int
+	TCPListenAddr        string
+	WSListenAddr         string
+	RPCListenAddr        string
+	LocalAddr            string
+	RedisIP              string
+	RedisPassword        string
+	PushRoomSubscribeNum int
+	PushAllSubscribeNum  int
 }
 
 // LogicConf logic配置

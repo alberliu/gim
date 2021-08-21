@@ -14,13 +14,14 @@ func initProdConf() {
 	}
 
 	Connect = ConnectConf{
-		TCPListenAddr: ":8080",
-		WSListenAddr:  ":8081",
-		RPCListenAddr: ":50000",
-		LocalAddr:     "127.0.0.1:50000",
-		RedisIP:       "111.229.238.28:6379",
-		RedisPassword: "alber123456",
-		SubscribeNum:  100,
+		TCPListenAddr:        ":8080",
+		WSListenAddr:         ":8081",
+		RPCListenAddr:        ":50000",
+		LocalAddr:            "127.0.0.1:50000",
+		RedisIP:              "111.229.238.28:6379",
+		RedisPassword:        "alber123456",
+		PushRoomSubscribeNum: 100,
+		PushAllSubscribeNum:  100,
 	}
 
 	Logic = LogicConf{

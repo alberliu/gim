@@ -57,7 +57,11 @@ func (s *roomService) Push(ctx context.Context, sender model.Sender, req *pb.Pus
 	if err != nil {
 		return gerrors.WrapError(err)
 	}
-	err = cache.Queue.Publish(topic.PushRoomTopic, bytes)
+	var topicName = topic.PushRoomTopic
+	if req.IsPriority {
+		topicName = topic.PushRoomPriorityTopic
+	}
+	err = cache.Queue.Publish(topicName, bytes)
 	if err != nil {
 		return err
 	}

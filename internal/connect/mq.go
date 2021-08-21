@@ -15,20 +15,35 @@ import (
 
 // StartSubscribe 启动MQ消息处理逻辑
 func StartSubscribe() {
-	channel := db.RedisCli.Subscribe(topic.PushRoomTopic, topic.PushAllTopic).Channel()
-	for i := 0; i < config.Connect.SubscribeNum; i++ {
-		go handleMsg(channel)
+	pushRoomPriorityChannel := db.RedisCli.Subscribe(topic.PushRoomPriorityTopic).Channel()
+	pushRoomChannel := db.RedisCli.Subscribe(topic.PushRoomTopic).Channel()
+	for i := 0; i < config.Connect.PushRoomSubscribeNum; i++ {
+		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
+	}
+
+	pushAllChannel := db.RedisCli.Subscribe(topic.PushAllTopic).Channel()
+	for i := 0; i < config.Connect.PushAllSubscribeNum; i++ {
+		go handlePushAllMsg(pushAllChannel)
 	}
 }
 
-func handleMsg(channel <-chan *redis.Message) {
-	for msg := range channel {
-		if msg.Channel == topic.PushRoomTopic {
+func handlePushRoomMsg(priorityChannel, channel <-chan *redis.Message) {
+	for {
+		select {
+		case msg := <-priorityChannel:
 			handlePushRoom([]byte(msg.Payload))
+		default:
+			select {
+			case msg := <-priorityChannel:
+				handlePushRoom([]byte(msg.Payload))
+			}
 		}
-		if msg.Channel == topic.PushAllTopic {
-			handlePushAll([]byte(msg.Payload))
-		}
+	}
+}
+
+func handlePushAllMsg(channel <-chan *redis.Message) {
+	for msg := range channel {
+		handlePushAll([]byte(msg.Payload))
 	}
 }
 

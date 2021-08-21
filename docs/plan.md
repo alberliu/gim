@@ -1,2 +1,2 @@
-打包命令
-protoc --go_out=plugins=grpc:../pb/ *.proto
+pb编译命令
+protoc --go_out=plugins=grpc:../../../ *.proto

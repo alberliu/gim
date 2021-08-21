@@ -1,12 +1,13 @@
 syntax = "proto3";
+package pb;
+option go_package = "gim/pkg/pb/";
+
 import "connect.ext.proto";
 
 service ConnectInt {
   //  消息投递
   rpc DeliverMessage (DeliverMessageReq) returns (DeliverMessageResp);
 }
-
-package pb;
 
 message DeliverMessageReq {
   int64 device_id = 1; // 设备id
