@@ -15,7 +15,7 @@ const (
 )
 
 var (
-	Leavel = zap.DebugLevel
+	Level  = zap.DebugLevel
 	Target = Console
 )
 
@@ -64,7 +64,7 @@ func Init() {
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(NewEncoderConfig()),
 		writeSyncer,
-		Leavel,
+		Level,
 	)
 	Logger = zap.New(core, zap.AddCaller())
 	Sugar = Logger.Sugar()
