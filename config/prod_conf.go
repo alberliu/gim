@@ -40,6 +40,6 @@ func initProdConf() {
 		RPCListenAddr: ":50200",
 	}
 
-	logger.Leavel = zap.DebugLevel
+	logger.Level = zap.DebugLevel
 	logger.Target = logger.Console
 }
