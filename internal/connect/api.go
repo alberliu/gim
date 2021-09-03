@@ -12,8 +12,8 @@ import (
 type ConnIntServer struct{}
 
 // DeliverMessage 投递消息
-func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.DeliverMessageResp, error) {
-	resp := &pb.DeliverMessageResp{}
+func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.Empty, error) {
+	resp := &pb.Empty{}
 
 	// 获取设备对应的TCP连接
 	conn := GetConn(req.DeviceId)

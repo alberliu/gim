@@ -37,12 +37,12 @@ func (s *BusinessExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*p
 	}, nil
 }
 
-func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.UpdateUserResp, error) {
+func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.Empty, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.UpdateUserResp{}, service.UserService.Update(ctx, model.User{
+	return &pb.Empty{}, service.UserService.Update(ctx, model.User{
 		Id:        userId,
 		Nickname:  req.Nickname,
 		Sex:       req.Sex,

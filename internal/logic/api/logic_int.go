@@ -12,8 +12,8 @@ import (
 type LogicIntServer struct{}
 
 // ConnSignIn 设备登录
-func (*LogicIntServer) ConnSignIn(ctx context.Context, req *pb.ConnSignInReq) (*pb.ConnSignInResp, error) {
-	return &pb.ConnSignInResp{},
+func (*LogicIntServer) ConnSignIn(ctx context.Context, req *pb.ConnSignInReq) (*pb.Empty, error) {
+	return &pb.Empty{},
 		service.AuthService.SignIn(ctx, req.UserId, req.DeviceId, req.Token, req.ConnAddr, req.ClientAddr)
 }
 
@@ -23,17 +23,17 @@ func (*LogicIntServer) Sync(ctx context.Context, req *pb.SyncReq) (*pb.SyncResp,
 }
 
 // MessageACK 设备收到消息ack
-func (*LogicIntServer) MessageACK(ctx context.Context, req *pb.MessageACKReq) (*pb.MessageACKResp, error) {
-	return &pb.MessageACKResp{}, service.DeviceAckService.Update(ctx, req.UserId, req.DeviceId, req.DeviceAck)
+func (*LogicIntServer) MessageACK(ctx context.Context, req *pb.MessageACKReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.DeviceAckService.Update(ctx, req.UserId, req.DeviceId, req.DeviceAck)
 }
 
 // Offline 设备离线
-func (*LogicIntServer) Offline(ctx context.Context, req *pb.OfflineReq) (*pb.OfflineResp, error) {
-	return &pb.OfflineResp{}, service.DeviceService.Offline(ctx, req.UserId, req.DeviceId, req.ClientAddr)
+func (*LogicIntServer) Offline(ctx context.Context, req *pb.OfflineReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.DeviceService.Offline(ctx, req.UserId, req.DeviceId, req.ClientAddr)
 }
 
-func (s *LogicIntServer) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) (*pb.SubscribeRoomResp, error) {
-	return &pb.SubscribeRoomResp{}, service.RoomService.SubscribeRoom(ctx, req)
+func (s *LogicIntServer) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.RoomService.SubscribeRoom(ctx, req)
 }
 
 // SendMessage 发送消息
@@ -51,15 +51,15 @@ func (*LogicIntServer) SendMessage(ctx context.Context, req *pb.SendMessageReq) 
 }
 
 // PushRoom 推送房间
-func (s *LogicIntServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
-	return &pb.PushRoomResp{}, service.RoomService.Push(ctx, model.Sender{
+func (s *LogicIntServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.RoomService.Push(ctx, model.Sender{
 		SenderType: pb.SenderType_ST_BUSINESS,
 	}, req)
 }
 
 // PushAll 全服推送
-func (s *LogicIntServer) PushAll(ctx context.Context, req *pb.PushAllReq) (*pb.PushAllResp, error) {
-	return &pb.PushAllResp{}, service.PushService.PushAll(ctx, req)
+func (s *LogicIntServer) PushAll(ctx context.Context, req *pb.PushAllReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.PushService.PushAll(ctx, req)
 }
 
 // GetDevice 获取设备信息
@@ -90,12 +90,12 @@ func (*LogicIntServer) GetDevice(ctx context.Context, req *pb.GetDeviceReq) (*pb
 }
 
 // ServerStop 服务停止
-func (s *LogicIntServer) ServerStop(ctx context.Context, in *pb.ServerStopReq) (*pb.ServerStopResp, error) {
+func (s *LogicIntServer) ServerStop(ctx context.Context, in *pb.ServerStopReq) (*pb.Empty, error) {
 	go func() {
 		err := service.DeviceService.ServerStop(ctx, in.ConnAddr)
 		if err != nil {
 			logger.Sugar.Error(err)
 		}
 	}()
-	return &pb.ServerStopResp{}, nil
+	return &pb.Empty{}, nil
 }

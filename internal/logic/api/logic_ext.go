@@ -55,19 +55,19 @@ func (*LogicExtServer) SendMessage(ctx context.Context, in *pb.SendMessageReq) (
 }
 
 // PushRoom  推送房间
-func (s *LogicExtServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.PushRoomResp, error) {
+func (s *LogicExtServer) PushRoom(ctx context.Context, req *pb.PushRoomReq) (*pb.Empty, error) {
 	userId, deviceId, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.PushRoomResp{}, service.RoomService.Push(ctx, model.Sender{
+	return &pb.Empty{}, service.RoomService.Push(ctx, model.Sender{
 		SenderType: pb.SenderType_ST_USER,
 		SenderId:   userId,
 		DeviceId:   deviceId,
 	}, req)
 }
 
-func (s *LogicExtServer) AddFriend(ctx context.Context, in *pb.AddFriendReq) (*pb.AddFriendResp, error) {
+func (s *LogicExtServer) AddFriend(ctx context.Context, in *pb.AddFriendReq) (*pb.Empty, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -78,10 +78,10 @@ func (s *LogicExtServer) AddFriend(ctx context.Context, in *pb.AddFriendReq) (*p
 		return nil, err
 	}
 
-	return &pb.AddFriendResp{}, nil
+	return &pb.Empty{}, nil
 }
 
-func (s *LogicExtServer) AgreeAddFriend(ctx context.Context, in *pb.AgreeAddFriendReq) (*pb.AgreeAddFriendResp, error) {
+func (s *LogicExtServer) AgreeAddFriend(ctx context.Context, in *pb.AgreeAddFriendReq) (*pb.Empty, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (s *LogicExtServer) AgreeAddFriend(ctx context.Context, in *pb.AgreeAddFrie
 		return nil, err
 	}
 
-	return &pb.AgreeAddFriendResp{}, nil
+	return &pb.Empty{}, nil
 }
 
 func (s *LogicExtServer) SetFriend(ctx context.Context, req *pb.SetFriendReq) (*pb.SetFriendResp, error) {
@@ -113,7 +113,7 @@ func (s *LogicExtServer) SetFriend(ctx context.Context, req *pb.SetFriendReq) (*
 	return &pb.SetFriendResp{}, nil
 }
 
-func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.GetFriendsReq) (*pb.GetFriendsResp, error) {
+func (s *LogicExtServer) GetFriends(ctx context.Context, in *pb.Empty) (*pb.GetFriendsResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -138,13 +138,13 @@ func (*LogicExtServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (
 }
 
 // UpdateGroup 更新群组
-func (*LogicExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroupReq) (*pb.UpdateGroupResp, error) {
+func (*LogicExtServer) UpdateGroup(ctx context.Context, in *pb.UpdateGroupReq) (*pb.Empty, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.UpdateGroupResp{}, service.GroupService.Update(ctx, userId, model.Group{
+	return &pb.Empty{}, service.GroupService.Update(ctx, userId, model.Group{
 		Id:           in.GroupId,
 		Name:         in.Name,
 		AvatarUrl:    in.AvatarUrl,
@@ -179,7 +179,7 @@ func (*LogicExtServer) GetGroup(ctx context.Context, in *pb.GetGroupReq) (*pb.Ge
 }
 
 // GetGroups 获取用户加入的所有群组
-func (*LogicExtServer) GetGroups(ctx context.Context, in *pb.GetGroupsReq) (*pb.GetGroupsResp, error) {
+func (*LogicExtServer) GetGroups(ctx context.Context, in *pb.Empty) (*pb.GetGroupsResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -217,7 +217,7 @@ func (s *LogicExtServer) AddGroupMembers(ctx context.Context, in *pb.AddGroupMem
 }
 
 // UpdateGroupMember 更新群组成员信息
-func (*LogicExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroupMemberReq) (*pb.UpdateGroupMemberResp, error) {
+func (*LogicExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroupMemberReq) (*pb.Empty, error) {
 	err := service.GroupUserService.UpdateUser(ctx, model.GroupUser{
 		GroupId:    in.GroupId,
 		UserId:     in.UserId,
@@ -229,11 +229,11 @@ func (*LogicExtServer) UpdateGroupMember(ctx context.Context, in *pb.UpdateGroup
 		return nil, err
 	}
 
-	return &pb.UpdateGroupMemberResp{}, nil
+	return &pb.Empty{}, nil
 }
 
 // DeleteGroupMember 添加群组成员
-func (*LogicExtServer) DeleteGroupMember(ctx context.Context, in *pb.DeleteGroupMemberReq) (*pb.DeleteGroupMemberResp, error) {
+func (*LogicExtServer) DeleteGroupMember(ctx context.Context, in *pb.DeleteGroupMemberReq) (*pb.Empty, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
@@ -244,7 +244,7 @@ func (*LogicExtServer) DeleteGroupMember(ctx context.Context, in *pb.DeleteGroup
 		return nil, err
 	}
 
-	return &pb.DeleteGroupMemberResp{}, nil
+	return &pb.Empty{}, nil
 }
 
 // GetGroupMembers 获取群组成员信息

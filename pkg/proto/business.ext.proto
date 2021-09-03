@@ -2,13 +2,15 @@ syntax = "proto3";
 package pb;
 option go_package = "gim/pkg/pb/";
 
+import "common.proto";
+
 service BusinessExt {
   // 登录
   rpc SignIn (SignInReq) returns (SignInResp);
   // 获取用户信息
   rpc GetUser (GetUserReq) returns (GetUserResp);
   // 更新用户信息
-  rpc UpdateUser (UpdateUserReq) returns (UpdateUserResp);
+  rpc UpdateUser (UpdateUserReq) returns (Empty);
   // 搜索用户(这里简单数据库实现，生产环境建议使用ES)
   rpc SearchUser (SearchUserReq) returns (SearchUserResp);
 }
@@ -46,9 +48,6 @@ message UpdateUserReq {
   int32 sex = 2; // 性别
   string avatar_url = 3; // 头像地址
   string extra = 4; // 附加字段
-}
-message UpdateUserResp {
-
 }
 
 message SearchUserReq{

@@ -8,8 +8,8 @@ import (
 
 type BusinessIntServer struct{}
 
-func (*BusinessIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*pb.AuthResp, error) {
-	return &pb.AuthResp{}, service.AuthService.Auth(ctx, req.UserId, req.DeviceId, req.Token)
+func (*BusinessIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Empty, error) {
+	return &pb.Empty{}, service.AuthService.Auth(ctx, req.UserId, req.DeviceId, req.Token)
 }
 
 func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {

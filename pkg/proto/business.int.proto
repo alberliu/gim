@@ -2,11 +2,12 @@ syntax = "proto3";
 package pb;
 option go_package = "gim/pkg/pb/";
 
+import "common.proto";
 import "business.ext.proto";
 
 service BusinessInt {
   // 权限校验
-  rpc Auth (AuthReq) returns (AuthResp);
+  rpc Auth (AuthReq) returns (Empty);
   // 批量获取用户信息
   rpc GetUser (GetUserReq) returns (GetUserResp);
   // 批量获取用户信息
@@ -17,9 +18,6 @@ message AuthReq {
   int64 user_id = 1;
   int64 device_id = 2;
   string token = 3;
-}
-
-message AuthResp {
 }
 
 message GetUsersReq {

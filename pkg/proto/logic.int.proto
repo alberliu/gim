@@ -1,31 +1,33 @@
 syntax = "proto3";
-import "connect.ext.proto";
-import "logic.ext.proto";
 package pb;
 option go_package = "gim/pkg/pb/";
 
+import "common.proto";
+import "connect.ext.proto";
+import "logic.ext.proto";
+
 service LogicInt {
   // 登录
-  rpc ConnSignIn (ConnSignInReq) returns (ConnSignInResp);
+  rpc ConnSignIn (ConnSignInReq) returns (Empty);
   // 消息同步
   rpc Sync (SyncReq) returns (SyncResp);
   // 设备收到消息回执
-  rpc MessageACK (MessageACKReq) returns (MessageACKResp);
+  rpc MessageACK (MessageACKReq) returns (Empty);
   // 设备离线
-  rpc Offline (OfflineReq) returns (OfflineResp);
+  rpc Offline (OfflineReq) returns (Empty);
   // 订阅房间
-  rpc SubscribeRoom(SubscribeRoomReq)returns(SubscribeRoomResp);
+  rpc SubscribeRoom(SubscribeRoomReq)returns(Empty);
   // 发送消息
   rpc SendMessage (SendMessageReq) returns (SendMessageResp);
   // 推送消息到房间
-  rpc PushRoom(PushRoomReq)returns(PushRoomResp);
+  rpc PushRoom(PushRoomReq)returns(Empty);
   // 全服推送
-  rpc PushAll(PushAllReq)returns(PushAllResp);
+  rpc PushAll(PushAllReq)returns(Empty);
 
   // 获取设备信息
   rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
   // 服务停止
-  rpc ServerStop (ServerStopReq) returns (ServerStopResp);
+  rpc ServerStop (ServerStopReq) returns (Empty);
 }
 
 message ConnSignInReq {
@@ -34,8 +36,6 @@ message ConnSignInReq {
   string token = 3; // 秘钥
   string conn_addr = 4; // 服务器地址
   string client_addr = 5; // 客户端地址
-}
-message ConnSignInResp {
 }
 
 message SyncReq {
@@ -54,15 +54,11 @@ message MessageACKReq {
   int64 device_ack = 3; // 设备收到消息的确认号
   int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
 }
-message MessageACKResp {
-}
 
 message OfflineReq {
   int64 user_id = 1; // 用户id
   int64 device_id = 2; // 设备id
   string client_addr = 3; // 客户端地址
-}
-message OfflineResp {
 }
 
 message SubscribeRoomReq{
@@ -72,15 +68,11 @@ message SubscribeRoomReq{
   int64 seq = 4; // 消息序列号
   string conn_addr = 5; // 服务器地址
 }
-message SubscribeRoomResp{
-}
 
 message PushAllReq{
   MessageType message_type = 1; // 消息类型
   bytes message_content = 2; // 消息内容
   int64 send_time = 3; // 消息发送时间戳，精确到毫秒
-}
-message PushAllResp{
 }
 
 message GetDeviceReq {
@@ -105,6 +97,4 @@ message Device {
 
 message ServerStopReq {
   string conn_addr = 1;
-}
-message ServerStopResp {
 }

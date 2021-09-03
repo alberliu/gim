@@ -1,7 +1,9 @@
 syntax = "proto3";
-import "connect.ext.proto";
 package pb;
 option go_package = "gim/pkg/pb/";
+
+import "common.proto";
+import "connect.ext.proto";
 
 service LogicExt {
     // 注册设备
@@ -10,32 +12,32 @@ service LogicExt {
     // 发送消息
     rpc SendMessage (SendMessageReq) returns (SendMessageResp);
     // 推送消息到房间
-    rpc PushRoom(PushRoomReq)returns(PushRoomResp);
+    rpc PushRoom(PushRoomReq)returns(Empty);
 
     // 添加好友
-    rpc AddFriend (AddFriendReq) returns (AddFriendResp);
+    rpc AddFriend (AddFriendReq) returns (Empty);
     // 同意添加好友
-    rpc AgreeAddFriend (AgreeAddFriendReq) returns (AgreeAddFriendResp);
+    rpc AgreeAddFriend (AgreeAddFriendReq) returns (Empty);
     // 设置好友信息
     rpc SetFriend (SetFriendReq) returns (SetFriendResp);
     // 获取好友列表
-    rpc GetFriends (GetFriendsReq) returns (GetFriendsResp);
+    rpc GetFriends (Empty) returns (GetFriendsResp);
 
     // 创建群组
     rpc CreateGroup (CreateGroupReq) returns (CreateGroupResp);
     // 更新群组
-    rpc UpdateGroup (UpdateGroupReq) returns (UpdateGroupResp);
+    rpc UpdateGroup (UpdateGroupReq) returns (Empty);
     // 获取群组信息
     rpc GetGroup (GetGroupReq) returns (GetGroupResp);
     // 获取用户加入的所有群组
-    rpc GetGroups (GetGroupsReq) returns (GetGroupsResp);
+    rpc GetGroups (Empty) returns (GetGroupsResp);
 
     // 添加群组成员
     rpc AddGroupMembers (AddGroupMembersReq) returns (AddGroupMembersResp);
     // 更新群组成员信息
-    rpc UpdateGroupMember (UpdateGroupMemberReq) returns (UpdateGroupMemberResp);
+    rpc UpdateGroupMember (UpdateGroupMemberReq) returns (Empty);
     // 添加群组成员
-    rpc DeleteGroupMember (DeleteGroupMemberReq) returns (DeleteGroupMemberResp);
+    rpc DeleteGroupMember (DeleteGroupMemberReq) returns (Empty);
     // 获取群组成员
     rpc GetGroupMembers (GetGroupMembersReq) returns (GetGroupMembersResp);
 }
@@ -72,22 +74,16 @@ message PushRoomReq{
     bool is_persist = 5; // 是否将消息持久化
     bool is_priority = 6; // 是否优先推送
 }
-message PushRoomResp{
-}
 
 message AddFriendReq {
     int64 friend_id = 1; // 用户id
     string remarks = 2; // 备注
     string description = 3; // 描述
 }
-message AddFriendResp {
-}
 
 message AgreeAddFriendReq {
     int64 user_id = 1; // 用户id
     string remarks = 2; // 备注
-}
-message AgreeAddFriendResp {
 }
 
 message SetFriendReq {
@@ -111,8 +107,6 @@ message Friend {
     string remarks = 7; // 备注
     string extra = 8; // 附加字段
 }
-message GetFriendsReq {
-}
 message GetFriendsResp {
     repeated Friend friends = 1;
 }
@@ -135,8 +129,6 @@ message UpdateGroupReq {
     string introduction = 4; // 简介
     string extra = 5; // 附加字段
 }
-message UpdateGroupResp {
-}
 
 message GetGroupReq {
     int64 group_id = 1;
@@ -156,8 +148,6 @@ message Group {
     int64 update_time = 8; // 更新时间
 }
 
-message GetGroupsReq {
-}
 message GetGroupsResp {
     repeated Group groups = 1;
 }
@@ -183,14 +173,10 @@ message UpdateGroupMemberReq {
     string remarks = 4; // 备注
     string extra = 5; // 附加字段
 }
-message UpdateGroupMemberResp {
-}
 
 message DeleteGroupMemberReq {
     int64 group_id = 1; // 群组id
     int64 user_id = 2; // 用户id
-}
-message DeleteGroupMemberResp {
 }
 
 message GetGroupMembersReq {
