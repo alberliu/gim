@@ -146,7 +146,7 @@ func TestLogicExtServer_GetGroup(t *testing.T) {
 }
 
 func TestLogicExtServer_GetUserGroups(t *testing.T) {
-	resp, err := getLogicExtClient().GetGroups(getCtx(), &pb.GetGroupsReq{})
+	resp, err := getLogicExtClient().GetGroups(getCtx(), &pb.Empty{})
 	if err != nil {
 		fmt.Println(err)
 		return
