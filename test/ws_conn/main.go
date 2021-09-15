@@ -28,8 +28,7 @@ type WSClient struct {
 }
 
 func (c *WSClient) Start() {
-	path := fmt.Sprintf("ws://localhost:8081/ws?user_id=%d&device_id=%d&token=%s", c.UserId, c.DeviceId, "0")
-	conn, resp, err := websocket.DefaultDialer.Dial(path, http.Header{})
+	conn, resp, err := websocket.DefaultDialer.Dial("ws://111.229.238.28:8081/ws", http.Header{})
 	if err != nil {
 		fmt.Println("dial error", err)
 		return
@@ -43,6 +42,7 @@ func (c *WSClient) Start() {
 	fmt.Println(string(bytes))
 	c.Conn = conn
 
+	c.SignIn()
 	c.SyncTrigger()
 	go c.Heartbeat()
 	go c.Receive()
@@ -73,6 +73,15 @@ func (c *WSClient) Output(pt pb.PackageType, requestId int64, message proto.Mess
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (c *WSClient) SignIn() {
+	signIn := pb.SignInInput{
+		UserId:   c.UserId,
+		DeviceId: c.DeviceId,
+		Token:    "0",
+	}
+	c.Output(pb.PackageType_PT_SIGN_IN, time.Now().UnixNano(), &signIn)
 }
 
 func (c *WSClient) SyncTrigger() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gim/pkg/pb"
 	"gim/pkg/util"
 	"log"
@@ -17,11 +18,8 @@ func main() {
 	util2.MaxLen = 2048
 
 	client := TcpClient{}
-	//log.Println("input UserId,DeviceId,SyncSequence")
-	//log.Scanf("%d %d %d", &client.UserId, &client.DeviceId, &client.Seq)
-	client.UserId = 2
-	client.DeviceId = 1
-	client.Seq = 0
+	log.Println("input UserId,DeviceId,SyncSeq")
+	fmt.Scanf("%d %d %d", &client.UserId, &client.DeviceId, &client.Seq)
 	client.Start()
 	select {}
 }
