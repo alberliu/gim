@@ -8,15 +8,15 @@ import (
 	"net"
 	"time"
 
-	util2 "github.com/alberliu/gn/test/util"
+	gim_util "github.com/alberliu/gn/util"
 	jsoniter "github.com/json-iterator/go"
 	"google.golang.org/protobuf/proto"
 )
 
+var codecFactory = gim_util.NewHeaderLenCodecFactory(2, 1024)
+
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	util2.MaxLen = 2048
-
 	client := TcpClient{}
 	log.Println("input UserId,DeviceId,SyncSeq")
 	fmt.Scanf("%d %d %d", &client.UserId, &client.DeviceId, &client.Seq)
@@ -33,7 +33,8 @@ type TcpClient struct {
 	UserId   int64
 	DeviceId int64
 	Seq      int64
-	codec    *util2.Codec
+	codec    *gim_util.Codec
+	Conn     net.Conn
 }
 
 func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Message) {
@@ -57,7 +58,7 @@ func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Mes
 		return
 	}
 
-	_, err = c.codec.Conn.Write(util2.Encode(inputByf))
+	_, err = c.Conn.Write(gim_util.Encode(inputByf))
 	if err != nil {
 		log.Println(err)
 	}
@@ -70,7 +71,8 @@ func (c *TcpClient) Start() {
 		return
 	}
 
-	c.codec = util2.NewCodec(connect)
+	c.codec = codecFactory.NewCodec(connect)
+	c.Conn = connect
 
 	c.SignIn()
 	c.SyncTrigger()
@@ -101,25 +103,13 @@ func (c *TcpClient) Heartbeat() {
 
 func (c *TcpClient) Receive() {
 	for {
-		_, err := c.codec.Read()
+		bytes, err := c.codec.Read()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		for {
-			bytes, ok, err := c.codec.Decode()
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			if ok {
-				c.HandlePackage(bytes)
-				continue
-			}
-			break
-		}
+		c.HandlePackage(bytes)
 	}
 }
 
