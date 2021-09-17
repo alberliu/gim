@@ -9,8 +9,8 @@ import (
 func initLocalConf() {
 	RPCAddr = RPCAddrConf{
 		ConnectRPCAddr:  "addrs:///127.0.0.1:50000",
-		BusinessRPCAddr: "addrs:///127.0.0.1:50100",
-		LogicRPCAddr:    "addrs:///127.0.0.1:50200",
+		LogicRPCAddr:    "addrs:///127.0.0.1:50100",
+		BusinessRPCAddr: "addrs:///127.0.0.1:50200",
 	}
 
 	Connect = ConnectConf{
