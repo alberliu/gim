@@ -17,15 +17,7 @@ func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetUserResp{User: &pb.User{
-		UserId:     user.Id,
-		Nickname:   user.Nickname,
-		Sex:        user.Sex,
-		AvatarUrl:  user.AvatarUrl,
-		Extra:      user.Extra,
-		CreateTime: user.CreateTime.Unix(),
-		UpdateTime: user.UpdateTime.Unix(),
-	}}, nil
+	return &pb.GetUserResp{User: user.ToProto()}, nil
 }
 
 func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
@@ -41,15 +33,7 @@ func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*p
 
 	pbUsers := make(map[int64]*pb.User, len(users))
 	for i := range users {
-		pbUsers[users[i].Id] = &pb.User{
-			UserId:     users[i].Id,
-			Nickname:   users[i].Nickname,
-			Sex:        users[i].Sex,
-			AvatarUrl:  users[i].AvatarUrl,
-			Extra:      users[i].Extra,
-			CreateTime: users[i].CreateTime.Unix(),
-			UpdateTime: users[i].UpdateTime.Unix(),
-		}
+		pbUsers[users[i].Id] = users[i].ToProto()
 	}
 
 	return &pb.GetUsersResp{Users: pbUsers}, nil
