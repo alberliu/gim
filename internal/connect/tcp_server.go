@@ -38,8 +38,6 @@ func StartTCPServer() {
 
 type handler struct{}
 
-var Handler = new(handler)
-
 func (*handler) OnConnect(c *gn.Conn) {
 	// 初始化连接数据
 	conn := &Conn{
@@ -50,7 +48,7 @@ func (*handler) OnConnect(c *gn.Conn) {
 	logger.Logger.Debug("connect:", zap.Int32("fd", c.GetFd()), zap.String("addr", c.GetAddr()))
 }
 
-func (h *handler) OnMessage(c *gn.Conn, bytes []byte) {
+func (*handler) OnMessage(c *gn.Conn, bytes []byte) {
 	conn := c.GetData().(*Conn)
 	conn.HandleMessage(bytes)
 }
