@@ -3,6 +3,8 @@ package main
 import (
 	"gim/config"
 	"gim/internal/logic/api"
+	"gim/internal/logic/app"
+	"gim/internal/logic/proxy"
 	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
@@ -18,10 +20,18 @@ import (
 	"google.golang.org/grpc"
 )
 
+func initProxy() {
+	proxy.MessageProxy = app.MessageApp
+	proxy.DeviceProxy = app.DeviceApp
+}
+
 func main() {
 	logger.Init()
 	db.InitMysql(config.Logic.MySQL)
 	db.InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
+
+	// 初始化APP代理
+	initProxy()
 
 	// 初始化RpcClient
 	rpc.InitConnectIntClient(config.RPCAddr.ConnectRPCAddr)

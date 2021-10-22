@@ -4,8 +4,8 @@ import (
 	"gim/config"
 	"gim/pkg/db"
 	"gim/pkg/logger"
+	"gim/pkg/mq"
 	"gim/pkg/pb"
-	"gim/pkg/topic"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -16,13 +16,13 @@ import (
 
 // StartSubscribe 启动MQ消息处理逻辑
 func StartSubscribe() {
-	pushRoomPriorityChannel := db.RedisCli.Subscribe(topic.PushRoomPriorityTopic).Channel()
-	pushRoomChannel := db.RedisCli.Subscribe(topic.PushRoomTopic).Channel()
+	pushRoomPriorityChannel := db.RedisCli.Subscribe(mq.PushRoomPriorityTopic).Channel()
+	pushRoomChannel := db.RedisCli.Subscribe(mq.PushRoomTopic).Channel()
 	for i := 0; i < config.Connect.PushRoomSubscribeNum; i++ {
 		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
 	}
 
-	pushAllChannel := db.RedisCli.Subscribe(topic.PushAllTopic).Channel()
+	pushAllChannel := db.RedisCli.Subscribe(mq.PushAllTopic).Channel()
 	for i := 0; i < config.Connect.PushAllSubscribeNum; i++ {
 		go handlePushAllMsg(pushAllChannel)
 	}

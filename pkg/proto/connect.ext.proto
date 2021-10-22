@@ -28,9 +28,10 @@ message Message {
 message Sender {
   SenderType sender_type = 1; // 发送者类型，1:系统,2:用户,3:第三方业务系统
   int64 sender_id = 2; // 发送者id
-  string avatar_url = 3; // 昵称
-  string nickname = 4; // 头像
-  string extra = 5; // 扩展字段
+  int64 device_id = 3; // 发送者设备id
+  string avatar_url = 4; // 昵称
+  string nickname = 5; // 头像
+  string extra = 6; // 扩展字段
 }
 
 // 消息类型

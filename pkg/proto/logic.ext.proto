@@ -2,7 +2,7 @@ syntax = "proto3";
 package pb;
 option go_package = "gim/pkg/pb/";
 
-import "common.proto";
+import "common.ext.proto";
 import "connect.ext.proto";
 
 service LogicExt {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gim/config"
 	"gim/pkg/logger"
+	"gim/pkg/util"
 
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
@@ -12,8 +13,9 @@ import (
 )
 
 var (
-	DB       *gorm.DB
-	RedisCli *redis.Client
+	DB        *gorm.DB
+	RedisCli  *redis.Client
+	RedisUtil *util.RedisUtil
 )
 
 // InitMysql 初始化MySQL
@@ -43,6 +45,7 @@ func InitRedis(addr, password string) {
 		panic(err)
 	}
 
+	RedisUtil = util.NewRedisUtil(RedisCli)
 	logger.Logger.Info("init redis ok")
 }
 

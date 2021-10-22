@@ -2,7 +2,7 @@ syntax = "proto3";
 package pb;
 option go_package = "gim/pkg/pb/";
 
-import "common.proto";
+import "common.ext.proto";
 import "connect.ext.proto";
 import "logic.ext.proto";
 
@@ -85,14 +85,16 @@ message GetDeviceResp {
 message Device {
   int64 device_id = 1; // 设备id
   int64 user_id = 2; // 用户id
-  int32 Type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
-  string Brand = 4; // 手机厂商
-  string Model = 5; // 机型
-  string SystemVersion = 6; // 系统版本
-  string SDKVersion = 7; // SDK版本
-  int32 Status = 8; // 在线状态，0：不在线；1：在线
-  int64 CreateTime = 9; // 创建时间
-  int64 UpdateTime = 10; // 更新时间
+  int32 type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
+  string brand = 4; // 手机厂商
+  string model = 5; // 机型
+  string system_version = 6; // 系统版本
+  string sdk_version = 7; // SDK版本
+  int32 status = 8; // 在线状态，0：不在线；1：在线
+  string conn_addr = 9;  // 服务端连接地址
+  string client_addr = 10; // 客户端地址
+  int64 create_time = 11; // 创建时间
+  int64 update_time = 12; // 更新时间
 }
 
 message ServerStopReq {

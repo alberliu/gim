@@ -2,9 +2,7 @@ package api
 
 import (
 	"context"
-	"gim/internal/business/dao"
-	"gim/internal/business/model"
-	"gim/internal/business/service"
+	"gim/internal/business/app"
 	"gim/pkg/grpclib"
 	"gim/pkg/pb"
 )
@@ -12,7 +10,7 @@ import (
 type BusinessExtServer struct{}
 
 func (s *BusinessExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
-	isNew, userId, token, err := service.AuthService.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
+	isNew, userId, token, err := app.AuthApp.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +26,9 @@ func (s *BusinessExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*p
 	if err != nil {
 		return nil, err
 	}
-	user, err := service.UserService.Get(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.GetUserResp{
-		User: user.ToProto(),
-	}, nil
+
+	user, err := app.UserApp.Get(ctx, userId)
+	return &pb.GetUserResp{User: user}, err
 }
 
 func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*pb.Empty, error) {
@@ -42,23 +36,11 @@ func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRe
 	if err != nil {
 		return nil, err
 	}
-	return &pb.Empty{}, service.UserService.Update(ctx, model.User{
-		Id:        userId,
-		Nickname:  req.Nickname,
-		Sex:       req.Sex,
-		AvatarUrl: req.AvatarUrl,
-		Extra:     req.Extra,
-	})
+
+	return new(pb.Empty), app.UserApp.Update(ctx, userId, req)
 }
 
 func (s *BusinessExtServer) SearchUser(ctx context.Context, req *pb.SearchUserReq) (*pb.SearchUserResp, error) {
-	users, err := dao.UserDao.Search(req.Key)
-	if err != nil {
-		return nil, err
-	}
-	pbUsers := make([]*pb.User, 0, len(users))
-	for i := range users {
-		pbUsers = append(pbUsers, users[i].ToProto())
-	}
-	return &pb.SearchUserResp{Users: pbUsers}, nil
+	users, err := app.UserApp.Search(ctx, req.Key)
+	return &pb.SearchUserResp{Users: users}, err
 }

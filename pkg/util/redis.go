@@ -1,7 +1,6 @@
 package util
 
 import (
-	"gim/pkg/db"
 	"gim/pkg/logger"
 	"time"
 
@@ -25,7 +24,7 @@ func (u *RedisUtil) Set(key string, value interface{}, duration time.Duration) e
 		return err
 	}
 
-	err = db.RedisCli.Set(key, bytes, duration).Err()
+	err = u.client.Set(key, bytes, duration).Err()
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -35,7 +34,7 @@ func (u *RedisUtil) Set(key string, value interface{}, duration time.Duration) e
 
 // Get 从redis中读取指定值，使用json的反序列化方式
 func (u *RedisUtil) Get(key string, value interface{}) error {
-	bytes, err := db.RedisCli.Get(key).Bytes()
+	bytes, err := u.client.Get(key).Bytes()
 	if err != nil {
 		return err
 	}

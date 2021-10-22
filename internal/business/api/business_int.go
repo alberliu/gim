@@ -2,22 +2,19 @@ package api
 
 import (
 	"context"
-	"gim/internal/business/service"
+	"gim/internal/business/app"
 	"gim/pkg/pb"
 )
 
 type BusinessIntServer struct{}
 
 func (*BusinessIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*pb.Empty, error) {
-	return &pb.Empty{}, service.AuthService.Auth(ctx, req.UserId, req.DeviceId, req.Token)
+	return &pb.Empty{}, app.AuthApp.Auth(ctx, req.UserId, req.DeviceId, req.Token)
 }
 
 func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
-	user, err := service.UserService.Get(ctx, req.UserId)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.GetUserResp{User: user.ToProto()}, nil
+	user, err := app.UserApp.Get(ctx, req.UserId)
+	return &pb.GetUserResp{User: user}, err
 }
 
 func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*pb.GetUsersResp, error) {
@@ -26,15 +23,6 @@ func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*p
 		userIds = append(userIds, k)
 	}
 
-	users, err := service.UserService.GetByIds(ctx, userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	pbUsers := make(map[int64]*pb.User, len(users))
-	for i := range users {
-		pbUsers[users[i].Id] = users[i].ToProto()
-	}
-
-	return &pb.GetUsersResp{Users: pbUsers}, nil
+	users, err := app.UserApp.GetByIds(ctx, userIds)
+	return &pb.GetUsersResp{Users: users}, err
 }
