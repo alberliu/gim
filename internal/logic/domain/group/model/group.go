@@ -15,6 +15,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	UpdateTypeUpdate = 1
+	UpdateTypeDelete = 2
+)
+
 // Group 群组
 type Group struct {
 	Id           int64       // 群组id
@@ -26,6 +31,19 @@ type Group struct {
 	CreateTime   time.Time   // 创建时间
 	UpdateTime   time.Time   // 更新时间
 	Members      []GroupUser `gorm:"-"` // 群组成员
+}
+
+type GroupUser struct {
+	Id         int64     // 自增主键
+	GroupId    int64     // 群组id
+	UserId     int64     // 用户id
+	MemberType int       // 群组类型
+	Remarks    string    // 备注
+	Extra      string    // 附加属性
+	Status     int       // 状态
+	CreateTime time.Time // 创建时间
+	UpdateTime time.Time // 更新时间
+	UpdateType int       `gorm:"-"` // 更新类型
 }
 
 func (g *Group) ToProto() *pb.Group {
