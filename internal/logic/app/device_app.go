@@ -61,15 +61,18 @@ func (*deviceApp) Offline(ctx context.Context, deviceId int64, clientAddr string
 	return nil
 }
 
+// ListOnlineByUserId 获取用户所有在线设备
 func (*deviceApp) ListOnlineByUserId(ctx context.Context, userId int64) ([]*pb.Device, error) {
 	return devicedomain.DeviceService.ListOnlineByUserId(ctx, userId)
 }
 
+// GetDevice 获取设备信息
 func (*deviceApp) GetDevice(ctx context.Context, deviceId int64) (*pb.Device, error) {
 	device, err := devicedomain.DeviceRepo.Get(deviceId)
 	return device.ToProto(), err
 }
 
+// ServerStop connect服务停止
 func (*deviceApp) ServerStop(ctx context.Context, connAddr string) error {
 	return devicedomain.DeviceService.ServerStop(ctx, connAddr)
 }

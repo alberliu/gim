@@ -11,6 +11,7 @@ type groupApp struct{}
 
 var GroupApp = new(groupApp)
 
+// CreateGroup 创建群组
 func (*groupApp) CreateGroup(ctx context.Context, userId int64, in *pb.CreateGroupReq) (int64, error) {
 	group := model.CreateGroup(userId, in)
 	err := repo.GroupRepo.Save(group)
@@ -20,6 +21,7 @@ func (*groupApp) CreateGroup(ctx context.Context, userId int64, in *pb.CreateGro
 	return group.Id, nil
 }
 
+// GetGroup 获取群组信息
 func (*groupApp) GetGroup(ctx context.Context, groupId int64) (*pb.Group, error) {
 	group, err := repo.GroupRepo.Get(groupId)
 	if err != nil {
@@ -29,6 +31,7 @@ func (*groupApp) GetGroup(ctx context.Context, groupId int64) (*pb.Group, error)
 	return group.ToProto(), nil
 }
 
+// GetUserGroups 获取用户加入的群组列表
 func (*groupApp) GetUserGroups(ctx context.Context, userId int64) ([]*pb.Group, error) {
 	groups, err := repo.GroupUserRepo.ListByUserId(userId)
 	if err != nil {
@@ -66,6 +69,7 @@ func (*groupApp) Update(ctx context.Context, userId int64, update *pb.UpdateGrou
 	return nil
 }
 
+// AddMembers 添加群组成员
 func (*groupApp) AddMembers(ctx context.Context, userId, groupId int64, userIds []int64) ([]int64, error) {
 	group, err := repo.GroupRepo.Get(groupId)
 	if err != nil {
@@ -104,6 +108,7 @@ func (*groupApp) UpdateMember(ctx context.Context, in *pb.UpdateGroupMemberReq) 
 	return nil
 }
 
+// DeleteMember 删除群组成员
 func (*groupApp) DeleteMember(ctx context.Context, groupId int64, userId int64, optId int64) error {
 	group, err := repo.GroupRepo.Get(groupId)
 	if err != nil {
