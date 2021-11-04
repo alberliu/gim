@@ -14,7 +14,7 @@ func Test_roomService_DelExpireMessage(t *testing.T) {
 }
 
 func Test_roomService_List(t *testing.T) {
-	msgs, err := RoomMessageCache.List(1, 1)
+	msgs, err := RoomMessageRepo.List(1, 1)
 	fmt.Println(err)
 	fmt.Println(msgs)
 }
