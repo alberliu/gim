@@ -69,20 +69,6 @@ func (*userDao) GetByIds(userIds []int64) ([]model.User, error) {
 	return users, err
 }
 
-// Update 更新用户信息
-func (*userDao) Update(user model.User) error {
-	err := db.DB.Model(&user).Updates(map[string]interface{}{
-		"nickname":   user.Nickname,
-		"sex":        user.Sex,
-		"avatar_url": user.AvatarUrl,
-		"extra":      user.Extra,
-	}).Error
-	if err != nil {
-		return gerrors.WrapError(err)
-	}
-	return nil
-}
-
 // Search 查询用户,这里简单实现，生产环境建议使用ES
 func (*userDao) Search(key string) ([]model.User, error) {
 	var users []model.User

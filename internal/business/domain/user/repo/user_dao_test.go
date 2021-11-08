@@ -38,17 +38,6 @@ func TestUserDao_GetByPhoneNumber(t *testing.T) {
 	fmt.Printf("%+v\n %+v\n ", user, err)
 }
 
-func TestUserDao_Update(t *testing.T) {
-	fmt.Println(UserDao.Update(model.User{
-		Id:          1,
-		PhoneNumber: "18829291352",
-		Nickname:    "alber",
-		Sex:         2,
-		AvatarUrl:   "url",
-		Extra:       "e",
-	}))
-}
-
 func TestUserDao_Search(t *testing.T) {
 	users, err := UserDao.Search("哈哈哈")
 	fmt.Printf("%+v\n %+v\n ", users, err)

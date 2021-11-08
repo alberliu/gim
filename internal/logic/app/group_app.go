@@ -52,7 +52,7 @@ func (*groupApp) Update(ctx context.Context, userId int64, update *pb.UpdateGrou
 		return err
 	}
 
-	err = group.Update(ctx, userId, update)
+	err = group.Update(ctx, update)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (*groupApp) AddMembers(ctx context.Context, userId, groupId int64, userIds 
 	if err != nil {
 		return nil, err
 	}
-	existIds, addedIds, err := group.AddMembers(ctx, userId, userIds)
+	existIds, addedIds, err := group.AddMembers(ctx, userIds)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (*groupApp) DeleteMember(ctx context.Context, groupId int64, userId int64, 
 	if err != nil {
 		return err
 	}
-	err = group.DeleteMember(ctx, optId, userId)
+	err = group.DeleteMember(ctx, userId)
 	if err != nil {
 		return err
 	}

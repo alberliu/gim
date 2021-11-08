@@ -99,7 +99,7 @@ func CreateGroup(userId int64, in *pb.CreateGroupReq) *Group {
 	return group
 }
 
-func (g *Group) Update(ctx context.Context, userId int64, in *pb.UpdateGroupReq) error {
+func (g *Group) Update(ctx context.Context, in *pb.UpdateGroupReq) error {
 	g.Name = in.Name
 	g.AvatarUrl = in.AvatarUrl
 	g.Introduction = in.Introduction
@@ -128,7 +128,7 @@ func (g *Group) PushUpdate(ctx context.Context, userId int64) error {
 
 // SendMessage 消息发送至群组
 func (g *Group) SendMessage(ctx context.Context, sender *pb.Sender, req *pb.SendMessageReq) (int64, error) {
-	if sender.SenderType == pb.SenderType_ST_USER && !g.IsInGroup(sender.SenderId) {
+	if sender.SenderType == pb.SenderType_ST_USER && !g.IsMember(sender.SenderId) {
 		logger.Sugar.Error(ctx, sender.SenderId, req.ReceiverId, "不在群组内")
 		return 0, gerrors.ErrNotInGroup
 	}
@@ -161,7 +161,7 @@ func (g *Group) SendMessage(ctx context.Context, sender *pb.Sender, req *pb.Send
 	return userSeq, nil
 }
 
-func (g *Group) IsInGroup(userId int64) bool {
+func (g *Group) IsMember(userId int64) bool {
 	for i := range g.Members {
 		if g.Members[i].UserId == userId {
 			return true
@@ -244,13 +244,13 @@ func (g *Group) GetMembers(ctx context.Context) ([]*pb.GroupMember, error) {
 }
 
 // AddMembers 给群组添加用户
-func (g *Group) AddMembers(ctx context.Context, userId int64, userIds []int64) ([]int64, []int64, error) {
+func (g *Group) AddMembers(ctx context.Context, userIds []int64) ([]int64, []int64, error) {
 	var existIds []int64
 	var addedIds []int64
 
 	now := time.Now()
 	for i, userId := range userIds {
-		if g.IsInGroup(userId) {
+		if g.IsMember(userId) {
 			existIds = append(existIds, userIds[i])
 			continue
 		}
@@ -337,7 +337,7 @@ func (g *Group) UpdateMember(ctx context.Context, in *pb.UpdateGroupMemberReq) e
 }
 
 // DeleteMember 删除用户群组
-func (g *Group) DeleteMember(ctx context.Context, optId, userId int64) error {
+func (g *Group) DeleteMember(ctx context.Context, userId int64) error {
 	member := g.GetMember(ctx, userId)
 	if member == nil {
 		return nil
