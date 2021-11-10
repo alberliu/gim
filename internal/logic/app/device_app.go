@@ -69,6 +69,13 @@ func (*deviceApp) ListOnlineByUserId(ctx context.Context, userId int64) ([]*pb.D
 // GetDevice 获取设备信息
 func (*deviceApp) GetDevice(ctx context.Context, deviceId int64) (*pb.Device, error) {
 	device, err := devicedomain.DeviceRepo.Get(deviceId)
+	if err != nil {
+		return nil, err
+	}
+	if device == nil {
+		return nil, gerrors.ErrDeviceNotExist
+	}
+
 	return device.ToProto(), err
 }
 
