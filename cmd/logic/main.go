@@ -37,7 +37,7 @@ func main() {
 	rpc.InitConnectIntClient(config.RPCAddr.ConnectRPCAddr)
 	rpc.InitBusinessIntClient(config.RPCAddr.BusinessRPCAddr)
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_int_interceptor", urlwhitelist.Logic)))
+	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_interceptor", urlwhitelist.Logic)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
