@@ -7,6 +7,8 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 
+	"google.golang.org/grpc/balancer/roundrobin"
+
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +19,8 @@ var (
 )
 
 func InitLogicIntClient(addr string) {
-	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
@@ -28,7 +31,7 @@ func InitLogicIntClient(addr string) {
 
 func InitConnectIntClient(addr string) {
 	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.Name)))
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.AddrPickerName)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
@@ -38,7 +41,8 @@ func InitConnectIntClient(addr string) {
 }
 
 func InitBusinessIntClient(addr string) {
-	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor))
+	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)

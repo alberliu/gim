@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/balancer/base"
 )
 
-// 实现指定地址调用的RPC调用
-const Name = "addr"
+// AddrPickerName 实现指定地址调用的RPC调用
+const AddrPickerName = "addr"
 
 type addrKey struct{}
 
@@ -29,7 +29,7 @@ func ContextWithAddr(ctx context.Context, addr string) context.Context {
 type addrPickerBuilder struct{}
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilder(Name, &addrPickerBuilder{}, base.Config{HealthCheck: true})
+	return base.NewBalancerBuilder(AddrPickerName, &addrPickerBuilder{}, base.Config{HealthCheck: true})
 }
 
 func (*addrPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
