@@ -69,17 +69,17 @@ TCP的网络层使用linux的epoll实现，相比golang原生，能减少gorouti
 采用读扩散，会将消息短暂的保存到Redis，长连接登录消息同步不会同步离线消息。
 ### 核心流程时序图
 #### 长连接登录
-![eaf3a08af9c64bbd.png](http://www.wailian.work/images/2019/10/26/eaf3a08af9c64bbd.png)
+![登录.png](https://upload-images.jianshu.io/upload_images/5760439-2e54d3c5dd0a44c1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### 离线消息同步
-![ef9c9452e65be3ced63573164fec7ed5.png](http://s1.wailian.download/2019/12/25/ef9c9452e65be3ced63573164fec7ed5.png)
+![离线消息同步.png](https://upload-images.jianshu.io/upload_images/5760439-aa513ea0de851e12.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### 心跳
-![6ea6acf2cd4b956e.png](http://www.wailian.work/images/2019/10/26/6ea6acf2cd4b956e.png)
+![心跳.png](https://upload-images.jianshu.io/upload_images/5760439-26d491374da3843b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### 消息单发
 c1.d1和c1.d2分别表示c1用户的两个设备d1和d2,c2.d3和c2.d4同理
-![e000fda2f18e86f3.png](http://www.wailian.work/images/2019/10/26/e000fda2f18e86f3.png)
+![消息单发.png](https://upload-images.jianshu.io/upload_images/5760439-35f1a91c8d7fffa6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### 群组消息群发
 c1,c2.c3表示一个群组中的三个用户
-![749fc468746055a8ecf3fba913b66885.png](http://s1.wailian.download/2019/12/26/749fc468746055a8ecf3fba913b66885.png)
+![消息群发.png](https://upload-images.jianshu.io/upload_images/5760439-47a87c45b899b3f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### APP
 基于Flutter写了一个简单的客户端  
 GitHub地址：https://github.com/alberliu/fim  
