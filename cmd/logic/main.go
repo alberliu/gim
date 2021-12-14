@@ -58,6 +58,6 @@ func main() {
 	logger.Logger.Info("rpc服务已经开启")
 	err = server.Serve(listen)
 	if err != nil {
-		logger.Logger.Error("Serve error", zap.Error(err))
+		logger.Logger.Error("serve error", zap.Error(err))
 	}
 }
