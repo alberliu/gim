@@ -49,7 +49,7 @@ func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServer
 				return nil, err
 			}
 
-			_, err = rpc.BusinessIntClient.Auth(ctx, &pb.AuthReq{
+			_, err = rpc.GetBusinessIntClient().Auth(ctx, &pb.AuthReq{
 				UserId:   userId,
 				DeviceId: deviceId,
 				Token:    token,

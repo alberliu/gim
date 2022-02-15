@@ -61,7 +61,7 @@ func (*handler) OnClose(c *gn.Conn, err error) {
 	DeleteConn(conn.DeviceId)
 
 	if conn.UserId != 0 {
-		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
+		_, _ = rpc.GetLogicIntClient().Offline(context.TODO(), &pb.OfflineReq{
 			UserId:     conn.UserId,
 			DeviceId:   conn.DeviceId,
 			ClientAddr: c.GetAddr(),

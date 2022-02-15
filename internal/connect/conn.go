@@ -72,7 +72,7 @@ func (c *Conn) Close() error {
 	}()
 
 	if c.DeviceId != 0 {
-		_, _ = rpc.LogicIntClient.Offline(context.TODO(), &pb.OfflineReq{
+		_, _ = rpc.GetLogicIntClient().Offline(context.TODO(), &pb.OfflineReq{
 			UserId:     c.UserId,
 			DeviceId:   c.DeviceId,
 			ClientAddr: c.GetAddr(),
@@ -173,7 +173,7 @@ func (c *Conn) SignIn(input *pb.Input) {
 		return
 	}
 
-	_, err = rpc.LogicIntClient.ConnSignIn(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
+	_, err = rpc.GetLogicIntClient().ConnSignIn(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
@@ -200,7 +200,7 @@ func (c *Conn) Sync(input *pb.Input) {
 		return
 	}
 
-	resp, err := rpc.LogicIntClient.Sync(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.SyncReq{
+	resp, err := rpc.GetLogicIntClient().Sync(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.SyncReq{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		Seq:      sync.Seq,
@@ -229,7 +229,7 @@ func (c *Conn) MessageACK(input *pb.Input) {
 		return
 	}
 
-	_, _ = rpc.LogicIntClient.MessageACK(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.MessageACKReq{
+	_, _ = rpc.GetLogicIntClient().MessageACK(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.MessageACKReq{
 		UserId:      c.UserId,
 		DeviceId:    c.DeviceId,
 		DeviceAck:   messageACK.DeviceAck,
@@ -248,7 +248,7 @@ func (c *Conn) SubscribedRoom(input *pb.Input) {
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, nil)
-	_, err = rpc.LogicIntClient.SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
+	_, err = rpc.GetLogicIntClient().SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		RoomId:   subscribeRoom.RoomId,

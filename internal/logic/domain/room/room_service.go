@@ -123,7 +123,7 @@ func (s *roomService) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRe
 	}
 
 	for i := range messages {
-		_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, req.ConnAddr), &pb.DeliverMessageReq{
+		_, err := rpc.GetConnectIntClient().DeliverMessage(grpclib.ContextWithAddr(ctx, req.ConnAddr), &pb.DeliverMessageReq{
 			DeviceId: req.DeviceId,
 			MessageSend: &pb.MessageSend{
 				Message: messages[i],
@@ -138,7 +138,7 @@ func (s *roomService) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRe
 
 func (*roomService) AddSenderInfo(sender *pb.Sender) {
 	if sender.SenderType == pb.SenderType_ST_USER {
-		user, err := rpc.BusinessIntClient.GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
+		user, err := rpc.GetBusinessIntClient().GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
 		if err == nil && user != nil {
 			sender.AvatarUrl = user.User.AvatarUrl
 			sender.Nickname = user.User.Nickname

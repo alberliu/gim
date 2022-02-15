@@ -24,9 +24,6 @@ func main() {
 
 	db.InitRedis(config.Connect.RedisIP, config.Connect.RedisPassword)
 
-	// 初始化Rpc Client
-	rpc.InitLogicIntClient(config.RPCAddr.LogicRPCAddr)
-
 	// 启动TCP长链接服务器
 	go func() {
 		connect.StartTCPServer()
@@ -48,7 +45,7 @@ func main() {
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
 		logger.Logger.Info("server stop start", zap.Any("signal", s))
-		_, _ = rpc.LogicIntClient.ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Connect.LocalAddr})
+		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Connect.LocalAddr})
 		logger.Logger.Info("server stop end")
 
 		server.GracefulStop()

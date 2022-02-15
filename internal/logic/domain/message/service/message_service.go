@@ -54,7 +54,7 @@ func (*messageService) Sync(ctx context.Context, userId, seq int64) (*pb.SyncRes
 			userIds[resp.Messages[i].Sender.SenderId] = 0
 		}
 	}
-	usersResp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	usersResp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (*messageService) SendToUser(ctx context.Context, sender *pb.Sender, toUser
 // SendToDevice 将消息发送给设备
 func (*messageService) SendToDevice(ctx context.Context, device *pb.Device, message *pb.Message) error {
 	messageSend := pb.MessageSend{Message: message}
-	_, err := rpc.ConnectIntClient.DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
+	_, err := rpc.GetConnectIntClient().DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
 		DeviceId:    device.DeviceId,
 		MessageSend: &messageSend,
 	})
@@ -183,7 +183,7 @@ func (*messageService) SendToDevice(ctx context.Context, device *pb.Device, mess
 
 func (*messageService) AddSenderInfo(sender *pb.Sender) {
 	if sender.SenderType == pb.SenderType_ST_USER {
-		user, err := rpc.BusinessIntClient.GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
+		user, err := rpc.GetBusinessIntClient().GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
 		if err == nil && user != nil {
 			sender.AvatarUrl = user.User.AvatarUrl
 			sender.Nickname = user.User.Nickname

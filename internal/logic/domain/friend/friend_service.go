@@ -24,7 +24,7 @@ func (s *friendService) List(ctx context.Context, userId int64) ([]*pb.Friend, e
 	for i := range friends {
 		userIds[friends[i].FriendId] = 0
 	}
-	resp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	resp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (*friendService) AddFriend(ctx context.Context, userId, friendId int64, rem
 		return err
 	}
 
-	resp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	resp, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: userId})
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (*friendService) AgreeAddFriend(ctx context.Context, userId, friendId int64
 		return err
 	}
 
-	resp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	resp, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: userId})
 	if err != nil {
 		return err
 	}

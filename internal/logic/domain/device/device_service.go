@@ -26,7 +26,7 @@ func (*deviceService) Register(ctx context.Context, device *Device) error {
 
 // SignIn 长连接登录
 func (*deviceService) SignIn(ctx context.Context, userId, deviceId int64, token string, connAddr string, clientAddr string) error {
-	_, err := rpc.BusinessIntClient.Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
+	_, err := rpc.GetBusinessIntClient().Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (*deviceService) SignIn(ctx context.Context, userId, deviceId int64, token 
 
 // Auth 权限验证
 func (*deviceService) Auth(ctx context.Context, userId, deviceId int64, token string) error {
-	_, err := rpc.BusinessIntClient.Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
+	_, err := rpc.GetBusinessIntClient().Auth(ctx, &pb.AuthReq{UserId: userId, DeviceId: deviceId, Token: token})
 	if err != nil {
 		return err
 	}

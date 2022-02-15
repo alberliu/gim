@@ -108,7 +108,7 @@ func (g *Group) Update(ctx context.Context, in *pb.UpdateGroupReq) error {
 }
 
 func (g *Group) PushUpdate(ctx context.Context, userId int64) error {
-	userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: userId})
+	userResp, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: userId})
 	if err != nil {
 		return err
 	}
@@ -216,7 +216,7 @@ func (g *Group) GetMembers(ctx context.Context) ([]*pb.GroupMember, error) {
 	for i := range members {
 		userIds[members[i].UserId] = 0
 	}
-	resp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
+	resp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (g *Group) PushAddMember(ctx context.Context, optUserId int64, addedIds []i
 	}
 
 	addIdMap[optUserId] = 0
-	usersResp, err := rpc.BusinessIntClient.GetUsers(ctx, &pb.GetUsersReq{UserIds: addIdMap})
+	usersResp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{UserIds: addIdMap})
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func (g *Group) DeleteMember(ctx context.Context, userId int64) error {
 }
 
 func (g *Group) PushDeleteMember(ctx context.Context, optId, userId int64) error {
-	userResp, err := rpc.BusinessIntClient.GetUser(ctx, &pb.GetUserReq{UserId: optId})
+	userResp, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: optId})
 	if err != nil {
 		return err
 	}

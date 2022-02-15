@@ -9,7 +9,6 @@ import (
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/rpc"
 	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
@@ -32,10 +31,6 @@ func main() {
 
 	// 初始化APP代理
 	initProxy()
-
-	// 初始化RpcClient
-	rpc.InitConnectIntClient(config.RPCAddr.ConnectRPCAddr)
-	rpc.InitBusinessIntClient(config.RPCAddr.BusinessRPCAddr)
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_interceptor", urlwhitelist.Logic)))
 

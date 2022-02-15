@@ -39,7 +39,7 @@ func (*authService) SignIn(ctx context.Context, phoneNumber, code string, device
 		isNew = true
 	}
 
-	resp, err := rpc.LogicIntClient.GetDevice(ctx, &pb.GetDeviceReq{DeviceId: deviceId})
+	resp, err := rpc.GetLogicIntClient().GetDevice(ctx, &pb.GetDeviceReq{DeviceId: deviceId})
 	if err != nil {
 		return false, 0, "", err
 	}

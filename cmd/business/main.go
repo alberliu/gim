@@ -7,7 +7,6 @@ import (
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
-	"gim/pkg/rpc"
 	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
@@ -22,10 +21,6 @@ func main() {
 	logger.Init()
 	db.InitMysql(config.Business.MySQL)
 	db.InitRedis(config.Business.RedisIP, config.Logic.RedisPassword)
-
-	// 初始化RpcClient
-	rpc.InitLogicIntClient(config.RPCAddr.LogicRPCAddr)
-	rpc.InitBusinessIntClient(config.RPCAddr.BusinessRPCAddr)
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", urlwhitelist.Business)))
 

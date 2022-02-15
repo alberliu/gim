@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"fmt"
+	"gim/config"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -13,40 +14,61 @@ import (
 )
 
 var (
-	LogicIntClient    pb.LogicIntClient
-	ConnectIntClient  pb.ConnectIntClient
-	BusinessIntClient pb.BusinessIntClient
+	logicIntClient    pb.LogicIntClient
+	connectIntClient  pb.ConnectIntClient
+	businessIntClient pb.BusinessIntClient
 )
 
-func InitLogicIntClient(addr string) {
-	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+func GetLogicIntClient() pb.LogicIntClient {
+	if logicIntClient == nil {
+		initLogicIntClient()
+	}
+	return logicIntClient
+}
+
+func GetConnectIntClient() pb.ConnectIntClient {
+	if connectIntClient == nil {
+		initConnectIntClient()
+	}
+	return connectIntClient
+}
+
+func GetBusinessIntClient() pb.BusinessIntClient {
+	if businessIntClient == nil {
+		initBusinessIntClient()
+	}
+	return businessIntClient
+}
+
+func initLogicIntClient() {
+	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.LogicRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
 
-	LogicIntClient = pb.NewLogicIntClient(conn)
+	logicIntClient = pb.NewLogicIntClient(conn)
 }
 
-func InitConnectIntClient(addr string) {
-	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+func initConnectIntClient() {
+	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.ConnectRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.AddrPickerName)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
 
-	ConnectIntClient = pb.NewConnectIntClient(conn)
+	connectIntClient = pb.NewConnectIntClient(conn)
 }
 
-func InitBusinessIntClient(addr string) {
-	conn, err := grpc.DialContext(context.TODO(), addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+func initBusinessIntClient() {
+	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.BusinessRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)
 		panic(err)
 	}
 
-	BusinessIntClient = pb.NewBusinessIntClient(conn)
+	businessIntClient = pb.NewBusinessIntClient(conn)
 }
