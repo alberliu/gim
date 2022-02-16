@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"strconv"
 	"testing"
@@ -12,10 +11,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
-
-func init() {
-	logger.Init()
-}
 
 func getBusinessExtClient() pb.BusinessExtClient {
 	conn, err := grpc.Dial("111.229.238.28:50200", grpc.WithInsecure())

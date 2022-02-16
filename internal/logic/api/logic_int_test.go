@@ -15,11 +15,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func init() {
-	logger.Init()
-	fmt.Println("init logger")
-}
-
 func getLogicIntClient() pb.LogicIntClient {
 	conn, err := grpc.Dial("111.229.238.28:50000", grpc.WithInsecure())
 	if err != nil {

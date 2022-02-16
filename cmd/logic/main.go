@@ -5,7 +5,6 @@ import (
 	"gim/internal/logic/api"
 	"gim/internal/logic/app"
 	"gim/internal/logic/proxy"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -25,10 +24,6 @@ func initProxy() {
 }
 
 func main() {
-	logger.Init()
-	db.InitMysql(config.Logic.MySQL)
-	db.InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
-
 	// 初始化APP代理
 	initProxy()
 

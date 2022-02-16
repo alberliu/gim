@@ -4,7 +4,6 @@ import (
 	"context"
 	"gim/config"
 	"gim/internal/connect"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -20,10 +19,6 @@ import (
 )
 
 func main() {
-	logger.Init()
-
-	db.InitRedis(config.Connect.RedisIP, config.Connect.RedisPassword)
-
 	// 启动TCP长链接服务器
 	go func() {
 		connect.StartTCPServer()

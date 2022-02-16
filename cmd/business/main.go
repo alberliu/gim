@@ -3,7 +3,6 @@ package main
 import (
 	"gim/config"
 	"gim/internal/business/api"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -18,10 +17,6 @@ import (
 )
 
 func main() {
-	logger.Init()
-	db.InitMysql(config.Business.MySQL)
-	db.InitRedis(config.Business.RedisIP, config.Logic.RedisPassword)
-
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", urlwhitelist.Business)))
 
 	// 监听服务关闭信号，服务平滑重启

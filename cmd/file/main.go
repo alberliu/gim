@@ -22,8 +22,6 @@ type Response struct {
 }
 
 func main() {
-	// 初始化日志
-	logger.Init()
 	router := gin.Default()
 	router.Static("/file", "/root/file")
 
