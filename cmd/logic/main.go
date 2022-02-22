@@ -18,15 +18,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-func initProxy() {
+func init() {
 	proxy.MessageProxy = app.MessageApp
 	proxy.DeviceProxy = app.DeviceApp
 }
 
 func main() {
-	// 初始化APP代理
-	initProxy()
-
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_interceptor", urlwhitelist.Logic)))
 
 	// 监听服务关闭信号，服务平滑重启
