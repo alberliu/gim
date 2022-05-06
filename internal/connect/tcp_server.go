@@ -25,7 +25,7 @@ func StartTCPServer() {
 	server, err = gn.NewServer(config.Connect.TCPListenAddr, &handler{},
 		gn.NewHeaderLenDecoder(2),
 		gn.WithReadBufferLen(256),
-		gn.WithTimeout(5*time.Minute, 11*time.Minute),
+		gn.WithTimeout(11*time.Minute),
 		gn.WithAcceptGNum(10),
 		gn.WithIOGNum(100))
 	if err != nil {
