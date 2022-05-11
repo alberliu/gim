@@ -39,7 +39,7 @@ type Conn struct {
 // Write 写入数据
 func (c *Conn) Write(bytes []byte) error {
 	if c.CoonType == CoonTypeTCP {
-		return encoder.EncodeToWriter(c.TCP, bytes)
+		return c.TCP.WriteWithEncoder(bytes)
 	} else if c.CoonType == ConnTypeWS {
 		return c.WriteToWS(bytes)
 	}
@@ -80,7 +80,7 @@ func (c *Conn) Close() error {
 	}
 
 	if c.CoonType == CoonTypeTCP {
-		return c.TCP.Close()
+		c.TCP.Close()
 	} else if c.CoonType == ConnTypeWS {
 		return c.WS.Close()
 	}

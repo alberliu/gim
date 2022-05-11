@@ -23,7 +23,8 @@ func StartTCPServer() {
 
 	var err error
 	server, err = gn.NewServer(config.Connect.TCPListenAddr, &handler{},
-		gn.NewHeaderLenDecoder(2),
+		gn.WithDecoder(gn.NewHeaderLenDecoder(2)),
+		gn.WithEncoder(gn.NewHeaderLenEncoder(2, 1024)),
 		gn.WithReadBufferLen(256),
 		gn.WithTimeout(11*time.Minute),
 		gn.WithAcceptGNum(10),
