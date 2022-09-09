@@ -41,7 +41,7 @@ func GetBusinessIntClient() pb.BusinessIntClient {
 }
 
 func initLogicIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.LogicRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+	conn, err := grpc.DialContext(context.TODO(), config.Config.LogicRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -52,7 +52,7 @@ func initLogicIntClient() {
 }
 
 func initConnectIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.ConnectRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+	conn, err := grpc.DialContext(context.TODO(), config.Config.ConnectRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.AddrPickerName)))
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -63,7 +63,7 @@ func initConnectIntClient() {
 }
 
 func initBusinessIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.RPCAddr.BusinessRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+	conn, err := grpc.DialContext(context.TODO(), config.Config.BusinessRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		logger.Sugar.Error(err)

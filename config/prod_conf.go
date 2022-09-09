@@ -7,37 +7,25 @@ import (
 )
 
 func initProdConf() {
-	RPCAddr = RPCAddrConf{
-		ConnectRPCAddr:  "addrs:///127.0.0.1:50000",
-		BusinessRPCAddr: "addrs:///127.0.0.1:50100",
-		LogicRPCAddr:    "addrs:///127.0.0.1:50200",
-	}
+	Config = config{
+		MySQL:         "root:gim123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true",
+		RedisIP:       "111.229.238.28:6379",
+		RedisPassword: "alber123456",
 
-	Connect = ConnectConf{
+		ConnectRPCAddr:  "addrs:///127.0.0.1:50000",
+		LogicRPCAddr:    "addrs:///127.0.0.1:50100",
+		BusinessRPCAddr: "addrs:///127.0.0.1:50200",
+
 		TCPListenAddr:        ":8080",
 		WSListenAddr:         ":8081",
-		RPCListenAddr:        ":50000",
-		LocalAddr:            "127.0.0.1:50000",
-		RedisIP:              "111.229.238.28:6379",
-		RedisPassword:        "alber123456",
+		ConnectRPCListenAddr: ":50000",
+		ConnectLocalAddr:     "127.0.0.1:50000",
 		PushRoomSubscribeNum: 100,
 		PushAllSubscribeNum:  100,
-	}
 
-	Logic = LogicConf{
-		MySQL:         "root:gim123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true",
-		NSQIP:         "111.229.238.28:4150",
-		RedisIP:       "111.229.238.28:6379",
-		RedisPassword: "alber123456",
-		RPCListenAddr: ":50100",
-	}
+		LogicRPCListenAddr: ":50100",
 
-	Business = BusinessConf{
-		MySQL:         "root:gim123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true",
-		NSQIP:         "111.229.238.28:4150",
-		RedisIP:       "111.229.238.28:6379",
-		RedisPassword: "alber123456",
-		RPCListenAddr: ":50200",
+		BusinessRPCListenAddr: ":50200",
 	}
 
 	logger.Level = zap.DebugLevel

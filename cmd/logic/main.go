@@ -37,7 +37,7 @@ func main() {
 
 	pb.RegisterLogicIntServer(server, &api.LogicIntServer{})
 	pb.RegisterLogicExtServer(server, &api.LogicExtServer{})
-	listen, err := net.Listen("tcp", config.Logic.RPCListenAddr)
+	listen, err := net.Listen("tcp", config.Config.LogicRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

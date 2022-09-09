@@ -4,48 +4,26 @@ import (
 	"os"
 )
 
-var (
-	RPCAddr  RPCAddrConf
-	Logic    LogicConf
-	Connect  ConnectConf
-	Business BusinessConf
-)
+var Config config
 
-// RPCAddrConf RPC配置
-type RPCAddrConf struct {
+type config struct {
+	MySQL         string
+	RedisIP       string
+	RedisPassword string
+
 	ConnectRPCAddr  string
 	BusinessRPCAddr string
 	LogicRPCAddr    string
-}
 
-// ConnectConf Connect配置
-type ConnectConf struct {
 	TCPListenAddr        string
 	WSListenAddr         string
-	RPCListenAddr        string
-	LocalAddr            string
-	RedisIP              string
-	RedisPassword        string
+	ConnectRPCListenAddr string
+	ConnectLocalAddr     string
 	PushRoomSubscribeNum int
 	PushAllSubscribeNum  int
-}
 
-// LogicConf logic配置
-type LogicConf struct {
-	MySQL         string
-	NSQIP         string
-	RedisIP       string
-	RedisPassword string
-	RPCListenAddr string
-}
-
-// BusinessConf Business配置
-type BusinessConf struct {
-	MySQL         string
-	NSQIP         string
-	RedisIP       string
-	RedisPassword string
-	RPCListenAddr string
+	LogicRPCListenAddr    string
+	BusinessRPCListenAddr string
 }
 
 func init() {

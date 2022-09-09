@@ -19,8 +19,8 @@ var (
 )
 
 func init() {
-	InitMysql(config.Logic.MySQL)
-	InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
+	InitMysql(config.Config.MySQL)
+	InitRedis(config.Config.RedisIP, config.Config.RedisPassword)
 }
 
 // InitMysql 初始化MySQL
@@ -59,6 +59,6 @@ func InitByTest() {
 	fmt.Println("init db")
 	logger.Target = logger.Console
 
-	InitMysql(config.Logic.MySQL)
-	InitRedis(config.Logic.RedisIP, config.Logic.RedisPassword)
+	InitMysql(config.Config.MySQL)
+	InitRedis(config.Config.RedisIP, config.Config.RedisPassword)
 }

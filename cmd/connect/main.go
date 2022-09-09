@@ -26,7 +26,7 @@ func main() {
 
 	// 启动WebSocket长链接服务器
 	go func() {
-		connect.StartWSServer(config.Connect.WSListenAddr)
+		connect.StartWSServer(config.Config.WSListenAddr)
 	}()
 
 	// 启动服务订阅
@@ -40,14 +40,14 @@ func main() {
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
 		logger.Logger.Info("server stop start", zap.Any("signal", s))
-		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Connect.LocalAddr})
+		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Config.ConnectLocalAddr})
 		logger.Logger.Info("server stop end")
 
 		server.GracefulStop()
 	}()
 
 	pb.RegisterConnectIntServer(server, &connect.ConnIntServer{})
-	listener, err := net.Listen("tcp", config.Connect.RPCListenAddr)
+	listener, err := net.Listen("tcp", config.Config.ConnectRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}
