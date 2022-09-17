@@ -1,39 +1,42 @@
 package config
 
 import (
-	"os"
+	"context"
+	"gim/pkg/k8sutil"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var Config config
+const (
+	RPCListenAddr = ":8000"
+	TCPListenAddr = ":8080"
+	WSListenAddr  = ":8001"
+)
 
-type config struct {
+var (
+	NameSpace     string
 	MySQL         string
 	RedisIP       string
 	RedisPassword string
 
-	ConnectRPCAddr  string
-	BusinessRPCAddr string
-	LogicRPCAddr    string
-
-	TCPListenAddr        string
-	WSListenAddr         string
-	ConnectRPCListenAddr string
-	ConnectLocalAddr     string
+	LocalAddr            string
 	PushRoomSubscribeNum int
 	PushAllSubscribeNum  int
-
-	LogicRPCListenAddr    string
-	BusinessRPCListenAddr string
-}
+)
 
 func init() {
-	env := os.Getenv("gim_env")
-	switch env {
-	case "dev":
-		initDevConf()
-	case "prod":
-		initProdConf()
-	default:
-		initLocalConf()
+	k8sClient, err := k8sutil.GetK8sClient()
+	if err != nil {
+		panic(err)
 	}
+
+	configmap, err := k8sClient.CoreV1().ConfigMaps(NameSpace).Get(context.TODO(), "config", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	MySQL = configmap.Data["mysql"]
+	RedisIP = configmap.Data["redisIP"]
+	RedisPassword = configmap.Data["redisPassword"]
+	PushRoomSubscribeNum = configmap.Data["pushRoomSubscribeNum"]
+	PushAllSubscribeNum = configmap.Data["pushAllSubscribeNum"]
 }

@@ -1,4 +1,4 @@
-package grpclib
+package picker
 
 import (
 	"context"

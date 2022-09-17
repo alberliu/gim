@@ -3,9 +3,8 @@ package rpc
 import (
 	"context"
 	"fmt"
-	"gim/config"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
+	"gim/pkg/grpclib/picker"
+	"gim/pkg/grpclib/resolver/k8s"
 	"gim/pkg/pb"
 
 	"google.golang.org/grpc/balancer/roundrobin"
@@ -41,32 +40,27 @@ func GetBusinessIntClient() pb.BusinessIntClient {
 }
 
 func initLogicIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.Config.LogicRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "logic", "80"), grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
-		logger.Sugar.Error(err)
 		panic(err)
 	}
-
 	logicIntClient = pb.NewLogicIntClient(conn)
 }
 
 func initConnectIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.Config.ConnectRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, grpclib.AddrPickerName)))
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "connect", "80"), grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, picker.AddrPickerName)))
 	if err != nil {
-		logger.Sugar.Error(err)
 		panic(err)
 	}
-
 	connectIntClient = pb.NewConnectIntClient(conn)
 }
 
 func initBusinessIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), config.Config.BusinessRPCAddr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(interceptor),
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "business", "80"), grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
-		logger.Sugar.Error(err)
 		panic(err)
 	}
 

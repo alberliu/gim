@@ -1,0 +1,24 @@
+config:
+  mysql: "alber"
+  redisIP: "6"
+  redisPassword: "6"
+
+  pushRoomSubscribeNum: 1
+  pushAllSubscribeNum: 10
+
+server:
+  connect:
+    name: connect
+    image: connect
+    replicas: 3
+  logic:
+    name: logic
+    image: logic
+    replicas: 2
+  business:
+    name: logic
+    image: logic
+    replicas: 2
+
+
+

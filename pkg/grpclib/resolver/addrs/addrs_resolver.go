@@ -1,4 +1,4 @@
-package grpclib
+package addrs
 
 import (
 	"strings"

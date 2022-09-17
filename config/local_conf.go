@@ -12,10 +12,6 @@ func initLocalConf() {
 		RedisIP:       "111.229.238.28:6379",
 		RedisPassword: "alber123456",
 
-		ConnectRPCAddr:  "addrs:///127.0.0.1:50000",
-		LogicRPCAddr:    "addrs:///127.0.0.1:50100",
-		BusinessRPCAddr: "addrs:///127.0.0.1:50200",
-
 		TCPListenAddr:        ":8080",
 		WSListenAddr:         ":8081",
 		ConnectRPCListenAddr: ":50000",
