@@ -30,7 +30,7 @@ func main() {
 
 	pb.RegisterBusinessIntServer(server, &api.BusinessIntServer{})
 	pb.RegisterBusinessExtServer(server, &api.BusinessExtServer{})
-	listen, err := net.Listen("tcp", config.Config.BusinessRPCListenAddr)
+	listen, err := net.Listen("tcp", config.RPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

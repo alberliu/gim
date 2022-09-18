@@ -18,12 +18,12 @@ import (
 func StartSubscribe() {
 	pushRoomPriorityChannel := db.RedisCli.Subscribe(mq.PushRoomPriorityTopic).Channel()
 	pushRoomChannel := db.RedisCli.Subscribe(mq.PushRoomTopic).Channel()
-	for i := 0; i < config.Config.PushRoomSubscribeNum; i++ {
+	for i := 0; i < config.PushRoomSubscribeNum; i++ {
 		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
 	}
 
 	pushAllChannel := db.RedisCli.Subscribe(mq.PushAllTopic).Channel()
-	for i := 0; i < config.Config.PushAllSubscribeNum; i++ {
+	for i := 0; i < config.PushAllSubscribeNum; i++ {
 		go handlePushAllMsg(pushAllChannel)
 	}
 }

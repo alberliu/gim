@@ -6,6 +6,7 @@ import (
 	"gim/internal/logic/domain/message/repo"
 	"gim/internal/logic/proxy"
 	"gim/pkg/grpclib"
+	"gim/pkg/grpclib/picker"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
@@ -168,7 +169,7 @@ func (*messageService) SendToUser(ctx context.Context, sender *pb.Sender, toUser
 // SendToDevice 将消息发送给设备
 func (*messageService) SendToDevice(ctx context.Context, device *pb.Device, message *pb.Message) error {
 	messageSend := pb.MessageSend{Message: message}
-	_, err := rpc.GetConnectIntClient().DeliverMessage(grpclib.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
+	_, err := rpc.GetConnectIntClient().DeliverMessage(picker.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
 		DeviceId:    device.DeviceId,
 		MessageSend: &messageSend,
 	})

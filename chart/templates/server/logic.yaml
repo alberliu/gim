@@ -4,23 +4,23 @@ kind: Deployment
 metadata:
   name: logic-deployment
   labels:
-    app: { { .Values.server.logic.name } }
+    app: {{ .Values.server.logic.name }}
 spec:
-  replicas: { { .Values.server.logic.replicas } }
+  replicas: {{ .Values.server.logic.replicas }}
   selector:
     matchLabels:
-      app: { { .Values.server.logic.name } }
+      app: {{ .Values.server.logic.name }}
   template:
     metadata:
       labels:
-        app: { { .Values.server.logic.name } }
+        app: {{ .Values.server.logic.name }}
     spec:
       containers:
-        - name: { { .Values.server.logic.name } }
-          image: { { .Values.server.logic.image } }
+        - name: {{ .Values.server.logic.name }}
+          image: {{ .Values.server.logic.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           volumeMounts: # 映射文件为宿主机文件
             - mountPath: /log/
               name: log
@@ -38,13 +38,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { .Values.server.logic.name } }
+  name: {{ .Values.server.logic.name }}
   labels:
-    app: { { .Values.server.logic.name } }  # 只有设置label,才能被服务发现找到
+    app: {{ .Values.server.logic.name }}  # 只有设置label,才能被服务发现找到
 spec:
   selector:
-    app: { { .Values.server.logic.name } }
+    app: {{ .Values.server.logic.name }}
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8000
+      targetPort: 8000

@@ -13,8 +13,8 @@ rules:
       - services/status
       - endpoints
       - endpoints/status
-      - configmap
-      - configmap/status
+      - configmaps
+      - configmaps/status
     verbs:
       - get
       - list

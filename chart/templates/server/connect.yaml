@@ -4,23 +4,25 @@ kind: Deployment
 metadata:
   name: connect-deployment
   labels:
-    app: { { .Values.server.connect.name } }
+    app: {{ .Values.server.connect.name }}
 spec:
-  replicas: { { .Values.server.connect.replicas } }
+  replicas: {{ .Values.server.connect.replicas }}
   selector:
     matchLabels:
-      app: { { .Values.server.connect.name } }
+      app: {{ .Values.server.connect.name }}
   template:
     metadata:
       labels:
-        app: { { .Values.server.connect.name } }
+        app: {{ .Values.server.connect.name }}
     spec:
       containers:
-        - name: { { .Values.server.connect.name } }
-          image: { { .Values.server.connect.image } }
+        - name: {{ .Values.server.connect.name }}
+          image: {{ .Values.server.connect.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
-            - containerPort: 80
+            - containerPort: 8000
+            - containerPort: 8080
+            - containerPort: 8081
           volumeMounts: # 映射文件为宿主机文件
             - mountPath: /log/
               name: log
@@ -38,13 +40,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { .Values.server.connect.name } }
+  name: {{ .Values.server.connect.name }}
   labels:
-    app: { { .Values.server.connect.name } }  # 只有设置label,才能被服务发现找到
+    app: {{ .Values.server.connect.name }}  # 只有设置label,才能被服务发现找到
 spec:
   selector:
-    app: { { .Values.server.connect.name } }
+    app: {{ .Values.server.connect.name }}
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8000
+      targetPort: 8000

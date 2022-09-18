@@ -3,7 +3,7 @@ package room
 import (
 	"context"
 	"gim/pkg/gerrors"
-	"gim/pkg/grpclib"
+	"gim/pkg/grpclib/picker"
 	"gim/pkg/logger"
 	"gim/pkg/mq"
 	"gim/pkg/pb"
@@ -123,7 +123,7 @@ func (s *roomService) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRe
 	}
 
 	for i := range messages {
-		_, err := rpc.GetConnectIntClient().DeliverMessage(grpclib.ContextWithAddr(ctx, req.ConnAddr), &pb.DeliverMessageReq{
+		_, err := rpc.GetConnectIntClient().DeliverMessage(picker.ContextWithAddr(ctx, req.ConnAddr), &pb.DeliverMessageReq{
 			DeviceId: req.DeviceId,
 			MessageSend: &pb.MessageSend{
 				Message: messages[i],

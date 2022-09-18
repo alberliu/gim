@@ -2,7 +2,6 @@ package connect
 
 import (
 	"context"
-	"gim/config"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
 	"gim/pkg/rpc"
@@ -18,11 +17,11 @@ var encoder = gn.NewHeaderLenEncoder(2, 1024)
 var server *gn.Server
 
 // StartTCPServer 启动TCP服务器
-func StartTCPServer() {
+func StartTCPServer(addr string) {
 	gn.SetLogger(logger.Sugar)
 
 	var err error
-	server, err = gn.NewServer(config.Config.TCPListenAddr, &handler{},
+	server, err = gn.NewServer(addr, &handler{},
 		gn.WithDecoder(gn.NewHeaderLenDecoder(2)),
 		gn.WithEncoder(gn.NewHeaderLenEncoder(2, 1024)),
 		gn.WithReadBufferLen(256),

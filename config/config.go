@@ -3,6 +3,12 @@ package config
 import (
 	"context"
 	"gim/pkg/k8sutil"
+	"gim/pkg/logger"
+	"os"
+	"strconv"
+
+	"go.uber.org/zap"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -13,7 +19,7 @@ const (
 )
 
 var (
-	NameSpace     string
+	NameSpace     string = "default"
 	MySQL         string
 	RedisIP       string
 	RedisPassword string
@@ -28,7 +34,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
 	configmap, err := k8sClient.CoreV1().ConfigMaps(NameSpace).Get(context.TODO(), "config", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
@@ -37,6 +42,17 @@ func init() {
 	MySQL = configmap.Data["mysql"]
 	RedisIP = configmap.Data["redisIP"]
 	RedisPassword = configmap.Data["redisPassword"]
-	PushRoomSubscribeNum = configmap.Data["pushRoomSubscribeNum"]
-	PushAllSubscribeNum = configmap.Data["pushAllSubscribeNum"]
+	PushRoomSubscribeNum, _ = strconv.Atoi(configmap.Data["pushRoomSubscribeNum"])
+	if PushRoomSubscribeNum == 0 {
+		panic("PushRoomSubscribeNum == 0")
+	}
+	PushAllSubscribeNum, _ = strconv.Atoi(configmap.Data["pushAllSubscribeNum"])
+	if PushRoomSubscribeNum == 0 {
+		panic("PushAllSubscribeNum == 0")
+	}
+
+	LocalAddr = os.Getenv("POD_IP") + RPCListenAddr
+
+	logger.Level = zap.DebugLevel
+	logger.Target = logger.Console
 }

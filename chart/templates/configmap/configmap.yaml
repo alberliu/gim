@@ -4,11 +4,8 @@ metadata:
   name: config
 data:
   # 类属性键；每一个键都映射到一个简单的值，仅仅支持键值对，不支持嵌套
-  mysql: { { .Values.config.mysql } }
-  redisIP: { { .Values.config.redisIP } }
-  redisPassword: { { .Values.config.redisPassword } }
-
-  pushRoomSubscribeNum: { { .Values.config.pushRoomSubscribeNum } }
-  pushAllSubscribeNum: { { .Values.config.pushAllSubscribeNum } }
-
-
+  mysql: "root:gim123456@tcp(111.229.238.28:3306)/gim?charset=utf8&parseTime=true"
+  redisIP: "111.229.238.28:6379"
+  redisPassword: "alber123456"
+  pushRoomSubscribeNum: "100"
+  pushAllSubscribeNum: "100"

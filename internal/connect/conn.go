@@ -177,7 +177,7 @@ func (c *Conn) SignIn(input *pb.Input) {
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
-		ConnAddr:   config.Config.ConnectLocalAddr,
+		ConnAddr:   config.LocalAddr,
 		ClientAddr: c.GetAddr(),
 	})
 
@@ -253,7 +253,7 @@ func (c *Conn) SubscribedRoom(input *pb.Input) {
 		DeviceId: c.DeviceId,
 		RoomId:   subscribeRoom.RoomId,
 		Seq:      subscribeRoom.Seq,
-		ConnAddr: config.Config.ConnectLocalAddr,
+		ConnAddr: config.LocalAddr,
 	})
 	if err != nil {
 		logger.Logger.Error("SubscribedRoom error", zap.Error(err))
