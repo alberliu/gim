@@ -40,7 +40,7 @@ func GetBusinessIntClient() pb.BusinessIntClient {
 }
 
 func initLogicIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "logic", "80"), grpc.WithInsecure(),
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "logic", "8000"), grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		panic(err)
@@ -49,7 +49,7 @@ func initLogicIntClient() {
 }
 
 func initConnectIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "connect", "80"), grpc.WithInsecure(),
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "connect", "8000"), grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, picker.AddrPickerName)))
 	if err != nil {
 		panic(err)
@@ -58,7 +58,7 @@ func initConnectIntClient() {
 }
 
 func initBusinessIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "business", "80"), grpc.WithInsecure(),
+	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget("default", "business", "8000"), grpc.WithInsecure(),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
 	if err != nil {
 		panic(err)

@@ -8,6 +8,6 @@ server:
     image: logic
     replicas: 1
   business:
-    name: logic
-    image: logic
+    name: business
+    image: business
     replicas: 1

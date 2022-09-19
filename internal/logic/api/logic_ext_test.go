@@ -15,15 +15,13 @@ import (
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("111.229.238.28:50000", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:8000", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 	return pb.NewLogicExtClient(conn)
 }
-
-// deprecated:
 
 func getCtx() context.Context {
 	token := "0"
