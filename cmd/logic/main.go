@@ -5,6 +5,7 @@ import (
 	"gim/internal/logic/api"
 	"gim/internal/logic/app"
 	"gim/internal/logic/proxy"
+	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -24,6 +25,9 @@ func init() {
 }
 
 func main() {
+	config.Init()
+	db.Init()
+
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_interceptor", urlwhitelist.Logic)))
 
 	// 监听服务关闭信号，服务平滑重启

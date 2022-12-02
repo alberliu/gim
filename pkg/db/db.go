@@ -18,7 +18,7 @@ var (
 	RedisUtil *util.RedisUtil
 )
 
-func init() {
+func Init() {
 	InitMysql(config.MySQL)
 	InitRedis(config.RedisIP, config.RedisPassword)
 }

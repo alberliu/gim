@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var codecFactory = gim_util.NewHeaderLenCodecFactory(2, 1024)
+var codecFactory = gim_util.NewHeaderLenCodecFactory(2, 65536)
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
@@ -65,7 +65,7 @@ func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Mes
 }
 
 func (c *TcpClient) Start() {
-	connect, err := net.Dial("tcp", "111.229.238.28:8080")
+	connect, err := net.Dial("tcp", "127.0.0.1:8080")
 	if err != nil {
 		log.Println(err)
 		return

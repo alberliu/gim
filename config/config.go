@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	NameSpace     string = "default"
+	Namespace     = "gimns"
 	MySQL         string
 	RedisIP       string
 	RedisPassword string
@@ -29,12 +29,12 @@ var (
 	PushAllSubscribeNum  int
 )
 
-func init() {
+func Init() {
 	k8sClient, err := k8sutil.GetK8sClient()
 	if err != nil {
 		panic(err)
 	}
-	configmap, err := k8sClient.CoreV1().ConfigMaps(NameSpace).Get(context.TODO(), "config", metav1.GetOptions{})
+	configmap, err := k8sClient.CoreV1().ConfigMaps(Namespace).Get(context.TODO(), "config", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}

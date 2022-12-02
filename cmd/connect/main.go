@@ -4,6 +4,7 @@ import (
 	"context"
 	"gim/config"
 	"gim/internal/connect"
+	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	"gim/pkg/pb"
@@ -19,6 +20,9 @@ import (
 )
 
 func main() {
+	config.Init()
+	db.Init()
+
 	// 启动TCP长链接服务器
 	go func() {
 		connect.StartTCPServer(config.TCPListenAddr)
