@@ -55,7 +55,10 @@ func (*handler) OnMessage(c *gn.Conn, bytes []byte) {
 }
 
 func (*handler) OnClose(c *gn.Conn, err error) {
-	conn := c.GetData().(*Conn)
+	conn, ok := c.GetData().(*Conn)
+	if !ok || conn == nil {
+		return
+	}
 	logger.Logger.Debug("close", zap.String("addr", c.GetAddr()), zap.Int64("user_id", conn.UserId),
 		zap.Int64("device_id", conn.DeviceId), zap.Error(err))
 
