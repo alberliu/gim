@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"gim/pkg/logger"
 	"go.uber.org/zap"
-	v1 "k8s.io/api/discovery/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"sort"
@@ -14,13 +13,30 @@ import (
 	"time"
 
 	"google.golang.org/grpc/resolver"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	discoveryv1 "k8s.io/client-go/kubernetes/typed/discovery/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
+
+var k8sClientSet *kubernetes.Clientset
+
+func GetK8sClient() (*kubernetes.Clientset, error) {
+	if k8sClientSet == nil {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			return nil, err
+		}
+		k8sClientSet, err = kubernetes.NewForConfig(config)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return k8sClientSet, nil
+}
 
 // 实现k8s地址解析，根据k8s的service的endpoints解析 比如，k8s:///namespace.server:port
 func init() {
-	resolver.Register(NewK8sBuilder())
+	resolver.Register(&k8sBuilder{})
 }
 
 func GetK8STarget(namespace, server, port string) string {
@@ -28,10 +44,6 @@ func GetK8STarget(namespace, server, port string) string {
 }
 
 type k8sBuilder struct{}
-
-func NewK8sBuilder() resolver.Builder {
-	return &k8sBuilder{}
-}
 
 func (b *k8sBuilder) Build(target resolver.Target, clientConn resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	return newK8sResolver(target, clientConn)
@@ -45,25 +57,13 @@ func (b *k8sBuilder) Scheme() string {
 type k8sResolver struct {
 	log             *zap.Logger
 	clientConn      resolver.ClientConn
-	discoveryClient discoveryv1.EndpointSliceInterface
+	endpointsClient corev1.EndpointsInterface
 	service         string
 
 	cancel context.CancelFunc
 
 	ips  []string
 	port string
-}
-
-func GetK8sClient() (*kubernetes.Clientset, error) {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, err
-	}
-	k8sClient, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return k8sClient, nil
 }
 
 func newK8sResolver(target resolver.Target, clientConn resolver.ClientConn) (*k8sResolver, error) {
@@ -82,11 +82,11 @@ func newK8sResolver(target resolver.Target, clientConn resolver.ClientConn) (*k8
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	client := k8sClient.DiscoveryV1().EndpointSlices(namespace)
+	client := k8sClient.CoreV1().Endpoints(namespace)
 	k8sResolver := &k8sResolver{
 		log:             log,
 		clientConn:      clientConn,
-		discoveryClient: client,
+		endpointsClient: client,
 		service:         service,
 		cancel:          cancel,
 		port:            port,
@@ -124,27 +124,31 @@ func (r *k8sResolver) Close() {
 
 // updateState 更新地址列表
 func (r *k8sResolver) updateState(isFromNew bool) error {
-	list, err := r.discoveryClient.List(context.TODO(), metav1.ListOptions{LabelSelector: "app=" + r.service})
+	endpoints, err := r.endpointsClient.Get(context.TODO(), r.service, metav1.GetOptions{})
 	if err != nil {
 		r.log.Error("k8s resolver error", zap.Error(err))
 		return err
 	}
-	newIPs := getIPs(list)
+	newIPs := getIPs(endpoints)
+	if len(newIPs) == 0 {
+		return nil
+	}
 	if !isFromNew && isEqualIPs(r.ips, newIPs) {
 		return nil
 	}
 	r.ips = newIPs
 
 	addresses := make([]resolver.Address, 0, len(r.ips))
-	for _, v := range r.ips {
+	for _, ip := range r.ips {
 		addresses = append(addresses, resolver.Address{
-			Addr: v + ":" + r.port,
+			Addr: ip + ":" + r.port,
 		})
 	}
 	state := resolver.State{
 		Addresses: addresses,
 	}
 	r.log.Info("k8s resolver updateState", zap.Bool("is_from_new", isFromNew), zap.Any("service", r.service), zap.Any("addresses", addresses))
+	// 这里地址数量不能为0，为0会返回错误
 	err = r.clientConn.UpdateState(state)
 	if err != nil {
 		r.log.Error("k8s resolver error", zap.Error(err))
@@ -188,16 +192,14 @@ func isEqualIPs(s1, s2 []string) bool {
 }
 
 // getIPs 获取EndpointSlice里面的IP列表
-func getIPs(list *v1.EndpointSliceList) []string {
+func getIPs(endpoints *v1.Endpoints) []string {
 	ips := make([]string, 0, 10)
-
-	for _, slice := range list.Items {
-		for _, endpoints := range slice.Endpoints {
-			for _, address := range endpoints.Addresses {
-				ips = append(ips, address)
-			}
-		}
+	if len(endpoints.Subsets) <= 0 {
+		return ips
 	}
 
+	for _, address := range endpoints.Subsets[0].Addresses {
+		ips = append(ips, address.IP)
+	}
 	return ips
 }
