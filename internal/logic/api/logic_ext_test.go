@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/util"
 	"strconv"
 	"testing"
@@ -11,11 +11,10 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/proto"
 )
 
 func getLogicExtClient() pb.LogicExtClient {
-	conn, err := grpc.Dial("127.0.0.1:8000", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:8010", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -26,8 +25,8 @@ func getLogicExtClient() pb.LogicExtClient {
 func getCtx() context.Context {
 	token := "0"
 	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
-		"user_id", "2",
-		"device_id", "1",
+		"user_id", "3",
+		"device_id", "3",
 		"token", token,
 		"request_id", strconv.FormatInt(time.Now().UnixNano(), 10)))
 }
@@ -48,52 +47,12 @@ func TestLogicExtServer_RegisterDevice(t *testing.T) {
 	fmt.Printf("%+v\n", resp)
 }
 
-func TestLogicExtServer_SendMessage(t *testing.T) {
-	buf, err := proto.Marshal(&pb.Text{
-		Text: "hello alber ",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	resp, err := getLogicExtClient().SendMessage(getCtx(),
+func TestLogicExtServer_SendMessageToFriend(t *testing.T) {
+	resp, err := getLogicExtClient().SendMessageToFriend(getCtx(),
 		&pb.SendMessageReq{
-			ReceiverType:   pb.ReceiverType_RT_USER,
-			ReceiverId:     1,
-			ToUserIds:      nil,
-			MessageType:    pb.MessageType_MT_TEXT,
-			MessageContent: buf,
-			IsPersist:      true,
-			SendTime:       util.UnixMilliTime(time.Now()),
-		})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("%+v\n", resp)
-}
-
-func TestLogicExtServer_SendImageMessage(t *testing.T) {
-	buf, err := proto.Marshal(&pb.Image{
-		Id:           "",
-		Width:        0,
-		Height:       0,
-		Url:          "https://img.iplaysoft.com/wp-content/uploads/2019/free-images/free_stock_photo.jpg",
-		ThumbnailUrl: "",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	resp, err := getLogicExtClient().SendMessage(getCtx(),
-		&pb.SendMessageReq{
-			ReceiverType:   pb.ReceiverType_RT_USER,
-			ReceiverId:     1,
-			ToUserIds:      nil,
-			MessageType:    pb.MessageType_MT_IMAGE,
-			MessageContent: buf,
-			IsPersist:      true,
-			SendTime:       util.UnixMilliTime(time.Now()),
+			ReceiverId: 2,
+			Content:    []byte("hahaha"),
+			SendTime:   util.UnixMilliTime(time.Now()),
 		})
 	if err != nil {
 		fmt.Println(err)

@@ -18,9 +18,9 @@ var (
 	RedisUtil *util.RedisUtil
 )
 
-func Init() {
-	InitMysql(config.MySQL)
-	InitRedis(config.RedisIP, config.RedisPassword)
+func init() {
+	InitMysql(config.Config.MySQL)
+	InitRedis(config.Config.RedisHost, config.Config.RedisPassword)
 }
 
 // InitMysql 初始化MySQL
@@ -58,7 +58,6 @@ func InitRedis(addr, password string) {
 func InitByTest() {
 	fmt.Println("init db")
 	logger.Target = logger.Console
-
-	InitMysql(config.MySQL)
-	InitRedis(config.RedisIP, config.RedisPassword)
+	//InitMysql(config.MySQL)
+	//InitRedis(config.RedisIP, config.RedisPassword)
 }

@@ -3,7 +3,7 @@ package connect
 import (
 	"context"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"time"
 
@@ -11,8 +11,6 @@ import (
 
 	"github.com/alberliu/gn"
 )
-
-var encoder = gn.NewHeaderLenEncoder(2, 1024)
 
 var server *gn.Server
 

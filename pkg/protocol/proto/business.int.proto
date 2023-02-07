@@ -1,0 +1,28 @@
+syntax = "proto3";
+package pb;
+option go_package = "gim/pkg/protocol/pb";
+
+import "google/protobuf/empty.proto";
+import "business.ext.proto";
+
+service BusinessInt {
+  // 权限校验
+  rpc Auth (AuthReq) returns (google.protobuf.Empty);
+  // 批量获取用户信息
+  rpc GetUser (GetUserReq) returns (GetUserResp);
+  // 批量获取用户信息
+  rpc GetUsers (GetUsersReq) returns (GetUsersResp);
+}
+
+message AuthReq {
+  int64 user_id = 1;
+  int64 device_id = 2;
+  string token = 3;
+}
+
+message GetUsersReq {
+  map<int64, int32> user_ids = 1; // 用户id
+}
+message GetUsersResp {
+  map<int64, User> users = 1; // 用户信息
+}

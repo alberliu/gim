@@ -2,68 +2,47 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	"gim/config"
-	"gim/pkg/grpclib/picker"
-	"gim/pkg/grpclib/resolver/k8s"
-	"gim/pkg/pb"
-
-	"google.golang.org/grpc/balancer/roundrobin"
-
-	"google.golang.org/grpc"
+	"gim/pkg/protocol/pb"
 )
 
 var (
-	logicIntClient    pb.LogicIntClient
 	connectIntClient  pb.ConnectIntClient
+	logicIntClient    pb.LogicIntClient
 	businessIntClient pb.BusinessIntClient
 )
 
-func GetLogicIntClient() pb.LogicIntClient {
-	if logicIntClient == nil {
-		initLogicIntClient()
-	}
-	return logicIntClient
-}
-
 func GetConnectIntClient() pb.ConnectIntClient {
 	if connectIntClient == nil {
-		initConnectIntClient()
+		connectIntClient = config.Config.ConnectIntClientBuilder()
 	}
 	return connectIntClient
 }
 
+func GetLogicIntClient() pb.LogicIntClient {
+	if logicIntClient == nil {
+		logicIntClient = config.Config.LogicIntClientBuilder()
+	}
+	return logicIntClient
+}
+
 func GetBusinessIntClient() pb.BusinessIntClient {
 	if businessIntClient == nil {
-		initBusinessIntClient()
+		businessIntClient = config.Config.BusinessIntClientBuilder()
 	}
 	return businessIntClient
 }
 
-func initLogicIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(config.Namespace, "logic", "8000"), grpc.WithInsecure(),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
+func GetSender(deviceID, userID int64) (*pb.Sender, error) {
+	user, err := GetBusinessIntClient().GetUser(context.TODO(), &pb.GetUserReq{UserId: userID})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	logicIntClient = pb.NewLogicIntClient(conn)
-}
-
-func initConnectIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(config.Namespace, "connect", "8000"), grpc.WithInsecure(),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, picker.AddrPickerName)))
-	if err != nil {
-		panic(err)
-	}
-	connectIntClient = pb.NewConnectIntClient(conn)
-}
-
-func initBusinessIntClient() {
-	conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(config.Namespace, "business", "8000"), grpc.WithInsecure(),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
-	if err != nil {
-		panic(err)
-	}
-
-	businessIntClient = pb.NewBusinessIntClient(conn)
+	return &pb.Sender{
+		UserId:    userID,
+		DeviceId:  deviceID,
+		AvatarUrl: user.User.AvatarUrl,
+		Nickname:  user.User.Nickname,
+		Extra:     user.User.Extra,
+	}, nil
 }

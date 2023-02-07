@@ -3,10 +3,9 @@ package main
 import (
 	"gim/config"
 	"gim/internal/business/api"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
@@ -18,9 +17,6 @@ import (
 )
 
 func main() {
-	config.Init()
-	db.Init()
-
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("business_interceptor", urlwhitelist.Business)))
 
 	// 监听服务关闭信号，服务平滑重启
@@ -34,7 +30,7 @@ func main() {
 
 	pb.RegisterBusinessIntServer(server, &api.BusinessIntServer{})
 	pb.RegisterBusinessExtServer(server, &api.BusinessExtServer{})
-	listen, err := net.Listen("tcp", config.RPCListenAddr)
+	listen, err := net.Listen("tcp", config.Config.BusinessRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

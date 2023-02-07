@@ -4,16 +4,20 @@ import (
 	"context"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"go.uber.org/zap"
 )
 
-type ConnIntServer struct{}
+type ConnIntServer struct {
+	pb.UnsafeConnectIntServer
+}
 
 // DeliverMessage 投递消息
-func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*pb.Empty, error) {
-	resp := &pb.Empty{}
+func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*emptypb.Empty, error) {
+	resp := &emptypb.Empty{}
 
 	// 获取设备对应的TCP连接
 	conn := GetConn(req.DeviceId)
@@ -27,6 +31,6 @@ func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessa
 		return resp, nil
 	}
 
-	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequestId(ctx), req.MessageSend, nil)
+	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequestId(ctx), req.Message, nil)
 	return resp, nil
 }

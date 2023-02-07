@@ -3,12 +3,12 @@ package main
 import (
 	"gim/config"
 	"gim/internal/logic/api"
-	"gim/internal/logic/app"
+	"gim/internal/logic/domain/device"
+	"gim/internal/logic/domain/message"
 	"gim/internal/logic/proxy"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
@@ -20,14 +20,11 @@ import (
 )
 
 func init() {
-	proxy.MessageProxy = app.MessageApp
-	proxy.DeviceProxy = app.DeviceApp
+	proxy.MessageProxy = message.App
+	proxy.DeviceProxy = device.App
 }
 
 func main() {
-	config.Init()
-	db.Init()
-
 	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("logic_interceptor", urlwhitelist.Logic)))
 
 	// 监听服务关闭信号，服务平滑重启
@@ -41,7 +38,7 @@ func main() {
 
 	pb.RegisterLogicIntServer(server, &api.LogicIntServer{})
 	pb.RegisterLogicExtServer(server, &api.LogicExtServer{})
-	listen, err := net.Listen("tcp", config.RPCListenAddr)
+	listen, err := net.Listen("tcp", config.Config.LogicRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

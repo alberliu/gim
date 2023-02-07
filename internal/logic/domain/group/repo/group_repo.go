@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"gim/internal/logic/domain/group/model"
+	"gim/internal/logic/domain/group/entity"
 )
 
 type groupRepo struct{}
@@ -9,7 +9,7 @@ type groupRepo struct{}
 var GroupRepo = new(groupRepo)
 
 // Get 获取群组信息
-func (*groupRepo) Get(groupId int64) (*model.Group, error) {
+func (*groupRepo) Get(groupId int64) (*entity.Group, error) {
 	group, err := GroupCache.Get(groupId)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (*groupRepo) Get(groupId int64) (*model.Group, error) {
 }
 
 // Save 获取群组信息
-func (*groupRepo) Save(group *model.Group) error {
+func (*groupRepo) Save(group *entity.Group) error {
 	groupId := group.Id
 	err := GroupDao.Save(group)
 	if err != nil {
@@ -46,13 +46,13 @@ func (*groupRepo) Save(group *model.Group) error {
 	members := group.Members
 	for i := range members {
 		members[i].GroupId = group.Id
-		if members[i].UpdateType == model.UpdateTypeUpdate {
+		if members[i].UpdateType == entity.UpdateTypeUpdate {
 			err = GroupUserRepo.Save(&(members[i]))
 			if err != nil {
 				return err
 			}
 		}
-		if members[i].UpdateType == model.UpdateTypeDelete {
+		if members[i].UpdateType == entity.UpdateTypeDelete {
 			err = GroupUserRepo.Delete(group.Id, members[i].UserId)
 			if err != nil {
 				return err

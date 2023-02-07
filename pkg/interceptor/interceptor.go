@@ -5,7 +5,7 @@ import (
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"strings"
 

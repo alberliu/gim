@@ -3,14 +3,8 @@ package repo
 import (
 	"fmt"
 	"gim/internal/business/domain/user/model"
-	"gim/pkg/db"
 	"testing"
 )
-
-func init() {
-	fmt.Println("init db")
-	db.InitByTest()
-}
 
 func TestUserDao_Add(t *testing.T) {
 	id, err := UserDao.Add(model.User{

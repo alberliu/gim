@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"context"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 )
 
 type deviceProxy interface {

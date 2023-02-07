@@ -6,7 +6,7 @@ import (
 	"gim/config"
 	"gim/pkg/grpclib"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"sync"
 	"time"
@@ -177,7 +177,7 @@ func (c *Conn) SignIn(input *pb.Input) {
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
-		ConnAddr:   config.LocalAddr,
+		ConnAddr:   config.Config.ConnectLocalAddr,
 		ClientAddr: c.GetAddr(),
 	})
 
@@ -253,7 +253,7 @@ func (c *Conn) SubscribedRoom(input *pb.Input) {
 		DeviceId: c.DeviceId,
 		RoomId:   subscribeRoom.RoomId,
 		Seq:      subscribeRoom.Seq,
-		ConnAddr: config.LocalAddr,
+		ConnAddr: config.Config.ConnectLocalAddr,
 	})
 	if err != nil {
 		logger.Logger.Error("SubscribedRoom error", zap.Error(err))

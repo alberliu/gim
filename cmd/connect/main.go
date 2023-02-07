@@ -4,10 +4,9 @@ import (
 	"context"
 	"gim/config"
 	"gim/internal/connect"
-	"gim/pkg/db"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"net"
 	"os"
@@ -20,17 +19,14 @@ import (
 )
 
 func main() {
-	config.Init()
-	db.Init()
-
 	// 启动TCP长链接服务器
 	go func() {
-		connect.StartTCPServer(config.TCPListenAddr)
+		connect.StartTCPServer(config.Config.ConnectTCPListenAddr)
 	}()
 
 	// 启动WebSocket长链接服务器
 	go func() {
-		connect.StartWSServer(config.WSListenAddr)
+		connect.StartWSServer(config.Config.ConnectWSListenAddr)
 	}()
 
 	// 启动服务订阅
@@ -44,14 +40,14 @@ func main() {
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
 		logger.Logger.Info("server stop start", zap.Any("signal", s))
-		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.LocalAddr})
+		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Config.ConnectLocalAddr})
 		logger.Logger.Info("server stop end")
 
 		server.GracefulStop()
 	}()
 
 	pb.RegisterConnectIntServer(server, &connect.ConnIntServer{})
-	listener, err := net.Listen("tcp", config.RPCListenAddr)
+	listener, err := net.Listen("tcp", config.Config.ConnectRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

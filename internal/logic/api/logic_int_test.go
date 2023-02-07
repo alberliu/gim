@@ -4,12 +4,8 @@ import (
 	"context"
 	"fmt"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
-	"gim/pkg/util"
+	"gim/pkg/protocol/pb"
 	"testing"
-	"time"
-
-	"google.golang.org/protobuf/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -84,20 +80,11 @@ func TestLogicIntServer_Offline(t *testing.T) {
 }
 
 func TestLogicIntServer_PushRoom(t *testing.T) {
-	buf, err := proto.Marshal(&pb.Text{
-		Text: "hello alber ",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	resp, err := getLogicIntClient().PushRoom(getCtx(),
 		&pb.PushRoomReq{
-			RoomId:         1,
-			MessageType:    pb.MessageType_MT_TEXT,
-			MessageContent: buf,
-			SendTime:       util.UnixMilliTime(time.Now()),
-			IsPersist:      true,
+			RoomId:  1,
+			Code:    1,
+			Content: []byte("hahaha"),
 		})
 	if err != nil {
 		fmt.Println(err)
@@ -107,18 +94,10 @@ func TestLogicIntServer_PushRoom(t *testing.T) {
 }
 
 func TestLogicIntServer_PushAll(t *testing.T) {
-	buf, err := proto.Marshal(&pb.Text{
-		Text: "hello alber ",
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	resp, err := getLogicIntClient().PushAll(getCtx(),
 		&pb.PushAllReq{
-			MessageType:    pb.MessageType_MT_TEXT,
-			MessageContent: buf,
-			SendTime:       util.UnixMilliTime(time.Now()),
+			Code:    1,
+			Content: []byte("hahaha"),
 		})
 	if err != nil {
 		fmt.Println(err)

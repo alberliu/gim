@@ -14,7 +14,7 @@ type messageRepo struct{}
 var MessageRepo = new(messageRepo)
 
 func (*messageRepo) tableName(userId int64) string {
-	return fmt.Sprintf("message_%03d", userId%messageTableNum)
+	return fmt.Sprintf("message")
 }
 
 // Save 插入一条消息

@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"gim/internal/logic/domain/group/model"
+	"gim/internal/logic/domain/group/entity"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"strconv"
@@ -17,8 +17,8 @@ type groupCache struct{}
 var GroupCache = new(groupCache)
 
 // Get 获取群组缓存
-func (c *groupCache) Get(groupId int64) (*model.Group, error) {
-	var user model.Group
+func (c *groupCache) Get(groupId int64) (*entity.Group, error) {
+	var user entity.Group
 	err := db.RedisUtil.Get(GroupKey+strconv.FormatInt(groupId, 10), &user)
 	if err != nil && err != redis.Nil {
 		return nil, gerrors.WrapError(err)
@@ -30,7 +30,7 @@ func (c *groupCache) Get(groupId int64) (*model.Group, error) {
 }
 
 // Set 设置群组缓存
-func (c *groupCache) Set(group *model.Group) error {
+func (c *groupCache) Set(group *entity.Group) error {
 	err := db.RedisUtil.Set(GroupKey+strconv.FormatInt(group.Id, 10), group, 24*time.Hour)
 	if err != nil {
 		return gerrors.WrapError(err)

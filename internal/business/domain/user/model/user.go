@@ -1,7 +1,7 @@
 package model
 
 import (
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"time"
 )
 

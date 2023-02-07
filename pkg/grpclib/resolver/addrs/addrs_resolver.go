@@ -15,8 +15,7 @@ func RegisterResolver() {
 	resolver.Register(NewAddrsBuilder())
 }
 
-type addrsBuilder struct {
-}
+type addrsBuilder struct{}
 
 func NewAddrsBuilder() resolver.Builder {
 	return &addrsBuilder{}
@@ -51,8 +50,7 @@ func (r *addrsResolver) ResolveNow(opt resolver.ResolveNowOptions) {
 	r.clientConn.UpdateState(state)
 }
 
-func (r *addrsResolver) Close() {
-}
+func (r *addrsResolver) Close() {}
 
 func getAddrs(ips []string) []resolver.Address {
 	addresses := make([]resolver.Address, len(ips))

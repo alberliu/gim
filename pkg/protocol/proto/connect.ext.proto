@@ -1,0 +1,62 @@
+syntax = "proto3";
+package pb;
+option go_package = "gim/pkg/protocol/pb";
+
+import "message.ext.proto";
+
+enum PackageType {
+  PT_UNKNOWN = 0; // 未知
+  PT_SIGN_IN = 1; // 设备登录请求
+  PT_SYNC = 2; // 消息同步触发
+  PT_HEARTBEAT = 3; // 心跳
+  PT_MESSAGE = 4; // 消息投递
+  PT_SUBSCRIBE_ROOM = 5; // 订阅房间
+}
+
+// 上行数据
+message Input {
+  PackageType type = 1; // 包的类型
+  int64 request_id = 2; // 请求id
+  bytes data = 3; // 数据
+}
+
+// 下行数据
+message Output {
+  PackageType type = 1; // 包的类型
+  int64 request_id = 2; // 请求id
+  int32 code = 3; // 错误码
+  string message = 4; // 错误信息
+  bytes data = 5; // 数据
+}
+
+// 设备登录,package_type:1
+message SignInInput {
+  int64 device_id = 1; // 设备id
+  int64 user_id = 2; // 用户id
+  string token = 3; // 秘钥
+}
+
+// 消息同步请求,package_type:2
+message SyncInput {
+  int64 seq = 1; // 客户端已经同步的序列号
+}
+// 消息同步响应,package_type:2
+message SyncOutput {
+  repeated Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
+}
+
+// 订阅房间请求
+message SubscribeRoomInput {
+  int64 room_id = 1; // 房间ID，如果为0，取消房间订阅
+  int64 seq = 2; // 消息消息序列号，
+}
+
+// 消息投递,package_type:4
+// message.ext.proto文件下 Message
+
+// 投递消息回执,package_type:4
+message MessageACK {
+  int64 device_ack = 2; // 设备收到消息的确认号
+  int64 receive_time = 3; // 消息接收时间戳，精确到毫秒
+}

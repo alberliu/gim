@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"strconv"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ import (
 )
 
 func getBusinessExtClient() pb.BusinessExtClient {
-	conn, err := grpc.Dial("127.0.0.1:8000", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:8020", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -32,9 +32,9 @@ func getCtx() context.Context {
 
 func TestUserExtServer_SignIn(t *testing.T) {
 	resp, err := getBusinessExtClient().SignIn(getCtx(), &pb.SignInReq{
-		PhoneNumber: "11111111111",
+		PhoneNumber: "22222222222",
 		Code:        "0",
-		DeviceId:    1,
+		DeviceId:    3,
 	})
 	if err != nil {
 		fmt.Println(err)

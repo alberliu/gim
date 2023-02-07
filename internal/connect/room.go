@@ -2,7 +2,7 @@ package connect
 
 import (
 	"container/list"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"sync"
 )
 
@@ -46,7 +46,7 @@ func SubscribedRoom(conn *Conn, roomId int64) {
 }
 
 // PushRoom 房间消息推送
-func PushRoom(roomId int64, message *pb.MessageSend) {
+func PushRoom(roomId int64, message *pb.Message) {
 	value, ok := RoomsManager.Load(roomId)
 	if !ok {
 		return
@@ -88,7 +88,7 @@ func (r *Room) Unsubscribe(conn *Conn) {
 }
 
 // Push 推送消息到房间
-func (r *Room) Push(message *pb.MessageSend) {
+func (r *Room) Push(message *pb.Message) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 

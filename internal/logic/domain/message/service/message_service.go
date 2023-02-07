@@ -8,7 +8,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/grpclib/picker"
 	"gim/pkg/logger"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"gim/pkg/util"
 
@@ -49,29 +49,6 @@ func (*messageService) Sync(ctx context.Context, userId, seq int64) (*pb.SyncRes
 		}
 	}
 
-	var userIds = make(map[int64]int32, len(resp.Messages))
-	for i := range resp.Messages {
-		if resp.Messages[i].Sender.SenderType == pb.SenderType_ST_USER {
-			userIds[resp.Messages[i].Sender.SenderId] = 0
-		}
-	}
-	usersResp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{UserIds: userIds})
-	if err != nil {
-		return nil, err
-	}
-	for i := range resp.Messages {
-		if resp.Messages[i].Sender.SenderType == pb.SenderType_ST_USER {
-			user, ok := usersResp.Users[resp.Messages[i].Sender.SenderId]
-			if ok {
-				resp.Messages[i].Sender.Nickname = user.Nickname
-				resp.Messages[i].Sender.AvatarUrl = user.AvatarUrl
-				resp.Messages[i].Sender.Extra = user.Extra
-			} else {
-				logger.Logger.Warn("get user failed", zap.Int64("user_id", resp.Messages[i].Sender.SenderId))
-			}
-		}
-	}
-
 	return resp, nil
 }
 
@@ -88,64 +65,40 @@ func (*messageService) ListByUserIdAndSeq(ctx context.Context, userId, seq int64
 }
 
 // SendToUser 将消息发送给用户
-func (*messageService) SendToUser(ctx context.Context, sender *pb.Sender, toUserId int64, req *pb.SendMessageReq) (int64, error) {
+func (*messageService) SendToUser(ctx context.Context, fromDeviceID, toUserID int64, message *pb.Message, isPersist bool) (int64, error) {
 	logger.Logger.Debug("SendToUser",
 		zap.Int64("request_id", grpclib.GetCtxRequestId(ctx)),
-		zap.Int64("to_user_id", toUserId))
+		zap.Int64("to_user_id", toUserID))
 	var (
 		seq int64 = 0
 		err error
 	)
 
-	if req.IsPersist {
-		seq, err = SeqService.GetUserNext(ctx, toUserId)
+	if isPersist {
+		seq, err = SeqService.GetUserNext(ctx, toUserID)
 		if err != nil {
 			return 0, err
 		}
+		message.Seq = seq
 
 		selfMessage := model.Message{
-			UserId:       toUserId,
-			RequestId:    grpclib.GetCtxRequestId(ctx),
-			SenderType:   int32(sender.SenderType),
-			SenderId:     sender.SenderId,
-			ReceiverType: int32(req.ReceiverType),
-			ReceiverId:   req.ReceiverId,
-			ToUserIds:    model.FormatUserIds(req.ToUserIds),
-			Type:         int(req.MessageType),
-			Content:      req.MessageContent,
-			Seq:          seq,
-			SendTime:     util.UnunixMilliTime(req.SendTime),
-			Status:       int32(pb.MessageStatus_MS_NORMAL),
+			UserId:    toUserID,
+			RequestId: grpclib.GetCtxRequestId(ctx),
+			Code:      message.Code,
+			Content:   message.Content,
+			Seq:       seq,
+			SendTime:  util.UnunixMilliTime(message.SendTime),
+			Status:    int32(pb.MessageStatus_MS_NORMAL),
 		}
 		err = repo.MessageRepo.Save(selfMessage)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return 0, err
 		}
-
-		if sender.SenderType == pb.SenderType_ST_USER && sender.SenderId == toUserId {
-			// 用户需要增加自己的已经同步的序列号
-			err = repo.DeviceACKRepo.Set(sender.SenderId, sender.DeviceId, seq)
-			if err != nil {
-				return 0, err
-			}
-		}
-	}
-
-	message := pb.Message{
-		Sender:         sender,
-		ReceiverType:   req.ReceiverType,
-		ReceiverId:     req.ReceiverId,
-		ToUserIds:      req.ToUserIds,
-		MessageType:    req.MessageType,
-		MessageContent: req.MessageContent,
-		Seq:            seq,
-		SendTime:       req.SendTime,
-		Status:         pb.MessageStatus_MS_NORMAL,
 	}
 
 	// 查询用户在线设备
-	devices, err := proxy.DeviceProxy.ListOnlineByUserId(ctx, toUserId)
+	devices, err := proxy.DeviceProxy.ListOnlineByUserId(ctx, toUserID)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, err
@@ -153,25 +106,23 @@ func (*messageService) SendToUser(ctx context.Context, sender *pb.Sender, toUser
 
 	for i := range devices {
 		// 消息不需要投递给发送消息的设备
-		if sender.DeviceId == devices[i].DeviceId {
+		if fromDeviceID == devices[i].DeviceId {
 			continue
 		}
 
-		err = MessageService.SendToDevice(ctx, devices[i], &message)
+		err = MessageService.SendToDevice(ctx, devices[i], message)
 		if err != nil {
 			logger.Sugar.Error(err, zap.Any("SendToUser error", devices[i]), zap.Error(err))
 		}
 	}
-
 	return seq, nil
 }
 
 // SendToDevice 将消息发送给设备
 func (*messageService) SendToDevice(ctx context.Context, device *pb.Device, message *pb.Message) error {
-	messageSend := pb.MessageSend{Message: message}
 	_, err := rpc.GetConnectIntClient().DeliverMessage(picker.ContextWithAddr(ctx, device.ConnAddr), &pb.DeliverMessageReq{
-		DeviceId:    device.DeviceId,
-		MessageSend: &messageSend,
+		DeviceId: device.DeviceId,
+		Message:  message,
 	})
 	if err != nil {
 		logger.Logger.Error("SendToDevice error", zap.Error(err))
@@ -183,12 +134,10 @@ func (*messageService) SendToDevice(ctx context.Context, device *pb.Device, mess
 }
 
 func (*messageService) AddSenderInfo(sender *pb.Sender) {
-	if sender.SenderType == pb.SenderType_ST_USER {
-		user, err := rpc.GetBusinessIntClient().GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.SenderId})
-		if err == nil && user != nil {
-			sender.AvatarUrl = user.User.AvatarUrl
-			sender.Nickname = user.User.Nickname
-			sender.Extra = user.User.Extra
-		}
+	user, err := rpc.GetBusinessIntClient().GetUser(context.TODO(), &pb.GetUserReq{UserId: sender.UserId})
+	if err == nil && user != nil {
+		sender.AvatarUrl = user.User.AvatarUrl
+		sender.Nickname = user.User.Nickname
+		sender.Extra = user.User.Extra
 	}
 }

@@ -2,7 +2,7 @@ package api
 
 import (
 	"fmt"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"testing"
 
 	"google.golang.org/grpc"

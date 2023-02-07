@@ -1,7 +1,7 @@
 package connect
 
 import (
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"sync"
 )
 
@@ -27,7 +27,7 @@ func DeleteConn(deviceId int64) {
 }
 
 // PushAll 全服推送
-func PushAll(message *pb.MessageSend) {
+func PushAll(message *pb.Message) {
 	ConnsManager.Range(func(key, value interface{}) bool {
 		conn := value.(*Conn)
 		conn.Send(pb.PackageType_PT_MESSAGE, 0, message, nil)

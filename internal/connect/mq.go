@@ -5,7 +5,7 @@ import (
 	"gim/pkg/db"
 	"gim/pkg/logger"
 	"gim/pkg/mq"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -18,12 +18,12 @@ import (
 func StartSubscribe() {
 	pushRoomPriorityChannel := db.RedisCli.Subscribe(mq.PushRoomPriorityTopic).Channel()
 	pushRoomChannel := db.RedisCli.Subscribe(mq.PushRoomTopic).Channel()
-	for i := 0; i < config.PushRoomSubscribeNum; i++ {
+	for i := 0; i < config.Config.PushRoomSubscribeNum; i++ {
 		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
 	}
 
 	pushAllChannel := db.RedisCli.Subscribe(mq.PushAllTopic).Channel()
-	for i := 0; i < config.PushAllSubscribeNum; i++ {
+	for i := 0; i < config.Config.PushAllSubscribeNum; i++ {
 		go handlePushAllMsg(pushAllChannel)
 	}
 }
@@ -58,7 +58,7 @@ func handlePushRoom(bytes []byte) {
 		logger.Logger.Error("handlePushRoom error", zap.Error(err))
 		return
 	}
-	PushRoom(msg.RoomId, msg.MessageSend)
+	PushRoom(msg.RoomId, msg.Message)
 }
 
 func handlePushAll(bytes []byte) {
@@ -68,5 +68,5 @@ func handlePushAll(bytes []byte) {
 		logger.Logger.Error("handlePushRoom error", zap.Error(err))
 		return
 	}
-	PushAll(msg.MessageSend)
+	PushAll(msg.Message)
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/util"
 	"log"
 	"net"
@@ -65,7 +65,7 @@ func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Mes
 }
 
 func (c *TcpClient) Start() {
-	connect, err := net.Dial("tcp", "127.0.0.1:8080")
+	connect, err := net.Dial("tcp", "127.0.0.1:8002")
 	if err != nil {
 		log.Println(err)
 		return
@@ -143,8 +143,7 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		}
 		log.Println("离线消息同步响应:code", output.Code, "message:", output.Message)
 		for _, msg := range syncResp.Messages {
-			log.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-				msg.Sender.SenderType, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+			log.Println(util.MessageToString(msg))
 			c.Seq = msg.Seq
 		}
 
@@ -155,17 +154,14 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
 		log.Println("离线消息同步结束------")
 	case pb.PackageType_PT_MESSAGE:
-		messageSend := pb.MessageSend{}
-		err := proto.Unmarshal(output.Data, &messageSend)
+		msg := pb.Message{}
+		err := proto.Unmarshal(output.Data, &msg)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		msg := messageSend.Message
-		log.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-			msg.Sender.SenderType, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
-
+		log.Println(util.MessageToString(&msg))
 		c.Seq = msg.Seq
 		ack := pb.MessageACK{
 			DeviceAck:   msg.Seq,
@@ -173,6 +169,6 @@ func (c *TcpClient) HandlePackage(bytes []byte) {
 		}
 		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
 	default:
-		log.Println("switch other")
+		log.Println("switch other", output, len(bytes))
 	}
 }

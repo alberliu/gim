@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gim/pkg/pb"
+	"gim/pkg/protocol/pb"
 	"gim/pkg/util"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -130,8 +131,7 @@ func (c *WSClient) HandlePackage(bytes []byte) {
 		fmt.Println("离线消息同步响应:code", output.Code, "message:", output.Message)
 		fmt.Printf("%+v \n", &output)
 		for _, msg := range syncResp.Messages {
-			fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-				msg.Sender.SenderId, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+			log.Panicln(util.MessageToString(msg))
 			c.Seq = msg.Seq
 		}
 
@@ -142,16 +142,14 @@ func (c *WSClient) HandlePackage(bytes []byte) {
 		c.Output(pb.PackageType_PT_MESSAGE, output.RequestId, &ack)
 		fmt.Println("离线消息同步结束------")
 	case pb.PackageType_PT_MESSAGE:
-		message := pb.MessageSend{}
-		err := proto.Unmarshal(output.Data, &message)
+		msg := pb.Message{}
+		err := proto.Unmarshal(output.Data, &msg)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		msg := message.Message
-		fmt.Printf("消息：发送者类型：%d 发送者id：%d  接收者类型：%d 接收者id：%d  消息内容：%+v seq：%d \n",
-			msg.Sender.SenderType, msg.Sender.SenderId, msg.ReceiverType, msg.ReceiverId, util.FormatMessage(msg.MessageType, msg.MessageContent), msg.Seq)
+		log.Println("消息:", util.MessageToString(&msg))
 
 		c.Seq = msg.Seq
 		ack := pb.MessageACK{

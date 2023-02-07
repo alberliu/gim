@@ -1,0 +1,74 @@
+syntax = "proto3";
+package pb;
+option go_package = "gim/pkg/protocol/pb";
+
+import "logic.ext.proto";
+
+enum PushCode {
+  PC_ADD_DEFAULT = 0;
+
+  PC_USER_MESSAGE = 100; // 用户消息
+  PC_GROUP_MESSAGE = 101; // 群组消息
+
+  PC_ADD_FRIEND = 110; // 添加好友请求
+  PC_AGREE_ADD_FRIEND = 111; // 同意添加好友
+
+  PC_UPDATE_GROUP = 120; // 更新群组
+  PC_ADD_GROUP_MEMBERS = 121; // 添加群组成员
+  PC_REMOVE_GROUP_MEMBER = 122; // 移除群组成员
+}
+
+message Sender {
+  int64 user_id = 2; // 发送者id
+  int64 device_id = 3; // 发送者设备id
+  string avatar_url = 4; // 昵称
+  string nickname = 5; // 头像
+  string extra = 6; // 扩展字段
+}
+
+// 用户消息 MC_USER_MESSAGE = 100
+message UserMessagePush{
+  Sender sender = 1;
+  int64 receiver_id = 2; // 用户id或者群组id
+  bytes content = 3; // 用户发送的消息内容
+}
+
+// 添加好友 PC_ADD_FRIEND = 110
+message AddFriendPush {
+  int64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+  string description = 4; // 描述
+}
+
+// 同意 添加好友 PC_AGREE_ADD_FRIEND = 111
+message AgreeAddFriendPush {
+  int64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+}
+
+// 更新群组 PC_UPDATE_GROUP = 120
+message UpdateGroupPush {
+  int64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  string name = 3; // 群组名称
+  string avatar_url = 4; // 群组头像
+  string introduction = 5; // 群组简介
+  string extra = 6; // 附加字段
+}
+
+// 添加群组成员 PC_AGREE_ADD_GROUPS = 121
+message AddGroupMembersPush {
+  int64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  repeated GroupMember members = 3; // 群组成员
+}
+
+// 删除群组成员 PC_REMOVE_GROUP_MEMBER = 122
+message RemoveGroupMemberPush {
+  int64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  int64 deleted_user_id = 3; // 被删除的成员id
+}
+

@@ -1,0 +1,111 @@
+syntax = "proto3";
+package pb;
+option go_package = "gim/pkg/protocol/pb";
+
+import "google/protobuf/empty.proto";
+import "logic.ext.proto";
+import "message.ext.proto";
+
+service LogicInt {
+  // 登录
+  rpc ConnSignIn (ConnSignInReq) returns (google.protobuf.Empty);
+  // 消息同步
+  rpc Sync (SyncReq) returns (SyncResp);
+  // 设备收到消息回执
+  rpc MessageACK (MessageACKReq) returns (google.protobuf.Empty);
+  // 设备离线
+  rpc Offline (OfflineReq) returns (google.protobuf.Empty);
+  // 订阅房间
+  rpc SubscribeRoom(SubscribeRoomReq)returns(google.protobuf.Empty);
+  // 推送
+  rpc Push (PushReq) returns (PushResp);
+  // 推送消息到房间
+  rpc PushRoom(PushRoomReq)returns(google.protobuf.Empty);
+  // 全服推送
+  rpc PushAll(PushAllReq)returns(google.protobuf.Empty);
+
+  // 获取设备信息
+  rpc GetDevice (GetDeviceReq) returns (GetDeviceResp);
+  // 服务停止
+  rpc ServerStop (ServerStopReq) returns (google.protobuf.Empty);
+}
+
+message ConnSignInReq {
+  int64 device_id = 1; // 设备id
+  int64 user_id = 2; // 用户id
+  string token = 3; // 秘钥
+  string conn_addr = 4; // 服务器地址
+  string client_addr = 5; // 客户端地址
+}
+
+message SyncReq {
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 seq = 3; // 客户端已经同步的序列号
+}
+message SyncResp {
+  repeated Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
+}
+
+message MessageACKReq {
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 device_ack = 3; // 设备收到消息的确认号
+  int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
+}
+
+message OfflineReq {
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  string client_addr = 3; // 客户端地址
+}
+
+message SubscribeRoomReq{
+  int64 user_id = 1; // 用户id
+  int64 device_id = 2; // 设备id
+  int64 room_id = 3; // 房间id
+  int64 seq = 4; // 消息序列号
+  string conn_addr = 5; // 服务器地址
+}
+
+message PushReq{
+  int64 user_id = 1; // 用户ID
+  int32 code = 2; // 推送码
+  bytes content = 3; // 推送内容
+  bool is_persist = 4; // 是否持久化
+}
+message PushResp{
+  int64 seq = 1;
+}
+
+message PushAllReq{
+  int32 code = 1; // 推送码
+  bytes content = 2; // 推送内容
+}
+
+message GetDeviceReq {
+  int64 device_id = 1;
+}
+message GetDeviceResp {
+  Device device = 1;
+}
+
+message Device {
+  int64 device_id = 1; // 设备id
+  int64 user_id = 2; // 用户id
+  int32 type = 3; // 设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web
+  string brand = 4; // 手机厂商
+  string model = 5; // 机型
+  string system_version = 6; // 系统版本
+  string sdk_version = 7; // SDK版本
+  int32 status = 8; // 在线状态，0：不在线；1：在线
+  string conn_addr = 9;  // 服务端连接地址
+  string client_addr = 10; // 客户端地址
+  int64 create_time = 11; // 创建时间
+  int64 update_time = 12; // 更新时间
+}
+
+message ServerStopReq {
+  string conn_addr = 1;
+}
