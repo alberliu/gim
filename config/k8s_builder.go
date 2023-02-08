@@ -49,8 +49,8 @@ func (*k8sBuilder) Build() Configuration {
 
 		ConnectLocalAddr:     os.Getenv("POD_IP") + RPCListenAddr,
 		ConnectRPCListenAddr: RPCListenAddr,
-		ConnectWSListenAddr:  ":8001",
-		ConnectTCPListenAddr: ":8002",
+		ConnectTCPListenAddr: ":8001",
+		ConnectWSListenAddr:  ":8002",
 
 		LogicRPCListenAddr:    RPCListenAddr,
 		BusinessRPCListenAddr: RPCListenAddr,

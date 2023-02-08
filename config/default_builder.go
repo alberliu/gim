@@ -30,8 +30,8 @@ func (*defaultBuilder) Build() Configuration {
 
 		ConnectLocalAddr:     "127.0.0.1:8000",
 		ConnectRPCListenAddr: ":8000",
-		ConnectWSListenAddr:  ":8001",
-		ConnectTCPListenAddr: ":8002",
+		ConnectTCPListenAddr: ":8001",
+		ConnectWSListenAddr:  ":8002",
 
 		LogicRPCListenAddr:    ":8010",
 		BusinessRPCListenAddr: ":8020",

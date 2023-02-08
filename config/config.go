@@ -28,9 +28,9 @@ type Configuration struct {
 	PushAllSubscribeNum  int
 
 	ConnectLocalAddr     string
-	ConnectWSListenAddr  string
-	ConnectTCPListenAddr string
 	ConnectRPCListenAddr string
+	ConnectTCPListenAddr string
+	ConnectWSListenAddr  string
 
 	LogicRPCListenAddr    string
 	BusinessRPCListenAddr string

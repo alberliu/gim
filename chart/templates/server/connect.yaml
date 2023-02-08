@@ -21,8 +21,8 @@ spec:
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
             - containerPort: 8000
-            - containerPort: 8080
-            - containerPort: 8081
+            - containerPort: 8001
+            - containerPort: 8002
           volumeMounts: # 映射文件为宿主机文件
             - mountPath: /log/
               name: log
@@ -47,15 +47,15 @@ spec:
   selector:
     app: {{ .Values.server.connect.name }}
   ports:
-    - name: tcp
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
-    - name: websocket
-      protocol: TCP
-      port: 8081
-      targetPort: 8081
     - name: rpc
       protocol: TCP
       port: 8000
       targetPort: 8000
+    - name: tcp
+      protocol: TCP
+      port: 8001
+      targetPort: 8001
+    - name: websocket
+      protocol: TCP
+      port: 8002
+      targetPort: 8002

@@ -29,7 +29,7 @@ type WSClient struct {
 }
 
 func (c *WSClient) Start() {
-	conn, resp, err := websocket.DefaultDialer.Dial("ws://111.229.238.28:8081/ws", http.Header{})
+	conn, resp, err := websocket.DefaultDialer.Dial("ws://111.229.238.28:8002/ws", http.Header{})
 	if err != nil {
 		fmt.Println("dial error", err)
 		return

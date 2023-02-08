@@ -65,7 +65,7 @@ func (c *TcpClient) Output(pt pb.PackageType, requestId int64, message proto.Mes
 }
 
 func (c *TcpClient) Start() {
-	connect, err := net.Dial("tcp", "127.0.0.1:8002")
+	connect, err := net.Dial("tcp", "127.0.0.1:8001")
 	if err != nil {
 		log.Println(err)
 		return

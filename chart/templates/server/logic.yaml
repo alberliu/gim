@@ -20,7 +20,7 @@ spec:
           image: {{ .Values.server.logic.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
           volumeMounts: # 映射文件为宿主机文件
             - mountPath: /log/
               name: log
