@@ -82,6 +82,7 @@ c1.d1和c1.d2分别表示c1用户的两个设备d1和d2,c2.d3和c2.d4同理
 c1,c2.c3表示一个群组中的三个用户
 ![消息群发.png](https://upload-images.jianshu.io/upload_images/5760439-47a87c45b899b3f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 #### APP
+重要提醒：最新版服务器已经与APP不兼容  
 基于Flutter写了一个简单的客户端  
 GitHub地址：https://github.com/alberliu/fim  
 APP下载：https://github.com/alberliu/fim/releases/download/v1.2.0/FIM.apk    
