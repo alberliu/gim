@@ -7,6 +7,8 @@ import (
 	"gim/pkg/rpc"
 	"time"
 
+	"github.com/alberliu/gn/codec"
+
 	"go.uber.org/zap"
 
 	"github.com/alberliu/gn"
@@ -20,8 +22,8 @@ func StartTCPServer(addr string) {
 
 	var err error
 	server, err = gn.NewServer(addr, &handler{},
-		gn.WithDecoder(gn.NewHeaderLenDecoder(2)),
-		gn.WithEncoder(gn.NewHeaderLenEncoder(2, 1024)),
+		gn.WithDecoder(codec.NewUvarintDecoder()),
+		gn.WithEncoder(codec.NewUvarintEncoder(1024)),
 		gn.WithReadBufferLen(256),
 		gn.WithTimeout(11*time.Minute),
 		gn.WithAcceptGNum(10),

@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -51,7 +53,7 @@ func TestLogicExtServer_SendMessageToFriend(t *testing.T) {
 	resp, err := getLogicExtClient().SendMessageToFriend(getCtx(),
 		&pb.SendMessageReq{
 			ReceiverId: 2,
-			Content:    []byte("hahaha"),
+			Content:    []byte("hahaha1000"),
 			SendTime:   util.UnixMilliTime(time.Now()),
 		})
 	if err != nil {
@@ -103,7 +105,7 @@ func TestLogicExtServer_GetGroup(t *testing.T) {
 }
 
 func TestLogicExtServer_GetUserGroups(t *testing.T) {
-	resp, err := getLogicExtClient().GetGroups(getCtx(), &pb.Empty{})
+	resp, err := getLogicExtClient().GetGroups(getCtx(), &emptypb.Empty{})
 	if err != nil {
 		fmt.Println(err)
 		return

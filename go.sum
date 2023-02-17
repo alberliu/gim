@@ -62,8 +62,8 @@ github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tN
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
-github.com/alberliu/gn v1.10.0 h1:BQcfgp1c8wc+AXvutImeJ5RAr7Lh/tc23vELJ3dgh10=
-github.com/alberliu/gn v1.10.0/go.mod h1:Rm7O35H784ZsqxJr/3VcNgyHHfI7jf7GFTQ+o/fXAsg=
+github.com/alberliu/gn v1.13.0 h1:Js+pLiMbOskmGEmMjRz9+K1Zd8Nr+B4C33WpyNFodMo=
+github.com/alberliu/gn v1.13.0/go.mod h1:Rm7O35H784ZsqxJr/3VcNgyHHfI7jf7GFTQ+o/fXAsg=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=

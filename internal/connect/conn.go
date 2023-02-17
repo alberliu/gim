@@ -101,7 +101,7 @@ func (c *Conn) HandleMessage(bytes []byte) {
 	var input = new(pb.Input)
 	err := proto.Unmarshal(bytes, input)
 	if err != nil {
-		logger.Logger.Error("unmarshal error", zap.Error(err))
+		logger.Logger.Error("unmarshal error", zap.Error(err), zap.Int("len", len(bytes)))
 		return
 	}
 	logger.Logger.Debug("HandleMessage", zap.Any("input", input))
