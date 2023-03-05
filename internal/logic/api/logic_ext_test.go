@@ -63,6 +63,20 @@ func TestLogicExtServer_SendMessageToFriend(t *testing.T) {
 	fmt.Printf("%+v\n", resp)
 }
 
+func TestLogicExtServer_SendMessageToGroup(t *testing.T) {
+	resp, err := getLogicExtClient().SendMessageToGroup(getCtx(),
+		&pb.SendMessageReq{
+			ReceiverId: 4,
+			Content:    []byte("group message "),
+			SendTime:   util.UnixMilliTime(time.Now()),
+		})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%+v\n", resp)
+}
+
 func TestLogicExtServer_CreateGroup(t *testing.T) {
 	resp, err := getLogicExtClient().CreateGroup(getCtx(),
 		&pb.CreateGroupReq{

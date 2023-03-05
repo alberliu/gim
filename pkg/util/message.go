@@ -26,7 +26,7 @@ func MessageToString(msg *pb.Message) string {
 	proto.Unmarshal(msg.Content, push)
 
 	switch pb.PushCode(msg.Code) {
-	case pb.PushCode_PC_USER_MESSAGE:
+	case pb.PushCode_PC_USER_MESSAGE, pb.PushCode_PC_GROUP_MESSAGE:
 		msgPush := push.(*pb.UserMessagePush)
 		bytes, _ := json.Marshal(push)
 		return fmt.Sprintf("%-5d:%s:%s", msg.Code, string(bytes), string(msgPush.Content))
