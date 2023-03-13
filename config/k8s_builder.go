@@ -26,7 +26,7 @@ func (*k8sBuilder) Build() Configuration {
 		RPCListenAddr = ":8000"
 		RPCDialAddr   = "8000"
 	)
-	const namespace = "gim"
+	const namespace = "gimns"
 
 	k8sClient, err := k8sutil.GetK8sClient()
 	if err != nil {
