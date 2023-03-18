@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: business-deployment
+  namespace: {{ $.Values.namespace }}
   labels:
     app: {{ .Values.server.business.name }}
 spec:
@@ -29,6 +30,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: ENV
+              value: {{ $.Values.env }}
       volumes:
         - name: log
           hostPath:
@@ -39,6 +42,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.server.business.name }}
+  namespace: {{ $.Values.namespace }}
   labels:
     app: {{ .Values.server.business.name }}  # 只有设置label,才能被服务发现找到
 spec:
