@@ -1,3 +1,5 @@
+namespace: gim
+env: k8s
 server:
   connect:
     name: connect
