@@ -93,10 +93,5 @@ APP截图：
 ![群组.png](https://upload-images.jianshu.io/upload_images/5760439-beb97223497e2ee9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
 ![我的.png](https://upload-images.jianshu.io/upload_images/5760439-aee324007a1d2eb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
 ![消息.png](https://upload-images.jianshu.io/upload_images/5760439-47597c7c5859d515.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
-### 联系方式
-![my.png](https://upload-images.jianshu.io/upload_images/5760439-484c85f9fbda35d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
-### 赞赏支持
-如果觉得项目对你有帮助，请支持一下  
-![pay.png](https://upload-images.jianshu.io/upload_images/5760439-7aac91bc83c8735f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
 ### github
 https://github.com/alberliu/gim
