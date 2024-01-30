@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"gim/internal/logic/domain/group/entity"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -16,10 +17,10 @@ var GroupDao = new(groupDao)
 func (*groupDao) Get(groupId int64) (*entity.Group, error) {
 	var group = entity.Group{Id: groupId}
 	err := db.DB.First(&group).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &group, nil

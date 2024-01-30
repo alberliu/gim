@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"gim/internal/logic/domain/group/entity"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -20,10 +21,10 @@ var GroupCache = new(groupCache)
 func (c *groupCache) Get(groupId int64) (*entity.Group, error) {
 	var user entity.Group
 	err := db.RedisUtil.Get(GroupKey+strconv.FormatInt(groupId, 10), &user)
-	if err != nil && err != redis.Nil {
+	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 	return &user, nil

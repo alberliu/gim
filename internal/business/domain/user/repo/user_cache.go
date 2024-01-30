@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -23,10 +24,10 @@ var UserCache = new(userCache)
 func (c *userCache) Get(userId int64) (*model.User, error) {
 	var user model.User
 	err := db.RedisUtil.Get(UserKey+strconv.FormatInt(userId, 10), &user)
-	if err != nil && err != redis.Nil {
+	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 	return &user, nil

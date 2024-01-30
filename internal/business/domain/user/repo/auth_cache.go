@@ -2,6 +2,7 @@ package repo
 
 import (
 	"encoding/json"
+	"errors"
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -21,10 +22,10 @@ var AuthCache = new(authCache)
 
 func (*authCache) Get(userId, deviceId int64) (*model.Device, error) {
 	bytes, err := db.RedisCli.HGet(AuthKey+strconv.FormatInt(userId, 10), strconv.FormatInt(deviceId, 10)).Bytes()
-	if err != nil && err != redis.Nil {
+	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 

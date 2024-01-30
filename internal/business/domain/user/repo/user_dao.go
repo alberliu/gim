@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -28,10 +29,10 @@ func (*userDao) Add(user model.User) (int64, error) {
 func (*userDao) Get(userId int64) (*model.User, error) {
 	var user = model.User{Id: userId}
 	err := db.DB.First(&user).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &user, err
@@ -50,10 +51,10 @@ func (*userDao) Save(user *model.User) error {
 func (*userDao) GetByPhoneNumber(phoneNumber string) (*model.User, error) {
 	var user model.User
 	err := db.DB.First(&user, "phone_number = ?", phoneNumber).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &user, err

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"database/sql"
+	"errors"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )
@@ -23,10 +24,10 @@ func (*seqRepo) Incr(objectType int, objectId int64) (int64, error) {
 	var seq int64
 	err := tx.Raw("select seq from seq where object_type = ? and object_id = ? for update", objectType, objectId).
 		Row().Scan(&seq)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return 0, gerrors.WrapError(err)
 	}
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		err = tx.Exec("insert into seq (object_type,object_id,seq) values (?,?,?)", objectType, objectId, seq+1).Error
 		if err != nil {
 			return 0, gerrors.WrapError(err)

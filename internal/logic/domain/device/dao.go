@@ -1,6 +1,7 @@
 package device
 
 import (
+	"errors"
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -28,10 +29,10 @@ func (*dao) Save(device *Device) error {
 func (*dao) Get(deviceId int64) (*Device, error) {
 	var device = Device{Id: deviceId}
 	err := db.DB.First(&device).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &device, nil

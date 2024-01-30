@@ -1,6 +1,7 @@
 package friend
 
 import (
+	"errors"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 
@@ -15,10 +16,10 @@ var Repo = new(repo)
 func (*repo) Get(userId, friendId int64) (*Friend, error) {
 	friend := Friend{}
 	err := db.DB.First(&friend, "user_id = ? and friend_id = ?", userId, friendId).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &friend, nil

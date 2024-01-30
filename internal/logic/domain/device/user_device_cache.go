@@ -1,6 +1,7 @@
 package device
 
 import (
+	"errors"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"strconv"
@@ -22,11 +23,11 @@ var UserDeviceCache = new(userDeviceCache)
 func (c *userDeviceCache) Get(userId int64) ([]Device, error) {
 	var devices []Device
 	err := db.RedisUtil.Get(UserDeviceKey+strconv.FormatInt(userId, 10), &devices)
-	if err != nil && err != redis.Nil {
+	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, gerrors.WrapError(err)
 	}
 
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, nil
 	}
 	return devices, nil

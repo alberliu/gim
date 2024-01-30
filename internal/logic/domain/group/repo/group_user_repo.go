@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"gim/internal/logic/domain/group/entity"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -40,10 +41,10 @@ func (*groupUserRepo) ListUser(groupId int64) ([]entity.GroupUser, error) {
 func (*groupUserRepo) Get(groupId, userId int64) (*entity.GroupUser, error) {
 	var groupUser entity.GroupUser
 	err := db.DB.First(&groupUser, "group_id = ? and user_id = ?", groupId, userId).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.WrapError(err)
 	}
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &groupUser, nil
