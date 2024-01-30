@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-func Test_roomService_DelExpireMessage(t *testing.T) {
-	err := RoomService.DelExpireMessage(1)
+func Test_service_DelExpireMessage(t *testing.T) {
+	err := Service.DelExpireMessage(1)
 	fmt.Println(err)
 }
 
-func Test_roomService_List(t *testing.T) {
-	msgs, err := RoomMessageRepo.List(1, 1)
+func Test_service_List(t *testing.T) {
+	msgs, err := MessageRepo.List(1, 1)
 	fmt.Println(err)
 	fmt.Println(msgs)
 }
 
-func Test_roomService_AddMessage(t *testing.T) {
+func Test_service_AddMessage(t *testing.T) {
 	for i := 1; i <= 20; i++ {
-		err := RoomService.AddMessage(1, &pb.Message{
+		err := Service.AddMessage(1, &pb.Message{
 			Seq:      int64(i),
 			SendTime: util.UnixMilliTime(time.Now()),
 		})
@@ -29,6 +29,6 @@ func Test_roomService_AddMessage(t *testing.T) {
 		time.Sleep(time.Second)
 	}
 
-	err := RoomService.DelExpireMessage(1)
+	err := Service.DelExpireMessage(1)
 	fmt.Println(err)
 }
