@@ -2,15 +2,10 @@ package k8s
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"google.golang.org/grpc"
 )
-
-func Test_resolveEndpoint(t *testing.T) {
-	fmt.Println(resolveEndpoint("namespace.server_name:port"))
-}
 
 func TestClient(t *testing.T) {
 	_, err := grpc.DialContext(context.TODO(), "172.18.0.2:8000", grpc.WithInsecure())
@@ -19,7 +14,7 @@ func TestClient(t *testing.T) {
 	}
 }
 
-func Test_isEqual(t *testing.T) {
+func Test_isEqualIPs(t *testing.T) {
 	type args struct {
 		s1 []string
 		s2 []string
@@ -48,7 +43,7 @@ func Test_isEqual(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isEqual(tt.args.s1, tt.args.s2); got != tt.want {
+			if got := isEqualIPs(tt.args.s1, tt.args.s2); got != tt.want {
 				t.Errorf("isEqual() = %v, want %v", got, tt.want)
 			}
 		})
