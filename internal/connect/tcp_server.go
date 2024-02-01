@@ -7,11 +7,9 @@ import (
 	"gim/pkg/rpc"
 	"time"
 
-	"github.com/alberliu/gn/codec"
-
-	"go.uber.org/zap"
-
 	"github.com/alberliu/gn"
+	"github.com/alberliu/gn/codec"
+	"go.uber.org/zap"
 )
 
 var server *gn.Server

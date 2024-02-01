@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-
 	"google.golang.org/protobuf/proto"
 )
 

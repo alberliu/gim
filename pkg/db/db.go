@@ -7,9 +7,8 @@ import (
 	"gim/pkg/util"
 
 	"github.com/go-redis/redis"
-	"github.com/jinzhu/gorm"
-
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 )
 
 var (

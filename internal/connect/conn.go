@@ -11,13 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
-
 	"github.com/alberliu/gn"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 const (

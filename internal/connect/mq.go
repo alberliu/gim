@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )

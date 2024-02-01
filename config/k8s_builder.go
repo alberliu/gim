@@ -11,11 +11,9 @@ import (
 	"os"
 	"strconv"
 
-	"google.golang.org/grpc/balancer/roundrobin"
-
-	"google.golang.org/grpc"
-
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

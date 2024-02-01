@@ -9,10 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func getLogicExtClient() pb.LogicExtClient {

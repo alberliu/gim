@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"gim/pkg/grpclib/picker"
+	_ "gim/pkg/grpclib/resolver/addrs"
 	"gim/pkg/logger"
 	"gim/pkg/protocol/pb"
 
 	"go.uber.org/zap"
-
-	_ "gim/pkg/grpclib/resolver/addrs"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 )

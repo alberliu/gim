@@ -13,9 +13,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"google.golang.org/grpc"
-
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 func main() {

@@ -2,9 +2,10 @@ package app
 
 import (
 	"context"
+	"time"
+
 	"gim/internal/business/domain/user/repo"
 	"gim/pkg/protocol/pb"
-	"time"
 )
 
 type userApp struct{}

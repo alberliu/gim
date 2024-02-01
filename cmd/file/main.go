@@ -8,9 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const baseUrl = "http://111.229.238.28:8085/file/"
