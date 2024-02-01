@@ -7,8 +7,6 @@ import (
 	"gim/pkg/gerrors"
 )
 
-const messageTableNum = 1
-
 type messageRepo struct{}
 
 var MessageRepo = new(messageRepo)

@@ -275,7 +275,7 @@ func (g *Group) PushAddMember(ctx context.Context, optUserId int64, addedIds []i
 		return err
 	}
 	var members []*pb.GroupMember
-	for k, _ := range addIdMap {
+	for k := range addIdMap {
 		member, ok := usersResp.Users[k]
 		if !ok {
 			continue

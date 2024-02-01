@@ -23,7 +23,7 @@ func MessageToString(msg *pb.Message) string {
 	if !ok {
 		return fmt.Sprintf("%-5d:%s", msg.Code, "unknown")
 	}
-	proto.Unmarshal(msg.Content, push)
+	_ = proto.Unmarshal(msg.Content, push)
 
 	switch pb.PushCode(msg.Code) {
 	case pb.PushCode_PC_USER_MESSAGE, pb.PushCode_PC_GROUP_MESSAGE:
@@ -31,7 +31,7 @@ func MessageToString(msg *pb.Message) string {
 		bytes, _ := json.Marshal(push)
 		return fmt.Sprintf("%-5d:%s:%s", msg.Code, string(bytes), string(msgPush.Content))
 	default:
-		proto.Unmarshal(msg.Content, push)
+		_ = proto.Unmarshal(msg.Content, push)
 		bytes, _ := json.Marshal(push)
 		return fmt.Sprintf("%-5d:%s", msg.Code, string(bytes))
 	}

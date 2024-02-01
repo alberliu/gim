@@ -27,7 +27,7 @@ func (b *addrsBuilder) Build(target resolver.Target, clientConn resolver.ClientC
 	state := resolver.State{
 		Addresses: getAddrs(ips),
 	}
-	clientConn.UpdateState(state)
+	_ = clientConn.UpdateState(state)
 	return &addrsResolver{
 		addrs:      ips,
 		clientConn: clientConn,
@@ -47,7 +47,7 @@ func (r *addrsResolver) ResolveNow(opt resolver.ResolveNowOptions) {
 	state := resolver.State{
 		Addresses: getAddrs(r.addrs),
 	}
-	r.clientConn.UpdateState(state)
+	_ = r.clientConn.UpdateState(state)
 }
 
 func (r *addrsResolver) Close() {}
