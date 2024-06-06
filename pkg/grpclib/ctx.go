@@ -20,18 +20,23 @@ func ContextWithRequestId(ctx context.Context, requestId int64) context.Context 
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestId, strconv.FormatInt(requestId, 10)))
 }
 
-// GetCtxRequestId 获取ctx的app_id
-func GetCtxRequestId(ctx context.Context) int64 {
+func Get(ctx context.Context, key string) string {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return 0
+		return ""
 	}
 
-	requestIds, ok := md[CtxRequestId]
-	if !ok && len(requestIds) == 0 {
-		return 0
+	values, ok := md[key]
+	if !ok || len(values) == 0 {
+		return ""
 	}
-	requestId, err := strconv.ParseInt(requestIds[0], 10, 64)
+	return values[0]
+}
+
+// GetCtxRequestId 获取ctx的app_id
+func GetCtxRequestId(ctx context.Context) int64 {
+	requestIdStr := Get(ctx, CtxRequestId)
+	requestId, err := strconv.ParseInt(requestIdStr, 10, 64)
 	if err != nil {
 		return 0
 	}
@@ -40,32 +45,21 @@ func GetCtxRequestId(ctx context.Context) int64 {
 
 // GetCtxData 获取ctx的用户数据，依次返回user_id,device_id
 func GetCtxData(ctx context.Context) (int64, int64, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
-
 	var (
 		userId   int64
 		deviceId int64
 		err      error
 	)
 
-	userIdStrs, ok := md[CtxUserId]
-	if !ok && len(userIdStrs) == 0 {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
-	userId, err = strconv.ParseInt(userIdStrs[0], 10, 64)
+	userIdStr := Get(ctx, CtxUserId)
+	userId, err = strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, 0, gerrors.ErrUnauthorized
 	}
 
-	deviceIdStrs, ok := md[CtxDeviceId]
-	if !ok && len(deviceIdStrs) == 0 {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
-	deviceId, err = strconv.ParseInt(deviceIdStrs[0], 10, 64)
+	deviceIdStr := Get(ctx, CtxDeviceId)
+	deviceId, err = strconv.ParseInt(deviceIdStr, 10, 64)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, 0, gerrors.ErrUnauthorized
@@ -73,38 +67,9 @@ func GetCtxData(ctx context.Context) (int64, int64, error) {
 	return userId, deviceId, nil
 }
 
-// GetCtxDeviceId 获取ctx的设备id
-func GetCtxDeviceId(ctx context.Context) (int64, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return 0, gerrors.ErrUnauthorized
-	}
-
-	deviceIdStrs, ok := md[CtxDeviceId]
-	if !ok && len(deviceIdStrs) == 0 {
-		return 0, gerrors.ErrUnauthorized
-	}
-	deviceId, err := strconv.ParseInt(deviceIdStrs[0], 10, 64)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return 0, gerrors.ErrUnauthorized
-	}
-	return deviceId, nil
-}
-
 // GetCtxToken 获取ctx的token
-func GetCtxToken(ctx context.Context) (string, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return "", gerrors.ErrUnauthorized
-	}
-
-	tokens, ok := md[CtxToken]
-	if !ok && len(tokens) == 0 {
-		return "", gerrors.ErrUnauthorized
-	}
-
-	return tokens[0], nil
+func GetCtxToken(ctx context.Context) string {
+	return Get(ctx, CtxToken)
 }
 
 // NewAndCopyRequestId 创建一个context,并且复制RequestId
