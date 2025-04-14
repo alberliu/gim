@@ -2,9 +2,10 @@ package repo
 
 import (
 	"fmt"
-	"gim/internal/logic/domain/message/model"
 	"testing"
 	"time"
+
+	"gim/internal/logic/domain/message/model"
 )
 
 func TestMessageDao_Add(t *testing.T) {

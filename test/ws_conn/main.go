@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,6 +9,9 @@ import (
 
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
+
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 func main() {

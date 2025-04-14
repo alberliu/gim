@@ -3,14 +3,15 @@ package config
 import (
 	"context"
 	"fmt"
-	"gim/pkg/grpclib/picker"
-	_ "gim/pkg/grpclib/resolver/addrs"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
+
+	"gim/pkg/grpclib/picker"
+	_ "gim/pkg/grpclib/resolver/addrs"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
 )
 
 type defaultBuilder struct{}

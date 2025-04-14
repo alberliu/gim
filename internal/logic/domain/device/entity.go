@@ -1,8 +1,9 @@
 package device
 
 import (
-	"gim/pkg/protocol/pb"
 	"time"
+
+	"gim/pkg/protocol/pb"
 )
 
 const (

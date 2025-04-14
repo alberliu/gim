@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gim/pkg/protocol/pb"
 	"time"
+
+	"gim/pkg/protocol/pb"
 )
 
 // User 账户

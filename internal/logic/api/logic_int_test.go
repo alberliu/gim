@@ -3,12 +3,13 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
 	"testing"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
 )
 
 func getLogicIntClient() pb.LogicIntClient {

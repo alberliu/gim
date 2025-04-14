@@ -1,11 +1,12 @@
 package util
 
 import (
-	"gim/pkg/logger"
 	"time"
 
 	"github.com/go-redis/redis"
 	jsoniter "github.com/json-iterator/go"
+
+	"gim/pkg/logger"
 )
 
 type RedisUtil struct {

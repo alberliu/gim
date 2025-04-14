@@ -2,10 +2,11 @@ package friend
 
 import (
 	"errors"
-	"gim/pkg/db"
-	"gim/pkg/gerrors"
 
 	"github.com/jinzhu/gorm"
+
+	"gim/pkg/db"
+	"gim/pkg/gerrors"
 )
 
 type repo struct{}

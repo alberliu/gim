@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
-	"gim/pkg/protocol/pb"
 	"testing"
 
 	"google.golang.org/grpc"
+
+	"gim/pkg/protocol/pb"
 )
 
 func getBusinessIntClient() pb.BusinessIntClient {

@@ -2,17 +2,18 @@ package interceptor
 
 import (
 	"context"
-	"gim/pkg/gerrors"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/rpc"
 	"strings"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	"gim/pkg/gerrors"
+	"gim/pkg/grpclib"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/rpc"
 )
 
 // NewInterceptor 生成GRPC过滤器

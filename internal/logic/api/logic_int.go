@@ -2,14 +2,15 @@ package api
 
 import (
 	"context"
+
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"gim/internal/logic/domain/device"
 	"gim/internal/logic/domain/message"
 	"gim/internal/logic/domain/room"
 	"gim/internal/logic/proxy"
 	"gim/pkg/logger"
 	"gim/pkg/protocol/pb"
-
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type LogicIntServer struct {

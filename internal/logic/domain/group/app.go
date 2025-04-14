@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+
 	"gim/internal/logic/domain/group/entity"
 	"gim/internal/logic/domain/group/repo"
 	"gim/pkg/protocol/pb"

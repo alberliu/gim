@@ -2,6 +2,10 @@ package room
 
 import (
 	"context"
+	"time"
+
+	"google.golang.org/protobuf/proto"
+
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib/picker"
 	"gim/pkg/logger"
@@ -9,9 +13,6 @@ import (
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"gim/pkg/util"
-	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 type service struct{}

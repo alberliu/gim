@@ -1,6 +1,14 @@
 package main
 
 import (
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+
 	"gim/config"
 	"gim/internal/logic/api"
 	"gim/internal/logic/domain/device"
@@ -10,13 +18,6 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/urlwhitelist"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 )
 
 func init() {

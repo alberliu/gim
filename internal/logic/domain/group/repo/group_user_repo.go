@@ -2,11 +2,12 @@ package repo
 
 import (
 	"errors"
+
+	"github.com/jinzhu/gorm"
+
 	"gim/internal/logic/domain/group/entity"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
-
-	"github.com/jinzhu/gorm"
 )
 
 type groupUserRepo struct{}

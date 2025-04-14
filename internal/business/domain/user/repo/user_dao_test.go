@@ -2,8 +2,9 @@ package repo
 
 import (
 	"fmt"
-	"gim/internal/business/domain/user/model"
 	"testing"
+
+	"gim/internal/business/domain/user/model"
 )
 
 func TestUserDao_Add(t *testing.T) {

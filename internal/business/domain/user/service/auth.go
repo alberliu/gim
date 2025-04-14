@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"gim/internal/business/domain/user/model"
 	"gim/internal/business/domain/user/repo"
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
-	"time"
 )
 
 type authService struct{}

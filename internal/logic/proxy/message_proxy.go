@@ -2,13 +2,14 @@ package proxy
 
 import (
 	"context"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
+
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 var MessageProxy messageProxy

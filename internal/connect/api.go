@@ -2,12 +2,13 @@ package connect
 
 import (
 	"context"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
 
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"gim/pkg/grpclib"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
 )
 
 type ConnIntServer struct {

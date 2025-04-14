@@ -1,9 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"gim/pkg/protocol/pb"
 	"gim/pkg/util"
-	"time"
 )
 
 // Message 消息

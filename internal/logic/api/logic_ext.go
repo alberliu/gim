@@ -2,14 +2,15 @@ package api
 
 import (
 	"context"
+
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"gim/internal/logic/domain/device"
 	"gim/internal/logic/domain/friend"
 	"gim/internal/logic/domain/group"
 	"gim/internal/logic/domain/room"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
-
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type LogicExtServer struct {

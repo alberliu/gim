@@ -3,8 +3,6 @@ package gerrors
 import (
 	"context"
 	"fmt"
-	"gim/pkg/logger"
-	"gim/pkg/util"
 	"runtime"
 	"strings"
 
@@ -14,6 +12,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"gim/pkg/logger"
+	"gim/pkg/util"
 )
 
 const name = "im"

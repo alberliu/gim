@@ -2,12 +2,13 @@ package repo
 
 import (
 	"errors"
-	"gim/internal/business/domain/user/model"
-	"gim/pkg/db"
-	"gim/pkg/gerrors"
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	"gim/internal/business/domain/user/model"
+	"gim/pkg/db"
+	"gim/pkg/gerrors"
 )
 
 type userDao struct{}

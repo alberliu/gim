@@ -2,6 +2,7 @@ package device
 
 import (
 	"context"
+
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
 )

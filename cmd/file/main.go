@@ -1,8 +1,6 @@
 package main
 
 import (
-	"gim/pkg/logger"
-	"gim/pkg/util"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +8,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"gim/pkg/logger"
+	"gim/pkg/util"
 )
 
 const baseUrl = "http://111.229.238.28:8085/file/"

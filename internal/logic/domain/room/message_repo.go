@@ -2,15 +2,16 @@ package room
 
 import (
 	"fmt"
-	"gim/pkg/db"
-	"gim/pkg/gerrors"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
 	"google.golang.org/protobuf/proto"
+
+	"gim/pkg/db"
+	"gim/pkg/gerrors"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 const MessageKey = "room_message:%d"

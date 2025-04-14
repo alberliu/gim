@@ -2,10 +2,11 @@ package util
 
 import (
 	"fmt"
-	"gim/pkg/logger"
 	"runtime"
 
 	"go.uber.org/zap"
+
+	"gim/pkg/logger"
 )
 
 // RecoverPanic 恢复panic

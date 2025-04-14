@@ -3,11 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"gim/pkg/grpclib/picker"
-	"gim/pkg/grpclib/resolver/k8s"
-	"gim/pkg/k8sutil"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
 	"os"
 	"strconv"
 
@@ -15,6 +10,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"gim/pkg/grpclib/picker"
+	"gim/pkg/grpclib/resolver/k8s"
+	"gim/pkg/k8sutil"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
 )
 
 type k8sBuilder struct{}

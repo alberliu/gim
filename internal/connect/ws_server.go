@@ -1,8 +1,6 @@
 package connect
 
 import (
-	"gim/pkg/logger"
-	"gim/pkg/util"
 	"io"
 	"net/http"
 	"strings"
@@ -10,6 +8,9 @@ import (
 
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
+
+	"gim/pkg/logger"
+	"gim/pkg/util"
 )
 
 var upgrader = websocket.Upgrader{

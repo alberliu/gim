@@ -2,8 +2,9 @@ package repo
 
 import (
 	"fmt"
-	"gim/internal/business/domain/user/model"
 	"testing"
+
+	"gim/internal/business/domain/user/model"
 )
 
 func TestAuthCache_Get(t *testing.T) {

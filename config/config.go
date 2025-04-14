@@ -2,11 +2,12 @@ package config
 
 import (
 	"context"
-	"gim/pkg/gerrors"
-	"gim/pkg/protocol/pb"
 	"os"
 
 	"google.golang.org/grpc"
+
+	"gim/pkg/gerrors"
+	"gim/pkg/protocol/pb"
 )
 
 var builders = map[string]Builder{

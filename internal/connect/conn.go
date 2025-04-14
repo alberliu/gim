@@ -3,11 +3,6 @@ package connect
 import (
 	"container/list"
 	"context"
-	"gim/config"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/rpc"
 	"sync"
 	"time"
 
@@ -16,6 +11,12 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+
+	"gim/config"
+	"gim/pkg/grpclib"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/rpc"
 )
 
 const (

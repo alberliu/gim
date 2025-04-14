@@ -2,12 +2,13 @@ package device
 
 import (
 	"context"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/rpc"
 	"time"
 
 	"go.uber.org/zap"
+
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/rpc"
 )
 
 type service struct{}

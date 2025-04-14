@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"log"
 	"net"
 	"time"
@@ -11,6 +9,9 @@ import (
 	"github.com/alberliu/gn/codec"
 	jsoniter "github.com/json-iterator/go"
 	"google.golang.org/protobuf/proto"
+
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 var (

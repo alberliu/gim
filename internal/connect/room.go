@@ -2,8 +2,9 @@ package connect
 
 import (
 	"container/list"
-	"gim/pkg/protocol/pb"
 	"sync"
+
+	"gim/pkg/protocol/pb"
 )
 
 var RoomsManager sync.Map

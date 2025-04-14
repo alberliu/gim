@@ -2,13 +2,14 @@ package repo
 
 import (
 	"errors"
-	"gim/internal/logic/domain/group/entity"
-	"gim/pkg/db"
-	"gim/pkg/gerrors"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
+
+	"gim/internal/logic/domain/group/entity"
+	"gim/pkg/db"
+	"gim/pkg/gerrors"
 )
 
 const GroupKey = "group:"

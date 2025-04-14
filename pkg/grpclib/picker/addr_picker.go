@@ -3,12 +3,12 @@ package picker
 import (
 	"context"
 	"errors"
-	"gim/pkg/logger"
 
 	"go.uber.org/zap"
-
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
+
+	"gim/pkg/logger"
 )
 
 // AddrPickerName 实现指定地址调用的RPC调用

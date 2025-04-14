@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	app2 "gim/internal/business/domain/user/app"
-	"gim/pkg/grpclib"
-	"gim/pkg/protocol/pb"
 
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"gim/internal/business/domain/user/app"
+	"gim/pkg/grpclib"
+	"gim/pkg/protocol/pb"
 )
 
 type BusinessExtServer struct {
@@ -14,7 +15,7 @@ type BusinessExtServer struct {
 }
 
 func (s *BusinessExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
-	isNew, userId, token, err := app2.AuthApp.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
+	isNew, userId, token, err := app.AuthApp.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func (s *BusinessExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*p
 		return nil, err
 	}
 
-	user, err := app2.UserApp.Get(ctx, userId)
+	user, err := app.UserApp.Get(ctx, userId)
 	return &pb.GetUserResp{User: user}, err
 }
 
@@ -41,10 +42,10 @@ func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRe
 		return nil, err
 	}
 
-	return new(emptypb.Empty), app2.UserApp.Update(ctx, userId, req)
+	return new(emptypb.Empty), app.UserApp.Update(ctx, userId, req)
 }
 
 func (s *BusinessExtServer) SearchUser(ctx context.Context, req *pb.SearchUserReq) (*pb.SearchUserResp, error) {
-	users, err := app2.UserApp.Search(ctx, req.Key)
+	users, err := app.UserApp.Search(ctx, req.Key)
 	return &pb.SearchUserResp{Users: users}, err
 }

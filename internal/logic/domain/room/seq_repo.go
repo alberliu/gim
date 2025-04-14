@@ -2,6 +2,7 @@ package room
 
 import (
 	"fmt"
+
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )

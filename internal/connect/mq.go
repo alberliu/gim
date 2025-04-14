@@ -1,16 +1,17 @@
 package connect
 
 import (
-	"gim/config"
-	"gim/pkg/db"
-	"gim/pkg/logger"
-	"gim/pkg/mq"
-	"gim/pkg/protocol/pb"
 	"time"
 
 	"github.com/go-redis/redis"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
+
+	"gim/config"
+	"gim/pkg/db"
+	"gim/pkg/logger"
+	"gim/pkg/mq"
+	"gim/pkg/protocol/pb"
 )
 
 // StartSubscribe 启动MQ消息处理逻辑

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+
 	"gim/internal/logic/domain/message/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"

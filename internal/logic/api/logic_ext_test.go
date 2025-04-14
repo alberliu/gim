@@ -3,8 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"strconv"
 	"testing"
 	"time"
@@ -12,6 +10,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 func getLogicExtClient() pb.LogicExtClient {

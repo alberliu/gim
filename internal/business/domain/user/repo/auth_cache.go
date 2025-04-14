@@ -3,13 +3,14 @@ package repo
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
+
+	"github.com/go-redis/redis"
+
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"gim/pkg/util"
-	"strconv"
-
-	"github.com/go-redis/redis"
 )
 
 const (

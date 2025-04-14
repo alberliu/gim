@@ -2,13 +2,14 @@ package db
 
 import (
 	"fmt"
-	"gim/config"
-	"gim/pkg/logger"
-	"gim/pkg/util"
 
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+
+	"gim/config"
+	"gim/pkg/logger"
+	"gim/pkg/util"
 )
 
 var (

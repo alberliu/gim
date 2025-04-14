@@ -3,13 +3,14 @@ package api
 import (
 	"context"
 	"fmt"
-	"gim/pkg/protocol/pb"
 	"strconv"
 	"testing"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"gim/pkg/protocol/pb"
 )
 
 func getBusinessExtClient() pb.BusinessExtClient {

@@ -2,13 +2,14 @@ package friend
 
 import (
 	"context"
+	"time"
+
+	"google.golang.org/protobuf/proto"
+
 	"gim/internal/logic/proxy"
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
-	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 type service struct{}

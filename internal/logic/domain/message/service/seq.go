@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"gim/internal/logic/domain/message/repo"
 )
 

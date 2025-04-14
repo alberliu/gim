@@ -2,11 +2,12 @@ package repo
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
-	"strconv"
-	"time"
 
 	"github.com/go-redis/redis"
 )

@@ -2,6 +2,10 @@ package entity
 
 import (
 	"context"
+	"time"
+
+	"google.golang.org/protobuf/proto"
+
 	"gim/internal/logic/proxy"
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
@@ -9,9 +13,6 @@ import (
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"gim/pkg/util"
-	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 const (

@@ -2,6 +2,7 @@ package message
 
 import (
 	"context"
+
 	"gim/internal/logic/domain/message/service"
 	"gim/pkg/protocol/pb"
 )

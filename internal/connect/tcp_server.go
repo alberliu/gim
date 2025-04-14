@@ -2,14 +2,15 @@ package connect
 
 import (
 	"context"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/rpc"
 	"time"
 
 	"github.com/alberliu/gn"
 	"github.com/alberliu/gn/codec"
 	"go.uber.org/zap"
+
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/rpc"
 )
 
 var server *gn.Server

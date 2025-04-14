@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+
 	"gim/internal/business/domain/user/service"
 )
 

@@ -2,12 +2,13 @@ package device
 
 import (
 	"errors"
-	"gim/pkg/db"
-	"gim/pkg/gerrors"
 	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
+
+	"gim/pkg/db"
+	"gim/pkg/gerrors"
 )
 
 const (

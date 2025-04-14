@@ -2,8 +2,9 @@ package friend
 
 import (
 	"context"
-	"gim/pkg/protocol/pb"
 	"time"
+
+	"gim/pkg/protocol/pb"
 )
 
 type app struct{}

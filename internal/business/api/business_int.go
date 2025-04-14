@@ -2,10 +2,11 @@ package api
 
 import (
 	"context"
-	app2 "gim/internal/business/domain/user/app"
-	"gim/pkg/protocol/pb"
 
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	"gim/internal/business/domain/user/app"
+	"gim/pkg/protocol/pb"
 )
 
 type BusinessIntServer struct {
@@ -13,11 +14,11 @@ type BusinessIntServer struct {
 }
 
 func (*BusinessIntServer) Auth(ctx context.Context, req *pb.AuthReq) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, app2.AuthApp.Auth(ctx, req.UserId, req.DeviceId, req.Token)
+	return &emptypb.Empty{}, app.AuthApp.Auth(ctx, req.UserId, req.DeviceId, req.Token)
 }
 
 func (*BusinessIntServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
-	user, err := app2.UserApp.Get(ctx, req.UserId)
+	user, err := app.UserApp.Get(ctx, req.UserId)
 	return &pb.GetUserResp{User: user}, err
 }
 
@@ -27,6 +28,6 @@ func (*BusinessIntServer) GetUsers(ctx context.Context, req *pb.GetUsersReq) (*p
 		userIds = append(userIds, k)
 	}
 
-	users, err := app2.UserApp.GetByIds(ctx, userIds)
+	users, err := app.UserApp.GetByIds(ctx, userIds)
 	return &pb.GetUsersResp{Users: users}, err
 }

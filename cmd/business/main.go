@@ -1,12 +1,6 @@
 package main
 
 import (
-	"gim/config"
-	"gim/internal/business/api"
-	"gim/pkg/interceptor"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/urlwhitelist"
 	"net"
 	"os"
 	"os/signal"
@@ -14,6 +8,13 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+
+	"gim/config"
+	"gim/internal/business/api"
+	"gim/pkg/interceptor"
+	"gim/pkg/logger"
+	"gim/pkg/protocol/pb"
+	"gim/pkg/urlwhitelist"
 )
 
 func main() {

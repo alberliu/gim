@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
+	"time"
+
+	"google.golang.org/protobuf/proto"
+
 	"gim/pkg/gerrors"
 	"gim/pkg/mq"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/util"
-	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 type pushService struct{}

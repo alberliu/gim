@@ -2,6 +2,10 @@ package service
 
 import (
 	"context"
+
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+
 	"gim/internal/logic/domain/message/model"
 	"gim/internal/logic/domain/message/repo"
 	"gim/internal/logic/proxy"
@@ -11,9 +15,6 @@ import (
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"gim/pkg/util"
-
-	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 )
 
 const MessageLimit = 50 // 最大消息同步数量

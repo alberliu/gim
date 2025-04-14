@@ -2,10 +2,11 @@ package room
 
 import (
 	"fmt"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/util"
 	"testing"
 	"time"
+
+	"gim/pkg/protocol/pb"
+	"gim/pkg/util"
 )
 
 func Test_service_DelExpireMessage(t *testing.T) {

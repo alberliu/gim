@@ -3,9 +3,10 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"gim/pkg/protocol/pb"
 
 	"google.golang.org/protobuf/proto"
+
+	"gim/pkg/protocol/pb"
 )
 
 var MessagePushes = map[pb.PushCode]proto.Message{
