@@ -1,0 +1,30 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+service DeviceExtService {
+  // 注册设备
+  rpc RegisterDevice (RegisterDeviceRequest) returns (RegisterDeviceReply);
+}
+
+enum DeviceType{
+  DT_DEFAULT = 0;
+  DT_ANDROID = 1;
+  DT_IOS = 2;
+  DT_WINDOWS = 3;
+  DT_MACOS = 4;
+  DT_WEB = 5;
+}
+
+message RegisterDeviceRequest {
+  DeviceType type = 1; // 设备类型
+  string brand = 2; // 厂商
+  string model = 3; // 机型
+  string system_version = 4; // 系统版本
+  string sdk_version = 5; // sdk版本号
+}
+message RegisterDeviceReply {
+  uint64 device_id = 1; // 设备id
+}
+
+

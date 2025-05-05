@@ -1,17 +1,16 @@
 package connect
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/go-redis/redis"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 
 	"gim/config"
 	"gim/pkg/db"
-	"gim/pkg/logger"
 	"gim/pkg/mq"
-	"gim/pkg/protocol/pb"
+	pb "gim/pkg/protocol/pb/connectpb"
 )
 
 // StartSubscribe 启动MQ消息处理逻辑
@@ -55,9 +54,10 @@ func handlePushRoom(bytes []byte) {
 	var msg pb.PushRoomMsg
 	err := proto.Unmarshal(bytes, &msg)
 	if err != nil {
-		logger.Logger.Error("handlePushRoom error", zap.Error(err))
+		slog.Error("handlePushRoom error", "error", err)
 		return
 	}
+	slog.Debug("handlePushRoom", "msg", msg)
 	PushRoom(msg.RoomId, msg.Message)
 }
 
@@ -65,8 +65,9 @@ func handlePushAll(bytes []byte) {
 	var msg pb.PushAllMsg
 	err := proto.Unmarshal(bytes, &msg)
 	if err != nil {
-		logger.Logger.Error("handlePushRoom error", zap.Error(err))
+		slog.Error("handlePushRoom error", "error", err)
 		return
 	}
+	slog.Debug("handlePushAll", "msg", msg)
 	PushAll(msg.Message)
 }

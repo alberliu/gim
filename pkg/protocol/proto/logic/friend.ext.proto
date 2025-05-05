@@ -1,0 +1,62 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+service FriendExtService {
+  // 发送好友消息
+  rpc SendMessage (SendFriendMessageRequest) returns (SendFriendMessageReply);
+  // 添加好友
+  rpc Add (FriendAddRequest) returns (google.protobuf.Empty);
+  // 同意添加好友
+  rpc Agree (FriendAgreeRequest) returns (google.protobuf.Empty);
+  // 设置好友信息
+  rpc Set (FriendSetRequest) returns (FriendSetReply);
+  // 获取好友列表
+  rpc GetFriends (google.protobuf.Empty) returns (GetFriendsReply);
+}
+
+message SendFriendMessageRequest {
+  uint64 user_id = 1; // 接收者ID，用户ID/群组ID
+  bytes content = 2; // 推动内容
+}
+message SendFriendMessageReply {
+  uint64 message_id = 1; // 消息序列号
+}
+
+message FriendAddRequest {
+  uint64 friend_id = 1; // 用户id
+  string remarks = 2; // 备注
+  string description = 3; // 描述
+}
+
+message FriendAgreeRequest {
+  uint64 user_id = 1; // 用户id
+  string remarks = 2; // 备注
+}
+
+message FriendSetRequest {
+  uint64 friend_id = 1; // 好友id
+  string remarks = 2; // 备注
+  string extra = 8; // 附加字段
+}
+message FriendSetReply {
+  uint64 friend_id = 1; // 好友id
+  string remarks = 2; // 备注
+  string extra = 8; // 附加字段
+}
+
+message Friend {
+  uint64 user_id = 1; // 用户id
+  string phone_number = 2; // 电话号码
+  string nickname = 3; // 昵称
+  int32 sex = 4; // 性别
+  string avatar_url = 5; // 头像地址
+  string user_extra = 6; // 用户附加字段
+  string remarks = 7; // 备注
+  string extra = 8; // 附加字段
+}
+message GetFriendsReply {
+  repeated Friend friends = 1;
+}

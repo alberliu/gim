@@ -1,71 +1,71 @@
 package logger
 
 import (
+	"fmt"
+	"io"
+	"log/slog"
 	"os"
-	"time"
+	"strconv"
+	"strings"
 
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	lumberjackv2 "gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
+
+	"gim/config"
 )
 
-const (
-	Console = "console"
-	File    = "file"
-)
+func Init(directory string) {
+	var writer io.Writer
 
-var (
-	Level  = zap.DebugLevel
-	Target = Console
-)
-
-var (
-	Logger *zap.Logger
-	Sugar  *zap.SugaredLogger
-)
-
-func NewEncoderConfig() zapcore.EncoderConfig {
-	return zapcore.EncoderConfig{
-		// Keys can be anything except the empty string.
-		TimeKey:        "T",
-		LevelKey:       "L",
-		NameKey:        "N",
-		CallerKey:      "C",
-		MessageKey:     "M",
-		StacktraceKey:  "S",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder,
-		EncodeTime:     TimeEncoder,
-		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+	logFile := config.Config.LogFile(directory)
+	if logFile == "" {
+		writer = os.Stdout
+	} else {
+		writer = &lumberjack.Logger{
+			Filename:   fmt.Sprintf("/data/log/%s/log.log", directory),
+			MaxSize:    100, // 单个文件大小megabytes
+			MaxBackups: 30,  // 最大备份数量
+			MaxAge:     30,  // 保存天数
+			LocalTime:  true,
+		}
 	}
+
+	options := &slog.HandlerOptions{
+		AddSource:   true,
+		Level:       config.Config.LogLevel,
+		ReplaceAttr: replaceAttr,
+	}
+	slog.SetDefault(slog.New(slog.NewJSONHandler(writer, options)))
+	slog.Info("slog init")
 }
 
-func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
+func replaceAttr(groups []string, a slog.Attr) slog.Attr {
+	switch a.Key {
+	case "time":
+		a.Key = "ts"
+		a.Value = slog.StringValue(a.Value.Time().Format("2006-01-02 15:04:05.000"))
+	case "level":
+		a.Value = slog.StringValue(strings.ToLower(a.Value.String()))
+	case "source":
+		source := a.Value.Any().(*slog.Source)
+		a.Value = slog.StringValue(getShortSource(source))
+	}
+	return a
 }
 
-func init() {
-	w := zapcore.AddSync(&lumberjackv2.Logger{
-		Filename:   "log/im.log",
-		MaxSize:    1024, // megabytes
-		MaxBackups: 10,
-		MaxAge:     7, // days
-	})
-
-	var writeSyncer zapcore.WriteSyncer
-	if Target == Console {
-		writeSyncer = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout))
+func getShortSource(source *slog.Source) string {
+	index := strings.LastIndex(source.File, "/")
+	if index != -1 {
+		index = strings.LastIndex(source.File[0:index], "/")
 	}
-	if Target == File {
-		writeSyncer = zapcore.NewMultiWriteSyncer(w)
-	}
+	return strings.ReplaceAll(source.File[index+1:], ".go", "") + ":" + strconv.Itoa(source.Line)
+}
 
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(NewEncoderConfig()),
-		writeSyncer,
-		Level,
-	)
-	Logger = zap.New(core, zap.AddCaller())
-	Sugar = Logger.Sugar()
+func Error(err error) slog.Attr {
+	if err == nil {
+		return slog.Attr{}
+	}
+	return slog.Attr{
+		Key:   "error",
+		Value: slog.StringValue(err.Error()),
+	}
 }

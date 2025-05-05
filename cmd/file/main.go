@@ -1,13 +1,13 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 
 	"gim/pkg/logger"
 	"gim/pkg/util"
@@ -22,8 +22,10 @@ type Response struct {
 }
 
 func main() {
+	logger.Init("file")
+
 	router := gin.Default()
-	router.Static("/file", "/root/file")
+	router.Static("/file", "/data/file")
 
 	// Set a lower memory limit for multipart forms (default is 32 MiB)
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
@@ -37,7 +39,7 @@ func main() {
 
 		filenames := strings.Split(file.Filename, ".")
 		name := strconv.FormatInt(time.Now().UnixNano(), 10) + "-" + util.RandString(30) + "." + filenames[len(filenames)-1]
-		filePath := "/root/file/" + name
+		filePath := "/data/file/" + name
 		err = c.SaveUploadedFile(file, filePath)
 		if err != nil {
 			c.JSON(http.StatusOK, Response{Code: 1001, Message: err.Error()})
@@ -52,6 +54,6 @@ func main() {
 	})
 	err := router.Run(":8085")
 	if err != nil {
-		logger.Logger.Error("Run error", zap.Error(err))
+		slog.Error("Run error", "error", err)
 	}
 }

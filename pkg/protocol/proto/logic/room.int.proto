@@ -1,0 +1,22 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+import "logic/room.ext.proto";
+
+service RoomIntService {
+  // 推送消息到房间
+  rpc PushRoom(PushRoomRequest)returns(google.protobuf.Empty);
+  // 订阅房间
+  rpc SubscribeRoom(SubscribeRoomRequest)returns(google.protobuf.Empty);
+}
+
+message SubscribeRoomRequest{
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备id
+  uint64 room_id = 3; // 房间id
+  uint64 seq = 4; // 消息序列号
+  string conn_addr = 5; // 服务器地址
+}

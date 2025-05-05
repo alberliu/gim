@@ -22,7 +22,7 @@ func NewAddrsBuilder() resolver.Builder {
 }
 
 func (b *addrsBuilder) Build(target resolver.Target, clientConn resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	ips := strings.Split(target.Endpoint, ",")
+	ips := strings.Split(target.Endpoint(), ",")
 
 	state := resolver.State{
 		Addresses: getAddrs(ips),

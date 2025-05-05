@@ -2,16 +2,26 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"os"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
-	"gim/pkg/gerrors"
-	"gim/pkg/protocol/pb"
+	"gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
+	"gim/pkg/protocol/pb/userpb"
 )
 
+const EnvLocal = "local"
+
+var ENV = os.Getenv("ENV")
+
 var builders = map[string]Builder{
-	"default": &defaultBuilder{},
+	"local":   &localBuilder{},
+	"compose": &composeBuilder{},
 	"k8s":     &k8sBuilder{},
 }
 
@@ -22,6 +32,9 @@ type Builder interface {
 }
 
 type Configuration struct {
+	LogLevel slog.Level
+	LogFile  func(server string) string
+
 	MySQL                string
 	RedisHost            string
 	RedisPassword        string
@@ -33,26 +46,40 @@ type Configuration struct {
 	ConnectTCPListenAddr string
 	ConnectWSListenAddr  string
 
-	LogicRPCListenAddr    string
-	BusinessRPCListenAddr string
-	FileHTTPListenAddr    string
+	LogicRPCListenAddr string
+	UserRPCListenAddr  string
+	FileHTTPListenAddr string
 
-	ConnectIntClientBuilder  func() pb.ConnectIntClient
-	LogicIntClientBuilder    func() pb.LogicIntClient
-	BusinessIntClientBuilder func() pb.BusinessIntClient
+	ConnectIntClientBuilder func() connectpb.ConnectIntServiceClient
+	DeviceIntClientBuilder  func() logicpb.DeviceIntServiceClient
+	MessageIntClientBuilder func() logicpb.MessageIntServiceClient
+	RoomIntClientBuilder    func() logicpb.RoomIntServiceClient
+	UserIntClientBuilder    func() userpb.UserIntServiceClient
 }
 
 func init() {
-	env := os.Getenv("GIM_ENV")
-	builder, ok := builders[env]
+	builder, ok := builders[ENV]
 	if !ok {
-		builder = new(defaultBuilder)
+		builder = new(localBuilder)
 	}
 	Config = builder.Build()
-
 }
 
-func interceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-	err := invoker(ctx, method, req, reply, cc, opts...)
-	return gerrors.WrapRPCError(err)
+func interceptor(ctx context.Context, method string, request, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	err := invoker(ctx, method, request, reply, cc, opts...)
+
+	md, _ := metadata.FromOutgoingContext(ctx)
+	slog.Debug("client interceptor", "method", method, "metadata", md, "request", request, "reply", reply, "error", err)
+	return err
+}
+
+func newGrpcClient(target, loadBalance string) *grpc.ClientConn {
+	conn, err := grpc.NewClient(target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(interceptor),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, loadBalance)))
+	if err != nil {
+		panic(err)
+	}
+	return conn
 }

@@ -1,0 +1,59 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+import "logic/device.ext.proto";
+
+service DeviceIntService {
+  // 登录
+  rpc ConnSignIn (ConnSignInRequest) returns (google.protobuf.Empty);
+  // 设备离线
+  rpc Offline (OfflineRequest) returns (google.protobuf.Empty);
+  // 获取设备信息
+  rpc GetDevice (GetDeviceRequest) returns (GetDeviceReply);
+  // 服务停止
+  rpc ServerStop (ServerStopRequest) returns (google.protobuf.Empty);
+}
+
+message ConnSignInRequest {
+  uint64 device_id = 1; // 设备id
+  uint64 user_id = 2; // 用户id
+  string token = 3; // 秘钥
+  string conn_addr = 4; // 服务器地址
+  string client_addr = 5; // 客户端地址
+}
+
+message OfflineRequest {
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备id
+  string client_addr = 3; // 客户端地址
+}
+
+message GetDeviceRequest {
+  uint64 device_id = 1;
+}
+message GetDeviceReply {
+  Device device = 1;
+}
+
+message Device {
+  uint64 device_id = 1; // 设备id
+  uint64 user_id = 2; // 用户id
+  DeviceType type = 3; // 设备类型
+  string brand = 4; // 手机厂商
+  string model = 5; // 机型
+  string system_version = 6; // 系统版本
+  string sdk_version = 7; // SDK版本
+  int32 status = 8; // 在线状态，0：不在线；1：在线
+  string conn_addr = 9;  // 服务端连接地址
+  string client_addr = 10; // 客户端地址
+  int64 create_time = 11; // 创建时间
+  int64 update_time = 12; // 更新时间
+}
+
+message ServerStopRequest {
+  string conn_addr = 1;
+}
+

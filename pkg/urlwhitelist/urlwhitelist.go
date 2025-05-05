@@ -1,9 +1,9 @@
 package urlwhitelist
 
-var Business = map[string]int{
-	"/pb.BusinessExt/SignIn": 0,
+var User = map[string]struct{}{
+	"/user.UserExtService/SignIn": {},
 }
 
-var Logic = map[string]int{
-	"/pb.LogicExt/RegisterDevice": 0,
+var Logic = map[string]struct{}{
+	"/logic.DeviceExtService/RegisterDevice": {},
 }

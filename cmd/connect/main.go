@@ -2,23 +2,26 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"gim/config"
 	"gim/internal/connect"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
+	pb "gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 
 func main() {
+	logger.Init("connect")
+
 	// 启动TCP长链接服务器
 	go func() {
 		connect.StartTCPServer(config.Config.ConnectTCPListenAddr)
@@ -32,29 +35,29 @@ func main() {
 	// 启动服务订阅
 	connect.StartSubscribe()
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.NewInterceptor("connect_interceptor", nil)))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(nil)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
-		logger.Logger.Info("server stop start", zap.Any("signal", s))
-		_, _ = rpc.GetLogicIntClient().ServerStop(context.TODO(), &pb.ServerStopReq{ConnAddr: config.Config.ConnectLocalAddr})
-		logger.Logger.Info("server stop end")
+		slog.Info("server stop start", "signal", s)
+		_, _ = rpc.GetDeviceIntClient().ServerStop(context.TODO(), &logicpb.ServerStopRequest{ConnAddr: config.Config.ConnectLocalAddr})
+		slog.Info("server stop end")
 
 		server.GracefulStop()
 	}()
 
-	pb.RegisterConnectIntServer(server, &connect.ConnIntServer{})
+	pb.RegisterConnectIntServiceServer(server, &connect.ConnIntService{})
 	listener, err := net.Listen("tcp", config.Config.ConnectRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}
 
-	logger.Logger.Info("rpc服务已经开启")
+	slog.Info("rpc服务已经开启")
 	err = server.Serve(listener)
 	if err != nil {
-		logger.Logger.Error("serve error", zap.Error(err))
+		slog.Error("serve error", "error", err)
 	}
 }

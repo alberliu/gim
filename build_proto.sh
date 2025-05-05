@@ -2,9 +2,13 @@
 
 set -e
 
-root_path=$(pwd)
-rm -rf pkg/protocol/pb/*
-cd pkg/protocol/proto
-pb_root_path=$root_path/../
-protoc --proto_path=$root_path/pkg/protocol/proto --go_out=$pb_root_path --go-grpc_out=$pb_root_path *.proto
-cd $root_path
+rm -rf pkg/protocol/pb
+
+buildDir(){
+  dir=$1
+  protoc -I pkg/protocol/proto --go_out=..  --go-grpc_out=..  pkg/protocol/proto/$dir/*.proto
+}
+
+buildDir connect
+buildDir logic
+buildDir user

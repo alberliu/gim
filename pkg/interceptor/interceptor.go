@@ -2,52 +2,49 @@ package interceptor
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"gim/pkg/gerrors"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
+	"gim/pkg/md"
+	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/rpc"
 )
 
 // NewInterceptor 生成GRPC过滤器
-func NewInterceptor(name string, urlWhitelist map[string]int) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		defer gerrors.LogPanic(name, ctx, req, info, &err)
-
+func NewInterceptor(urlWhitelist map[string]struct{}) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (reply interface{}, err error) {
+		defer gerrors.LogPanic(ctx, req, info, &err)
 		md, _ := metadata.FromIncomingContext(ctx)
-		resp, err = handleWithAuth(ctx, req, info, handler, urlWhitelist)
-		logger.Logger.Debug(name, zap.Any("method", info.FullMethod), zap.Any("md", md), zap.Any("req", req),
-			zap.Any("resp", resp), zap.Error(err))
+		logger := slog.With("method", info.FullMethod, "md", md, "request", req, "reply", reply)
+
+		reply, err = handleWithAuth(ctx, req, info, handler, urlWhitelist)
 
 		s, _ := status.FromError(err)
-		if s.Code() != 0 && s.Code() < 1000 {
-			md, _ := metadata.FromIncomingContext(ctx)
-			logger.Logger.Error(name, zap.String("method", info.FullMethod), zap.Any("md", md), zap.Any("req", req),
-				zap.Any("resp", resp), zap.Error(err), zap.String("stack", gerrors.GetErrorStack(s)))
+		if s.Code() != 0 && s.Code() < 10000 {
+			logger.Error("interceptor", "error", err, "stack", gerrors.GetErrorStack(s))
 		}
+		logger.Debug("interceptor", "error", err)
 		return
 	}
 }
 
 // handleWithAuth 处理鉴权逻辑
-func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, urlWhitelist map[string]int) (interface{}, error) {
+func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, urlWhitelist map[string]struct{}) (interface{}, error) {
 	serverName := strings.Split(info.FullMethod, "/")[1]
-	if !strings.HasSuffix(serverName, "Int") {
+	if !strings.HasSuffix(serverName, "IntService") {
 		if _, ok := urlWhitelist[info.FullMethod]; !ok {
-			userId, deviceId, err := grpclib.GetCtxData(ctx)
+			userId, deviceId, err := md.GetCtxData(ctx)
 			if err != nil {
 				return nil, err
 			}
-			token := grpclib.GetCtxToken(ctx)
+			token := md.GetCtxToken(ctx)
 
-			_, err = rpc.GetBusinessIntClient().Auth(ctx, &pb.AuthReq{
+			_, err = rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{
 				UserId:   userId,
 				DeviceId: deviceId,
 				Token:    token,

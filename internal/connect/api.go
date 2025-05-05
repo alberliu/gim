@@ -2,35 +2,40 @@ package connect
 
 import (
 	"context"
+	"log/slog"
 
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
+	"gim/pkg/gerrors"
+	"gim/pkg/md"
+	pb "gim/pkg/protocol/pb/connectpb"
 )
 
-type ConnIntServer struct {
-	pb.UnsafeConnectIntServer
+type ConnIntService struct {
+	pb.UnsafeConnectIntServiceServer
 }
 
-// DeliverMessage 投递消息
-func (s *ConnIntServer) DeliverMessage(ctx context.Context, req *pb.DeliverMessageReq) (*emptypb.Empty, error) {
-	resp := &emptypb.Empty{}
+// PushToDevices 投递消息
+func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDevicesRequest) (*emptypb.Empty, error) {
+	reply := &emptypb.Empty{}
 
-	// 获取设备对应的TCP连接
-	conn := GetConn(req.DeviceId)
-	if conn == nil {
-		logger.Logger.Warn("GetConn warn", zap.Int64("device_id", req.DeviceId))
-		return resp, nil
+	for _, dm := range request.DeviceMessageList {
+		conn := GetConn(dm.DeviceId)
+		if conn == nil {
+			slog.Warn("PushToDevices warn conn not found", "device_id", dm.DeviceId)
+			return reply, gerrors.ErrConnNotFound
+		}
+
+		if conn.DeviceId != dm.DeviceId {
+			slog.Warn("PushToDevices warn deviceID not equal", "device_id", dm.DeviceId)
+			return reply, gerrors.ErrConnDeviceIdNotEqual
+		}
+
+		packet := &pb.Packet{
+			Command:   pb.Command_MESSAGE,
+			RequestId: md.GetCtxRequestId(ctx),
+		}
+		conn.Send(packet, dm.Message, nil)
 	}
-
-	if conn.DeviceId != req.DeviceId {
-		logger.Logger.Warn("GetConn warn", zap.Int64("device_id", req.DeviceId))
-		return resp, nil
-	}
-
-	conn.Send(pb.PackageType_PT_MESSAGE, grpclib.GetCtxRequestId(ctx), req.Message, nil)
-	return resp, nil
+	return reply, nil
 }

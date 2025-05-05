@@ -2,16 +2,18 @@ package connect
 
 import (
 	"container/list"
+	"log/slog"
 	"sync"
 
-	"gim/pkg/protocol/pb"
+	pb "gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
 )
 
 var RoomsManager sync.Map
 
 // SubscribedRoom 订阅房间
-func SubscribedRoom(conn *Conn, roomId int64) {
-	if roomId == conn.RoomId {
+func SubscribedRoom(conn *Conn, roomID uint64) {
+	if roomID == conn.RoomId {
 		return
 	}
 
@@ -28,43 +30,46 @@ func SubscribedRoom(conn *Conn, roomId int64) {
 		if room.Conns.Front() == nil {
 			RoomsManager.Delete(oldRoomId)
 		}
+		slog.Debug("SubscribedRoom un", "userID", conn.UserId, "roomID", roomID)
 		return
 	}
 
 	// 订阅
-	if roomId != 0 {
-		value, ok := RoomsManager.Load(roomId)
+	if roomID != 0 {
+		value, ok := RoomsManager.Load(roomID)
 		var room *Room
 		if !ok {
-			room = NewRoom(roomId)
-			RoomsManager.Store(roomId, room)
+			room = NewRoom(roomID)
+			RoomsManager.Store(roomID, room)
 		} else {
 			room = value.(*Room)
 		}
 		room.Subscribe(conn)
+		slog.Debug("SubscribedRoom", "userID", conn.UserId, "roomID", roomID)
 		return
 	}
 }
 
 // PushRoom 房间消息推送
-func PushRoom(roomId int64, message *pb.Message) {
-	value, ok := RoomsManager.Load(roomId)
+func PushRoom(roomID uint64, message *logicpb.Message) {
+	value, ok := RoomsManager.Load(roomID)
 	if !ok {
 		return
 	}
 
+	slog.Debug("PushRoom", "roomID", roomID, "msg", message)
 	value.(*Room).Push(message)
 }
 
 type Room struct {
-	RoomId int64      // 房间ID
+	RoomID uint64     // 房间ID
 	Conns  *list.List // 订阅房间消息的连接
 	lock   sync.RWMutex
 }
 
-func NewRoom(roomId int64) *Room {
+func NewRoom(roomID uint64) *Room {
 	return &Room{
-		RoomId: roomId,
+		RoomID: roomID,
 		Conns:  list.New(),
 	}
 }
@@ -75,7 +80,7 @@ func (r *Room) Subscribe(conn *Conn) {
 	defer r.lock.Unlock()
 
 	conn.Element = r.Conns.PushBack(conn)
-	conn.RoomId = r.RoomId
+	conn.RoomId = r.RoomID
 }
 
 // Unsubscribe 取消订阅
@@ -89,14 +94,16 @@ func (r *Room) Unsubscribe(conn *Conn) {
 }
 
 // Push 推送消息到房间
-func (r *Room) Push(message *pb.Message) {
+func (r *Room) Push(message *logicpb.Message) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
 	element := r.Conns.Front()
 	for {
 		conn := element.Value.(*Conn)
-		conn.Send(pb.PackageType_PT_MESSAGE, 0, message, nil)
+		slog.Debug("PushRoom toUser", "userID", conn.UserId, "msg", message)
+		packet := &pb.Packet{Command: pb.Command_MESSAGE}
+		conn.Send(packet, message, nil)
 
 		element = element.Next()
 		if element == nil {

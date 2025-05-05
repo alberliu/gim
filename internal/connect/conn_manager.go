@@ -3,18 +3,19 @@ package connect
 import (
 	"sync"
 
-	"gim/pkg/protocol/pb"
+	pb "gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
 )
 
 var ConnesManager = sync.Map{}
 
 // SetConn 存储
-func SetConn(deviceId int64, conn *Conn) {
+func SetConn(deviceId uint64, conn *Conn) {
 	ConnesManager.Store(deviceId, conn)
 }
 
 // GetConn 获取
-func GetConn(deviceId int64) *Conn {
+func GetConn(deviceId uint64) *Conn {
 	value, ok := ConnesManager.Load(deviceId)
 	if ok {
 		return value.(*Conn)
@@ -23,15 +24,16 @@ func GetConn(deviceId int64) *Conn {
 }
 
 // DeleteConn 删除
-func DeleteConn(deviceId int64) {
+func DeleteConn(deviceId uint64) {
 	ConnesManager.Delete(deviceId)
 }
 
 // PushAll 全服推送
-func PushAll(message *pb.Message) {
+func PushAll(message *logicpb.Message) {
 	ConnesManager.Range(func(key, value interface{}) bool {
 		conn := value.(*Conn)
-		conn.Send(pb.PackageType_PT_MESSAGE, 0, message, nil)
+		packet := &pb.Packet{Command: pb.Command_MESSAGE}
+		conn.Send(packet, message, nil)
 		return true
 	})
 }

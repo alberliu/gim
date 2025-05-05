@@ -1,0 +1,104 @@
+# 本地开发环境
+name: gim
+
+services:
+  mysql:
+    container_name: mysql
+    restart: always
+    image: mysql:8.4.3
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      ENV: compose
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/mysql:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "3306:3306"
+
+  redis:
+    container_name: redis
+    restart: always
+    image: redis:7.4.2
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./redis.conf:/etc/redis.conf
+      - /Users/alber/data/redis:/data
+    command:
+      redis-server /etc/redis.conf
+    ports:
+      - "6379:6379"
+    environment:
+      ENV: compose
+
+  connect:
+    container_name: connect
+    restart: always
+    image: connect:20250430.115000
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/log/connect:/data/log/connect
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    environment:
+      ENV: compose
+
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  logic:
+    container_name: logic
+    restart: always
+    image: logic:20250430.115021
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/log/logic:/data/log/logic
+    ports:
+      - "8010:8010"
+    environment:
+      ENV: compose
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  user:
+    container_name: user
+    restart: always
+    image: user:20250430.115013
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/log/user:/data/log/user
+    ports:
+      - "8020:8020"
+    environment:
+      ENV: compose
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  file:
+    container_name: file
+    restart: always
+    image: file:20250430.113636
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/file:/data/file
+      - /Users/alber/data/log/file:/data/log/file
+    ports:
+      - "8030:8030"
+    environment:
+      ENV: compose
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started

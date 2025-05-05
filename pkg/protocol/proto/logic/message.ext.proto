@@ -1,0 +1,94 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "logic/group.ext.proto";
+
+// 单条消息投递内容
+message Message {
+  PushCode code = 1; // 推送码
+  bytes content = 2; // 推送内容
+  uint64 seq = 3; // 用户消息发送序列号
+  int64 created_at = 4; // 消息发送时间戳，精确到毫秒
+  MessageStatus status = 5; // 消息状态
+}
+
+enum MessageStatus {
+  MS_NORMAL = 0; // 正常的
+  MS_RECALL = 1; // 撤回
+}
+
+enum PushCode {
+  PC_ADD_DEFAULT = 0;
+
+  PC_USER_MESSAGE = 100; // 用户消息
+  PC_GROUP_MESSAGE = 101; // 群组消息
+
+  PC_ADD_FRIEND = 110; // 添加好友请求
+  PC_AGREE_ADD_FRIEND = 111; // 同意添加好友
+
+  PC_UPDATE_GROUP = 120; // 更新群组
+  PC_ADD_GROUP_MEMBERS = 121; // 添加群组成员
+  PC_REMOVE_GROUP_MEMBER = 122; // 移除群组成员
+}
+
+message Sender {
+  uint64 user_id = 2; // 发送者id
+  uint64 device_id = 3; // 发送者设备id
+  string avatar_url = 4; // 昵称
+  string nickname = 5; // 头像
+  string extra = 6; // 扩展字段
+}
+
+// 用户消息 PC_USER_MESSAGE = 100
+message UserMessagePush{
+  Sender sender = 1; // 发送者信息
+  bytes content = 2; // 用户发送的消息内容
+}
+
+// 群组消息 PC_GROUP_MESSAGE = 101
+message GroupMessagePush{
+  Sender sender = 1; // 发送者信息
+  uint64 group_id = 2; // 群组ID
+  bytes content = 3; // 用户发送的消息内容
+}
+
+// 添加好友 PC_ADD_FRIEND = 110
+message AddFriendPush {
+  uint64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+  string description = 4; // 描述
+}
+
+// 同意 添加好友 PC_AGREE_ADD_FRIEND = 111
+message AgreeAddFriendPush {
+  uint64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+}
+
+// 更新群组 PC_UPDATE_GROUP = 120
+message UpdateGroupPush {
+  uint64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  string name = 3; // 群组名称
+  string avatar_url = 4; // 群组头像
+  string introduction = 5; // 群组简介
+  string extra = 6; // 附加字段
+}
+
+// 添加群组成员 PC_AGREE_ADD_GROUPS = 121
+message AddGroupMembersPush {
+  uint64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  repeated GroupMember members = 3; // 群组成员
+}
+
+// 删除群组成员 PC_REMOVE_GROUP_MEMBER = 122
+message RemoveGroupMemberPush {
+  uint64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  uint64 deleted_user_id = 3; // 被删除的成员id
+}
+

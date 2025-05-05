@@ -1,72 +1,73 @@
 package connect
 
 import (
-	"context"
+	"bufio"
+	"log/slog"
+	"net"
 	"time"
 
-	"github.com/alberliu/gn"
-	"github.com/alberliu/gn/codec"
-	"go.uber.org/zap"
-
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
-	"gim/pkg/rpc"
+	"gim/pkg/codec"
+	"gim/pkg/util"
 )
-
-var server *gn.Server
 
 // StartTCPServer 启动TCP服务器
 func StartTCPServer(addr string) {
-	gn.SetLogger(logger.Sugar)
-
-	var err error
-	server, err = gn.NewServer(addr, &handler{},
-		gn.WithDecoder(codec.NewUvarintDecoder()),
-		gn.WithEncoder(codec.NewUvarintEncoder(1024)),
-		gn.WithReadBufferLen(256),
-		gn.WithTimeout(11*time.Minute),
-		gn.WithAcceptGNum(10),
-		gn.WithIOGNum(100))
+	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
-		logger.Sugar.Error(err)
 		panic(err)
 	}
-
-	server.Run()
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		panic(err)
+	}
+	slog.Info("tcp server running")
+	go accept(listener)
 }
 
-type handler struct{}
+func accept(listener *net.TCPListener) {
+	for {
+		conn, err := listener.AcceptTCP()
+		if err != nil {
+			slog.Error("acceptTCP error", "error", err)
+			continue
+		}
 
-func (*handler) OnConnect(c *gn.Conn) {
-	// 初始化连接数据
+		err = conn.SetKeepAlive(true)
+		if err != nil {
+			slog.Error("setKeepAlive error", "error", err)
+		}
+
+		err = conn.SetNoDelay(true)
+		if err != nil {
+			slog.Error("setNoDelay error", "error", err)
+		}
+
+		go handleConn(conn)
+	}
+}
+
+func handleConn(tcpConn *net.TCPConn) {
+	defer util.RecoverPanic()
+
 	conn := &Conn{
 		CoonType: CoonTypeTCP,
-		TCP:      c,
+		TCP:      tcpConn,
+		Reader:   bufio.NewReader(tcpConn),
 	}
-	c.SetData(conn)
-	logger.Logger.Debug("connect:", zap.Int32("fd", c.GetFd()), zap.String("addr", c.GetAddr()))
-}
 
-func (*handler) OnMessage(c *gn.Conn, bytes []byte) {
-	conn := c.GetData().(*Conn)
-	conn.HandleMessage(bytes)
-}
+	for {
+		err := conn.TCP.SetReadDeadline(time.Now().Add(12 * time.Minute))
+		if err != nil {
+			conn.Close(err)
+			return
+		}
 
-func (*handler) OnClose(c *gn.Conn, err error) {
-	conn, ok := c.GetData().(*Conn)
-	if !ok || conn == nil {
-		return
-	}
-	logger.Logger.Debug("close", zap.String("addr", c.GetAddr()), zap.Int64("user_id", conn.UserId),
-		zap.Int64("device_id", conn.DeviceId), zap.Error(err))
+		buf, err := codec.Decode(conn.Reader)
+		if err != nil {
+			conn.Close(err)
+			return
+		}
 
-	DeleteConn(conn.DeviceId)
-
-	if conn.UserId != 0 {
-		_, _ = rpc.GetLogicIntClient().Offline(context.TODO(), &pb.OfflineReq{
-			UserId:     conn.UserId,
-			DeviceId:   conn.DeviceId,
-			ClientAddr: c.GetAddr(),
-		})
+		conn.HandleMessage(buf)
 	}
 }

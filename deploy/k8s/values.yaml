@@ -1,0 +1,15 @@
+namespace: gim
+env: k8s
+server:
+  connect:
+    name: connect
+    image: connect
+    replicas: 1
+  logic:
+    name: logic
+    image: logic
+    replicas: 1
+  user:
+    name: user
+    image: user
+    replicas: 1

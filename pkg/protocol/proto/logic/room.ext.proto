@@ -1,0 +1,20 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+import "logic/message.ext.proto";
+
+service RoomExtService {
+  // 推送消息到房间
+  rpc PushRoom(PushRoomRequest)returns(google.protobuf.Empty);
+}
+
+message PushRoomRequest{
+  uint64 room_id = 1; // 房间id
+  PushCode code = 2; // 消息类型
+  bytes content = 3; // 消息内容
+  int64 send_time = 4; // 消息发送时间戳，精确到毫秒
+  bool is_persist = 5; // 是否将消息持久化
+  bool is_priority = 6; // 是否优先推送
+}

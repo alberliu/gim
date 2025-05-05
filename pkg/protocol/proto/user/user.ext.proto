@@ -1,0 +1,59 @@
+syntax = "proto3";
+package user;
+option go_package = "gim/pkg/protocol/pb/userpb";
+
+import "google/protobuf/empty.proto";
+
+service UserExtService {
+  // 登录
+  rpc SignIn (SignInRequest) returns (SignInReply);
+  // 获取用户信息
+  rpc GetUser (GetUserRequest) returns (GetUserReply);
+  // 更新用户信息
+  rpc UpdateUser (UpdateUserRequest) returns (google.protobuf.Empty);
+  // 搜索用户(这里简单数据库实现，生产环境建议使用ES)
+  rpc SearchUser (SearchUserRequest) returns (SearchUserReply);
+}
+
+message SignInRequest {
+  string phone_number = 1; // 手机号
+  string code = 2; // 验证码
+  uint64 device_id = 3; // 设备id
+}
+message SignInReply {
+  bool is_new = 1; // 是否是新用户
+  uint64 user_id = 2; // 用户id
+  string token = 3; // token
+}
+
+message User {
+  uint64 user_id = 1; // 用户id
+  string nickname = 2; // 昵称
+  int32 sex = 3; // 性别
+  string avatar_url = 4; // 头像地址
+  string extra = 5; // 附加字段
+  int64 create_time = 6; // 创建时间
+  int64 update_time = 7; // 更新时间
+}
+
+message GetUserRequest {
+  uint64 user_id = 1; // 用户id
+}
+message GetUserReply {
+  User user = 1; // 用户信息
+}
+
+message UpdateUserRequest {
+  string nickname = 1; // 昵称
+  int32 sex = 2; // 性别
+  string avatar_url = 3; // 头像地址
+  string extra = 4; // 附加字段
+}
+
+message SearchUserRequest{
+  string key = 1;
+}
+message SearchUserReply{
+  repeated User users = 1;
+}
+

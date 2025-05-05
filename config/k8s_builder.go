@@ -3,19 +3,19 @@ package config
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"gim/pkg/grpclib/picker"
 	"gim/pkg/grpclib/resolver/k8s"
 	"gim/pkg/k8sutil"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
+	"gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
+	"gim/pkg/protocol/pb/userpb"
 )
 
 type k8sBuilder struct{}
@@ -36,10 +36,12 @@ func (*k8sBuilder) Build() Configuration {
 		panic(err)
 	}
 
-	logger.Level = zap.DebugLevel
-	logger.Target = logger.Console
-
 	return Configuration{
+		LogLevel: slog.LevelDebug,
+		LogFile: func(server string) string {
+			return fmt.Sprintf("/data/log/%s/log.log", server)
+		},
+
 		MySQL:                configmap.Data["mysql"],
 		RedisHost:            configmap.Data["redisIP"],
 		RedisPassword:        configmap.Data["redisPassword"],
@@ -51,33 +53,29 @@ func (*k8sBuilder) Build() Configuration {
 		ConnectTCPListenAddr: ":8001",
 		ConnectWSListenAddr:  ":8002",
 
-		LogicRPCListenAddr:    RPCListenAddr,
-		BusinessRPCListenAddr: RPCListenAddr,
-		FileHTTPListenAddr:    "8030",
+		LogicRPCListenAddr: RPCListenAddr,
+		UserRPCListenAddr:  RPCListenAddr,
+		FileHTTPListenAddr: "8030",
 
-		ConnectIntClientBuilder: func() pb.ConnectIntClient {
-			conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(namespace, "connect", RPCDialAddr), grpc.WithInsecure(),
-				grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, picker.AddrPickerName)))
-			if err != nil {
-				panic(err)
-			}
-			return pb.NewConnectIntClient(conn)
+		ConnectIntClientBuilder: func() connectpb.ConnectIntServiceClient {
+			conn := newGrpcClient(k8s.GetK8STarget(namespace, "connect", RPCDialAddr), picker.AddrPickerName)
+			return connectpb.NewConnectIntServiceClient(conn)
 		},
-		LogicIntClientBuilder: func() pb.LogicIntClient {
-			conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(namespace, "logic", RPCDialAddr), grpc.WithInsecure(),
-				grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
-			if err != nil {
-				panic(err)
-			}
-			return pb.NewLogicIntClient(conn)
+		DeviceIntClientBuilder: func() logicpb.DeviceIntServiceClient {
+			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			return logicpb.NewDeviceIntServiceClient(conn)
 		},
-		BusinessIntClientBuilder: func() pb.BusinessIntClient {
-			conn, err := grpc.DialContext(context.TODO(), k8s.GetK8STarget(namespace, "business", RPCDialAddr), grpc.WithInsecure(),
-				grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)))
-			if err != nil {
-				panic(err)
-			}
-			return pb.NewBusinessIntClient(conn)
+		MessageIntClientBuilder: func() logicpb.MessageIntServiceClient {
+			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			return logicpb.NewMessageIntServiceClient(conn)
+		},
+		RoomIntClientBuilder: func() logicpb.RoomIntServiceClient {
+			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			return logicpb.NewRoomIntServiceClient(conn)
+		},
+		UserIntClientBuilder: func() userpb.UserIntServiceClient {
+			conn := newGrpcClient(k8s.GetK8STarget(namespace, "user", RPCDialAddr), roundrobin.Name)
+			return userpb.NewUserIntServiceClient(conn)
 		},
 	}
 }

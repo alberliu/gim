@@ -2,7 +2,6 @@ package mq
 
 import (
 	"gim/pkg/db"
-	"gim/pkg/gerrors"
 )
 
 const (
@@ -13,8 +12,5 @@ const (
 
 func Publish(topic string, bytes []byte) error {
 	_, err := db.RedisCli.Publish(topic, bytes).Result()
-	if err != nil {
-		return gerrors.WrapError(err)
-	}
-	return nil
+	return err
 }

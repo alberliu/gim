@@ -3,12 +3,10 @@ package picker
 import (
 	"context"
 	"errors"
+	"log/slog"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
-
-	"gim/pkg/logger"
 )
 
 // AddrPickerName 实现指定地址调用的RPC调用
@@ -56,7 +54,7 @@ func (p *addrPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	address := info.Ctx.Value(addrKey{}).(string)
 	sc, ok := p.subConnes[address]
 	if !ok {
-		logger.Logger.Error("Pick error", zap.String("address", address), zap.Any("subConnes", p.subConnes))
+		slog.Error("Pick error", "address", address, "subConnes", p.subConnes)
 		return pr, ErrNoSubConnSelect
 	}
 	pr.SubConn = sc

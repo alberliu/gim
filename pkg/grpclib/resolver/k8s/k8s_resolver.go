@@ -4,19 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sort"
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc/resolver"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
-
-	"gim/pkg/logger"
 )
 
 var k8sClientSet *kubernetes.Clientset
@@ -56,7 +54,7 @@ func (b *k8sBuilder) Scheme() string {
 
 // k8sResolver k8s地址解析器
 type k8sResolver struct {
-	log             *zap.Logger
+	log             *slog.Logger
 	clientConn      resolver.ClientConn
 	endpointsClient corev1.EndpointsInterface
 	service         string
@@ -68,17 +66,17 @@ type k8sResolver struct {
 }
 
 func newK8sResolver(target resolver.Target, clientConn resolver.ClientConn) (*k8sResolver, error) {
-	log := logger.Logger.With(zap.String("target", target.Endpoint))
+	log := slog.With("target", target.Endpoint())
 	log.Info("k8s resolver build")
 	namespace, service, port, err := parseTarget(target)
 	if err != nil {
-		log.Error("k8s resolver error", zap.Error(err))
+		log.Error("k8s resolver error", "error", err)
 		return nil, err
 	}
 
 	k8sClient, err := GetK8sClient()
 	if err != nil {
-		log.Error("k8s resolver error", zap.Error(err))
+		log.Error("k8s resolver error", "error", err)
 		return nil, err
 	}
 
@@ -94,7 +92,7 @@ func newK8sResolver(target resolver.Target, clientConn resolver.ClientConn) (*k8
 	}
 	err = k8sResolver.updateState(true)
 	if err != nil {
-		log.Error("k8s resolver error", zap.Error(err))
+		log.Error("k8s resolver error", "error", err)
 		return nil, err
 	}
 
@@ -127,7 +125,7 @@ func (r *k8sResolver) Close() {
 func (r *k8sResolver) updateState(isFromNew bool) error {
 	endpoints, err := r.endpointsClient.Get(context.TODO(), r.service, metav1.GetOptions{})
 	if err != nil {
-		r.log.Error("k8s resolver error", zap.Error(err))
+		r.log.Error("k8s resolver error", "error", err)
 		return err
 	}
 	newIPs := getIPs(endpoints)
@@ -148,11 +146,11 @@ func (r *k8sResolver) updateState(isFromNew bool) error {
 	state := resolver.State{
 		Addresses: addresses,
 	}
-	r.log.Info("k8s resolver updateState", zap.Bool("is_from_new", isFromNew), zap.Any("service", r.service), zap.Any("addresses", addresses))
+	r.log.Info("k8s resolver updateState", "is_from_new", isFromNew, "service", r.service, "addresses", addresses)
 	// 这里地址数量不能为0，为0会返回错误
 	err = r.clientConn.UpdateState(state)
 	if err != nil {
-		r.log.Error("k8s resolver error", zap.Error(err))
+		r.log.Error("k8s resolver error", "error", err)
 		return err
 	}
 	return nil
@@ -160,7 +158,7 @@ func (r *k8sResolver) updateState(isFromNew bool) error {
 
 // parseTarget 对grpc的Endpoint进行解析，格式必须是：k8s:///namespace.server:port
 func parseTarget(target resolver.Target) (namespace string, service string, port string, err error) {
-	namespaceAndServerPort := strings.Split(target.Endpoint, ".")
+	namespaceAndServerPort := strings.Split(target.Endpoint(), ".")
 	if len(namespaceAndServerPort) != 2 {
 		err = errors.New("endpoint must is namespace.server:port")
 		return

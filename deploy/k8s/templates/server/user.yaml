@@ -1,0 +1,55 @@
+# deployment 配置
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-deployment
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .Values.server.user.name }}
+spec:
+  replicas: {{ .Values.server.logic.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.server.user.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.server.user.name }}
+    spec:
+      containers:
+        - name: {{ .Values.server.user.name }}
+          image: {{ .Values.server.user.image }}
+          imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
+          ports:
+            - containerPort: 8000
+          volumeMounts: # 映射文件为宿主机文件
+            - mountPath: /log/
+              name: log
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: ENV
+              value: {{ $.Values.env }}
+      volumes:
+        - name: log
+          hostPath:
+            path: /log/
+---
+# service 配置
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.server.user.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .Values.server.user.name }}  # 只有设置label,才能被服务发现找到
+spec:
+  selector:
+    app: {{ .Values.server.user.name }}
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8000
+      targetPort: 8000

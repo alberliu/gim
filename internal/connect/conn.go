@@ -1,21 +1,23 @@
 package connect
 
 import (
+	"bufio"
 	"container/list"
 	"context"
+	"log/slog"
+	"net"
 	"sync"
 	"time"
 
-	"github.com/alberliu/gn"
 	"github.com/gorilla/websocket"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	"gim/config"
-	"gim/pkg/grpclib"
-	"gim/pkg/logger"
-	"gim/pkg/protocol/pb"
+	"gim/pkg/codec"
+	"gim/pkg/md"
+	pb "gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 
@@ -25,29 +27,49 @@ const (
 )
 
 type Conn struct {
-	CoonType int8            // 连接类型
-	TCP      *gn.Conn        // tcp连接
-	WSMutex  sync.Mutex      // WS写锁
-	WS       *websocket.Conn // websocket连接
-	UserId   int64           // 用户ID
-	DeviceId int64           // 设备ID
-	RoomId   int64           // 订阅的房间ID
-	Element  *list.Element   // 链表节点
+	CoonType int8 // 连接类型
+
+	TCP    *net.TCPConn  // tcp连接
+	Reader *bufio.Reader // reader
+
+	WSMutex sync.Mutex      // WS写锁
+	WS      *websocket.Conn // websocket连接
+
+	UserId   uint64        // 用户ID
+	DeviceId uint64        // 设备ID
+	RoomId   uint64        // 订阅的房间ID
+	Element  *list.Element // 链表节点
 }
 
 // Write 写入数据
-func (c *Conn) Write(bytes []byte) error {
-	if c.CoonType == CoonTypeTCP {
-		return c.TCP.WriteWithEncoder(bytes)
-	} else if c.CoonType == ConnTypeWS {
-		return c.WriteToWS(bytes)
+func (c *Conn) Write(buf []byte) error {
+	var err error
+	switch c.CoonType {
+	case CoonTypeTCP:
+		err = c.WriteToTCP(buf)
+	case ConnTypeWS:
+		err = c.WriteToWS(buf)
 	}
-	logger.Logger.Error("unknown conn type", zap.Any("conn", c))
-	return nil
+
+	if err != nil {
+		c.Close(err)
+	}
+	return err
+}
+
+// WriteToTCP 消息写入WebSocket
+func (c *Conn) WriteToTCP(buf []byte) error {
+	err := c.TCP.SetWriteDeadline(time.Now().Add(10 * time.Millisecond))
+	if err != nil {
+		return err
+	}
+
+	_, err = c.TCP.Write(codec.Encode(buf))
+	return err
 }
 
 // WriteToWS 消息写入WebSocket
-func (c *Conn) WriteToWS(bytes []byte) error {
+func (c *Conn) WriteToWS(buf []byte) error {
 	c.WSMutex.Lock()
 	defer c.WSMutex.Unlock()
 
@@ -55,11 +77,14 @@ func (c *Conn) WriteToWS(bytes []byte) error {
 	if err != nil {
 		return err
 	}
-	return c.WS.WriteMessage(websocket.BinaryMessage, bytes)
+	return c.WS.WriteMessage(websocket.BinaryMessage, buf)
 }
 
 // Close 关闭
-func (c *Conn) Close() error {
+// use of closed network connection 服务端主动关闭
+// io.EOF是用户主动断开连接
+// io timeout是SetReadDeadline之后，超时返回的错误
+func (c *Conn) Close(err error) {
 	// 取消设备和连接的对应关系
 	if c.DeviceId != 0 {
 		DeleteConn(c.DeviceId)
@@ -71,7 +96,7 @@ func (c *Conn) Close() error {
 	}()
 
 	if c.DeviceId != 0 {
-		_, _ = rpc.GetLogicIntClient().Offline(context.TODO(), &pb.OfflineReq{
+		_, _ = rpc.GetDeviceIntClient().Offline(context.TODO(), &logicpb.OfflineRequest{
 			UserId:     c.UserId,
 			DeviceId:   c.DeviceId,
 			ClientAddr: c.GetAddr(),
@@ -81,98 +106,98 @@ func (c *Conn) Close() error {
 	if c.CoonType == CoonTypeTCP {
 		c.TCP.Close()
 	} else if c.CoonType == ConnTypeWS {
-		return c.WS.Close()
+		c.WS.Close()
 	}
-	return nil
 }
 
 func (c *Conn) GetAddr() string {
-	if c.CoonType == CoonTypeTCP {
-		return c.TCP.GetAddr()
-	} else if c.CoonType == ConnTypeWS {
+	switch c.CoonType {
+	case CoonTypeTCP:
+		return c.TCP.RemoteAddr().String()
+	case ConnTypeWS:
 		return c.WS.RemoteAddr().String()
 	}
 	return ""
 }
 
 // HandleMessage 消息处理
-func (c *Conn) HandleMessage(bytes []byte) {
-	var input = new(pb.Input)
-	err := proto.Unmarshal(bytes, input)
+func (c *Conn) HandleMessage(buf []byte) {
+	var packet = new(pb.Packet)
+	err := proto.Unmarshal(buf, packet)
 	if err != nil {
-		logger.Logger.Error("unmarshal error", zap.Error(err), zap.Int("len", len(bytes)))
+		slog.Error("unmarshal error", "error", err, "len", len(buf))
 		return
 	}
-	logger.Logger.Debug("HandleMessage", zap.Any("input", input))
+	slog.Debug("HandleMessage", "packet", packet)
 
 	// 对未登录的用户进行拦截
-	if input.Type != pb.PackageType_PT_SIGN_IN && c.UserId == 0 {
+	if packet.Command != pb.Command_SIGN_IN && c.UserId == 0 {
 		// 应该告诉用户没有登录
 		return
 	}
 
-	switch input.Type {
-	case pb.PackageType_PT_SIGN_IN:
-		c.SignIn(input)
-	case pb.PackageType_PT_SYNC:
-		c.Sync(input)
-	case pb.PackageType_PT_HEARTBEAT:
-		c.Heartbeat(input)
-	case pb.PackageType_PT_MESSAGE:
-		c.MessageACK(input)
-	case pb.PackageType_PT_SUBSCRIBE_ROOM:
-		c.SubscribedRoom(input)
+	switch packet.Command {
+	case pb.Command_SIGN_IN:
+		c.SignIn(packet)
+	case pb.Command_SYNC:
+		c.Sync(packet)
+	case pb.Command_HEARTBEAT:
+		c.Heartbeat(packet)
+	case pb.Command_MESSAGE:
+		c.MessageACK(packet)
+	case pb.Command_SUBSCRIBE_ROOM:
+		c.SubscribedRoom(packet)
 	default:
-		logger.Logger.Error("handler switch other")
+		slog.Error("handler switch other")
 	}
 }
 
 // Send 下发消息
-func (c *Conn) Send(pt pb.PackageType, requestId int64, message proto.Message, err error) {
-	var output = pb.Output{
-		Type:      pt,
-		RequestId: requestId,
-	}
+func (c *Conn) Send(packet *pb.Packet, message proto.Message, err error) {
+	packet.Data = nil
+	packet.Code = 0
+	packet.Message = ""
 
 	if err != nil {
 		status, _ := status.FromError(err)
-		output.Code = int32(status.Code())
-		output.Message = status.Message()
+		packet.Code = int32(status.Code())
+		packet.Message = status.Message()
 	}
 
 	if message != nil {
-		msgBytes, err := proto.Marshal(message)
+		buf, err := proto.Marshal(message)
 		if err != nil {
-			logger.Sugar.Error(err)
+			slog.Error("proto.Marshal error", "error", err)
 			return
 		}
-		output.Data = msgBytes
+		packet.Data = buf
 	}
 
-	outputBytes, err := proto.Marshal(&output)
+	buf, err := proto.Marshal(packet)
 	if err != nil {
-		logger.Sugar.Error(err)
+		slog.Error("proto.Marshal error", "error", err)
 		return
 	}
 
-	err = c.Write(outputBytes)
+	err = c.Write(buf)
 	if err != nil {
-		logger.Sugar.Error(err)
-		c.Close()
+		slog.Error("Write error", "error", err)
+		c.Close(err)
 		return
 	}
+	slog.Info("Send", "userID", c.UserId, "message", packet)
 }
 
 // SignIn 登录
-func (c *Conn) SignIn(input *pb.Input) {
+func (c *Conn) SignIn(packet *pb.Packet) {
 	var signIn pb.SignInInput
-	err := proto.Unmarshal(input.Data, &signIn)
+	err := proto.Unmarshal(packet.Data, &signIn)
 	if err != nil {
-		logger.Sugar.Error(err)
+		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
 
-	_, err = rpc.GetLogicIntClient().ConnSignIn(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.ConnSignInReq{
+	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestId(context.TODO(), packet.RequestId), &logicpb.ConnSignInRequest{
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
@@ -180,7 +205,7 @@ func (c *Conn) SignIn(input *pb.Input) {
 		ClientAddr: c.GetAddr(),
 	})
 
-	c.Send(pb.PackageType_PT_SIGN_IN, input.RequestId, nil, err)
+	c.Send(packet, nil, err)
 	if err != nil {
 		return
 	}
@@ -191,15 +216,15 @@ func (c *Conn) SignIn(input *pb.Input) {
 }
 
 // Sync 消息同步
-func (c *Conn) Sync(input *pb.Input) {
+func (c *Conn) Sync(packet *pb.Packet) {
 	var sync pb.SyncInput
-	err := proto.Unmarshal(input.Data, &sync)
+	err := proto.Unmarshal(packet.Data, &sync)
 	if err != nil {
-		logger.Sugar.Error(err)
+		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
-
-	resp, err := rpc.GetLogicIntClient().Sync(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.SyncReq{
+	ctx := md.ContextWithRequestId(context.TODO(), packet.RequestId)
+	resp, err := rpc.GetMessageIntClient().Sync(ctx, &logicpb.SyncRequest{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		Seq:      sync.Seq,
@@ -209,26 +234,27 @@ func (c *Conn) Sync(input *pb.Input) {
 	if err == nil {
 		message = &pb.SyncOutput{Messages: resp.Messages, HasMore: resp.HasMore}
 	}
-	c.Send(pb.PackageType_PT_SYNC, input.RequestId, message, err)
+	c.Send(packet, message, err)
 }
 
 // Heartbeat 心跳
-func (c *Conn) Heartbeat(input *pb.Input) {
-	c.Send(pb.PackageType_PT_HEARTBEAT, input.RequestId, nil, nil)
+func (c *Conn) Heartbeat(packet *pb.Packet) {
+	c.Send(packet, nil, nil)
 
-	logger.Sugar.Infow("heartbeat", "device_id", c.DeviceId, "user_id", c.UserId)
+	slog.Info("heartbeat", "device_id", c.DeviceId, "user_id", c.UserId)
 }
 
 // MessageACK 消息收到回执
-func (c *Conn) MessageACK(input *pb.Input) {
+func (c *Conn) MessageACK(packet *pb.Packet) {
 	var messageACK pb.MessageACK
-	err := proto.Unmarshal(input.Data, &messageACK)
+	err := proto.Unmarshal(packet.Data, &messageACK)
 	if err != nil {
-		logger.Sugar.Error(err)
+		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
 
-	_, _ = rpc.GetLogicIntClient().MessageACK(grpclib.ContextWithRequestId(context.TODO(), input.RequestId), &pb.MessageACKReq{
+	ctx := md.ContextWithRequestId(context.TODO(), packet.RequestId)
+	_, _ = rpc.GetMessageIntClient().MessageACK(ctx, &logicpb.MessageACKRequest{
 		UserId:      c.UserId,
 		DeviceId:    c.DeviceId,
 		DeviceAck:   messageACK.DeviceAck,
@@ -237,17 +263,17 @@ func (c *Conn) MessageACK(input *pb.Input) {
 }
 
 // SubscribedRoom 订阅房间
-func (c *Conn) SubscribedRoom(input *pb.Input) {
+func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	var subscribeRoom pb.SubscribeRoomInput
-	err := proto.Unmarshal(input.Data, &subscribeRoom)
+	err := proto.Unmarshal(packet.Data, &subscribeRoom)
 	if err != nil {
-		logger.Sugar.Error(err)
+		slog.Error("proto unmarshal", "error", err)
 		return
 	}
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
-	c.Send(pb.PackageType_PT_SUBSCRIBE_ROOM, input.RequestId, nil, nil)
-	_, err = rpc.GetLogicIntClient().SubscribeRoom(context.TODO(), &pb.SubscribeRoomReq{
+	c.Send(packet, nil, nil)
+	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserId,
 		DeviceId: c.DeviceId,
 		RoomId:   subscribeRoom.RoomId,
@@ -255,6 +281,6 @@ func (c *Conn) SubscribedRoom(input *pb.Input) {
 		ConnAddr: config.Config.ConnectLocalAddr,
 	})
 	if err != nil {
-		logger.Logger.Error("SubscribedRoom error", zap.Error(err))
+		slog.Error("SubscribedRoom error", "error", err)
 	}
 }

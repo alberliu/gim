@@ -1,14 +1,14 @@
 package db
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/go-redis/redis"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 
 	"gim/config"
-	"gim/pkg/logger"
 	"gim/pkg/util"
 )
 
@@ -24,21 +24,27 @@ func init() {
 }
 
 // InitMysql 初始化MySQL
-func InitMysql(dataSource string) {
-	logger.Logger.Info("init mysql")
-	var err error
-	DB, err = gorm.Open("mysql", dataSource)
+func InitMysql(dsn string) {
+	db, err := gorm.Open(
+		mysql.Open(dsn),
+		&gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		})
 	if err != nil {
+		slog.Error("open db error", "error", err, slog.String("dsn", dsn))
 		panic(err)
 	}
-	DB.SingularTable(true)
-	DB.LogMode(true)
-	logger.Logger.Info("init mysql ok")
+
+	if config.ENV == config.EnvLocal {
+		db = db.Debug()
+	}
+	DB = db
 }
 
 // InitRedis 初始化Redis
 func InitRedis(addr, password string) {
-	logger.Logger.Info("init redis")
 	RedisCli = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		DB:       0,
@@ -47,17 +53,9 @@ func InitRedis(addr, password string) {
 
 	_, err := RedisCli.Ping().Result()
 	if err != nil {
+		slog.Error("redis ping error", "error", err)
 		panic(err)
 	}
 
 	RedisUtil = util.NewRedisUtil(RedisCli)
-	logger.Logger.Info("init redis ok")
-}
-
-// InitByTest 初始化数据库配置，仅用在单元测试
-func InitByTest() {
-	fmt.Println("init db")
-	logger.Target = logger.Console
-	//InitMysql(config.MySQL)
-	//InitRedis(config.RedisIP, config.RedisPassword)
 }

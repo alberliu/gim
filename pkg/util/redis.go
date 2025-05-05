@@ -5,8 +5,6 @@ import (
 
 	"github.com/go-redis/redis"
 	jsoniter "github.com/json-iterator/go"
-
-	"gim/pkg/logger"
 )
 
 type RedisUtil struct {
@@ -21,16 +19,10 @@ func NewRedisUtil(client *redis.Client) *RedisUtil {
 func (u *RedisUtil) Set(key string, value interface{}, duration time.Duration) error {
 	bytes, err := jsoniter.Marshal(value)
 	if err != nil {
-		logger.Sugar.Error(err)
 		return err
 	}
 
-	err = u.client.Set(key, bytes, duration).Err()
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-	return nil
+	return u.client.Set(key, bytes, duration).Err()
 }
 
 // Get 从redis中读取指定值，使用json的反序列化方式
@@ -39,10 +31,5 @@ func (u *RedisUtil) Get(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = jsoniter.Unmarshal(bytes, value)
-	if err != nil {
-		logger.Sugar.Error(err)
-		return err
-	}
-	return nil
+	return jsoniter.Unmarshal(bytes, value)
 }
