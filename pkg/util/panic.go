@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"log/slog"
 	"runtime"
 )
@@ -18,5 +17,5 @@ func RecoverPanic() {
 func GetStackInfo() string {
 	buf := make([]byte, 4096)
 	n := runtime.Stack(buf, false)
-	return fmt.Sprintf("%s", buf[:n])
+	return string(buf[:n])
 }

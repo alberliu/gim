@@ -57,7 +57,7 @@ func handlePushRoom(bytes []byte) {
 		slog.Error("handlePushRoom error", "error", err)
 		return
 	}
-	slog.Debug("handlePushRoom", "msg", msg)
+	slog.Debug("handlePushRoom", "msg", &msg)
 	PushRoom(msg.RoomId, msg.Message)
 }
 
@@ -68,6 +68,6 @@ func handlePushAll(bytes []byte) {
 		slog.Error("handlePushRoom error", "error", err)
 		return
 	}
-	slog.Debug("handlePushAll", "msg", msg)
+	slog.Debug("handlePushAll", "msg", &msg)
 	PushAll(msg.Message)
 }

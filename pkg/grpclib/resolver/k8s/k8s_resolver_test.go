@@ -1,14 +1,14 @@
 package k8s
 
 import (
-	"context"
 	"testing"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func TestClient(t *testing.T) {
-	_, err := grpc.DialContext(context.TODO(), "172.18.0.2:8000", grpc.WithInsecure())
+	_, err := grpc.NewClient("172.18.0.2:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}

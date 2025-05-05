@@ -273,6 +273,6 @@ func (c *client) handlePackage(bytes []byte) {
 	case pb.Command_SUBSCRIBE_ROOM:
 		log.Println(c.info(), "订阅房间响应", packet.Code, packet.Message)
 	default:
-		log.Println(c.info(), "switch other", packet, len(bytes))
+		log.Println(c.info(), "switch other", &packet, len(bytes))
 	}
 }

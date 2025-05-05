@@ -103,10 +103,11 @@ func (c *Conn) Close(err error) {
 		})
 	}
 
-	if c.CoonType == CoonTypeTCP {
-		c.TCP.Close()
-	} else if c.CoonType == ConnTypeWS {
-		c.WS.Close()
+	switch c.CoonType {
+	case CoonTypeTCP:
+		_ = c.TCP.Close()
+	case ConnTypeWS:
+		_ = c.WS.Close()
 	}
 }
 

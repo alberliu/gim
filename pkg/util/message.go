@@ -25,7 +25,7 @@ func MessageToString(msg *pb.Message) string {
 	}
 
 	_ = proto.Unmarshal(msg.Content, push)
-	return fmt.Sprintf("%-5d %-5d %s", msg.Code, msg.Seq, push)
+	//return fmt.Sprintf("%-5d %-5d %s", msg.Code, msg.Seq, push)
 
 	switch msg.Code {
 	case pb.PushCode_PC_USER_MESSAGE:

@@ -32,6 +32,9 @@ func (*messageRepo) Add(roomId uint64, msg *pb.Message) error {
 		Score:  float64(msg.Seq),
 		Member: buf,
 	}).Result()
+	if err != nil {
+		return err
+	}
 
 	_, err = db.RedisCli.Expire(key, MessageExpireTime).Result()
 	return err

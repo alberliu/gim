@@ -1,19 +1,20 @@
 package repo
 
 import (
-	"fmt"
 	"testing"
 
 	"gim/internal/logic/message/domain"
 )
 
 func TestUserMessageDao_Add(t *testing.T) {
-	message := domain.UserMessage{
-		UserId:    1,
-		Seq:       1,
-		MessageID: 1,
+	messages := []domain.UserMessage{
+		{
+			UserID:    1,
+			Seq:       1,
+			MessageID: 1,
+		},
 	}
-	t.Log(UserMessageRepo.Save(message))
+	t.Log(UserMessageRepo.Save(messages))
 }
 
 func TestUserMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
@@ -25,8 +26,4 @@ func TestUserMessageDao_ListByUserIdAndUserSeq(t *testing.T) {
 	for i := range messages {
 		t.Logf("%+v\n", messages[i])
 	}
-}
-
-func Test_messageDao_tableName(t *testing.T) {
-	fmt.Println(UserMessageRepo.tableName(1001))
 }
