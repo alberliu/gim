@@ -10,5 +10,6 @@ cd deploy/compose
 
 image_tag=$1:$version
 sed -i '' "s/$1:[0-9]\{8\}\.[0-9]\{6\}/$image_tag/g" compose.yaml
+
 docker compose up -d
 

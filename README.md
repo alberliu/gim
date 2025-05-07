@@ -12,7 +12,7 @@ gim可以作为以业务服务器的一个组件，为现有业务服务器提�
 ### 使用技术：
 数据库：MySQL+Redis  
 通讯框架：GRPC  
-长连接通讯协议：Protocol Buffers
+长连接通讯协议：Protocol Buffers  
 ORM框架：GORM
 ### 安装部署
 1.首先安装MySQL，Redis  
@@ -25,10 +25,10 @@ ORM框架：GORM
 ```
 cmd:          服务启动入口
 config:       服务配置
-internal:     每个服务私有代码
+deploy        部署配置文件
+internal:     服务私有代码
 pkg:          服务共有代码
 sql:          项目sql文件
-test:         长连接测试脚本
 ```
 ### 服务简介
 1.connect  
