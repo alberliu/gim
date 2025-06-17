@@ -23,7 +23,8 @@ type RoomIntService struct {
 
 // SubscribeRoom 订阅房间
 func (s *RoomIntService) SubscribeRoom(ctx context.Context, request *pb.SubscribeRoomRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, App.SubscribeRoom(ctx, request)
+	err := App.SubscribeRoom(ctx, request)
+	return &emptypb.Empty{}, err
 }
 
 // PushRoom 推送房间

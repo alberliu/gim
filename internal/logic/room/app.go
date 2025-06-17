@@ -2,16 +2,13 @@ package room
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 
-	"gim/pkg/grpclib/picker"
 	"gim/pkg/mq"
 	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/rpc"
 	"gim/pkg/util"
 )
 
@@ -56,27 +53,6 @@ func (s *app) Push(ctx context.Context, req *pb.PushRoomRequest) error {
 
 // SubscribeRoom 订阅房间
 func (s *app) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRequest) error {
-	if req.Seq == 0 {
-		return nil
-	}
-
-	messages, err := MessageRepo.List(req.RoomId, req.Seq)
-	if err != nil {
-		return err
-	}
-
-	var request connectpb.PushToDevicesRequest
-	for i := range messages {
-		request.DeviceMessageList = append(request.DeviceMessageList, &connectpb.DeviceMessage{
-			DeviceId: req.DeviceId,
-			Message:  messages[i],
-		})
-	}
-
-	_, err = rpc.GetConnectIntClient().PushToDevices(picker.ContextWithAddr(ctx, req.ConnAddr), &request)
-	if err != nil {
-		slog.Error("deliverMessage", "error", err)
-	}
 	return nil
 }
 
