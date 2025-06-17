@@ -1,15 +1,25 @@
-namespace: gim
 env: k8s
+
+# mysql存储大小
+mysqlStorage: 50Gi
+
+# redis存储大小
+redisStorage: 50Gi
+
 server:
   connect:
     name: connect
-    image: connect
+    image: connect:0.0.0
     replicas: 1
   logic:
     name: logic
-    image: logic
+    image: logic:0.0.0
     replicas: 1
   user:
     name: user
-    image: user
+    image: user:0.0.0
+    replicas: 1
+  file:
+    name: file
+    image: file:0.0.0
     replicas: 1

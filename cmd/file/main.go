@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -12,8 +13,6 @@ import (
 	"gim/pkg/logger"
 	"gim/pkg/util"
 )
-
-const baseUrl = "http://111.229.238.28:8085/file/"
 
 type Response struct {
 	Code    int         `json:"code"`
@@ -46,10 +45,11 @@ func main() {
 			return
 		}
 
+		baseURL := fmt.Sprintf("http://%s:8005/file/", c.Request.Host)
 		c.JSON(http.StatusOK, Response{
 			Code:    0,
 			Message: "success",
-			Data:    map[string]string{"url": baseUrl + name},
+			Data:    map[string]string{"url": baseURL + name},
 		})
 	})
 	err := router.Run(":8085")

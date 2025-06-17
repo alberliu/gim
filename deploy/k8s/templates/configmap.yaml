@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  mysql: "root:123456@tcp(mysql-stateful-set-0.mysql.default.svc.cluster.local:3306)/gim?charset=utf8mb4&parseTime=True&loc=Local"
+  redisIP: "redis-stateful-set-0.redis.default.svc.cluster.local:6379"
+  redisPassword: "123456"
+  pushRoomSubscribeNum: "100"
+  pushAllSubscribeNum: "100"

@@ -13,6 +13,7 @@ services:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/mysql:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ../../sql:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
 
@@ -34,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20250430.115000
+    image: connect:20250617.114342
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/connect:/data/log/connect
@@ -54,7 +55,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20250430.115021
+    image: logic:20250617.114351
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/logic:/data/log/logic
@@ -71,7 +72,7 @@ services:
   user:
     container_name: user
     restart: always
-    image: user:20250430.115013
+    image: user:20250617.114353
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/user:/data/log/user
@@ -88,7 +89,7 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20250430.113636
+    image: file:20250617.114355
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/file:/data/file

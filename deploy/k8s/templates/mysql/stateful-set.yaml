@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-stateful-set
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: "mysql"
+  replicas: 1
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mysql
+          image: mysql:8.4.3
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--sql-mode="
+            - "--binlog_expire_logs_seconds=259200"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
+          ports:
+            - name: tcp
+              containerPort: 3306
+              hostPort: 3306
+          volumeMounts:
+            - name: localtime
+              mountPath: /etc/localtime
+            - name: mysql
+              mountPath: /var/lib/mysql
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+        - name: init-sql
+          configMap:
+            name: sql-configmap
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "mysql-local-storage"
+        resources:
+          requests:
+            storage: {{ .Values.mysqlStorage }}

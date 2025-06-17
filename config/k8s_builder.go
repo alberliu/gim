@@ -25,7 +25,7 @@ func (*k8sBuilder) Build() Configuration {
 		RPCListenAddr = ":8000"
 		RPCDialAddr   = "8000"
 	)
-	const namespace = "gim"
+	const namespace = "default"
 
 	k8sClient, err := k8sutil.GetK8sClient()
 	if err != nil {
@@ -55,7 +55,7 @@ func (*k8sBuilder) Build() Configuration {
 
 		LogicRPCListenAddr: RPCListenAddr,
 		UserRPCListenAddr:  RPCListenAddr,
-		FileHTTPListenAddr: "8030",
+		FileHTTPListenAddr: "8005",
 
 		ConnectIntClientBuilder: func() connectpb.ConnectIntServiceClient {
 			conn := newGrpcClient(k8s.GetK8STarget(namespace, "connect", RPCDialAddr), picker.AddrPickerName)
