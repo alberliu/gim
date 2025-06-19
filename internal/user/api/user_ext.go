@@ -15,34 +15,34 @@ type UserExtService struct {
 }
 
 func (s *UserExtService) SignIn(ctx context.Context, req *pb.SignInRequest) (*pb.SignInReply, error) {
-	isNew, userId, token, err := app.AuthApp.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
+	isNew, userID, token, err := app.AuthApp.SignIn(ctx, req.PhoneNumber, req.Code, req.DeviceId)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.SignInReply{
 		IsNew:  isNew,
-		UserId: userId,
+		UserId: userID,
 		Token:  token,
 	}, nil
 }
 
 func (s *UserExtService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := app.UserApp.Get(ctx, userId)
+	user, err := app.UserApp.Get(ctx, userID)
 	return &pb.GetUserReply{User: user}, err
 }
 
 func (s *UserExtService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*emptypb.Empty, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(emptypb.Empty), app.UserApp.Update(ctx, userId, req)
+	return new(emptypb.Empty), app.UserApp.Update(ctx, userID, req)
 }
 
 func (s *UserExtService) SearchUser(ctx context.Context, req *pb.SearchUserRequest) (*pb.SearchUserReply, error) {

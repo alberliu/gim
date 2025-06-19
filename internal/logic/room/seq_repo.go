@@ -12,8 +12,8 @@ type seqRepo struct{}
 
 var SeqRepo = new(seqRepo)
 
-func (*seqRepo) GetNextSeq(roomId uint64) (uint64, error) {
-	num, err := db.RedisCli.Incr(fmt.Sprintf(SeqKey, roomId)).Result()
+func (*seqRepo) GetNextSeq(roomID uint64) (uint64, error) {
+	num, err := db.RedisCli.Incr(fmt.Sprintf(SeqKey, roomID)).Result()
 	if err != nil {
 		return 0, err
 	}

@@ -10,13 +10,13 @@ import (
 var ConnesManager = sync.Map{}
 
 // SetConn 存储
-func SetConn(deviceId uint64, conn *Conn) {
-	ConnesManager.Store(deviceId, conn)
+func SetConn(deviceID uint64, conn *Conn) {
+	ConnesManager.Store(deviceID, conn)
 }
 
 // GetConn 获取
-func GetConn(deviceId uint64) *Conn {
-	value, ok := ConnesManager.Load(deviceId)
+func GetConn(deviceID uint64) *Conn {
+	value, ok := ConnesManager.Load(deviceID)
 	if ok {
 		return value.(*Conn)
 	}
@@ -24,8 +24,8 @@ func GetConn(deviceId uint64) *Conn {
 }
 
 // DeleteConn 删除
-func DeleteConn(deviceId uint64) {
-	ConnesManager.Delete(deviceId)
+func DeleteConn(deviceID uint64) {
+	ConnesManager.Delete(deviceID)
 }
 
 // PushAll 全服推送

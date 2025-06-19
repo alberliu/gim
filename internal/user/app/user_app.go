@@ -12,13 +12,13 @@ type userApp struct{}
 
 var UserApp = new(userApp)
 
-func (*userApp) Get(ctx context.Context, userId uint64) (*pb.User, error) {
-	user, err := repo.UserRepo.Get(userId)
+func (*userApp) Get(ctx context.Context, userID uint64) (*pb.User, error) {
+	user, err := repo.UserRepo.Get(userID)
 	return user.ToProto(), err
 }
 
-func (*userApp) Update(ctx context.Context, userId uint64, req *pb.UpdateUserRequest) error {
-	u, err := repo.UserRepo.Get(userId)
+func (*userApp) Update(ctx context.Context, userID uint64, req *pb.UpdateUserRequest) error {
+	u, err := repo.UserRepo.Get(userID)
 	if err != nil {
 		return err
 	}
@@ -35,15 +35,15 @@ func (*userApp) Update(ctx context.Context, userId uint64, req *pb.UpdateUserReq
 	return repo.UserRepo.Save(u)
 }
 
-func (*userApp) GetByIds(ctx context.Context, userIds []uint64) (map[uint64]*pb.User, error) {
-	users, err := repo.UserRepo.GetByIds(userIds)
+func (*userApp) GetByIDs(ctx context.Context, userIDs []uint64) (map[uint64]*pb.User, error) {
+	users, err := repo.UserRepo.GetByIDs(userIDs)
 	if err != nil {
 		return nil, err
 	}
 
 	pbUsers := make(map[uint64]*pb.User, len(users))
 	for i := range users {
-		pbUsers[users[i].Id] = users[i].ToProto()
+		pbUsers[users[i].ID] = users[i].ToProto()
 	}
 	return pbUsers, nil
 }

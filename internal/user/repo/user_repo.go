@@ -15,9 +15,9 @@ type userRepo struct{}
 var UserRepo = new(userRepo)
 
 // Get 获取单个用户
-func (*userRepo) Get(userId uint64) (*domain.User, error) {
-	var user = domain.User{Id: userId}
-	err := db.DB.First(&user).Error
+func (*userRepo) Get(userID uint64) (*domain.User, error) {
+	var user domain.User
+	err := db.DB.First(&user, "id = ?", userID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrUserNotFound
 	}
@@ -33,10 +33,10 @@ func (*userRepo) GetByPhoneNumber(phoneNumber string) (*domain.User, error) {
 	return &user, err
 }
 
-// GetByIds 获取多个用户
-func (*userRepo) GetByIds(userIds []uint64) ([]domain.User, error) {
+// GetByIDs 获取多个用户
+func (*userRepo) GetByIDs(userIDs []uint64) ([]domain.User, error) {
 	var users []domain.User
-	err := db.DB.Find(&users, "id in (?)", userIds).Error
+	err := db.DB.Find(&users, "id in (?)", userIDs).Error
 	return users, err
 }
 

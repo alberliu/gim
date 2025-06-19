@@ -16,11 +16,6 @@ import (
 	"gim/pkg/util"
 )
 
-const (
-	UpdateTypeUpdate = 1
-	UpdateTypeDelete = 2
-)
-
 // Group 群组
 type Group struct {
 	ID           uint64      // 群组id
@@ -136,7 +131,7 @@ func (g *Group) SendMessage(ctx context.Context, fromDeviceID, fromUserID uint64
 	for _, member := range g.Members {
 		userIDs = append(userIDs, member.UserID)
 	}
-	return message.App.SendToUsers(md.NewAndCopyRequestId(ctx), userIDs, msg, true)
+	return message.App.SendToUsers(md.NewAndCopyRequestID(ctx), userIDs, msg, true)
 }
 
 func (g *Group) IsMember(userId uint64) bool {
@@ -155,7 +150,7 @@ func (g *Group) PushMessage(ctx context.Context, code pb.PushCode, msg proto.Mes
 		// 将消息发送给群组用户，使用写扩散
 		userIDs := g.GetMemberIDs()
 
-		_, err := message.App.PushToUser(md.NewAndCopyRequestId(ctx), userIDs, code, msg, isPersist)
+		_, err := message.App.PushToUser(md.NewAndCopyRequestID(ctx), userIDs, code, msg, isPersist)
 		if err != nil {
 			slog.Error("PushMessage", "error", err)
 		}
@@ -254,23 +249,23 @@ func (g *Group) PushAddMember(ctx context.Context, optUserId uint64, users []Gro
 	}, true)
 }
 
-func (g *Group) GetMember(ctx context.Context, userId uint64) *GroupUser {
+func (g *Group) GetMember(ctx context.Context, userID uint64) *GroupUser {
 	for i := range g.Members {
-		if g.Members[i].UserID == userId {
+		if g.Members[i].UserID == userID {
 			return &g.Members[i]
 		}
 	}
 	return nil
 }
 
-func (g *Group) PushDeleteMember(ctx context.Context, optId, userId uint64) error {
-	userResp, err := rpc.GetUserIntClient().GetUser(ctx, &userpb.GetUserRequest{UserId: optId})
+func (g *Group) PushDeleteMember(ctx context.Context, optID, userID uint64) error {
+	userResp, err := rpc.GetUserIntClient().GetUser(ctx, &userpb.GetUserRequest{UserId: optID})
 	if err != nil {
 		return err
 	}
 	return g.PushMessage(ctx, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
-		OptId:         optId,
+		OptId:         optID,
 		OptName:       userResp.User.Nickname,
-		DeletedUserId: userId,
+		DeletedUserId: userID,
 	}, true)
 }

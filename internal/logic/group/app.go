@@ -13,18 +13,18 @@ type app struct{}
 var App = new(app)
 
 // CreateGroup 创建群组
-func (*app) CreateGroup(ctx context.Context, userId uint64, in *pb.GroupCreateRequest) (uint64, error) {
-	group := domain.CreateGroup(userId, in)
+func (*app) CreateGroup(ctx context.Context, userID uint64, in *pb.GroupCreateRequest) (uint64, error) {
+	group := domain.CreateGroup(userID, in)
 	err := repo.GroupRepo.Save(group)
 	if err != nil {
 		return 0, err
 	}
 
-	memberIDs := append([]uint64{userId}, in.MemberIds...)
+	memberIDs := append([]uint64{userID}, in.MemberIds...)
 	members := make([]domain.GroupUser, 0, len(memberIDs))
 	for _, memberID := range memberIDs {
 		memberType := pb.MemberType_GMT_MEMBER
-		if memberID == userId {
+		if memberID == userID {
 			memberType = pb.MemberType_GMT_ADMIN
 		}
 		members = append(members, domain.GroupUser{

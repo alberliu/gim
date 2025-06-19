@@ -15,12 +15,12 @@ type FriendExtService struct {
 
 // SendMessage 发送好友消息
 func (*FriendExtService) SendMessage(ctx context.Context, request *pb.SendFriendMessageRequest) (*pb.SendFriendMessageReply, error) {
-	userId, deviceId, err := md.GetCtxData(ctx)
+	userID, deviceID, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	messageId, err := App.SendToFriend(ctx, deviceId, userId, request)
+	messageId, err := App.SendToFriend(ctx, deviceID, userID, request)
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +28,12 @@ func (*FriendExtService) SendMessage(ctx context.Context, request *pb.SendFriend
 }
 
 func (s *FriendExtService) Add(ctx context.Context, request *pb.FriendAddRequest) (*emptypb.Empty, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.AddFriend(ctx, userId, request.FriendId, request.Remarks, request.Description)
+	err = App.AddFriend(ctx, userID, request.FriendId, request.Remarks, request.Description)
 	if err != nil {
 		return nil, err
 	}
@@ -42,12 +42,12 @@ func (s *FriendExtService) Add(ctx context.Context, request *pb.FriendAddRequest
 }
 
 func (s *FriendExtService) Agree(ctx context.Context, request *pb.FriendAgreeRequest) (*emptypb.Empty, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.AgreeAddFriend(ctx, userId, request.UserId, request.Remarks)
+	err = App.AgreeAddFriend(ctx, userID, request.UserId, request.Remarks)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +56,12 @@ func (s *FriendExtService) Agree(ctx context.Context, request *pb.FriendAgreeReq
 }
 
 func (s *FriendExtService) Set(ctx context.Context, request *pb.FriendSetRequest) (*pb.FriendSetReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.SetFriend(ctx, userId, request)
+	err = App.SetFriend(ctx, userID, request)
 	if err != nil {
 		return nil, err
 	}

@@ -22,8 +22,8 @@ type messageRepo struct{}
 var MessageRepo = new(messageRepo)
 
 // Add 将消息添加到队列
-func (*messageRepo) Add(roomId uint64, msg *pb.Message) error {
-	key := fmt.Sprintf(MessageKey, roomId)
+func (*messageRepo) Add(roomID uint64, msg *pb.Message) error {
+	key := fmt.Sprintf(MessageKey, roomID)
 	buf, err := proto.Marshal(msg)
 	if err != nil {
 		return err
@@ -41,8 +41,8 @@ func (*messageRepo) Add(roomId uint64, msg *pb.Message) error {
 }
 
 // List 获取指定房间序列号大于seq的消息
-func (*messageRepo) List(roomId, seq uint64) ([]*pb.Message, error) {
-	key := fmt.Sprintf(MessageKey, roomId)
+func (*messageRepo) List(roomID, seq uint64) ([]*pb.Message, error) {
+	key := fmt.Sprintf(MessageKey, roomID)
 	result, err := db.RedisCli.ZRangeByScore(key, redis.ZRangeBy{
 		Min: strconv.FormatUint(seq, 10),
 		Max: "+inf",
@@ -64,8 +64,8 @@ func (*messageRepo) List(roomId, seq uint64) ([]*pb.Message, error) {
 	return msgs, nil
 }
 
-func (*messageRepo) ListByIndex(roomId uint64, start, stop int64) ([]*pb.Message, error) {
-	key := fmt.Sprintf(MessageKey, roomId)
+func (*messageRepo) ListByIndex(roomID uint64, start, stop int64) ([]*pb.Message, error) {
+	key := fmt.Sprintf(MessageKey, roomID)
 	result, err := db.RedisCli.ZRange(key, start, stop).Result()
 	if err != nil {
 		return nil, err
@@ -84,11 +84,11 @@ func (*messageRepo) ListByIndex(roomId uint64, start, stop int64) ([]*pb.Message
 	return msgs, nil
 }
 
-func (*messageRepo) DelBySeq(roomId uint64, min, max uint64) error {
+func (*messageRepo) DelBySeq(roomID uint64, min, max uint64) error {
 	if min == 0 && max == 0 {
 		return nil
 	}
-	key := fmt.Sprintf(MessageKey, roomId)
+	key := fmt.Sprintf(MessageKey, roomID)
 	_, err := db.RedisCli.ZRemRangeByScore(key, strconv.FormatUint(min, 10), strconv.FormatUint(max, 10)).Result()
 	return err
 }

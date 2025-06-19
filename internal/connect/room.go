@@ -13,14 +13,14 @@ var RoomsManager sync.Map
 
 // SubscribedRoom 订阅房间
 func SubscribedRoom(conn *Conn, roomID uint64) {
-	if roomID == conn.RoomId {
+	if roomID == conn.RoomID {
 		return
 	}
 
-	oldRoomId := conn.RoomId
+	oldRoomID := conn.RoomID
 	// 取消订阅
-	if oldRoomId != 0 {
-		value, ok := RoomsManager.Load(oldRoomId)
+	if oldRoomID != 0 {
+		value, ok := RoomsManager.Load(oldRoomID)
 		if !ok {
 			return
 		}
@@ -28,9 +28,9 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 		room.Unsubscribe(conn)
 
 		if room.Conns.Front() == nil {
-			RoomsManager.Delete(oldRoomId)
+			RoomsManager.Delete(oldRoomID)
 		}
-		slog.Debug("SubscribedRoom un", "userID", conn.UserId, "roomID", roomID)
+		slog.Debug("SubscribedRoom un", "userID", conn.UserID, "roomID", roomID)
 		return
 	}
 
@@ -45,7 +45,7 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 			room = value.(*Room)
 		}
 		room.Subscribe(conn)
-		slog.Debug("SubscribedRoom", "userID", conn.UserId, "roomID", roomID)
+		slog.Debug("SubscribedRoom", "userID", conn.UserID, "roomID", roomID)
 		return
 	}
 }
@@ -80,7 +80,7 @@ func (r *Room) Subscribe(conn *Conn) {
 	defer r.lock.Unlock()
 
 	conn.Element = r.Conns.PushBack(conn)
-	conn.RoomId = r.RoomID
+	conn.RoomID = r.RoomID
 }
 
 // Unsubscribe 取消订阅
@@ -90,7 +90,7 @@ func (r *Room) Unsubscribe(conn *Conn) {
 
 	r.Conns.Remove(conn.Element)
 	conn.Element = nil
-	conn.RoomId = 0
+	conn.RoomID = 0
 }
 
 // Push 推送消息到房间
@@ -101,7 +101,7 @@ func (r *Room) Push(message *logicpb.Message) {
 	element := r.Conns.Front()
 	for {
 		conn := element.Value.(*Conn)
-		slog.Debug("PushRoom toUser", "userID", conn.UserId, "msg", message)
+		slog.Debug("PushRoom toUser", "userID", conn.UserID, "msg", message)
 		packet := &pb.Packet{Command: pb.Command_MESSAGE}
 		conn.Send(packet, message, nil)
 

@@ -162,10 +162,10 @@ func (c *client) info() string {
 	return fmt.Sprintf("%-5d%-5d", c.UserID, c.DeviceID)
 }
 
-func (c *client) send(pt pb.Command, requestId int64, message proto.Message) {
+func (c *client) send(pt pb.Command, requestID int64, message proto.Message) {
 	var packet = pb.Packet{
 		Command:   pt,
-		RequestId: requestId,
+		RequestId: requestID,
 	}
 
 	if message != nil {

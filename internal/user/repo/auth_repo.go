@@ -16,9 +16,9 @@ type authRepo struct{}
 
 var AuthRepo = new(authRepo)
 
-func (*authRepo) Get(userId, deviceId uint64) (*domain.Device, error) {
-	key := fmt.Sprintf(AuthKey, userId)
-	bytes, err := db.RedisCli.HGet(key, strconv.FormatUint(deviceId, 10)).Bytes()
+func (*authRepo) Get(userID, deviceID uint64) (*domain.Device, error) {
+	key := fmt.Sprintf(AuthKey, userID)
+	bytes, err := db.RedisCli.HGet(key, strconv.FormatUint(deviceID, 10)).Bytes()
 	if err != nil {
 		return nil, err
 	}
@@ -28,19 +28,19 @@ func (*authRepo) Get(userId, deviceId uint64) (*domain.Device, error) {
 	return &device, err
 }
 
-func (*authRepo) Set(userId, deviceId uint64, device domain.Device) error {
+func (*authRepo) Set(userID, deviceID uint64, device domain.Device) error {
 	bytes, err := json.Marshal(device)
 	if err != nil {
 		return err
 	}
 
-	key := fmt.Sprintf(AuthKey, userId)
-	_, err = db.RedisCli.HSet(key, strconv.FormatUint(deviceId, 10), bytes).Result()
+	key := fmt.Sprintf(AuthKey, userID)
+	_, err = db.RedisCli.HSet(key, strconv.FormatUint(deviceID, 10), bytes).Result()
 	return err
 }
 
-func (*authRepo) GetAll(userId uint64) (map[uint64]domain.Device, error) {
-	key := fmt.Sprintf(AuthKey, userId)
+func (*authRepo) GetAll(userID uint64) (map[uint64]domain.Device, error) {
+	key := fmt.Sprintf(AuthKey, userID)
 	result, err := db.RedisCli.HGetAll(key).Result()
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (*authRepo) GetAll(userId uint64) (map[uint64]domain.Device, error) {
 	var devices = make(map[uint64]domain.Device, len(result))
 
 	for k, v := range result {
-		deviceId, err := strconv.ParseUint(k, 10, 64)
+		deviceID, err := strconv.ParseUint(k, 10, 64)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func (*authRepo) GetAll(userId uint64) (map[uint64]domain.Device, error) {
 		if err != nil {
 			return nil, err
 		}
-		devices[deviceId] = device
+		devices[deviceID] = device
 	}
 	return devices, nil
 }

@@ -19,17 +19,17 @@ type app struct{}
 var App = new(app)
 
 // List 获取好友列表
-func (s *app) List(ctx context.Context, userId uint64) ([]*pb.Friend, error) {
-	friends, err := Repo.List(userId, FriendStatusAgree)
+func (s *app) List(ctx context.Context, userID uint64) ([]*pb.Friend, error) {
+	friends, err := Repo.List(userID, FriendStatusAgree)
 	if err != nil {
 		return nil, err
 	}
 
-	userIds := make(map[uint64]int32, len(friends))
+	userIDs := make(map[uint64]int32, len(friends))
 	for i := range friends {
-		userIds[friends[i].FriendID] = 0
+		userIDs[friends[i].FriendID] = 0
 	}
-	reply, err := rpc.GetUserIntClient().GetUsers(ctx, &userpb.GetUsersRequest{UserIds: userIds})
+	reply, err := rpc.GetUserIntClient().GetUsers(ctx, &userpb.GetUsersRequest{UserIds: userIDs})
 	if err != nil {
 		return nil, err
 	}

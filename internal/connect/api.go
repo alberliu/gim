@@ -26,14 +26,14 @@ func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDe
 			return reply, gerrors.ErrConnNotFound
 		}
 
-		if conn.DeviceId != dm.DeviceId {
+		if conn.DeviceID != dm.DeviceId {
 			slog.Warn("PushToDevices warn deviceID not equal", "device_id", dm.DeviceId)
-			return reply, gerrors.ErrConnDeviceIdNotEqual
+			return reply, gerrors.ErrConnDeviceIDNotEqual
 		}
 
 		packet := &pb.Packet{
 			Command:   pb.Command_MESSAGE,
-			RequestId: md.GetCtxRequestId(ctx),
+			RequestId: md.GetCtxRequestID(ctx),
 		}
 		conn.Send(packet, dm.Message, nil)
 	}

@@ -8,7 +8,7 @@ import (
 
 // User 账户
 type User struct {
-	Id          uint64    // 用户id
+	ID          uint64    // 用户id
 	CreatedAt   time.Time // 创建时间
 	UpdatedAt   time.Time // 更新时间
 	PhoneNumber string    // 手机号
@@ -24,7 +24,7 @@ func (u *User) ToProto() *pb.User {
 	}
 
 	return &pb.User{
-		UserId:     u.Id,
+		UserId:     u.ID,
 		Nickname:   u.Nickname,
 		Sex:        u.Sex,
 		AvatarUrl:  u.AvatarUrl,

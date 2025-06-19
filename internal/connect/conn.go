@@ -35,9 +35,9 @@ type Conn struct {
 	WSMutex sync.Mutex      // WS写锁
 	WS      *websocket.Conn // websocket连接
 
-	UserId   uint64        // 用户ID
-	DeviceId uint64        // 设备ID
-	RoomId   uint64        // 订阅的房间ID
+	UserID   uint64        // 用户ID
+	DeviceID uint64        // 设备ID
+	RoomID   uint64        // 订阅的房间ID
 	Element  *list.Element // 链表节点
 }
 
@@ -86,8 +86,8 @@ func (c *Conn) WriteToWS(buf []byte) error {
 // io timeout是SetReadDeadline之后，超时返回的错误
 func (c *Conn) Close(err error) {
 	// 取消设备和连接的对应关系
-	if c.DeviceId != 0 {
-		DeleteConn(c.DeviceId)
+	if c.DeviceID != 0 {
+		DeleteConn(c.DeviceID)
 	}
 
 	// 取消订阅，需要异步出去，防止重复加锁造成死锁
@@ -95,10 +95,10 @@ func (c *Conn) Close(err error) {
 		SubscribedRoom(c, 0)
 	}()
 
-	if c.DeviceId != 0 {
+	if c.DeviceID != 0 {
 		_, _ = rpc.GetDeviceIntClient().Offline(context.TODO(), &logicpb.OfflineRequest{
-			UserId:     c.UserId,
-			DeviceId:   c.DeviceId,
+			UserId:     c.UserID,
+			DeviceId:   c.DeviceID,
 			ClientAddr: c.GetAddr(),
 		})
 	}
@@ -132,7 +132,7 @@ func (c *Conn) HandleMessage(buf []byte) {
 	slog.Debug("HandleMessage", "packet", packet)
 
 	// 对未登录的用户进行拦截
-	if packet.Command != pb.Command_SIGN_IN && c.UserId == 0 {
+	if packet.Command != pb.Command_SIGN_IN && c.UserID == 0 {
 		// 应该告诉用户没有登录
 		return
 	}
@@ -186,7 +186,7 @@ func (c *Conn) Send(packet *pb.Packet, message proto.Message, err error) {
 		c.Close(err)
 		return
 	}
-	slog.Info("Send", "userID", c.UserId, "message", packet)
+	slog.Info("Send", "userID", c.UserID, "message", packet)
 }
 
 // SignIn 登录
@@ -198,7 +198,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestId(context.TODO(), packet.RequestId), &logicpb.ConnSignInRequest{
+	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestID(context.TODO(), packet.RequestId), &logicpb.ConnSignInRequest{
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
@@ -211,8 +211,8 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
-	c.UserId = signIn.UserId
-	c.DeviceId = signIn.DeviceId
+	c.UserID = signIn.UserId
+	c.DeviceID = signIn.DeviceId
 	SetConn(signIn.DeviceId, c)
 }
 
@@ -224,10 +224,10 @@ func (c *Conn) Sync(packet *pb.Packet) {
 		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
-	ctx := md.ContextWithRequestId(context.TODO(), packet.RequestId)
+	ctx := md.ContextWithRequestID(context.TODO(), packet.RequestId)
 	resp, err := rpc.GetMessageIntClient().Sync(ctx, &logicpb.SyncRequest{
-		UserId:   c.UserId,
-		DeviceId: c.DeviceId,
+		UserId:   c.UserID,
+		DeviceId: c.DeviceID,
 		Seq:      sync.Seq,
 	})
 
@@ -242,7 +242,7 @@ func (c *Conn) Sync(packet *pb.Packet) {
 func (c *Conn) Heartbeat(packet *pb.Packet) {
 	c.Send(packet, nil, nil)
 
-	slog.Info("heartbeat", "device_id", c.DeviceId, "user_id", c.UserId)
+	slog.Info("heartbeat", "device_id", c.DeviceID, "user_id", c.UserID)
 }
 
 // MessageACK 消息收到回执
@@ -254,10 +254,10 @@ func (c *Conn) MessageACK(packet *pb.Packet) {
 		return
 	}
 
-	ctx := md.ContextWithRequestId(context.TODO(), packet.RequestId)
+	ctx := md.ContextWithRequestID(context.TODO(), packet.RequestId)
 	_, _ = rpc.GetMessageIntClient().MessageACK(ctx, &logicpb.MessageACKRequest{
-		UserId:      c.UserId,
-		DeviceId:    c.DeviceId,
+		UserId:      c.UserID,
+		DeviceId:    c.DeviceID,
 		DeviceAck:   messageACK.DeviceAck,
 		ReceiveTime: messageACK.ReceiveTime,
 	})
@@ -275,8 +275,8 @@ func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	c.Send(packet, nil, nil)
 	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
-		UserId:   c.UserId,
-		DeviceId: c.DeviceId,
+		UserId:   c.UserID,
+		DeviceId: c.DeviceID,
 		RoomId:   subscribeRoom.RoomId,
 		Seq:      subscribeRoom.Seq,
 		ConnAddr: config.Config.ConnectLocalAddr,
