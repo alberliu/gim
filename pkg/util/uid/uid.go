@@ -19,22 +19,22 @@ var ErrTimeOut = errors.New("get uid timeout")
 
 type Uid struct {
 	db         *sql.DB    // 数据库连接
-	businessId string     // 业务id
+	businessID string     // 业务id
 	ch         chan int64 // id缓冲池
 	min, max   int64      // id段最小值，最大值
 }
 
 // NewUid 创建一个Uid;len：缓冲池大小()
 // db:数据库连接
-// businessId：业务id
+// businessID：业务id
 // len：缓冲池大小(长度可控制缓存中剩下多少id时，去DB中加载)
-func NewUid(db *sql.DB, businessId string, len int) (*Uid, error) {
+func NewUid(db *sql.DB, businessID string, len int) (*Uid, error) {
 	lid := Uid{
 		db:         db,
-		businessId: businessId,
+		businessID: businessID,
 		ch:         make(chan int64, len),
 	}
-	go lid.productId()
+	go lid.productID()
 	return &lid, nil
 }
 
@@ -48,8 +48,8 @@ func (u *Uid) Get() (int64, error) {
 	}
 }
 
-// productId 生产id，当ch达到最大容量时，这个方法会阻塞，直到ch中的id被消费
-func (u *Uid) productId() {
+// productID 生产id，当ch达到最大容量时，这个方法会阻塞，直到ch中的id被消费
+func (u *Uid) productID() {
 	_ = u.reLoad()
 
 	for {
@@ -84,7 +84,7 @@ func (u *Uid) reLoad() error {
 // getFromDB 从数据库获取id段
 func (u *Uid) getFromDB() error {
 	var (
-		maxId int64
+		maxID int64
 		step  int64
 	)
 
@@ -94,13 +94,13 @@ func (u *Uid) getFromDB() error {
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	row := tx.QueryRow("SELECT max_id,step FROM uid WHERE business_id = ? FOR UPDATE", u.businessId)
-	err = row.Scan(&maxId, &step)
+	row := tx.QueryRow("SELECT max_id,step FROM uid WHERE business_id = ? FOR UPDATE", u.businessID)
+	err = row.Scan(&maxID, &step)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.Exec("UPDATE uid SET max_id = ? WHERE business_id = ?", maxId+step, u.businessId)
+	_, err = tx.Exec("UPDATE uid SET max_id = ? WHERE business_id = ?", maxID+step, u.businessID)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (u *Uid) getFromDB() error {
 		return err
 	}
 
-	u.min = maxId
-	u.max = maxId + step
+	u.min = maxID
+	u.max = maxID + step
 	return nil
 }

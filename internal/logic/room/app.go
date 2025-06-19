@@ -80,16 +80,16 @@ func (s *app) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRequest) e
 	return nil
 }
 
-func (s *app) addMessage(roomId uint64, msg *pb.Message) error {
-	err := MessageRepo.Add(roomId, msg)
+func (s *app) addMessage(roomID uint64, msg *pb.Message) error {
+	err := MessageRepo.Add(roomID, msg)
 	if err != nil {
 		return err
 	}
-	return s.delExpireMessage(roomId)
+	return s.delExpireMessage(roomID)
 }
 
 // DelExpireMessage 删除过期消息
-func (s *app) delExpireMessage(roomId uint64) error {
+func (s *app) delExpireMessage(roomID uint64) error {
 	var (
 		index int64 = 0
 		stop  bool
@@ -98,7 +98,7 @@ func (s *app) delExpireMessage(roomId uint64) error {
 	)
 
 	for {
-		msgs, err := MessageRepo.ListByIndex(roomId, index, index+20)
+		msgs, err := MessageRepo.ListByIndex(roomID, index, index+20)
 		if err != nil {
 			return err
 		}
@@ -122,5 +122,5 @@ func (s *app) delExpireMessage(roomId uint64) error {
 		}
 	}
 
-	return MessageRepo.DelBySeq(roomId, min, max)
+	return MessageRepo.DelBySeq(roomID, min, max)
 }

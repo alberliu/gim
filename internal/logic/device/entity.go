@@ -16,7 +16,7 @@ type Device struct {
 	ID            uint64        // 设备id
 	CreatedAt     time.Time     // 创建时间
 	UpdatedAt     time.Time     // 更新时间
-	UserId        uint64        // 用户id
+	UserID        uint64        // 用户id
 	Type          pb.DeviceType // 设备类型
 	Brand         string        // 手机厂商
 	Model         string        // 机型
@@ -30,7 +30,7 @@ type Device struct {
 func (d *Device) ToProto() *pb.Device {
 	return &pb.Device{
 		DeviceId:      d.ID,
-		UserId:        d.UserId,
+		UserId:        d.UserID,
 		Type:          d.Type,
 		Brand:         d.Brand,
 		Model:         d.Model,
@@ -52,15 +52,15 @@ func (d *Device) IsLegal() bool {
 	return true
 }
 
-func (d *Device) Online(userId uint64, connAddr string, clientAddr string) {
-	d.UserId = userId
+func (d *Device) Online(userID uint64, connAddr string, clientAddr string) {
+	d.UserID = userID
 	d.ConnAddr = connAddr
 	d.ClientAddr = clientAddr
 	d.Status = OnLine
 }
 
 func (d *Device) Offline(userId uint64, connAddr string, clientAddr string) {
-	d.UserId = userId
+	d.UserID = userId
 	d.ConnAddr = connAddr
 	d.ClientAddr = clientAddr
 	d.Status = OnLine

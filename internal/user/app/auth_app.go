@@ -19,7 +19,7 @@ type authApp struct{}
 var AuthApp = new(authApp)
 
 // SignIn 长连接登录
-func (*authApp) SignIn(ctx context.Context, phoneNumber, code string, deviceId uint64) (bool, uint64, string, error) {
+func (*authApp) SignIn(ctx context.Context, phoneNumber, code string, deviceID uint64) (bool, uint64, string, error) {
 	if !verify(phoneNumber, code) {
 		return false, 0, "", gerrors.ErrBadCode
 	}
@@ -43,7 +43,7 @@ func (*authApp) SignIn(ctx context.Context, phoneNumber, code string, deviceId u
 		isNew = true
 	}
 
-	resp, err := rpc.GetDeviceIntClient().GetDevice(ctx, &logicpb.GetDeviceRequest{DeviceId: deviceId})
+	resp, err := rpc.GetDeviceIntClient().GetDevice(ctx, &logicpb.GetDeviceRequest{DeviceId: deviceID})
 	if err != nil {
 		return false, 0, "", err
 	}
@@ -51,7 +51,7 @@ func (*authApp) SignIn(ctx context.Context, phoneNumber, code string, deviceId u
 	// 方便测试
 	token := "0"
 	//token := util.RandString(40)
-	err = repo.AuthRepo.Set(user.Id, resp.Device.DeviceId, domain.Device{
+	err = repo.AuthRepo.Set(user.ID, resp.Device.DeviceId, domain.Device{
 		Type:   resp.Device.Type,
 		Token:  token,
 		Expire: time.Now().AddDate(0, 3, 0).Unix(),
@@ -60,7 +60,7 @@ func (*authApp) SignIn(ctx context.Context, phoneNumber, code string, deviceId u
 		return false, 0, "", err
 	}
 
-	return isNew, user.Id, token, nil
+	return isNew, user.ID, token, nil
 }
 
 func verify(phoneNumber, code string) bool {
@@ -69,8 +69,8 @@ func verify(phoneNumber, code string) bool {
 }
 
 // Auth 验证用户是否登录
-func (*authApp) Auth(ctx context.Context, userId, deviceId uint64, token string) error {
-	device, err := repo.AuthRepo.Get(userId, deviceId)
+func (*authApp) Auth(ctx context.Context, userID, deviceID uint64, token string) error {
+	device, err := repo.AuthRepo.Get(userID, deviceID)
 	if errors.Is(err, redis.Nil) {
 		return gerrors.ErrUnauthorized
 	}

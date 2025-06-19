@@ -39,26 +39,26 @@ func (*app) Register(ctx context.Context, in *pb.RegisterDeviceRequest) (uint64,
 }
 
 // SignIn 登录
-func (*app) SignIn(ctx context.Context, userId, deviceId uint64, token string, connAddr string, clientAddr string) error {
-	_, err := rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{UserId: userId, DeviceId: deviceId, Token: token})
+func (*app) SignIn(ctx context.Context, userID, deviceID uint64, token string, connAddr string, clientAddr string) error {
+	_, err := rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{UserId: userID, DeviceId: deviceID, Token: token})
 	if err != nil {
 		return err
 	}
 
 	// 标记用户在设备上登录
-	device, err := Repo.Get(deviceId)
+	device, err := Repo.Get(deviceID)
 	if err != nil {
 		return err
 	}
 
-	device.Online(userId, connAddr, clientAddr)
+	device.Online(userID, connAddr, clientAddr)
 
 	return Repo.Save(device)
 }
 
 // Offline 设备离线
-func (*app) Offline(ctx context.Context, deviceId uint64, clientAddr string) error {
-	device, err := Repo.Get(deviceId)
+func (*app) Offline(ctx context.Context, deviceID uint64, clientAddr string) error {
+	device, err := Repo.Get(deviceID)
 	if err != nil {
 		return err
 	}
@@ -72,9 +72,9 @@ func (*app) Offline(ctx context.Context, deviceId uint64, clientAddr string) err
 
 }
 
-// ListOnlineByUserId 获取用户所有在线设备
-func (*app) ListOnlineByUserId(ctx context.Context, userIds []uint64) ([]*pb.Device, error) {
-	devices, err := Repo.ListOnlineByUserId(userIds)
+// ListOnlineByUserID 获取用户所有在线设备
+func (*app) ListOnlineByUserID(ctx context.Context, userIDs []uint64) ([]*pb.Device, error) {
+	devices, err := Repo.ListOnlineByUserID(userIDs)
 	if err != nil {
 		return nil, err
 	}

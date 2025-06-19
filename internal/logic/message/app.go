@@ -57,12 +57,12 @@ type userMessageAndDevices struct {
 
 // SendToUsers 发送消息给用户
 func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *pb.Message, isPersist bool) (uint64, error) {
-	slog.Debug("SendToUser", "request_id", md.GetCtxRequestId(ctx), "to_user_ids", toUserIDs)
+	slog.Debug("SendToUser", "request_id", md.GetCtxRequestID(ctx), "to_user_ids", toUserIDs)
 
 	var messageID uint64
 	if isPersist {
 		message := domain.Message{
-			RequestID: md.GetCtxRequestId(ctx),
+			RequestID: md.GetCtxRequestID(ctx),
 			Code:      message.Code,
 			Content:   message.Content,
 		}
@@ -97,7 +97,7 @@ func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *pb.M
 		return 0, err
 	}
 
-	devices, err := device.App.ListOnlineByUserId(ctx, toUserIDs)
+	devices, err := device.App.ListOnlineByUserID(ctx, toUserIDs)
 	if err != nil {
 		return 0, err
 	}

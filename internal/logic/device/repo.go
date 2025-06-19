@@ -29,10 +29,10 @@ func (*repo) Save(device *Device) error {
 	return db.DB.Save(&device).Error
 }
 
-// ListOnlineByUserId 获取用户的所有在线设备
-func (*repo) ListOnlineByUserId(userIds []uint64) ([]Device, error) {
+// ListOnlineByUserID 获取用户的所有在线设备
+func (*repo) ListOnlineByUserID(userIDs []uint64) ([]Device, error) {
 	var devices []Device
-	err := db.DB.Find(&devices, "user_id in (?) and status = ?", userIds, OnLine).Error
+	err := db.DB.Find(&devices, "user_id in (?) and status = ?", userIDs, OnLine).Error
 	return devices, err
 }
 

@@ -16,8 +16,8 @@ const (
 	CtxRequestID = "request_id"
 )
 
-func ContextWithRequestId(ctx context.Context, requestId int64) context.Context {
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestID, strconv.FormatInt(requestId, 10)))
+func ContextWithRequestID(ctx context.Context, requestID int64) context.Context {
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestID, strconv.FormatInt(requestID, 10)))
 }
 
 func Get(ctx context.Context, key string) string {
@@ -33,36 +33,36 @@ func Get(ctx context.Context, key string) string {
 	return values[0]
 }
 
-// GetCtxRequestId 获取ctx的app_id
-func GetCtxRequestId(ctx context.Context) int64 {
-	requestIdStr := Get(ctx, CtxRequestID)
-	requestId, err := strconv.ParseInt(requestIdStr, 10, 64)
+// GetCtxRequestID 获取ctx的app_id
+func GetCtxRequestID(ctx context.Context) int64 {
+	requestIDStr := Get(ctx, CtxRequestID)
+	requestID, err := strconv.ParseInt(requestIDStr, 10, 64)
 	if err != nil {
 		return 0
 	}
-	return requestId
+	return requestID
 }
 
 // GetCtxData 获取ctx的用户数据，依次返回user_id,device_id
 func GetCtxData(ctx context.Context) (uint64, uint64, error) {
 	var (
-		userId   uint64
-		deviceId uint64
+		userID   uint64
+		deviceID uint64
 		err      error
 	)
 
-	userIdStr := Get(ctx, CtxUserID)
-	userId, err = strconv.ParseUint(userIdStr, 10, 64)
+	userIDStr := Get(ctx, CtxUserID)
+	userID, err = strconv.ParseUint(userIDStr, 10, 64)
 	if err != nil {
 		return 0, 0, gerrors.ErrUnauthorized
 	}
 
-	deviceIdStr := Get(ctx, CtxDeviceID)
-	deviceId, err = strconv.ParseUint(deviceIdStr, 10, 64)
+	deviceIDStr := Get(ctx, CtxDeviceID)
+	deviceID, err = strconv.ParseUint(deviceIDStr, 10, 64)
 	if err != nil {
 		return 0, 0, gerrors.ErrUnauthorized
 	}
-	return userId, deviceId, nil
+	return userID, deviceID, nil
 }
 
 // GetCtxToken 获取ctx的token
@@ -70,17 +70,17 @@ func GetCtxToken(ctx context.Context) string {
 	return Get(ctx, CtxToken)
 }
 
-// NewAndCopyRequestId 创建一个context,并且复制RequestId
-func NewAndCopyRequestId(ctx context.Context) context.Context {
+// NewAndCopyRequestID 创建一个context,并且复制RequestID
+func NewAndCopyRequestID(ctx context.Context) context.Context {
 	newCtx := context.TODO()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return newCtx
 	}
 
-	requestIds, ok := md[CtxRequestID]
-	if !ok && len(requestIds) == 0 {
+	requestIDs, ok := md[CtxRequestID]
+	if !ok && len(requestIDs) == 0 {
 		return newCtx
 	}
-	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestID, requestIds[0]))
+	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestID, requestIDs[0]))
 }

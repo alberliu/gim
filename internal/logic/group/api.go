@@ -15,37 +15,37 @@ type GroupExtService struct {
 
 // SendMessage 发送群组消息
 func (*GroupExtService) SendMessage(ctx context.Context, request *pb.SendGroupMessageRequest) (*pb.SendGroupMessageReply, error) {
-	userId, deviceId, err := md.GetCtxData(ctx)
+	userID, deviceID, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	messageId, err := App.SendMessage(ctx, deviceId, userId, request)
+	messageID, err := App.SendMessage(ctx, deviceID, userID, request)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.SendGroupMessageReply{MessageId: messageId}, nil
+	return &pb.SendGroupMessageReply{MessageId: messageID}, nil
 }
 
 // Create 创建群组
 func (*GroupExtService) Create(ctx context.Context, request *pb.GroupCreateRequest) (*pb.GroupCreateReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	groupId, err := App.CreateGroup(ctx, userId, request)
-	return &pb.GroupCreateReply{GroupId: groupId}, err
+	groupID, err := App.CreateGroup(ctx, userID, request)
+	return &pb.GroupCreateReply{GroupId: groupID}, err
 }
 
 // Update 更新群组
 func (*GroupExtService) Update(ctx context.Context, request *pb.GroupUpdateRequest) (*emptypb.Empty, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.Update(ctx, userId, request)
+	err = App.Update(ctx, userID, request)
 	return &emptypb.Empty{}, err
 }
 
@@ -57,22 +57,22 @@ func (*GroupExtService) Get(ctx context.Context, request *pb.GroupGetRequest) (*
 
 // List 获取用户加入的所有群组
 func (*GroupExtService) List(ctx context.Context, in *emptypb.Empty) (*pb.GroupListReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := App.GetUserGroups(ctx, userId)
+	groups, err := App.GetUserGroups(ctx, userID)
 	return &pb.GroupListReply{Groups: groups}, err
 }
 
 func (s *GroupExtService) AddMembers(ctx context.Context, in *pb.AddMembersRequest) (*pb.AddMembersReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.AddMembers(ctx, userId, in.GroupId, in.UserIds)
+	err = App.AddMembers(ctx, userID, in.GroupId, in.UserIds)
 	return &pb.AddMembersReply{}, err
 }
 
@@ -83,12 +83,12 @@ func (*GroupExtService) UpdateMember(ctx context.Context, in *pb.UpdateMemberReq
 
 // DeleteMember 添加群组成员
 func (*GroupExtService) DeleteMember(ctx context.Context, in *pb.DeleteMemberRequest) (*emptypb.Empty, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = App.DeleteMember(ctx, in.GroupId, in.UserId, userId)
+	err = App.DeleteMember(ctx, in.GroupId, in.UserId, userID)
 	return &emptypb.Empty{}, err
 }
 

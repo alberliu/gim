@@ -15,8 +15,8 @@ type DeviceExtService struct {
 
 // RegisterDevice 注册设备
 func (*DeviceExtService) RegisterDevice(ctx context.Context, request *pb.RegisterDeviceRequest) (*pb.RegisterDeviceReply, error) {
-	deviceId, err := App.Register(ctx, request)
-	return &pb.RegisterDeviceReply{DeviceId: deviceId}, err
+	deviceID, err := App.Register(ctx, request)
+	return &pb.RegisterDeviceReply{DeviceId: deviceID}, err
 }
 
 type DeviceIntService struct {
