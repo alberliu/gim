@@ -33,8 +33,8 @@ func Get(ctx context.Context, key string) string {
 	return values[0]
 }
 
-// GetCtxRequestID 获取ctx的app_id
-func GetCtxRequestID(ctx context.Context) int64 {
+// GetRequestID 获取ctx的app_id
+func GetRequestID(ctx context.Context) int64 {
 	requestIDStr := Get(ctx, CtxRequestID)
 	requestID, err := strconv.ParseInt(requestIDStr, 10, 64)
 	if err != nil {
@@ -43,8 +43,8 @@ func GetCtxRequestID(ctx context.Context) int64 {
 	return requestID
 }
 
-// GetCtxData 获取ctx的用户数据，依次返回user_id,device_id
-func GetCtxData(ctx context.Context) (uint64, uint64, error) {
+// GetData 获取ctx的用户数据，依次返回user_id,device_id
+func GetData(ctx context.Context) (uint64, uint64, error) {
 	var (
 		userID   uint64
 		deviceID uint64
@@ -65,8 +65,8 @@ func GetCtxData(ctx context.Context) (uint64, uint64, error) {
 	return userID, deviceID, nil
 }
 
-// GetCtxToken 获取ctx的token
-func GetCtxToken(ctx context.Context) string {
+// GetToken 获取ctx的token
+func GetToken(ctx context.Context) string {
 	return Get(ctx, CtxToken)
 }
 

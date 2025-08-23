@@ -15,7 +15,7 @@ type FriendExtService struct {
 
 // SendMessage 发送好友消息
 func (*FriendExtService) SendMessage(ctx context.Context, request *pb.SendFriendMessageRequest) (*pb.SendFriendMessageReply, error) {
-	userID, deviceID, err := md.GetCtxData(ctx)
+	userID, deviceID, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (*FriendExtService) SendMessage(ctx context.Context, request *pb.SendFriend
 }
 
 func (s *FriendExtService) Add(ctx context.Context, request *pb.FriendAddRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (s *FriendExtService) Add(ctx context.Context, request *pb.FriendAddRequest
 }
 
 func (s *FriendExtService) Agree(ctx context.Context, request *pb.FriendAgreeRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *FriendExtService) Agree(ctx context.Context, request *pb.FriendAgreeReq
 }
 
 func (s *FriendExtService) Set(ctx context.Context, request *pb.FriendSetRequest) (*pb.FriendSetReply, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (s *FriendExtService) Set(ctx context.Context, request *pb.FriendSetRequest
 }
 
 func (s *FriendExtService) GetFriends(ctx context.Context, request *emptypb.Empty) (*pb.GetFriendsReply, error) {
-	userId, _, err := md.GetCtxData(ctx)
+	userId, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
