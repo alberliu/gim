@@ -27,7 +27,7 @@ func (s *UserExtService) SignIn(ctx context.Context, req *pb.SignInRequest) (*pb
 }
 
 func (s *UserExtService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (s *UserExtService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*
 }
 
 func (s *UserExtService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}

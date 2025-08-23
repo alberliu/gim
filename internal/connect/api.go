@@ -33,7 +33,7 @@ func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDe
 
 		packet := &pb.Packet{
 			Command:   pb.Command_MESSAGE,
-			RequestId: md.GetCtxRequestID(ctx),
+			RequestId: md.GetRequestID(ctx),
 		}
 		conn.Send(packet, dm.Message, nil)
 	}

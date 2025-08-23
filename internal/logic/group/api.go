@@ -15,7 +15,7 @@ type GroupExtService struct {
 
 // SendMessage 发送群组消息
 func (*GroupExtService) SendMessage(ctx context.Context, request *pb.SendGroupMessageRequest) (*pb.SendGroupMessageReply, error) {
-	userID, deviceID, err := md.GetCtxData(ctx)
+	userID, deviceID, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (*GroupExtService) SendMessage(ctx context.Context, request *pb.SendGroupMe
 
 // Create 创建群组
 func (*GroupExtService) Create(ctx context.Context, request *pb.GroupCreateRequest) (*pb.GroupCreateReply, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (*GroupExtService) Create(ctx context.Context, request *pb.GroupCreateReque
 
 // Update 更新群组
 func (*GroupExtService) Update(ctx context.Context, request *pb.GroupUpdateRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (*GroupExtService) Get(ctx context.Context, request *pb.GroupGetRequest) (*
 
 // List 获取用户加入的所有群组
 func (*GroupExtService) List(ctx context.Context, in *emptypb.Empty) (*pb.GroupListReply, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (*GroupExtService) List(ctx context.Context, in *emptypb.Empty) (*pb.GroupL
 }
 
 func (s *GroupExtService) AddMembers(ctx context.Context, in *pb.AddMembersRequest) (*pb.AddMembersReply, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (*GroupExtService) UpdateMember(ctx context.Context, in *pb.UpdateMemberReq
 
 // DeleteMember 添加群组成员
 func (*GroupExtService) DeleteMember(ctx context.Context, in *pb.DeleteMemberRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetCtxData(ctx)
+	userID, _, err := md.GetData(ctx)
 	if err != nil {
 		return nil, err
 	}
