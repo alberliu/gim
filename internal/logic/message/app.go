@@ -23,8 +23,8 @@ var App = new(app)
 
 type app struct{}
 
-func (a *app) PushAny(ctx context.Context, toUserID []uint64, command connectpb.Command, msg proto.Message, isPersist bool) (uint64, error) {
-	bytes, err := proto.Marshal(msg)
+func (a *app) PushAny(ctx context.Context, toUserID []uint64, command connectpb.Command, any proto.Message, isPersist bool) (uint64, error) {
+	bytes, err := proto.Marshal(any)
 	if err != nil {
 		slog.Error("PushToUser", "error", err)
 		return 0, err
