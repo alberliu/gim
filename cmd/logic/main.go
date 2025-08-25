@@ -18,13 +18,12 @@ import (
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	pb "gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/urlwhitelist"
 )
 
 func main() {
 	logger.Init("logic")
 
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(urlwhitelist.Logic)))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(interceptor.LogicWhitelistURL)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
@@ -37,6 +36,7 @@ func main() {
 
 	pb.RegisterDeviceExtServiceServer(server, &device.DeviceExtService{})
 	pb.RegisterDeviceIntServiceServer(server, &device.DeviceIntService{})
+	pb.RegisterMessageExtServiceServer(server, &message.MessageExtService{})
 	pb.RegisterMessageIntServiceServer(server, &message.MessageIntService{})
 	pb.RegisterFriendExtServiceServer(server, &friend.FriendExtService{})
 	pb.RegisterGroupExtServiceServer(server, &group.GroupExtService{})

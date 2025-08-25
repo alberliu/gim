@@ -14,13 +14,12 @@ import (
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	pb "gim/pkg/protocol/pb/userpb"
-	"gim/pkg/urlwhitelist"
 )
 
 func main() {
 	logger.Init("user")
 
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(urlwhitelist.User)))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(interceptor.UserWhitelistURL)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {

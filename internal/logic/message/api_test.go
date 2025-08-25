@@ -20,9 +20,9 @@ func getClient() pb.MessageIntServiceClient {
 
 func TestMessageIntService_Pushs(t *testing.T) {
 	reply, err := getClient().Pushs(context.TODO(), &pb.PushsRequest{
-		UserIds:   []uint64{1},
-		Code:      200,
-		Content:   []byte("hello gim3 hi"),
+		UserIds:   []uint64{10000},
+		Command:   200,
+		Content:   []byte("hello gim"),
 		IsPersist: true,
 	})
 	if err != nil {
@@ -34,7 +34,7 @@ func TestMessageIntService_Pushs(t *testing.T) {
 func TestMessageIntService_PushsLocal(t *testing.T) {
 	reply, err := new(MessageIntService).Pushs(context.TODO(), &pb.PushsRequest{
 		UserIds:   []uint64{1},
-		Code:      100,
+		Command:   100,
 		Content:   []byte("hello gim3"),
 		IsPersist: true,
 	})

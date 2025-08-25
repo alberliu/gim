@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	pb "gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
 )
 
 var RoomsManager sync.Map
@@ -51,7 +50,7 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 }
 
 // PushRoom 房间消息推送
-func PushRoom(roomID uint64, message *logicpb.Message) {
+func PushRoom(roomID uint64, message *pb.Message) {
 	value, ok := RoomsManager.Load(roomID)
 	if !ok {
 		return
@@ -94,7 +93,7 @@ func (r *Room) Unsubscribe(conn *Conn) {
 }
 
 // Push 推送消息到房间
-func (r *Room) Push(message *logicpb.Message) {
+func (r *Room) Push(message *pb.Message) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
@@ -102,8 +101,7 @@ func (r *Room) Push(message *logicpb.Message) {
 	for {
 		conn := element.Value.(*Conn)
 		slog.Debug("PushRoom toUser", "userID", conn.UserID, "msg", message)
-		packet := &pb.Packet{Command: pb.Command_MESSAGE}
-		conn.Send(packet, message, nil)
+		conn.Send(message)
 
 		element = element.Next()
 		if element == nil {

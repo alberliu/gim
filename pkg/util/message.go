@@ -5,36 +5,35 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
-var MessagePushes = map[pb.PushCode]proto.Message{
-	pb.PushCode_PC_USER_MESSAGE:        &pb.UserMessagePush{},
-	pb.PushCode_PC_GROUP_MESSAGE:       &pb.GroupMessagePush{},
-	pb.PushCode_PC_ADD_FRIEND:          &pb.AddFriendPush{},
-	pb.PushCode_PC_AGREE_ADD_FRIEND:    &pb.AgreeAddFriendPush{},
-	pb.PushCode_PC_UPDATE_GROUP:        &pb.UpdateGroupPush{},
-	pb.PushCode_PC_ADD_GROUP_MEMBERS:   &pb.AddGroupMembersPush{},
-	pb.PushCode_PC_REMOVE_GROUP_MEMBER: &pb.RemoveGroupMemberPush{},
+var MessagePushes = map[connectpb.Command]proto.Message{
+	connectpb.Command_USER_MESSAGE:        &pb.UserMessagePush{},
+	connectpb.Command_GROUP_MESSAGE:       &pb.GroupMessagePush{},
+	connectpb.Command_ADD_FRIEND:          &pb.AddFriendPush{},
+	connectpb.Command_AGREE_ADD_FRIEND:    &pb.AgreeAddFriendPush{},
+	connectpb.Command_UPDATE_GROUP:        &pb.UpdateGroupPush{},
+	connectpb.Command_ADD_GROUP_MEMBERS:   &pb.AddGroupMembersPush{},
+	connectpb.Command_REMOVE_GROUP_MEMBER: &pb.RemoveGroupMemberPush{},
 }
 
-func MessageToString(msg *pb.Message) string {
-	push, ok := MessagePushes[msg.Code]
+func MessageToString(message *connectpb.Message) string {
+	push, ok := MessagePushes[message.Command]
 	if !ok {
-		return fmt.Sprintf("%-5d %-5d %s %s", msg.Code, msg.Seq, "unknown", string(msg.Content))
+		return fmt.Sprintf("%-5d %-5d %s %s", message.Code, message.Seq, "unknown", string(message.Content))
 	}
+	_ = proto.Unmarshal(message.Content, push)
 
-	_ = proto.Unmarshal(msg.Content, push)
-	//return fmt.Sprintf("%-5d %-5d %s", msg.Code, msg.Seq, push)
-
-	switch msg.Code {
-	case pb.PushCode_PC_USER_MESSAGE:
+	switch message.Command {
+	case connectpb.Command_USER_MESSAGE:
 		p := push.(*pb.UserMessagePush)
-		return fmt.Sprintf("%-5d %-5d %v %s", msg.Code, msg.Seq, push, string(p.Content))
-	case pb.PushCode_PC_GROUP_MESSAGE:
+		return fmt.Sprintf("%-5d %-5d %v %s", message.Code, message.Seq, push, string(p.Content))
+	case connectpb.Command_GROUP_MESSAGE:
 		p := push.(*pb.GroupMessagePush)
-		return fmt.Sprintf("%-5d %-5d %v %s", msg.Code, msg.Seq, push, string(p.Content))
+		return fmt.Sprintf("%-5d %-5d %v %s", message.Code, message.Seq, push, string(p.Content))
 	default:
-		return fmt.Sprintf("%-5d %-5d %s", msg.Code, msg.Seq, push)
+		return fmt.Sprintf("%-5d %-5d %s", message.Code, message.Seq, push)
 	}
 }

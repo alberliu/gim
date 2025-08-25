@@ -2,26 +2,34 @@ package rpc
 
 import (
 	"context"
+	"sync"
 
 	"gim/config"
 	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
+	"gim/pkg/ugrpc"
 )
 
+var connectIntClients sync.Map
+
 var (
-	connectIntClient connectpb.ConnectIntServiceClient
 	deviceIntClient  logicpb.DeviceIntServiceClient
 	messageIntClient logicpb.MessageIntServiceClient
 	roomIntClient    logicpb.RoomIntServiceClient
 	userIntClient    userpb.UserIntServiceClient
 )
 
-func GetConnectIntClient() connectpb.ConnectIntServiceClient {
-	if connectIntClient == nil {
-		connectIntClient = config.Config.ConnectIntClientBuilder()
+func GetConnectIntClient(addr string) connectpb.ConnectIntServiceClient {
+	value, ok := connectIntClients.Load(addr)
+	if ok {
+		return value.(connectpb.ConnectIntServiceClient)
 	}
-	return connectIntClient
+
+	conn := ugrpc.NewClient(addr)
+	client := connectpb.NewConnectIntServiceClient(conn)
+	connectIntClients.Store(addr, client)
+	return client
 }
 
 func GetDeviceIntClient() logicpb.DeviceIntServiceClient {
@@ -52,12 +60,12 @@ func GetUserIntClient() userpb.UserIntServiceClient {
 	return userIntClient
 }
 
-func GetSender(deviceID, userID uint64) (*logicpb.Sender, error) {
+func GetUser(deviceID, userID uint64) (*logicpb.User, error) {
 	user, err := GetUserIntClient().GetUser(context.TODO(), &userpb.GetUserRequest{UserId: userID})
 	if err != nil {
 		return nil, err
 	}
-	return &logicpb.Sender{
+	return &logicpb.User{
 		UserId:    userID,
 		DeviceId:  deviceID,
 		AvatarUrl: user.User.AvatarUrl,

@@ -3,8 +3,7 @@ package domain
 import (
 	"time"
 
-	pb "gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/util"
+	"gim/pkg/protocol/pb/connectpb"
 )
 
 type UserMessage struct {
@@ -16,18 +15,17 @@ type UserMessage struct {
 	Message   Message   `gorm:"->"` // 消息
 }
 
-func (m *UserMessage) MessageToPB() *pb.Message {
-	return &pb.Message{
-		Code:      m.Message.Code,
+func (m *UserMessage) MessageToPB() *connectpb.Message {
+	return &connectpb.Message{
+		Command:   m.Message.Command,
 		Content:   m.Message.Content,
 		Seq:       m.Seq,
-		CreatedAt: util.UnixMilliTime(m.Message.CreatedAt),
-		Status:    pb.MessageStatus(m.Message.Status),
+		CreatedAt: time.Now().Unix(),
 	}
 }
 
-func MessagesToPB(messages []UserMessage) []*pb.Message {
-	pbMessages := make([]*pb.Message, 0, len(messages))
+func MessagesToPB(messages []UserMessage) []*connectpb.Message {
+	pbMessages := make([]*connectpb.Message, 0, len(messages))
 	for i := range messages {
 		pbMessage := messages[i].MessageToPB()
 		if pbMessages != nil {

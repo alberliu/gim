@@ -9,7 +9,6 @@ import (
 	"gim/pkg/mq"
 	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/util"
 )
 
 type app struct{}
@@ -18,25 +17,14 @@ var App = new(app)
 
 // Push 推送房间消息
 func (s *app) Push(ctx context.Context, req *pb.PushRoomRequest) error {
-	seq, err := SeqRepo.GetNextSeq(req.RoomId)
-	if err != nil {
-		return err
-	}
-
-	msg := &pb.Message{
-		Code:      req.Code,
+	msg := &connectpb.Message{
+		Command:   req.Command,
 		Content:   req.Content,
-		Seq:       seq,
-		CreatedAt: util.UnixMilliTime(time.Now()),
-	}
-	if req.IsPersist {
-		err = s.addMessage(req.RoomId, msg)
-		if err != nil {
-			return err
-		}
+		CreatedAt: time.Now().Unix(),
+		RoomId:    req.RoomId,
 	}
 
-	pushRoomMsg := connectpb.PushRoomMsg{
+	pushRoomMsg := connectpb.PushRoomMessage{
 		RoomId:  req.RoomId,
 		Message: msg,
 	}
@@ -54,49 +42,4 @@ func (s *app) Push(ctx context.Context, req *pb.PushRoomRequest) error {
 // SubscribeRoom 订阅房间
 func (s *app) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomRequest) error {
 	return nil
-}
-
-func (s *app) addMessage(roomID uint64, msg *pb.Message) error {
-	err := MessageRepo.Add(roomID, msg)
-	if err != nil {
-		return err
-	}
-	return s.delExpireMessage(roomID)
-}
-
-// DelExpireMessage 删除过期消息
-func (s *app) delExpireMessage(roomID uint64) error {
-	var (
-		index int64 = 0
-		stop  bool
-		min   uint64
-		max   uint64
-	)
-
-	for {
-		msgs, err := MessageRepo.ListByIndex(roomID, index, index+20)
-		if err != nil {
-			return err
-		}
-		if len(msgs) == 0 {
-			break
-		}
-
-		for _, v := range msgs {
-			if v.CreatedAt > util.UnixMilliTime(time.Now().Add(-MessageExpireTime)) {
-				stop = true
-				break
-			}
-
-			if min == 0 {
-				min = v.Seq
-			}
-			max = v.Seq
-		}
-		if stop {
-			break
-		}
-	}
-
-	return MessageRepo.DelBySeq(roomID, min, max)
 }

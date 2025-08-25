@@ -50,20 +50,20 @@ func handlePushAllMsg(channel <-chan *redis.Message) {
 	}
 }
 
-func handlePushRoom(bytes []byte) {
-	var msg pb.PushRoomMsg
-	err := proto.Unmarshal(bytes, &msg)
+func handlePushRoom(buf []byte) {
+	var message pb.PushRoomMessage
+	err := proto.Unmarshal(buf, &message)
 	if err != nil {
 		slog.Error("handlePushRoom error", "error", err)
 		return
 	}
-	slog.Debug("handlePushRoom", "msg", &msg)
-	PushRoom(msg.RoomId, msg.Message)
+	slog.Debug("handlePushRoom", "msg", &message)
+	PushRoom(message.RoomId, message.Message)
 }
 
-func handlePushAll(bytes []byte) {
-	var msg pb.PushAllMsg
-	err := proto.Unmarshal(bytes, &msg)
+func handlePushAll(buf []byte) {
+	var msg pb.PushAllMessage
+	err := proto.Unmarshal(buf, &msg)
 	if err != nil {
 		slog.Error("handlePushRoom error", "error", err)
 		return

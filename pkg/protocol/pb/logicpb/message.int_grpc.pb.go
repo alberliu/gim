@@ -20,7 +20,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MessageIntService_Sync_FullMethodName       = "/logic.MessageIntService/Sync"
 	MessageIntService_MessageACK_FullMethodName = "/logic.MessageIntService/MessageACK"
 	MessageIntService_Pushs_FullMethodName      = "/logic.MessageIntService/Pushs"
 	MessageIntService_PushAll_FullMethodName    = "/logic.MessageIntService/PushAll"
@@ -30,8 +29,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageIntServiceClient interface {
-	// 消息同步
-	Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncReply, error)
 	// 设备收到消息回执
 	MessageACK(ctx context.Context, in *MessageACKRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 推送
@@ -46,16 +43,6 @@ type messageIntServiceClient struct {
 
 func NewMessageIntServiceClient(cc grpc.ClientConnInterface) MessageIntServiceClient {
 	return &messageIntServiceClient{cc}
-}
-
-func (c *messageIntServiceClient) Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncReply)
-	err := c.cc.Invoke(ctx, MessageIntService_Sync_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *messageIntServiceClient) MessageACK(ctx context.Context, in *MessageACKRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -92,8 +79,6 @@ func (c *messageIntServiceClient) PushAll(ctx context.Context, in *PushAllReques
 // All implementations must embed UnimplementedMessageIntServiceServer
 // for forward compatibility.
 type MessageIntServiceServer interface {
-	// 消息同步
-	Sync(context.Context, *SyncRequest) (*SyncReply, error)
 	// 设备收到消息回执
 	MessageACK(context.Context, *MessageACKRequest) (*emptypb.Empty, error)
 	// 推送
@@ -110,9 +95,6 @@ type MessageIntServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMessageIntServiceServer struct{}
 
-func (UnimplementedMessageIntServiceServer) Sync(context.Context, *SyncRequest) (*SyncReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
-}
 func (UnimplementedMessageIntServiceServer) MessageACK(context.Context, *MessageACKRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MessageACK not implemented")
 }
@@ -141,24 +123,6 @@ func RegisterMessageIntServiceServer(s grpc.ServiceRegistrar, srv MessageIntServ
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&MessageIntService_ServiceDesc, srv)
-}
-
-func _MessageIntService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MessageIntServiceServer).Sync(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MessageIntService_Sync_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageIntServiceServer).Sync(ctx, req.(*SyncRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _MessageIntService_MessageACK_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -222,10 +186,6 @@ var MessageIntService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "logic.MessageIntService",
 	HandlerType: (*MessageIntServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Sync",
-			Handler:    _MessageIntService_Sync_Handler,
-		},
 		{
 			MethodName: "MessageACK",
 			Handler:    _MessageIntService_MessageACK_Handler,

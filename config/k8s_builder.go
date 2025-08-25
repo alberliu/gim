@@ -7,15 +7,13 @@ import (
 	"os"
 	"strconv"
 
-	"google.golang.org/grpc/balancer/roundrobin"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"gim/pkg/grpclib/picker"
 	"gim/pkg/grpclib/resolver/k8s"
-	"gim/pkg/k8sutil"
-	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
+	"gim/pkg/ugrpc"
+	"gim/pkg/uk8s"
 )
 
 type k8sBuilder struct{}
@@ -27,7 +25,7 @@ func (*k8sBuilder) Build() Configuration {
 	)
 	const namespace = "default"
 
-	k8sClient, err := k8sutil.GetK8sClient()
+	k8sClient, err := uk8s.GetK8sClient()
 	if err != nil {
 		panic(err)
 	}
@@ -57,24 +55,20 @@ func (*k8sBuilder) Build() Configuration {
 		UserRPCListenAddr:  RPCListenAddr,
 		FileHTTPListenAddr: "8005",
 
-		ConnectIntClientBuilder: func() connectpb.ConnectIntServiceClient {
-			conn := newGrpcClient(k8s.GetK8STarget(namespace, "connect", RPCDialAddr), picker.AddrPickerName)
-			return connectpb.NewConnectIntServiceClient(conn)
-		},
 		DeviceIntClientBuilder: func() logicpb.DeviceIntServiceClient {
-			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
 			return logicpb.NewDeviceIntServiceClient(conn)
 		},
 		MessageIntClientBuilder: func() logicpb.MessageIntServiceClient {
-			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
 			return logicpb.NewMessageIntServiceClient(conn)
 		},
 		RoomIntClientBuilder: func() logicpb.RoomIntServiceClient {
-			conn := newGrpcClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr), roundrobin.Name)
+			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
 			return logicpb.NewRoomIntServiceClient(conn)
 		},
 		UserIntClientBuilder: func() userpb.UserIntServiceClient {
-			conn := newGrpcClient(k8s.GetK8STarget(namespace, "user", RPCDialAddr), roundrobin.Name)
+			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "user", RPCDialAddr))
 			return userpb.NewUserIntServiceClient(conn)
 		},
 	}

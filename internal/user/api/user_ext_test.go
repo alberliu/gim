@@ -33,9 +33,9 @@ func getCtx() context.Context {
 
 func TestUserExtServer_SignIn(t *testing.T) {
 	reply, err := getUserExtServiceClient().SignIn(context.TODO(), &pb.SignInRequest{
-		PhoneNumber: "22222222222",
+		PhoneNumber: "1",
 		Code:        "0",
-		DeviceId:    2,
+		DeviceId:    10000,
 	})
 	if err != nil {
 		t.Fatal(err)

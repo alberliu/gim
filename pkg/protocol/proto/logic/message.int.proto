@@ -4,27 +4,15 @@ option go_package = "gim/pkg/protocol/pb/logicpb";
 
 import "google/protobuf/empty.proto";
 
-import "logic/message.ext.proto";
+import "connect/connect.ext.proto";
 
 service MessageIntService {
-  // 消息同步
-  rpc Sync (SyncRequest) returns (SyncReply);
   // 设备收到消息回执
   rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
   // 推送
   rpc Pushs (PushsRequest) returns (PushsReply);
   // 全服推送
   rpc PushAll(PushAllRequest)returns(google.protobuf.Empty);
-}
-
-message SyncRequest {
-  uint64 user_id = 1; // 用户id
-  uint64 device_id = 2; // 设备id
-  uint64 seq = 3; // 客户端已经同步的序列号
-}
-message SyncReply {
-  repeated Message messages = 1; // 消息列表
-  bool has_more = 2; // 是否有更多数据
 }
 
 message MessageACKRequest {
@@ -36,7 +24,7 @@ message MessageACKRequest {
 
 message PushsRequest{
   repeated uint64 user_ids = 1; // 用户ID
-  PushCode code = 2; // 推送码
+  connect.Command command = 2; // 推送码
   bytes content = 3; // 推送内容
   bool is_persist = 4; // 是否持久化
 }
@@ -45,6 +33,6 @@ message PushsReply{
 }
 
 message PushAllRequest{
-  PushCode code = 1; // 推送码
+  connect.Command command = 1; // 推送码
   bytes content = 2; // 推送内容
 }

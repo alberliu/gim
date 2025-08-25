@@ -4,7 +4,7 @@ option go_package = "gim/pkg/protocol/pb/connectpb";
 
 import "google/protobuf/empty.proto";
 
-import "logic/message.ext.proto";
+import "connect/connect.ext.proto";
 
 service ConnectIntService {
   //  消息投递
@@ -17,16 +17,16 @@ message PushToDevicesRequest {
 
 message DeviceMessage{
   uint64 device_id = 1; // 设备ID
-  logic.Message message = 2; // 消息
+  Message message = 2; // 消息
 }
 
 // 房间推送
-message PushRoomMsg{
+message PushRoomMessage{
   uint64 room_id = 1; // 设备id
-  logic.Message message = 2; // 数据
+  Message message = 2; // 数据
 }
 
 // 房间推送
-message PushAllMsg{
-  logic.Message message = 2; // 数据
+message PushAllMessage{
+  Message message = 2; // 数据
 }

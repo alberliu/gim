@@ -23,17 +23,16 @@ func getExtClient() pb.RoomExtServiceClient {
 
 func TestRoomExtService_PushRoom(t *testing.T) {
 	ctx := metadata.NewOutgoingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "1",
-		md.CtxDeviceID: "1",
+		md.CtxUserID:   "10000",
+		md.CtxDeviceID: "10000",
 		md.CtxToken:    "0",
 	}))
 
 	reply, err := getExtClient().PushRoom(ctx, &pb.PushRoomRequest{
 		RoomId:     1,
-		Code:       1000,
+		Command:    1000,
 		Content:    []byte("room msg"),
 		SendTime:   time.Now().Unix(),
-		IsPersist:  false,
 		IsPriority: false,
 	})
 	if err != nil {
