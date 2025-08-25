@@ -35,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20250825.233142
+    image: connect:20250826.000618
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/connect:/data/log/connect
@@ -55,7 +55,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20250825.233156
+    image: logic:20250826.000625
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/logic:/data/log/logic
@@ -72,7 +72,7 @@ services:
   user:
     container_name: user
     restart: always
-    image: user:20250825.233200
+    image: user:20250826.000629
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/user:/data/log/user
@@ -89,7 +89,7 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20250825.233203
+    image: file:20250826.000632
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/file:/data/file

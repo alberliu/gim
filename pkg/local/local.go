@@ -5,20 +5,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"gim/config"
-	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
 )
 
 func Init() {
-	config.Config.ConnectIntClientBuilder = func() connectpb.ConnectIntServiceClient {
-		conn, err := grpc.NewClient("127.0.0.1:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			panic(err)
-		}
-		return connectpb.NewConnectIntServiceClient(conn)
-	}
-
 	logicConn, err := grpc.NewClient("127.0.0.1:8010", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)

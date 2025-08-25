@@ -23,14 +23,23 @@ var App = new(app)
 
 type app struct{}
 
-func (a *app) PushToUserData(ctx context.Context, toUserIDs []uint64, command connectpb.Command, content []byte,
+func (a *app) PushAny(ctx context.Context, toUserID []uint64, command connectpb.Command, msg proto.Message, isPersist bool) (uint64, error) {
+	bytes, err := proto.Marshal(msg)
+	if err != nil {
+		slog.Error("PushToUser", "error", err)
+		return 0, err
+	}
+	return a.PushContent(ctx, toUserID, command, bytes, isPersist)
+}
+
+func (a *app) PushContent(ctx context.Context, toUserIDs []uint64, command connectpb.Command, content []byte,
 	isPersist bool) (uint64, error) {
 	message := connectpb.Message{
 		Command: command,
 		Content: content,
 		Seq:     0,
 	}
-	messageID, err := a.SendToUsers(ctx, toUserIDs, &message, isPersist)
+	messageID, err := a.SendMessage(ctx, toUserIDs, &message, isPersist)
 	if err != nil {
 		slog.Error("PushToUser", "error", err)
 		return 0, err
@@ -38,22 +47,13 @@ func (a *app) PushToUserData(ctx context.Context, toUserIDs []uint64, command co
 	return messageID, nil
 }
 
-func (a *app) PushToUser(ctx context.Context, toUserID []uint64, command connectpb.Command, msg proto.Message, isPersist bool) (uint64, error) {
-	bytes, err := proto.Marshal(msg)
-	if err != nil {
-		slog.Error("PushToUser", "error", err)
-		return 0, err
-	}
-	return a.PushToUserData(ctx, toUserID, command, bytes, isPersist)
-}
-
 type userMessageAndDevices struct {
 	userMessage *domain.UserMessage
 	devices     []*pb.Device
 }
 
-// SendToUsers 发送消息给用户
-func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
+// SendMessage 发送消息
+func (a *app) SendMessage(ctx context.Context, toUserIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
 	message.CreatedAt = time.Now().Unix()
 	slog.Debug("SendToUser", "request_id", md.GetRequestID(ctx), "to_user_ids", toUserIDs)
 

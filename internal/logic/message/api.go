@@ -29,7 +29,7 @@ func (*MessageIntService) MessageACK(ctx context.Context, request *pb.MessageACK
 
 // Pushs 推送
 func (*MessageIntService) Pushs(ctx context.Context, request *pb.PushsRequest) (*pb.PushsReply, error) {
-	messageID, err := App.PushToUserData(ctx, request.UserIds, request.Command, request.Content, request.IsPersist)
+	messageID, err := App.PushContent(ctx, request.UserIds, request.Command, request.Content, request.IsPersist)
 	if err != nil {
 		return nil, err
 	}
