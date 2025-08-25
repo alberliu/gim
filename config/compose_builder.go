@@ -5,13 +5,9 @@ import (
 	"log/slog"
 	"net"
 
-	"google.golang.org/grpc/balancer/roundrobin"
-
-	"gim/pkg/grpclib/picker"
-	_ "gim/pkg/grpclib/resolver/addrs"
-	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
+	"gim/pkg/ugrpc"
 )
 
 type composeBuilder struct{}
@@ -49,26 +45,21 @@ func (*composeBuilder) Build() Configuration {
 		UserRPCListenAddr:  ":8020",
 		FileHTTPListenAddr: "8030",
 
-		ConnectIntClientBuilder: func() connectpb.ConnectIntServiceClient {
-			conn := newGrpcClient("dns:///connect:8000", picker.AddrPickerName)
-			return connectpb.NewConnectIntServiceClient(conn)
-		},
-
 		DeviceIntClientBuilder: func() logicpb.DeviceIntServiceClient {
-			conn := newGrpcClient("dns:///logic:8010", roundrobin.Name)
+			conn := ugrpc.NewClient("dns:///logic:8010")
 			return logicpb.NewDeviceIntServiceClient(conn)
 		},
 		MessageIntClientBuilder: func() logicpb.MessageIntServiceClient {
-			conn := newGrpcClient("dns:///logic:8010", roundrobin.Name)
+			conn := ugrpc.NewClient("dns:///logic:8010")
 			return logicpb.NewMessageIntServiceClient(conn)
 		},
 		RoomIntClientBuilder: func() logicpb.RoomIntServiceClient {
-			conn := newGrpcClient("dns:///logic:8010", roundrobin.Name)
+			conn := ugrpc.NewClient("dns:///logic:8010")
 			return logicpb.NewRoomIntServiceClient(conn)
 		},
 
 		UserIntClientBuilder: func() userpb.UserIntServiceClient {
-			conn := newGrpcClient("dns:///user:8020", roundrobin.Name)
+			conn := ugrpc.NewClient("dns:///user:8020")
 			return userpb.NewUserIntServiceClient(conn)
 		},
 	}

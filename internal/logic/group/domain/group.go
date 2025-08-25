@@ -10,6 +10,7 @@ import (
 	"gim/internal/logic/message"
 	"gim/pkg/gerrors"
 	"gim/pkg/md"
+	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/rpc"
@@ -89,7 +90,7 @@ func (g *Group) PushUpdate(ctx context.Context, userId uint64) error {
 	if err != nil {
 		return err
 	}
-	return g.PushMessage(ctx, pb.PushCode_PC_UPDATE_GROUP, &pb.UpdateGroupPush{
+	return g.PushMessage(ctx, connectpb.Command_UPDATE_GROUP, &pb.UpdateGroupPush{
 		OptId:        userId,
 		OptName:      userResp.User.Nickname,
 		Name:         g.Name,
@@ -106,25 +107,25 @@ func (g *Group) SendMessage(ctx context.Context, fromDeviceID, fromUserID uint64
 		return 0, gerrors.ErrNotInGroup
 	}
 
-	sender, err := rpc.GetSender(fromDeviceID, fromUserID)
+	user, err := rpc.GetUser(fromDeviceID, fromUserID)
 	if err != nil {
 		return 0, err
 	}
 
 	push := pb.GroupMessagePush{
-		Sender:  sender,
-		GroupId: req.GroupId,
-		Content: req.Content,
+		FromUser: user,
+		GroupId:  req.GroupId,
+		Content:  req.Content,
 	}
-	bytes, err := proto.Marshal(&push)
+	buf, err := proto.Marshal(&push)
 	if err != nil {
 		return 0, err
 	}
 
-	msg := &pb.Message{
-		Code:      pb.PushCode_PC_GROUP_MESSAGE,
-		Content:   bytes,
-		CreatedAt: util.UnixMilliTime(time.Now()),
+	msg := &connectpb.Message{
+		Command:   connectpb.Command_GROUP_MESSAGE,
+		Content:   buf,
+		CreatedAt: time.Now().Unix(),
 	}
 
 	userIDs := make([]uint64, 0, len(g.Members))
@@ -144,13 +145,13 @@ func (g *Group) IsMember(userId uint64) bool {
 }
 
 // PushMessage 向群组推送消息
-func (g *Group) PushMessage(ctx context.Context, code pb.PushCode, msg proto.Message, isPersist bool) error {
+func (g *Group) PushMessage(ctx context.Context, command connectpb.Command, msg proto.Message, isPersist bool) error {
 	go func() {
 		defer util.RecoverPanic()
 		// 将消息发送给群组用户，使用写扩散
 		userIDs := g.GetMemberIDs()
 
-		_, err := message.App.PushToUser(md.NewAndCopyRequestID(ctx), userIDs, code, msg, isPersist)
+		_, err := message.App.PushToUser(md.NewAndCopyRequestID(ctx), userIDs, command, msg, isPersist)
 		if err != nil {
 			slog.Error("PushMessage", "error", err)
 		}
@@ -242,7 +243,7 @@ func (g *Group) PushAddMember(ctx context.Context, optUserId uint64, users []Gro
 	}
 
 	optUser := usersResp.Users[optUserId]
-	return g.PushMessage(ctx, pb.PushCode_PC_ADD_GROUP_MEMBERS, &pb.AddGroupMembersPush{
+	return g.PushMessage(ctx, connectpb.Command_ADD_GROUP_MEMBERS, &pb.AddGroupMembersPush{
 		OptId:   optUser.UserId,
 		OptName: optUser.Nickname,
 		Members: members,
@@ -263,7 +264,7 @@ func (g *Group) PushDeleteMember(ctx context.Context, optID, userID uint64) erro
 	if err != nil {
 		return err
 	}
-	return g.PushMessage(ctx, pb.PushCode_PC_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
+	return g.PushMessage(ctx, connectpb.Command_REMOVE_GROUP_MEMBER, &pb.RemoveGroupMemberPush{
 		OptId:         optID,
 		OptName:       userResp.User.Nickname,
 		DeletedUserId: userID,

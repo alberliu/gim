@@ -16,8 +16,8 @@ const (
 	CtxRequestID = "request_id"
 )
 
-func ContextWithRequestID(ctx context.Context, requestID int64) context.Context {
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestID, strconv.FormatInt(requestID, 10)))
+func ContextWithRequestID(ctx context.Context, requestID string) context.Context {
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestID, requestID))
 }
 
 func Get(ctx context.Context, key string) string {
@@ -34,13 +34,8 @@ func Get(ctx context.Context, key string) string {
 }
 
 // GetRequestID 获取ctx的app_id
-func GetRequestID(ctx context.Context) int64 {
-	requestIDStr := Get(ctx, CtxRequestID)
-	requestID, err := strconv.ParseInt(requestIDStr, 10, 64)
-	if err != nil {
-		return 0
-	}
-	return requestID
+func GetRequestID(ctx context.Context) string {
+	return Get(ctx, CtxRequestID)
 }
 
 // GetData 获取ctx的用户数据，依次返回user_id,device_id

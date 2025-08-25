@@ -14,7 +14,7 @@
 -- Current Database: `gim`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `gim` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `gim` /*!40100 DEFAULT */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
 USE `gim`;
 
@@ -30,16 +30,16 @@ CREATE TABLE `device` (
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `user_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '账户id',
   `type` tinyint NOT NULL COMMENT '设备类型,1:Android；2：IOS；3：Windows; 4：MacOS；5：Web',
-  `brand` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '手机厂商',
-  `model` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '机型',
-  `system_version` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '系统版本',
-  `sdk_version` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'app版本',
+  `brand` varchar(20) NOT NULL COMMENT '手机厂商',
+  `model` varchar(20) NOT NULL COMMENT '机型',
+  `system_version` varchar(10) NOT NULL COMMENT '系统版本',
+  `sdk_version` varchar(10) NOT NULL COMMENT 'app版本',
   `status` tinyint NOT NULL DEFAULT '0' COMMENT '在线状态，0：离线；1：在线',
-  `conn_addr` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '连接层服务器地址',
-  `client_addr` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '客户端地址',
+  `conn_addr` varchar(25) NOT NULL COMMENT '连接层服务器地址',
+  `client_addr` varchar(25) NOT NULL COMMENT '客户端地址',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='设备';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,11 +53,11 @@ CREATE TABLE `friend` (
   `friend_id` bigint unsigned NOT NULL COMMENT '好友id',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
-  `remarks` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '备注',
-  `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  `remarks` varchar(20) NOT NULL COMMENT '备注',
+  `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   `status` tinyint NOT NULL COMMENT '状态，1：申请，2：同意',
   PRIMARY KEY (`user_id`,`friend_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='好友';
+) ENGINE=InnoDB COMMENT='好友';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,13 +70,13 @@ CREATE TABLE `group` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组名称',
-  `avatar_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组头像',
-  `introduction` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组简介',
+  `name` varchar(50) NOT NULL COMMENT '群组名称',
+  `avatar_url` varchar(255) NOT NULL COMMENT '群组头像',
+  `introduction` varchar(255) NOT NULL COMMENT '群组简介',
   `user_num` int NOT NULL DEFAULT '0' COMMENT '群组人数',
-  `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='群组';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,12 +91,12 @@ CREATE TABLE `group_user` (
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `member_type` tinyint NOT NULL COMMENT '成员类型，1：管理员；2：普通成员',
-  `remarks` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '备注',
-  `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  `remarks` varchar(20) NOT NULL COMMENT '备注',
+  `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   `status` tinyint NOT NULL COMMENT '状态',
   PRIMARY KEY (`group_id`,`user_id`),
   KEY `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员';
+) ENGINE=InnoDB COMMENT='群组成员';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,11 +110,11 @@ CREATE TABLE `message` (
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `request_id` bigint NOT NULL COMMENT '请求id',
-  `code` int NOT NULL COMMENT '消息类型',
+  `command` int NOT NULL COMMENT '消息类型',
   `content` blob NOT NULL COMMENT '消息内容',
   `status` tinyint NOT NULL DEFAULT '0' COMMENT '消息状态，0：未处理1：消息撤回',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='消息';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,7 +132,7 @@ CREATE TABLE `seq` (
   `seq` bigint unsigned NOT NULL COMMENT '序列号',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_object` (`object_type`,`object_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='序列号';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='序列号';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -145,14 +145,14 @@ CREATE TABLE `user` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
-  `phone_number` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '手机号',
-  `nickname` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '昵称',
+  `phone_number` varchar(20) NOT NULL COMMENT '手机号',
+  `nickname` varchar(20) NOT NULL COMMENT '昵称',
   `sex` tinyint NOT NULL COMMENT '性别，0:未知；1:男；2:女',
-  `avatar_url` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '用户头像链接',
-  `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  `avatar_url` varchar(256) NOT NULL COMMENT '用户头像链接',
+  `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_phone_number` (`phone_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='用户';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,7 +168,7 @@ CREATE TABLE `user_message` (
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `message_id` bigint unsigned NOT NULL COMMENT '消息ID',
   PRIMARY KEY (`user_id`,`seq`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户消息';
+) ENGINE=InnoDB COMMENT='用户消息';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -177,4 +177,4 @@ CREATE TABLE `user_message` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-19 16:47:36
+-- Dump completed on 2025-08-25 23:23:41

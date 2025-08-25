@@ -39,20 +39,22 @@ func (*app) Register(ctx context.Context, in *pb.RegisterDeviceRequest) (uint64,
 }
 
 // SignIn 登录
-func (*app) SignIn(ctx context.Context, userID, deviceID uint64, token string, connAddr string, clientAddr string) error {
-	_, err := rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{UserId: userID, DeviceId: deviceID, Token: token})
+func (*app) SignIn(ctx context.Context, request *pb.ConnSignInRequest) error {
+	_, err := rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{
+		UserId:   request.UserId,
+		DeviceId: request.DeviceId,
+		Token:    request.Token,
+	})
 	if err != nil {
 		return err
 	}
 
 	// 标记用户在设备上登录
-	device, err := Repo.Get(deviceID)
+	device, err := Repo.Get(request.DeviceId)
 	if err != nil {
 		return err
 	}
-
-	device.Online(userID, connAddr, clientAddr)
-
+	device.Online(request.UserId, request.ConnAddr, request.ClientAddr)
 	return Repo.Save(device)
 }
 

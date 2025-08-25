@@ -25,7 +25,7 @@ type DeviceIntService struct {
 
 // ConnSignIn 设备登录
 func (*DeviceIntService) ConnSignIn(ctx context.Context, request *pb.ConnSignInRequest) (*emptypb.Empty, error) {
-	err := App.SignIn(ctx, request.UserId, request.DeviceId, request.Token, request.ConnAddr, request.ClientAddr)
+	err := App.SignIn(ctx, request)
 	return &emptypb.Empty{}, err
 }
 

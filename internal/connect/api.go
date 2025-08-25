@@ -7,7 +7,6 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gim/pkg/gerrors"
-	"gim/pkg/md"
 	pb "gim/pkg/protocol/pb/connectpb"
 )
 
@@ -30,12 +29,7 @@ func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDe
 			slog.Warn("PushToDevices warn deviceID not equal", "device_id", dm.DeviceId)
 			return reply, gerrors.ErrConnDeviceIDNotEqual
 		}
-
-		packet := &pb.Packet{
-			Command:   pb.Command_MESSAGE,
-			RequestId: md.GetRequestID(ctx),
-		}
-		conn.Send(packet, dm.Message, nil)
+		conn.Send(dm.Message)
 	}
 	return reply, nil
 }

@@ -123,58 +123,36 @@ func (c *Conn) GetAddr() string {
 
 // HandleMessage 消息处理
 func (c *Conn) HandleMessage(buf []byte) {
-	var packet = new(pb.Packet)
-	err := proto.Unmarshal(buf, packet)
+	var message = new(pb.Message)
+	err := proto.Unmarshal(buf, message)
 	if err != nil {
 		slog.Error("unmarshal error", "error", err, "len", len(buf))
 		return
 	}
-	slog.Debug("HandleMessage", "packet", packet)
+	slog.Debug("HandleMessage", "message", message)
 
 	// 对未登录的用户进行拦截
-	if packet.Command != pb.Command_SIGN_IN && c.UserID == 0 {
-		// 应该告诉用户没有登录
+	if message.Command != pb.Command_SIGN_IN && c.UserID == 0 {
+		setMessageError(message, err)
+		c.Send(message)
 		return
 	}
 
-	switch packet.Command {
+	switch message.Command {
 	case pb.Command_SIGN_IN:
-		c.SignIn(packet)
-	case pb.Command_SYNC:
-		c.Sync(packet)
+		c.SignIn(message)
 	case pb.Command_HEARTBEAT:
-		c.Heartbeat(packet)
-	case pb.Command_MESSAGE:
-		c.MessageACK(packet)
+		c.Heartbeat(message)
 	case pb.Command_SUBSCRIBE_ROOM:
-		c.SubscribedRoom(packet)
+		c.SubscribedRoom(message)
 	default:
-		slog.Error("handler switch other")
+		slog.Error("handler switch other", "command", message.Command)
 	}
 }
 
 // Send 下发消息
-func (c *Conn) Send(packet *pb.Packet, message proto.Message, err error) {
-	packet.Data = nil
-	packet.Code = 0
-	packet.Message = ""
-
-	if err != nil {
-		status, _ := status.FromError(err)
-		packet.Code = int32(status.Code())
-		packet.Message = status.Message()
-	}
-
-	if message != nil {
-		buf, err := proto.Marshal(message)
-		if err != nil {
-			slog.Error("proto.Marshal error", "error", err)
-			return
-		}
-		packet.Data = buf
-	}
-
-	buf, err := proto.Marshal(packet)
+func (c *Conn) Send(message *pb.Message) {
+	buf, err := proto.Marshal(message)
 	if err != nil {
 		slog.Error("proto.Marshal error", "error", err)
 		return
@@ -186,19 +164,19 @@ func (c *Conn) Send(packet *pb.Packet, message proto.Message, err error) {
 		c.Close(err)
 		return
 	}
-	slog.Info("Send", "userID", c.UserID, "message", packet)
+	slog.Info("Send", "userID", c.UserID, "message", message)
 }
 
 // SignIn 登录
-func (c *Conn) SignIn(packet *pb.Packet) {
-	var signIn pb.SignInInput
-	err := proto.Unmarshal(packet.Data, &signIn)
+func (c *Conn) SignIn(message *pb.Message) {
+	var signIn pb.SignInRequest
+	err := proto.Unmarshal(message.Content, &signIn)
 	if err != nil {
 		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestID(context.TODO(), packet.RequestId), &logicpb.ConnSignInRequest{
+	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.ConnSignInRequest{
 		UserId:     signIn.UserId,
 		DeviceId:   signIn.DeviceId,
 		Token:      signIn.Token,
@@ -206,7 +184,8 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		ClientAddr: c.GetAddr(),
 	})
 
-	c.Send(packet, nil, err)
+	setMessageError(message, err)
+	c.Send(message)
 	if err != nil {
 		return
 	}
@@ -216,69 +195,41 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 	SetConn(signIn.DeviceId, c)
 }
 
-// Sync 消息同步
-func (c *Conn) Sync(packet *pb.Packet) {
-	var sync pb.SyncInput
-	err := proto.Unmarshal(packet.Data, &sync)
-	if err != nil {
-		slog.Error("proto unmarshal error", "error", err)
+func setMessageError(message *pb.Message, err error) {
+	if err == nil {
 		return
 	}
-	ctx := md.ContextWithRequestID(context.TODO(), packet.RequestId)
-	resp, err := rpc.GetMessageIntClient().Sync(ctx, &logicpb.SyncRequest{
-		UserId:   c.UserID,
-		DeviceId: c.DeviceID,
-		Seq:      sync.Seq,
-	})
 
-	var message proto.Message
-	if err == nil {
-		message = &pb.SyncOutput{Messages: resp.Messages, HasMore: resp.HasMore}
+	status, _ := status.FromError(err)
+	if status == nil {
+		return
 	}
-	c.Send(packet, message, err)
+	message.Code = int32(status.Code())
+	message.Message = status.Message()
 }
 
 // Heartbeat 心跳
-func (c *Conn) Heartbeat(packet *pb.Packet) {
-	c.Send(packet, nil, nil)
+func (c *Conn) Heartbeat(message *pb.Message) {
+	c.Send(message)
 
 	slog.Info("heartbeat", "device_id", c.DeviceID, "user_id", c.UserID)
 }
 
-// MessageACK 消息收到回执
-func (c *Conn) MessageACK(packet *pb.Packet) {
-	var messageACK pb.MessageACK
-	err := proto.Unmarshal(packet.Data, &messageACK)
-	if err != nil {
-		slog.Error("proto unmarshal error", "error", err)
-		return
-	}
-
-	ctx := md.ContextWithRequestID(context.TODO(), packet.RequestId)
-	_, _ = rpc.GetMessageIntClient().MessageACK(ctx, &logicpb.MessageACKRequest{
-		UserId:      c.UserID,
-		DeviceId:    c.DeviceID,
-		DeviceAck:   messageACK.DeviceAck,
-		ReceiveTime: messageACK.ReceiveTime,
-	})
-}
-
 // SubscribedRoom 订阅房间
-func (c *Conn) SubscribedRoom(packet *pb.Packet) {
-	var subscribeRoom pb.SubscribeRoomInput
-	err := proto.Unmarshal(packet.Data, &subscribeRoom)
+func (c *Conn) SubscribedRoom(message *pb.Message) {
+	var subscribeRoom pb.SubscribeRoomRequest
+	err := proto.Unmarshal(message.Content, &subscribeRoom)
 	if err != nil {
 		slog.Error("proto unmarshal", "error", err)
 		return
 	}
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
-	c.Send(packet, nil, nil)
+	c.Send(message)
 	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 		RoomId:   subscribeRoom.RoomId,
-		Seq:      subscribeRoom.Seq,
 		ConnAddr: config.Config.ConnectLocalAddr,
 	})
 	if err != nil {

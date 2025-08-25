@@ -1,4 +1,4 @@
-package k8sutil
+package uk8s
 
 import (
 	"k8s.io/client-go/kubernetes"

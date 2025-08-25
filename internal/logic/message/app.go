@@ -10,13 +10,11 @@ import (
 	"gim/internal/logic/device"
 	"gim/internal/logic/message/domain"
 	"gim/internal/logic/message/repo"
-	"gim/pkg/grpclib/picker"
 	"gim/pkg/md"
 	"gim/pkg/mq"
 	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
-	"gim/pkg/util"
 )
 
 const pageSize = 50 // 最大消息同步数量
@@ -25,13 +23,12 @@ var App = new(app)
 
 type app struct{}
 
-func (a *app) PushToUserData(ctx context.Context, toUserIDs []uint64, code pb.PushCode, bytes []byte, isPersist bool) (uint64, error) {
-	message := pb.Message{
-		Code:      code,
-		Content:   bytes,
-		Seq:       0,
-		CreatedAt: 0,
-		Status:    0,
+func (a *app) PushToUserData(ctx context.Context, toUserIDs []uint64, command connectpb.Command, content []byte,
+	isPersist bool) (uint64, error) {
+	message := connectpb.Message{
+		Command: command,
+		Content: content,
+		Seq:     0,
 	}
 	messageID, err := a.SendToUsers(ctx, toUserIDs, &message, isPersist)
 	if err != nil {
@@ -41,13 +38,13 @@ func (a *app) PushToUserData(ctx context.Context, toUserIDs []uint64, code pb.Pu
 	return messageID, nil
 }
 
-func (a *app) PushToUser(ctx context.Context, toUserID []uint64, code pb.PushCode, msg proto.Message, isPersist bool) (uint64, error) {
+func (a *app) PushToUser(ctx context.Context, toUserID []uint64, command connectpb.Command, msg proto.Message, isPersist bool) (uint64, error) {
 	bytes, err := proto.Marshal(msg)
 	if err != nil {
 		slog.Error("PushToUser", "error", err)
 		return 0, err
 	}
-	return a.PushToUserData(ctx, toUserID, code, bytes, isPersist)
+	return a.PushToUserData(ctx, toUserID, command, bytes, isPersist)
 }
 
 type userMessageAndDevices struct {
@@ -56,21 +53,23 @@ type userMessageAndDevices struct {
 }
 
 // SendToUsers 发送消息给用户
-func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *pb.Message, isPersist bool) (uint64, error) {
+func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
+	message.CreatedAt = time.Now().Unix()
 	slog.Debug("SendToUser", "request_id", md.GetRequestID(ctx), "to_user_ids", toUserIDs)
 
 	var messageID uint64
 	if isPersist {
-		message := domain.Message{
+		msg := domain.Message{
 			RequestID: md.GetRequestID(ctx),
-			Code:      message.Code,
+			Command:   message.Command,
 			Content:   message.Content,
+			CreatedAt: time.Unix(message.CreatedAt, 0),
 		}
-		err := repo.MessageRepo.Save(&message)
+		err := repo.MessageRepo.Save(&msg)
 		if err != nil {
 			return 0, err
 		}
-		messageID = message.ID
+		messageID = msg.ID
 	}
 
 	var userMessages []domain.UserMessage
@@ -134,7 +133,7 @@ func (a *app) SendToUsers(ctx context.Context, toUserIDs []uint64, message *pb.M
 
 type deviceAndMessage struct {
 	device  *pb.Device
-	message *pb.Message
+	message *connectpb.Message
 }
 
 // PushToDevices 将消息发送给设备
@@ -155,7 +154,7 @@ func (*app) PushToDevices(ctx context.Context, dms []deviceAndMessage) error {
 			})
 		}
 
-		_, err := rpc.GetConnectIntClient().PushToDevices(picker.ContextWithAddr(ctx, addr), request)
+		_, err := rpc.GetConnectIntClient(addr).PushToDevices(ctx, request)
 		if err != nil {
 			slog.Error("SendToDevice error", "error", err)
 			return err
@@ -168,11 +167,11 @@ func (*app) PushToDevices(ctx context.Context, dms []deviceAndMessage) error {
 
 // PushAll 全服推送
 func (*app) PushAll(ctx context.Context, req *pb.PushAllRequest) error {
-	msg := connectpb.PushAllMsg{
-		Message: &pb.Message{
-			Code:      req.Code,
+	msg := connectpb.PushAllMessage{
+		Message: &connectpb.Message{
+			Command:   req.Command,
 			Content:   req.Content,
-			CreatedAt: util.UnixMilliTime(time.Now()),
+			CreatedAt: time.Now().Unix(),
 		},
 	}
 	bytes, err := proto.Marshal(&msg)

@@ -3,36 +3,22 @@ package logic;
 option go_package = "gim/pkg/protocol/pb/logicpb";
 
 import "logic/group.ext.proto";
+import "connect/connect.ext.proto";
 
-// 单条消息投递内容
-message Message {
-  PushCode code = 1; // 推送码
-  bytes content = 2; // 推送内容
-  uint64 seq = 3; // 用户消息发送序列号
-  int64 created_at = 4; // 消息发送时间戳，精确到毫秒
-  MessageStatus status = 5; // 消息状态
+service MessageExtService {
+  // 消息同步
+  rpc Sync (SyncRequest) returns (SyncReply);
 }
 
-enum MessageStatus {
-  MS_NORMAL = 0; // 正常的
-  MS_RECALL = 1; // 撤回
+message SyncRequest {
+  uint64 seq = 3; // 序列号
+}
+message SyncReply {
+  repeated connect.Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
 }
 
-enum PushCode {
-  PC_ADD_DEFAULT = 0;
-
-  PC_USER_MESSAGE = 100; // 用户消息
-  PC_GROUP_MESSAGE = 101; // 群组消息
-
-  PC_ADD_FRIEND = 110; // 添加好友请求
-  PC_AGREE_ADD_FRIEND = 111; // 同意添加好友
-
-  PC_UPDATE_GROUP = 120; // 更新群组
-  PC_ADD_GROUP_MEMBERS = 121; // 添加群组成员
-  PC_REMOVE_GROUP_MEMBER = 122; // 移除群组成员
-}
-
-message Sender {
+message User {
   uint64 user_id = 2; // 发送者id
   uint64 device_id = 3; // 发送者设备id
   string avatar_url = 4; // 昵称
@@ -42,13 +28,13 @@ message Sender {
 
 // 用户消息 PC_USER_MESSAGE = 100
 message UserMessagePush{
-  Sender sender = 1; // 发送者信息
+  User from_user = 1; // 发送者信息
   bytes content = 2; // 用户发送的消息内容
 }
 
 // 群组消息 PC_GROUP_MESSAGE = 101
 message GroupMessagePush{
-  Sender sender = 1; // 发送者信息
+  User from_user = 1; // 发送者信息
   uint64 group_id = 2; // 群组ID
   bytes content = 3; // 用户发送的消息内容
 }

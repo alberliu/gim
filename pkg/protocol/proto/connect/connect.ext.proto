@@ -2,54 +2,44 @@ syntax = "proto3";
 package connect;
 option go_package = "gim/pkg/protocol/pb/connectpb";
 
-import "logic/message.ext.proto";
-
 enum Command {
   UNKNOWN = 0; // 未知
   SIGN_IN = 1; // 设备登录请求
-  SYNC = 2; // 消息同步触发
-  HEARTBEAT = 3; // 心跳
-  MESSAGE = 4; // 消息投递
-  SUBSCRIBE_ROOM = 5; // 订阅房间
+  HEARTBEAT = 2; // 心跳
+  SUBSCRIBE_ROOM = 3; // 订阅房间
+
+  USER_MESSAGE = 100; // 用户消息
+  GROUP_MESSAGE = 101; // 群组消息
+
+  ADD_FRIEND = 110; // 添加好友请求
+  AGREE_ADD_FRIEND = 111; // 同意添加好友
+
+  UPDATE_GROUP = 120; // 更新群组
+  ADD_GROUP_MEMBERS = 121; // 添加群组成员
+  REMOVE_GROUP_MEMBER = 122; // 移除群组成员
 }
 
-// 包
-message Packet {
-  Command command = 1; // 指令
-  int64 request_id = 2; // 请求id
-  int32 code = 3; // 错误码
-  string message = 4; // 错误信息
-  bytes data = 5; // 数据
+// 消息
+message Message {
+  string request_id = 1; // 请求id
+  Command command = 2; // 指令
+  bytes content = 3; // 数据
+  uint64 seq = 4; // 消息序列号
+  int64 created_at = 5; // 消息时间戳
+  uint64 room_id = 6; // 房间ID
+
+  int32 code = 100; // 错误码
+  string message = 101; // 错误信息
 }
 
 // 设备登录,package_type:1
-message SignInInput {
+message SignInRequest {
   uint64 device_id = 1; // 设备id
   uint64 user_id = 2; // 用户id
   string token = 3; // 秘钥
 }
 
-// 消息同步请求,package_type:2
-message SyncInput {
-  uint64 seq = 1; // 客户端已经同步的序列号
-}
-// 消息同步响应,package_type:2
-message SyncOutput {
-  repeated logic.Message messages = 1; // 消息列表
-  bool has_more = 2; // 是否有更多数据
-}
-
 // 订阅房间请求
-message SubscribeRoomInput {
+message SubscribeRoomRequest {
   uint64 room_id = 1; // 房间ID，如果为0，取消房间订阅
-  uint64 seq = 2; // 消息消息序列号，
-}
-
-// 消息投递,package_type:4
-// message.ext.proto文件下 Message
-
-// 投递消息回执,package_type:4
-message MessageACK {
-  uint64 device_ack = 2; // 设备收到消息的确认号
-  int64 receive_time = 3; // 消息接收时间戳，精确到毫秒
 }

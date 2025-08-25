@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -16,13 +17,10 @@ import (
 
 	"gim/pkg/codec"
 	pb "gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/util"
 )
 
 func TestTCPClient(t *testing.T) {
-	runClient("tcp", "127.0.0.1:8001", 1, 1, 1)
-
+	runClient("tcp", "127.0.0.1:8001", 10000, 10000, 1)
 }
 
 func TestWSClient(t *testing.T) {
@@ -153,7 +151,6 @@ func runClient(network string, url string, userID, deviceID, seq uint64) {
 func (c *client) run() {
 	go c.conn.receive(c.handlePackage)
 	c.signIn()
-	c.syncTrigger()
 	c.subscribeRoom()
 	c.heartbeat()
 }
@@ -162,22 +159,22 @@ func (c *client) info() string {
 	return fmt.Sprintf("%-5d%-5d", c.UserID, c.DeviceID)
 }
 
-func (c *client) send(pt pb.Command, requestID int64, message proto.Message) {
-	var packet = pb.Packet{
+func (c *client) send(pt pb.Command, requestID string, msg proto.Message) {
+	var message = pb.Message{
 		Command:   pt,
 		RequestId: requestID,
 	}
 
-	if message != nil {
-		bytes, err := proto.Marshal(message)
+	if msg != nil {
+		bytes, err := proto.Marshal(msg)
 		if err != nil {
 			log.Println(c.info(), err)
 			return
 		}
-		packet.Data = bytes
+		message.Content = bytes
 	}
 
-	buf, err := proto.Marshal(&packet)
+	buf, err := proto.Marshal(&message)
 	if err != nil {
 		log.Println(c.info(), err)
 		return
@@ -189,90 +186,54 @@ func (c *client) send(pt pb.Command, requestID int64, message proto.Message) {
 	}
 }
 
+func getRequestID() string {
+	unix := time.Now().UnixNano()
+	return strconv.FormatInt(unix, 10)
+}
+
 func (c *client) signIn() {
-	signIn := pb.SignInInput{
+	request := pb.SignInRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 		Token:    "0",
 	}
-	c.send(pb.Command_SIGN_IN, time.Now().UnixNano(), &signIn)
+	c.send(pb.Command_SIGN_IN, getRequestID(), &request)
 	log.Println(c.info(), "发送登录指令")
 	time.Sleep(1 * time.Second)
-}
-
-func (c *client) syncTrigger() {
-	c.send(pb.Command_SYNC, time.Now().UnixNano(), &pb.SyncInput{Seq: c.Seq})
-	log.Println(c.info(), "开始同步")
 }
 
 func (c *client) heartbeat() {
 	ticker := time.NewTicker(time.Minute * 5)
 	for range ticker.C {
-		c.send(pb.Command_HEARTBEAT, time.Now().UnixNano(), nil)
+		c.send(pb.Command_HEARTBEAT, getRequestID(), nil)
 		fmt.Println(c.info(), "心跳发送")
 	}
 }
 
 func (c *client) subscribeRoom() {
 	var roomID uint64 = 1
-	c.send(pb.Command_SUBSCRIBE_ROOM, 0, &pb.SubscribeRoomInput{
+	c.send(pb.Command_SUBSCRIBE_ROOM, getRequestID(), &pb.SubscribeRoomRequest{
 		RoomId: roomID,
-		Seq:    0,
 	})
 	log.Println(c.info(), "订阅房间:", roomID)
 }
 
-func (c *client) handlePackage(bytes []byte) {
-	var packet pb.Packet
-	err := proto.Unmarshal(bytes, &packet)
+func (c *client) handlePackage(buf []byte) {
+	var message pb.Message
+	err := proto.Unmarshal(buf, &message)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	switch packet.Command {
+	switch message.Command {
 	case pb.Command_SIGN_IN:
-		log.Println(c.info(), "登录响应:", jsonString(&packet))
+		log.Println(c.info(), "登录响应:", jsonString(&message))
 	case pb.Command_HEARTBEAT:
 		log.Println(c.info(), "心跳响应")
-	case pb.Command_SYNC:
-		log.Println(c.info(), "离线消息同步开始------")
-		syncResp := pb.SyncOutput{}
-		err := proto.Unmarshal(packet.Data, &syncResp)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		log.Println(c.info(), "离线消息同步响应:code", packet.Code, "message:", packet.Message)
-		for _, msg := range syncResp.Messages {
-			log.Println(c.info(), util.MessageToString(msg))
-			c.Seq = msg.Seq
-		}
-
-		ack := pb.MessageACK{
-			DeviceAck:   c.Seq,
-			ReceiveTime: util.UnixMilliTime(time.Now()),
-		}
-		c.send(pb.Command_MESSAGE, packet.RequestId, &ack)
-		log.Println(c.info(), "离线消息同步结束------")
-	case pb.Command_MESSAGE:
-		msg := logicpb.Message{}
-		err := proto.Unmarshal(packet.Data, &msg)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		log.Println(c.info(), util.MessageToString(&msg))
-		c.Seq = msg.Seq
-		ack := pb.MessageACK{
-			DeviceAck:   msg.Seq,
-			ReceiveTime: util.UnixMilliTime(time.Now()),
-		}
-		c.send(pb.Command_MESSAGE, packet.RequestId, &ack)
 	case pb.Command_SUBSCRIBE_ROOM:
-		log.Println(c.info(), "订阅房间响应", packet.Code, packet.Message)
+		log.Println(c.info(), "订阅房间响应", message.Code, message.Message)
 	default:
-		log.Println(c.info(), "switch other", &packet, len(bytes))
+		log.Println(c.info(), "other", &message)
 	}
 }

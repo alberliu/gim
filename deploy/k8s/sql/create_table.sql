@@ -110,7 +110,7 @@ CREATE TABLE `message` (
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `request_id` bigint NOT NULL COMMENT '请求id',
-  `code` int NOT NULL COMMENT '消息类型',
+  `command` int NOT NULL COMMENT '消息类型',
   `content` blob NOT NULL COMMENT '消息内容',
   `status` tinyint NOT NULL DEFAULT '0' COMMENT '消息状态，0：未处理1：消息撤回',
   PRIMARY KEY (`id`)
@@ -177,4 +177,4 @@ CREATE TABLE `user_message` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-19 16:47:36
+-- Dump completed on 2025-08-25 23:23:41

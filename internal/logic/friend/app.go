@@ -9,6 +9,7 @@ import (
 
 	"gim/internal/logic/message"
 	"gim/pkg/gerrors"
+	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/rpc"
@@ -85,7 +86,7 @@ func (*app) AddFriend(ctx context.Context, userId, friendId uint64, remarks, des
 		return err
 	}
 
-	_, err = message.App.PushToUser(ctx, []uint64{friendId}, pb.PushCode_PC_ADD_FRIEND, &pb.AddFriendPush{
+	_, err = message.App.PushToUser(ctx, []uint64{friendId}, connectpb.Command_ADD_FRIEND, &pb.AddFriendPush{
 		FriendId:    userId,
 		Nickname:    reply.User.Nickname,
 		AvatarUrl:   reply.User.AvatarUrl,
@@ -124,7 +125,7 @@ func (*app) AgreeAddFriend(ctx context.Context, userId, friendId uint64, remarks
 		return err
 	}
 
-	_, err = message.App.PushToUser(ctx, []uint64{friendId}, pb.PushCode_PC_AGREE_ADD_FRIEND, &pb.AgreeAddFriendPush{
+	_, err = message.App.PushToUser(ctx, []uint64{friendId}, connectpb.Command_AGREE_ADD_FRIEND, &pb.AgreeAddFriendPush{
 		FriendId:  userId,
 		Nickname:  reply.User.Nickname,
 		AvatarUrl: reply.User.AvatarUrl,
@@ -148,24 +149,24 @@ func (*app) SetFriend(ctx context.Context, userId uint64, req *pb.FriendSetReque
 
 // SendToFriend 消息发送至好友
 func (*app) SendToFriend(ctx context.Context, fromDeviceID, fromUserID uint64, req *pb.SendFriendMessageRequest) (uint64, error) {
-	sender, err := rpc.GetSender(fromDeviceID, fromUserID)
+	user, err := rpc.GetUser(fromDeviceID, fromUserID)
 	if err != nil {
 		return 0, err
 	}
 
 	// 发给发送者
 	push := pb.UserMessagePush{
-		Sender:  sender,
-		Content: req.Content,
+		FromUser: user,
+		Content:  req.Content,
 	}
-	bytes, err := proto.Marshal(&push)
+	buf, err := proto.Marshal(&push)
 	if err != nil {
 		return 0, err
 	}
 
-	msg := &pb.Message{
-		Code:    pb.PushCode_PC_USER_MESSAGE,
-		Content: bytes,
+	msg := &connectpb.Message{
+		Command: connectpb.Command_USER_MESSAGE,
+		Content: buf,
 	}
 
 	userIDs := []uint64{fromUserID, req.UserId}

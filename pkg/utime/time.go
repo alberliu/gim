@@ -1,4 +1,4 @@
-package util
+package utime
 
 import "time"
 
@@ -15,9 +15,4 @@ func ParseTime(str string) (time.Time, error) {
 // UnixMilliTime 将时间转化为毫秒数
 func UnixMilliTime(t time.Time) int64 {
 	return t.UnixNano() / 1000000
-}
-
-// UnunixMilliTime 将毫秒数转为为时间
-func UnunixMilliTime(unix int64) time.Time {
-	return time.Unix(0, unix*1000000)
 }
