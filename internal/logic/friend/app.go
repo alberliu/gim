@@ -86,7 +86,7 @@ func (*app) AddFriend(ctx context.Context, userId, friendId uint64, remarks, des
 		return err
 	}
 
-	_, err = message.App.PushToUser(ctx, []uint64{friendId}, connectpb.Command_ADD_FRIEND, &pb.AddFriendPush{
+	_, err = message.App.PushAny(ctx, []uint64{friendId}, connectpb.Command_ADD_FRIEND, &pb.AddFriendPush{
 		FriendId:    userId,
 		Nickname:    reply.User.Nickname,
 		AvatarUrl:   reply.User.AvatarUrl,
@@ -125,7 +125,7 @@ func (*app) AgreeAddFriend(ctx context.Context, userId, friendId uint64, remarks
 		return err
 	}
 
-	_, err = message.App.PushToUser(ctx, []uint64{friendId}, connectpb.Command_AGREE_ADD_FRIEND, &pb.AgreeAddFriendPush{
+	_, err = message.App.PushAny(ctx, []uint64{friendId}, connectpb.Command_AGREE_ADD_FRIEND, &pb.AgreeAddFriendPush{
 		FriendId:  userId,
 		Nickname:  reply.User.Nickname,
 		AvatarUrl: reply.User.AvatarUrl,
@@ -170,5 +170,5 @@ func (*app) SendToFriend(ctx context.Context, fromDeviceID, fromUserID uint64, r
 	}
 
 	userIDs := []uint64{fromUserID, req.UserId}
-	return message.App.SendToUsers(ctx, userIDs, msg, true)
+	return message.App.SendMessage(ctx, userIDs, msg, true)
 }

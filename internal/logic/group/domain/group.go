@@ -132,7 +132,7 @@ func (g *Group) SendMessage(ctx context.Context, fromDeviceID, fromUserID uint64
 	for _, member := range g.Members {
 		userIDs = append(userIDs, member.UserID)
 	}
-	return message.App.SendToUsers(md.NewAndCopyRequestID(ctx), userIDs, msg, true)
+	return message.App.SendMessage(md.NewAndCopyRequestID(ctx), userIDs, msg, true)
 }
 
 func (g *Group) IsMember(userId uint64) bool {
@@ -151,7 +151,7 @@ func (g *Group) PushMessage(ctx context.Context, command connectpb.Command, msg 
 		// 将消息发送给群组用户，使用写扩散
 		userIDs := g.GetMemberIDs()
 
-		_, err := message.App.PushToUser(md.NewAndCopyRequestID(ctx), userIDs, command, msg, isPersist)
+		_, err := message.App.PushAny(md.NewAndCopyRequestID(ctx), userIDs, command, msg, isPersist)
 		if err != nil {
 			slog.Error("PushMessage", "error", err)
 		}
