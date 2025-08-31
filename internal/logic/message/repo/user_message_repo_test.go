@@ -7,14 +7,12 @@ import (
 )
 
 func TestUserMessageDao_Add(t *testing.T) {
-	messages := []domain.UserMessage{
-		{
-			UserID:    1,
-			Seq:       1,
-			MessageID: 1,
-		},
+	message := domain.UserMessage{
+		UserID:    1,
+		Seq:       1,
+		MessageID: 1,
 	}
-	t.Log(UserMessageRepo.Save(messages))
+	t.Log(UserMessageRepo.Create(&message))
 }
 
 func TestUserMessageDao_ListByUserIdAndUserSeq(t *testing.T) {

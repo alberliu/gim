@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"gim/config"
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/ugrpc"
 )
 
@@ -17,7 +17,7 @@ var (
 	deviceIntClient  logicpb.DeviceIntServiceClient
 	messageIntClient logicpb.MessageIntServiceClient
 	roomIntClient    logicpb.RoomIntServiceClient
-	userIntClient    userpb.UserIntServiceClient
+	userIntClient    businesspb.UserIntServiceClient
 )
 
 func GetConnectIntClient(addr string) connectpb.ConnectIntServiceClient {
@@ -53,7 +53,7 @@ func GetRoomIntClient() logicpb.RoomIntServiceClient {
 	return roomIntClient
 }
 
-func GetUserIntClient() userpb.UserIntServiceClient {
+func GetUserIntClient() businesspb.UserIntServiceClient {
 	if userIntClient == nil {
 		userIntClient = config.Config.UserIntClientBuilder()
 	}
@@ -61,7 +61,7 @@ func GetUserIntClient() userpb.UserIntServiceClient {
 }
 
 func GetUser(deviceID, userID uint64) (*logicpb.User, error) {
-	user, err := GetUserIntClient().GetUser(context.TODO(), &userpb.GetUserRequest{UserId: userID})
+	user, err := GetUserIntClient().GetUser(context.TODO(), &businesspb.GetUserRequest{UserId: userID})
 	if err != nil {
 		return nil, err
 	}

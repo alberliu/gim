@@ -4,25 +4,32 @@ option go_package = "gim/pkg/protocol/pb/logicpb";
 
 import "google/protobuf/empty.proto";
 
-import "logic/device.ext.proto";
-
 service DeviceIntService {
   // 登录
-  rpc ConnSignIn (ConnSignInRequest) returns (google.protobuf.Empty);
+  rpc SignIn (SignInRequest) returns (SignInReply);
+  // 心跳
+  rpc Heartbeat (HeartbeatRequest) returns (google.protobuf.Empty);
   // 设备离线
   rpc Offline (OfflineRequest) returns (google.protobuf.Empty);
-  // 获取设备信息
-  rpc GetDevice (GetDeviceRequest) returns (GetDeviceReply);
-  // 服务停止
-  rpc ServerStop (ServerStopRequest) returns (google.protobuf.Empty);
+  // 创建设备
+  rpc Save (DeviceSaveRequest) returns (DeviceSaveReply);
 }
 
-message ConnSignInRequest {
-  uint64 device_id = 1; // 设备id
-  uint64 user_id = 2; // 用户id
+message SignInRequest {
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备ID
   string token = 3; // 秘钥
-  string conn_addr = 4; // 服务器地址
+  string connect_addr = 4; // connect服务地址
   string client_addr = 5; // 客户端地址
+}
+
+message SignInReply {
+  uint64 device_id = 1; // 设备id
+}
+
+message HeartbeatRequest{
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备ID
 }
 
 message OfflineRequest {
@@ -31,29 +38,28 @@ message OfflineRequest {
   string client_addr = 3; // 客户端地址
 }
 
-message GetDeviceRequest {
+message DeviceSaveRequest {
+  Device device = 1;
+}
+message DeviceSaveReply {
   uint64 device_id = 1;
 }
-message GetDeviceReply {
-  Device device = 1;
+
+enum DeviceType{
+  DT_DEFAULT = 0;
+  DT_ANDROID = 1;
+  DT_IOS = 2;
+  DT_WINDOWS = 3;
+  DT_MACOS = 4;
+  DT_WEB = 5;
 }
 
 message Device {
-  uint64 device_id = 1; // 设备id
-  uint64 user_id = 2; // 用户id
-  DeviceType type = 3; // 设备类型
-  string brand = 4; // 手机厂商
-  string model = 5; // 机型
-  string system_version = 6; // 系统版本
-  string sdk_version = 7; // SDK版本
-  int32 status = 8; // 在线状态，0：不在线；1：在线
-  string conn_addr = 9;  // 服务端连接地址
-  string client_addr = 10; // 客户端地址
-  int64 create_time = 11; // 创建时间
-  int64 update_time = 12; // 更新时间
+  uint64 id = 1; // 设备id
+  DeviceType type = 2; // 设备类型
+  string brand = 3; // 手机厂商
+  string model = 4; // 机型
+  string system_version = 5; // 系统版本
+  string sdk_version = 6; // SDK版本
+  string branch_push_id = 7; // 厂商推送ID
 }
-
-message ServerStopRequest {
-  string conn_addr = 1;
-}
-

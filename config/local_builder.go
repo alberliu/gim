@@ -3,8 +3,8 @@ package config
 import (
 	"log/slog"
 
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/ugrpc"
 )
 
@@ -44,9 +44,9 @@ func (*localBuilder) Build() Configuration {
 			conn := ugrpc.NewClient("127.0.0.1:8010")
 			return logicpb.NewRoomIntServiceClient(conn)
 		},
-		UserIntClientBuilder: func() userpb.UserIntServiceClient {
+		UserIntClientBuilder: func() businesspb.UserIntServiceClient {
 			conn := ugrpc.NewClient("127.0.0.1:8020")
-			return userpb.NewUserIntServiceClient(conn)
+			return businesspb.NewUserIntServiceClient(conn)
 		},
 	}
 }

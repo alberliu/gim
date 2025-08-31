@@ -7,28 +7,20 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 
-	"gim/pkg/md"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
-func getExtClient() pb.RoomExtServiceClient {
+func getIntClient() pb.RoomIntServiceClient {
 	conn, err := grpc.NewClient("127.0.0.1:8010", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-	return pb.NewRoomExtServiceClient(conn)
+	return pb.NewRoomIntServiceClient(conn)
 }
 
-func TestRoomExtService_PushRoom(t *testing.T) {
-	ctx := metadata.NewOutgoingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "10000",
-		md.CtxDeviceID: "10000",
-		md.CtxToken:    "0",
-	}))
-
-	reply, err := getExtClient().PushRoom(ctx, &pb.PushRoomRequest{
+func TestRoomIntService_PushRoom(t *testing.T) {
+	reply, err := getIntClient().PushRoom(context.TODO(), &pb.PushRoomRequest{
 		RoomId:     1,
 		Command:    1000,
 		Content:    []byte("room msg"),

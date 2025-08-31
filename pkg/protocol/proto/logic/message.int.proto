@@ -7,12 +7,19 @@ import "google/protobuf/empty.proto";
 import "connect/connect.ext.proto";
 
 service MessageIntService {
+  // 消息同步
+  rpc Sync (SyncRequest) returns (connect.SyncReply);
   // 设备收到消息回执
   rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
   // 推送
-  rpc Pushs (PushsRequest) returns (PushsReply);
+  rpc PushToUsers (PushToUsersRequest) returns (PushToUsersReply);
   // 全服推送
-  rpc PushAll(PushAllRequest)returns(google.protobuf.Empty);
+  rpc PushToAll(PushToAllRequest)returns(google.protobuf.Empty);
+}
+
+message SyncRequest {
+  uint64 user_id = 1; // 用户ID
+  uint64 seq = 2; // 序列号
 }
 
 message MessageACKRequest {
@@ -22,17 +29,17 @@ message MessageACKRequest {
   int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
 }
 
-message PushsRequest{
+message PushToUsersRequest{
   repeated uint64 user_ids = 1; // 用户ID
   connect.Command command = 2; // 推送码
   bytes content = 3; // 推送内容
   bool is_persist = 4; // 是否持久化
 }
-message PushsReply{
+message PushToUsersReply{
   uint64 message_id = 1;
 }
 
-message PushAllRequest{
+message PushToAllRequest{
   connect.Command command = 1; // 推送码
   bytes content = 2; // 推送内容
 }

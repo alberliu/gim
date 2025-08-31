@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net"
 
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/ugrpc"
 )
 
@@ -58,9 +58,9 @@ func (*composeBuilder) Build() Configuration {
 			return logicpb.NewRoomIntServiceClient(conn)
 		},
 
-		UserIntClientBuilder: func() userpb.UserIntServiceClient {
-			conn := ugrpc.NewClient("dns:///user:8020")
-			return userpb.NewUserIntServiceClient(conn)
+		UserIntClientBuilder: func() businesspb.UserIntServiceClient {
+			conn := ugrpc.NewClient("dns:///business:8020")
+			return businesspb.NewUserIntServiceClient(conn)
 		},
 	}
 }

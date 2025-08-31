@@ -11,7 +11,6 @@ import (
 
 	"gim/config"
 	"gim/internal/logic/device"
-	"gim/internal/logic/friend"
 	"gim/internal/logic/group"
 	"gim/internal/logic/message"
 	"gim/internal/logic/room"
@@ -23,7 +22,7 @@ import (
 func main() {
 	logger.Init("logic")
 
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(interceptor.LogicWhitelistURL)))
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(nil)))
 
 	// 监听服务关闭信号，服务平滑重启
 	go func() {
@@ -34,13 +33,9 @@ func main() {
 		server.GracefulStop()
 	}()
 
-	pb.RegisterDeviceExtServiceServer(server, &device.DeviceExtService{})
 	pb.RegisterDeviceIntServiceServer(server, &device.DeviceIntService{})
-	pb.RegisterMessageExtServiceServer(server, &message.MessageExtService{})
 	pb.RegisterMessageIntServiceServer(server, &message.MessageIntService{})
-	pb.RegisterFriendExtServiceServer(server, &friend.FriendExtService{})
-	pb.RegisterGroupExtServiceServer(server, &group.GroupExtService{})
-	pb.RegisterRoomExtServiceServer(server, &room.RoomExtService{})
+	pb.RegisterGroupIntServiceServer(server, &group.GroupIntService{})
 	pb.RegisterRoomIntServiceServer(server, &room.RoomIntService{})
 
 	listen, err := net.Listen("tcp", config.Config.LogicRPCListenAddr)

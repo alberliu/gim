@@ -1,0 +1,87 @@
+syntax = "proto3";
+package business;
+option go_package = "gim/pkg/protocol/pb/businesspb";
+
+import "google/protobuf/empty.proto";
+
+service FriendExtService {
+  // 发送好友消息
+  rpc SendMessage (SendFriendMessageRequest) returns (SendFriendMessageReply);
+  // 添加好友
+  rpc Add (FriendAddRequest) returns (google.protobuf.Empty);
+  // 同意添加好友
+  rpc Agree (FriendAgreeRequest) returns (google.protobuf.Empty);
+  // 设置好友信息
+  rpc Set (FriendSetRequest) returns (FriendSetReply);
+  // 获取好友列表
+  rpc GetFriends (google.protobuf.Empty) returns (GetFriendsReply);
+}
+
+message SendFriendMessageRequest {
+  uint64 user_id = 1; // 接收者ID，用户ID/群组ID
+  bytes content = 2; // 推动内容
+}
+message SendFriendMessageReply {
+  uint64 message_id = 1; // 消息序列号
+}
+
+message FriendAddRequest {
+  uint64 friend_id = 1; // 用户id
+  string remarks = 2; // 备注
+  string description = 3; // 描述
+}
+
+message FriendAgreeRequest {
+  uint64 user_id = 1; // 用户id
+  string remarks = 2; // 备注
+}
+
+message FriendSetRequest {
+  uint64 friend_id = 1; // 好友id
+  string remarks = 2; // 备注
+  string extra = 8; // 附加字段
+}
+message FriendSetReply {
+  uint64 friend_id = 1; // 好友id
+  string remarks = 2; // 备注
+  string extra = 8; // 附加字段
+}
+
+message Friend {
+  uint64 user_id = 1; // 用户id
+  string phone_number = 2; // 电话号码
+  string nickname = 3; // 昵称
+  int32 sex = 4; // 性别
+  string avatar_url = 5; // 头像地址
+  string user_extra = 6; // 用户附加字段
+  string remarks = 7; // 备注
+  string extra = 8; // 附加字段
+}
+message GetFriendsReply {
+  repeated Friend friends = 1;
+}
+
+// 添加好友 PC_ADD_FRIEND = 110
+message AddFriendPush {
+  uint64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+  string description = 4; // 描述
+}
+
+// 同意 添加好友 PC_AGREE_ADD_FRIEND = 111
+message AgreeAddFriendPush {
+  uint64 friend_id = 1; // 好友id
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+}
+
+// 更新群组 PC_UPDATE_GROUP = 120
+message UpdateGroupPush {
+  uint64 opt_id = 1; // 操作人用户id
+  string opt_name = 2; // 操作人昵称
+  string name = 3; // 群组名称
+  string avatar_url = 4; // 群组头像
+  string introduction = 5; // 群组简介
+  string extra = 6; // 附加字段
+}

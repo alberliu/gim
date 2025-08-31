@@ -23,23 +23,23 @@ var App = new(app)
 
 type app struct{}
 
-func (a *app) PushAny(ctx context.Context, toUserID []uint64, command connectpb.Command, any proto.Message, isPersist bool) (uint64, error) {
+func (a *app) PushToUsersWithAny(ctx context.Context, userIDs []uint64, command connectpb.Command, any proto.Message, isPersist bool) (uint64, error) {
 	bytes, err := proto.Marshal(any)
 	if err != nil {
 		slog.Error("PushToUser", "error", err)
 		return 0, err
 	}
-	return a.PushContent(ctx, toUserID, command, bytes, isPersist)
+	return a.PushToUsersWithCommand(ctx, userIDs, command, bytes, isPersist)
 }
 
-func (a *app) PushContent(ctx context.Context, toUserIDs []uint64, command connectpb.Command, content []byte,
+func (a *app) PushToUsersWithCommand(ctx context.Context, toUserIDs []uint64, command connectpb.Command, content []byte,
 	isPersist bool) (uint64, error) {
 	message := connectpb.Message{
 		Command: command,
 		Content: content,
 		Seq:     0,
 	}
-	messageID, err := a.SendMessage(ctx, toUserIDs, &message, isPersist)
+	messageID, err := a.PushToUsers(ctx, toUserIDs, &message, isPersist)
 	if err != nil {
 		slog.Error("PushToUser", "error", err)
 		return 0, err
@@ -47,15 +47,10 @@ func (a *app) PushContent(ctx context.Context, toUserIDs []uint64, command conne
 	return messageID, nil
 }
 
-type userMessageAndDevices struct {
-	userMessage *domain.UserMessage
-	devices     []*pb.Device
-}
-
-// SendMessage 发送消息
-func (a *app) SendMessage(ctx context.Context, toUserIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
+// PushToUsers 发送消息
+func (a *app) PushToUsers(ctx context.Context, userIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
 	message.CreatedAt = time.Now().Unix()
-	slog.Debug("SendToUser", "request_id", md.GetRequestID(ctx), "to_user_ids", toUserIDs)
+	slog.Debug("SendToUser", "request_id", md.GetRequestID(ctx), "to_user_ids", userIDs)
 
 	var messageID uint64
 	if isPersist {
@@ -72,101 +67,76 @@ func (a *app) SendMessage(ctx context.Context, toUserIDs []uint64, message *conn
 		messageID = msg.ID
 	}
 
-	var userMessages []domain.UserMessage
-	for _, userID := range toUserIDs {
-		var userSeq uint64
-		if isPersist {
-			var err error
-			userSeq, err = repo.SeqRepo.Incr(repo.SeqObjectTypeUser, userID)
-			if err != nil {
-				return 0, err
-			}
+	for _, userID := range userIDs {
+		err := a.PushToUser(ctx, userID, messageID, *message, isPersist)
+		if err != nil {
+			slog.Error("PushToUser", "error", err, "userID", userID)
+		}
+	}
+	return messageID, nil
+}
+
+func (a *app) PushToUser(ctx context.Context, userID, messageID uint64, message connectpb.Message, isPersist bool) error {
+	slog.Debug("PushToUser", "userID", userID, "messageID", messageID, "message", message)
+	var (
+		seq uint64
+		err error
+	)
+	if isPersist {
+		seq, err = repo.SeqRepo.Incr(repo.SeqObjectTypeUser, userID)
+		if err != nil {
+			return err
 		}
 
 		userMessage := domain.UserMessage{
 			UserID:    userID,
-			Seq:       userSeq,
+			Seq:       seq,
 			MessageID: messageID,
 		}
-		userMessages = append(userMessages, userMessage)
-	}
 
-	err := repo.UserMessageRepo.Save(userMessages)
-	if err != nil {
-		return 0, err
-	}
-
-	devices, err := device.App.ListOnlineByUserID(ctx, toUserIDs)
-	if err != nil {
-		return 0, err
-	}
-
-	userMessageAndDevicesList := make(map[uint64]*userMessageAndDevices, len(userMessages))
-	for i := range userMessages {
-		userMessageAndDevicesList[userMessages[i].UserID] = &userMessageAndDevices{
-			userMessage: &userMessages[i],
-			devices:     nil,
-		}
-	}
-
-	for _, device := range devices {
-		value, ok := userMessageAndDevicesList[device.UserId]
-		if ok {
-			value.devices = append(value.devices, device)
-		}
-	}
-
-	var deviceAndMessageList = make([]deviceAndMessage, 0, len(devices))
-	for _, value := range userMessageAndDevicesList {
-		for _, device := range value.devices {
-			message.Seq = value.userMessage.Seq
-			deviceAndMessageList = append(deviceAndMessageList, deviceAndMessage{
-				device:  device,
-				message: message,
-			})
-		}
-	}
-
-	err = a.PushToDevices(ctx, deviceAndMessageList)
-	return messageID, err
-}
-
-type deviceAndMessage struct {
-	device  *pb.Device
-	message *connectpb.Message
-}
-
-// PushToDevices 将消息发送给设备
-func (*app) PushToDevices(ctx context.Context, dms []deviceAndMessage) error {
-	connects := make(map[string][]deviceAndMessage)
-	for _, dm := range dms {
-		connects[dm.device.ConnAddr] = append(connects[dm.device.ConnAddr], dm)
-	}
-
-	for addr, dmlist := range connects {
-		request := &connectpb.PushToDevicesRequest{
-			DeviceMessageList: make([]*connectpb.DeviceMessage, 0, len(dmlist)),
-		}
-		for _, dm := range dmlist {
-			request.DeviceMessageList = append(request.DeviceMessageList, &connectpb.DeviceMessage{
-				DeviceId: dm.device.DeviceId,
-				Message:  dm.message,
-			})
-		}
-
-		_, err := rpc.GetConnectIntClient(addr).PushToDevices(ctx, request)
+		err = repo.UserMessageRepo.Create(&userMessage)
 		if err != nil {
-			slog.Error("SendToDevice error", "error", err)
 			return err
 		}
 	}
 
-	// todo 其他推送厂商
+	message.Seq = seq
+	devices, err := device.App.ListByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	for i := range devices {
+		err = a.PushToDevice(ctx, &devices[i], &message)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-// PushAll 全服推送
-func (*app) PushAll(ctx context.Context, req *pb.PushAllRequest) error {
+func (a *app) PushToDevice(ctx context.Context, device *device.Device, message *connectpb.Message) error {
+	slog.Debug("PushToDevice", "device", device, "message", message)
+	if device.IsOnline {
+		request := &connectpb.PushToDevicesRequest{
+			DeviceMessageList: []*connectpb.DeviceMessage{
+				{
+					DeviceId: 0,
+					Message:  message,
+				},
+			},
+		}
+
+		_, err := rpc.GetConnectIntClient(device.ConnectAddr).PushToDevices(ctx, request)
+		return err
+	}
+
+	// 离线推送
+	return nil
+}
+
+// PushToAll 全服推送
+func (*app) PushToAll(ctx context.Context, req *pb.PushToAllRequest) error {
 	msg := connectpb.PushAllMessage{
 		Message: &connectpb.Message{
 			Command:   req.Command,
@@ -182,14 +152,14 @@ func (*app) PushAll(ctx context.Context, req *pb.PushAllRequest) error {
 }
 
 // Sync 消息同步
-func (a *app) Sync(ctx context.Context, userId, seq uint64) (*pb.SyncReply, error) {
+func (a *app) Sync(ctx context.Context, userId, seq uint64) (*connectpb.SyncReply, error) {
 	messages, hasMore, err := a.listByUserIdAndSeq(ctx, userId, seq)
 	if err != nil {
 		return nil, err
 	}
 	pbMessages := domain.MessagesToPB(messages)
 
-	reply := &pb.SyncReply{Messages: pbMessages, HasMore: hasMore}
+	reply := &connectpb.SyncReply{Messages: pbMessages, HasMore: hasMore}
 	return reply, nil
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log/slog"
 	"net"
 	"os"
@@ -15,8 +14,6 @@ import (
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
 	pb "gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/rpc"
 )
 
 func main() {
@@ -42,10 +39,7 @@ func main() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM)
 		s := <-c
-		slog.Info("server stop start", "signal", s)
-		_, _ = rpc.GetDeviceIntClient().ServerStop(context.TODO(), &logicpb.ServerStopRequest{ConnAddr: config.Config.ConnectLocalAddr})
-		slog.Info("server stop end")
-
+		slog.Info("server stop", "signal", s)
 		server.GracefulStop()
 	}()
 

@@ -20,7 +20,7 @@ import (
 )
 
 func TestTCPClient(t *testing.T) {
-	runClient("tcp", "127.0.0.1:8001", 10000, 10000, 1)
+	runClient("tcp", "127.0.0.1:8001", 1, 1, 1)
 }
 
 func TestWSClient(t *testing.T) {
@@ -112,11 +112,6 @@ func (c *wsConn) receive(handler func([]byte)) {
 	}
 }
 
-func jsonString(any any) string {
-	bytes, _ := jsoniter.Marshal(any)
-	return string(bytes)
-}
-
 type client struct {
 	UserID   uint64
 	DeviceID uint64
@@ -149,7 +144,7 @@ func runClient(network string, url string, userID, deviceID, seq uint64) {
 }
 
 func (c *client) run() {
-	go c.conn.receive(c.handlePackage)
+	go c.conn.receive(c.handleMessage)
 	c.signIn()
 	c.subscribeRoom()
 	c.heartbeat()
@@ -194,7 +189,7 @@ func getRequestID() string {
 func (c *client) signIn() {
 	request := pb.SignInRequest{
 		UserId:   c.UserID,
-		DeviceId: c.DeviceID,
+		DeviceId: 1,
 		Token:    "0",
 	}
 	c.send(pb.Command_SIGN_IN, getRequestID(), &request)
@@ -218,7 +213,7 @@ func (c *client) subscribeRoom() {
 	log.Println(c.info(), "订阅房间:", roomID)
 }
 
-func (c *client) handlePackage(buf []byte) {
+func (c *client) handleMessage(buf []byte) {
 	var message pb.Message
 	err := proto.Unmarshal(buf, &message)
 	if err != nil {
@@ -228,12 +223,41 @@ func (c *client) handlePackage(buf []byte) {
 
 	switch message.Command {
 	case pb.Command_SIGN_IN:
-		log.Println(c.info(), "登录响应:", jsonString(&message))
+		log.Println(c.info(), "登录响应:", jsonString(&message), jsonString(getReply(&message)))
+
+		time.Sleep(1 * time.Second)
+		c.send(pb.Command_SYNC, getRequestID(), &pb.SyncRequest{
+			Seq: 0,
+		})
 	case pb.Command_HEARTBEAT:
 		log.Println(c.info(), "心跳响应")
+	case pb.Command_SYNC:
+		log.Println(c.info(), "消息同步开始")
+		reply := getReply(&message)
+		log.Println(c.info(), "消息同步响应", reply.Code, reply.Message)
+		var syncReply pb.SyncReply
+		err := proto.Unmarshal(reply.Data, &syncReply)
+		if err != nil {
+			log.Println(err)
+		}
+		for _, msg := range syncReply.Messages {
+			log.Println(c.info(), "消息同步", jsonString(msg))
+		}
+		log.Println(c.info(), "消息同步结束")
 	case pb.Command_SUBSCRIBE_ROOM:
-		log.Println(c.info(), "订阅房间响应", message.Code, message.Message)
+		log.Println(c.info(), "订阅房间响应", jsonString(&message), jsonString(getReply(&message)))
 	default:
 		log.Println(c.info(), "other", &message)
 	}
+}
+
+func getReply(message *pb.Message) *pb.Reply {
+	var reply pb.Reply
+	_ = proto.Unmarshal(message.Content, &reply)
+	return &reply
+}
+
+func jsonString(any any) string {
+	bytes, _ := jsoniter.Marshal(any)
+	return string(bytes)
 }
