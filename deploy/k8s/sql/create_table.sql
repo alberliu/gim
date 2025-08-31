@@ -34,8 +34,8 @@ CREATE TABLE `device` (
   `model` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '机型',
   `system_version` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '系统版本',
   `sdk_version` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'app版本',
-  `status` tinyint NOT NULL DEFAULT '0' COMMENT '在线状态，0：离线；1：在线',
-  `conn_addr` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '连接层服务器地址',
+  `brand_push_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '厂商推送ID',
+  `connect_addr` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '连接层服务器地址',
   `client_addr` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '客户端地址',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`) USING BTREE
@@ -73,30 +73,10 @@ CREATE TABLE `group` (
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组名称',
   `avatar_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组头像',
   `introduction` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组简介',
-  `user_num` int NOT NULL DEFAULT '0' COMMENT '群组人数',
   `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  `members` json NOT NULL COMMENT '群组成员',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `group_user`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `group_user` (
-  `group_id` bigint unsigned NOT NULL COMMENT '组id',
-  `user_id` bigint unsigned NOT NULL COMMENT '用户id',
-  `created_at` datetime NOT NULL COMMENT '创建时间',
-  `updated_at` datetime NOT NULL COMMENT '更新时间',
-  `member_type` tinyint NOT NULL COMMENT '成员类型，1：管理员；2：普通成员',
-  `remarks` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '备注',
-  `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
-  `status` tinyint NOT NULL COMMENT '状态',
-  PRIMARY KEY (`group_id`,`user_id`),
-  KEY `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -177,4 +157,4 @@ CREATE TABLE `user_message` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 23:23:41
+-- Dump completed on 2025-08-31 21:51:04
