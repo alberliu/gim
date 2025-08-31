@@ -2,10 +2,12 @@ package device
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 
-	"gim/internal/user/domain"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )
@@ -29,23 +31,48 @@ func (*repo) Save(device *Device) error {
 	return db.DB.Save(&device).Error
 }
 
-// ListOnlineByUserID 获取用户的所有在线设备
-func (*repo) ListOnlineByUserID(userIDs []uint64) ([]Device, error) {
+// ListByUserID 获取用户设备
+func (r *repo) ListByUserID(userID uint64) ([]Device, error) {
 	var devices []Device
-	err := db.DB.Find(&devices, "user_id in (?) and status = ?", userIDs, OnLine).Error
+	err := db.DB.Find(&devices, "user_id = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range devices {
+		isOnline, err := r.GetIsOnline(devices[i].ID)
+		if err != nil {
+			return nil, err
+		}
+		devices[i].IsOnline = isOnline
+	}
 	return devices, err
 }
 
-// ListOnlineByConnAddr 查询用户所有的在线设备
-func (*repo) ListOnlineByConnAddr(connAddr string) ([]Device, error) {
-	var devices []Device
-	err := db.DB.Find(&devices, "conn_addr = ? and status = ?", connAddr, OnLine).Error
-	return devices, err
+const deviceStatus = "deviceStatus:%d"
+
+// SetOnline 设置在线
+func (*repo) SetOnline(deviceID uint64) error {
+	key := fmt.Sprintf(deviceStatus, deviceID)
+	_, err := db.RedisCli.Set(key, "", 12*time.Minute).Result()
+	return err
 }
 
-// UpdateStatusOffline 更新设备为离线状态
-func (*repo) UpdateStatusOffline(device Device) error {
-	return db.DB.Model(&domain.Device{}).
-		Where("id = ? and conn_addr = ?", device.ConnAddr, device.ConnAddr).
-		Update("status", device.Status).Error
+// SetOffline 设置在线
+func (*repo) SetOffline(deviceID uint64) error {
+	key := fmt.Sprintf(deviceStatus, deviceID)
+	_, err := db.RedisCli.Del(key).Result()
+	return err
+}
+
+func (*repo) GetIsOnline(deviceID uint64) (bool, error) {
+	key := fmt.Sprintf(deviceStatus, deviceID)
+	_, err := db.RedisCli.Get(key).Result()
+	if errors.Is(err, redis.Nil) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

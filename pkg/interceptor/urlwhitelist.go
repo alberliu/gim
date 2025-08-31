@@ -1,9 +1,7 @@
 package interceptor
 
-var UserWhitelistURL = map[string]struct{}{
-	"/user.UserExtService/SignIn": {},
-}
+import "gim/pkg/protocol/pb/businesspb"
 
-var LogicWhitelistURL = map[string]struct{}{
-	"/logic.DeviceExtService/RegisterDevice": {},
+var UserWhitelistURL = map[string]struct{}{
+	businesspb.UserExtService_SignIn_FullMethodName: {},
 }

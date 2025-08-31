@@ -10,8 +10,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"gim/pkg/grpclib/resolver/k8s"
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 	"gim/pkg/ugrpc"
 	"gim/pkg/uk8s"
 )
@@ -67,9 +67,9 @@ func (*k8sBuilder) Build() Configuration {
 			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
 			return logicpb.NewRoomIntServiceClient(conn)
 		},
-		UserIntClientBuilder: func() userpb.UserIntServiceClient {
-			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "user", RPCDialAddr))
-			return userpb.NewUserIntServiceClient(conn)
+		UserIntClientBuilder: func() businesspb.UserIntServiceClient {
+			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "business", RPCDialAddr))
+			return businesspb.NewUserIntServiceClient(conn)
 		},
 	}
 }

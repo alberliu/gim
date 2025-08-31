@@ -9,8 +9,8 @@ var UserMessageRepo = new(userMessageRepo)
 
 type userMessageRepo struct{}
 
-// Save 插入一条消息
-func (d *userMessageRepo) Save(message []domain.UserMessage) error {
+// Create 创建
+func (d *userMessageRepo) Create(message *domain.UserMessage) error {
 	return db.DB.Create(&message).Error
 }
 

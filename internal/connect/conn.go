@@ -133,7 +133,7 @@ func (c *Conn) HandleMessage(buf []byte) {
 
 	// 对未登录的用户进行拦截
 	if message.Command != pb.Command_SIGN_IN && c.UserID == 0 {
-		setMessageError(message, err)
+		setContent(message, err, nil)
 		c.Send(message)
 		return
 	}
@@ -143,6 +143,8 @@ func (c *Conn) HandleMessage(buf []byte) {
 		c.SignIn(message)
 	case pb.Command_HEARTBEAT:
 		c.Heartbeat(message)
+	case pb.Command_SYNC:
+
 	case pb.Command_SUBSCRIBE_ROOM:
 		c.SubscribedRoom(message)
 	default:
@@ -169,50 +171,66 @@ func (c *Conn) Send(message *pb.Message) {
 
 // SignIn 登录
 func (c *Conn) SignIn(message *pb.Message) {
-	var signIn pb.SignInRequest
-	err := proto.Unmarshal(message.Content, &signIn)
+	var request pb.SignInRequest
+	err := proto.Unmarshal(message.Content, &request)
 	if err != nil {
 		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().ConnSignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.ConnSignInRequest{
-		UserId:     signIn.UserId,
-		DeviceId:   signIn.DeviceId,
-		Token:      signIn.Token,
-		ConnAddr:   config.Config.ConnectLocalAddr,
-		ClientAddr: c.GetAddr(),
+	reply, err := rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.SignInRequest{
+		UserId:      request.UserId,
+		DeviceId:    request.DeviceId,
+		Token:       request.Token,
+		ConnectAddr: config.Config.ConnectLocalAddr,
+		ClientAddr:  c.GetAddr(),
 	})
 
-	setMessageError(message, err)
+	setContent(message, err, nil)
 	c.Send(message)
 	if err != nil {
 		return
 	}
 
-	c.UserID = signIn.UserId
-	c.DeviceID = signIn.DeviceId
-	SetConn(signIn.DeviceId, c)
-}
-
-func setMessageError(message *pb.Message, err error) {
-	if err == nil {
-		return
-	}
-
-	status, _ := status.FromError(err)
-	if status == nil {
-		return
-	}
-	message.Code = int32(status.Code())
-	message.Message = status.Message()
+	c.UserID = request.UserId
+	c.DeviceID = reply.DeviceId
+	SetConn(reply.DeviceId, c)
 }
 
 // Heartbeat 心跳
 func (c *Conn) Heartbeat(message *pb.Message) {
 	c.Send(message)
 
-	slog.Info("heartbeat", "device_id", c.DeviceID, "user_id", c.UserID)
+	_, err := rpc.GetDeviceIntClient().Heartbeat(context.TODO(), &logicpb.HeartbeatRequest{
+		UserId:   c.UserID,
+		DeviceId: c.DeviceID,
+	})
+	if err != nil {
+		slog.Error("Heartbeat error", "deviceID", c.DeviceID, "userID", c.UserID, "error", err)
+	}
+
+	slog.Info("heartbeat", "deviceID", c.DeviceID, "userID", c.UserID)
+}
+
+func (c *Conn) Sync(message *pb.Message) {
+	var request pb.SyncRequest
+	err := proto.Unmarshal(message.Content, &request)
+	if err != nil {
+		slog.Error("proto unmarshal error", "error", err)
+		return
+	}
+
+	reply, err := rpc.GetMessageIntClient().Sync(context.TODO(), &logicpb.SyncRequest{
+		UserId: c.UserID,
+		Seq:    request.Seq,
+	})
+	if err != nil {
+		slog.Error("Sync error", "deviceID", c.DeviceID, "userID", c.UserID, "error", err)
+	}
+
+	slog.Info("Sync", "deviceID", c.DeviceID, "userID", c.UserID, "request", &request, "reply", reply)
+	setContent(message, err, reply)
+	c.Send(message)
 }
 
 // SubscribedRoom 订阅房间
@@ -225,6 +243,7 @@ func (c *Conn) SubscribedRoom(message *pb.Message) {
 	}
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
+	setContent(message, nil, nil)
 	c.Send(message)
 	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserID,
@@ -235,4 +254,32 @@ func (c *Conn) SubscribedRoom(message *pb.Message) {
 	if err != nil {
 		slog.Error("SubscribedRoom error", "error", err)
 	}
+}
+
+func setContent(message *pb.Message, err error, data proto.Message) {
+	var reply pb.Reply
+	if err != nil {
+		statusErr, _ := status.FromError(err)
+		if statusErr == nil {
+			return
+		}
+
+		reply.Code = int32(statusErr.Code())
+		reply.Message = statusErr.Message()
+	}
+
+	if data != nil {
+		reply.Data, err = proto.Marshal(data)
+		if err != nil {
+			slog.Error("setContent error", "error", err)
+		}
+		return
+	}
+
+	buf, err := proto.Marshal(&reply)
+	if err != nil {
+		slog.Error("setContent error", "error", err)
+		return
+	}
+	message.Content = buf
 }

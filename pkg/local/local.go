@@ -5,8 +5,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"gim/config"
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 )
 
 func Init() {
@@ -27,11 +27,11 @@ func Init() {
 		return logicpb.NewRoomIntServiceClient(logicConn)
 	}
 
-	config.Config.UserIntClientBuilder = func() userpb.UserIntServiceClient {
+	config.Config.UserIntClientBuilder = func() businesspb.UserIntServiceClient {
 		conn, err := grpc.NewClient("127.0.0.1:8020", grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			panic(err)
 		}
-		return userpb.NewUserIntServiceClient(conn)
+		return businesspb.NewUserIntServiceClient(conn)
 	}
 }

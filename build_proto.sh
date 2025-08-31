@@ -11,4 +11,4 @@ buildDir(){
 
 buildDir connect
 buildDir logic
-buildDir user
+buildDir business

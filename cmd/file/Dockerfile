@@ -1,3 +1,3 @@
-FROM dockerpull.cn/library/alpine:3.14
+FROM docker.1ms.run/library/alpine:3.14
 COPY file .
 CMD ["/file"]

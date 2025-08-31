@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"os"
 
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/protocol/pb/userpb"
 )
 
 const EnvLocal = "local"
@@ -46,7 +46,7 @@ type Configuration struct {
 	DeviceIntClientBuilder  func() logicpb.DeviceIntServiceClient
 	MessageIntClientBuilder func() logicpb.MessageIntServiceClient
 	RoomIntClientBuilder    func() logicpb.RoomIntServiceClient
-	UserIntClientBuilder    func() userpb.UserIntServiceClient
+	UserIntClientBuilder    func() businesspb.UserIntServiceClient
 }
 
 func init() {

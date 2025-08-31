@@ -1,0 +1,55 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+import "connect/connect.ext.proto";
+
+service GroupIntService {
+  // 发送群组消息
+  rpc Push (GroupPushRequest) returns (GroupPushReply);
+  // 创建群组
+  rpc Create (GroupCreateRequest) returns (GroupCreateReply);
+  // 更新群组
+  rpc Update (GroupUpdateRequest) returns (google.protobuf.Empty);
+  // 获取群组信息
+  rpc Get (GroupGetRequest) returns (GroupGetReply);
+}
+
+message Group {
+  uint64 id = 1; // 群组id
+  string name = 2; // 名称
+  string avatar_url = 3; // 头像
+  string introduction = 4; // 简介
+  string extra = 5; // 附加字段
+  repeated uint64 members = 6; // 群组成员
+}
+
+message GroupPushRequest {
+  uint64 group_id = 1; // 群组ID
+  connect.Command command = 2; // 推送码
+  bytes content = 3; // 推送内容
+  bool is_persist = 4; // 是否持久化
+}
+message GroupPushReply {
+  uint64 message_id = 1; // 消息ID
+}
+
+message GroupCreateRequest {
+  Group group = 1; // 群组
+}
+message GroupCreateReply {
+  uint64 group_id = 1; // 群组id
+}
+
+message GroupUpdateRequest {
+  Group group = 1; // 群组
+}
+
+message GroupGetRequest {
+  uint64 group_id = 1;
+}
+message GroupGetReply {
+  Group group = 1;
+}

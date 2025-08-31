@@ -27,8 +27,8 @@ func NewClient(addr, password string) *Client {
 	return &Client{Client: client}
 }
 
-// SetObject 将指定值设置到redis中，使用json的序列化方式
-func (c *Client) SetObject(key string, value any, duration time.Duration) error {
+// SetAny 将指定值设置到redis中，使用json的序列化方式
+func (c *Client) SetAny(key string, value any, duration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -37,8 +37,8 @@ func (c *Client) SetObject(key string, value any, duration time.Duration) error 
 	return c.Set(key, bytes, duration).Err()
 }
 
-// GetObject 从redis中读取指定值，使用json的反序列化方式
-func (c *Client) GetObject(key string, value any) error {
+// GetAny 从redis中读取指定值，使用json的反序列化方式
+func (c *Client) GetAny(key string, value any) error {
 	bytes, err := c.Get(key).Bytes()
 	if err != nil {
 		return err

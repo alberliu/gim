@@ -18,9 +18,10 @@ func getClient() pb.MessageIntServiceClient {
 	return pb.NewMessageIntServiceClient(conn)
 }
 
-func TestMessageIntService_Pushs(t *testing.T) {
-	reply, err := getClient().Pushs(context.TODO(), &pb.PushsRequest{
-		UserIds:   []uint64{10000},
+func TestMessageIntService_PushToUsers(t *testing.T) {
+	reply, err := getClient().PushToUsers(context.TODO(), &pb.PushToUsersRequest{
+
+		UserIds:   []uint64{1},
 		Command:   200,
 		Content:   []byte("hello gim"),
 		IsPersist: true,
@@ -32,7 +33,7 @@ func TestMessageIntService_Pushs(t *testing.T) {
 }
 
 func TestMessageIntService_PushsLocal(t *testing.T) {
-	reply, err := new(MessageIntService).Pushs(context.TODO(), &pb.PushsRequest{
+	reply, err := new(MessageIntService).PushToUsers(context.TODO(), &pb.PushToUsersRequest{
 		UserIds:   []uint64{1},
 		Command:   100,
 		Content:   []byte("hello gim3"),

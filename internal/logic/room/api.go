@@ -8,15 +8,6 @@ import (
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
-type RoomExtService struct {
-	pb.UnsafeRoomExtServiceServer
-}
-
-// PushRoom  推送房间
-func (s *RoomExtService) PushRoom(ctx context.Context, request *pb.PushRoomRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, App.Push(ctx, request)
-}
-
 type RoomIntService struct {
 	pb.UnsafeRoomIntServiceServer
 }

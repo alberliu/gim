@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DeviceIntService_ConnSignIn_FullMethodName = "/logic.DeviceIntService/ConnSignIn"
-	DeviceIntService_Offline_FullMethodName    = "/logic.DeviceIntService/Offline"
-	DeviceIntService_GetDevice_FullMethodName  = "/logic.DeviceIntService/GetDevice"
-	DeviceIntService_ServerStop_FullMethodName = "/logic.DeviceIntService/ServerStop"
+	DeviceIntService_SignIn_FullMethodName    = "/logic.DeviceIntService/SignIn"
+	DeviceIntService_Heartbeat_FullMethodName = "/logic.DeviceIntService/Heartbeat"
+	DeviceIntService_Offline_FullMethodName   = "/logic.DeviceIntService/Offline"
+	DeviceIntService_Save_FullMethodName      = "/logic.DeviceIntService/Save"
 )
 
 // DeviceIntServiceClient is the client API for DeviceIntService service.
@@ -31,13 +31,13 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DeviceIntServiceClient interface {
 	// 登录
-	ConnSignIn(ctx context.Context, in *ConnSignInRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInReply, error)
+	// 心跳
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设备离线
 	Offline(ctx context.Context, in *OfflineRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 获取设备信息
-	GetDevice(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*GetDeviceReply, error)
-	// 服务停止
-	ServerStop(ctx context.Context, in *ServerStopRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 创建设备
+	Save(ctx context.Context, in *DeviceSaveRequest, opts ...grpc.CallOption) (*DeviceSaveReply, error)
 }
 
 type deviceIntServiceClient struct {
@@ -48,10 +48,20 @@ func NewDeviceIntServiceClient(cc grpc.ClientConnInterface) DeviceIntServiceClie
 	return &deviceIntServiceClient{cc}
 }
 
-func (c *deviceIntServiceClient) ConnSignIn(ctx context.Context, in *ConnSignInRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *deviceIntServiceClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInReply)
+	err := c.cc.Invoke(ctx, DeviceIntService_SignIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deviceIntServiceClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, DeviceIntService_ConnSignIn_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, DeviceIntService_Heartbeat_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,20 +78,10 @@ func (c *deviceIntServiceClient) Offline(ctx context.Context, in *OfflineRequest
 	return out, nil
 }
 
-func (c *deviceIntServiceClient) GetDevice(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*GetDeviceReply, error) {
+func (c *deviceIntServiceClient) Save(ctx context.Context, in *DeviceSaveRequest, opts ...grpc.CallOption) (*DeviceSaveReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetDeviceReply)
-	err := c.cc.Invoke(ctx, DeviceIntService_GetDevice_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *deviceIntServiceClient) ServerStop(ctx context.Context, in *ServerStopRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, DeviceIntService_ServerStop_FullMethodName, in, out, cOpts...)
+	out := new(DeviceSaveReply)
+	err := c.cc.Invoke(ctx, DeviceIntService_Save_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func (c *deviceIntServiceClient) ServerStop(ctx context.Context, in *ServerStopR
 // for forward compatibility.
 type DeviceIntServiceServer interface {
 	// 登录
-	ConnSignIn(context.Context, *ConnSignInRequest) (*emptypb.Empty, error)
+	SignIn(context.Context, *SignInRequest) (*SignInReply, error)
+	// 心跳
+	Heartbeat(context.Context, *HeartbeatRequest) (*emptypb.Empty, error)
 	// 设备离线
 	Offline(context.Context, *OfflineRequest) (*emptypb.Empty, error)
-	// 获取设备信息
-	GetDevice(context.Context, *GetDeviceRequest) (*GetDeviceReply, error)
-	// 服务停止
-	ServerStop(context.Context, *ServerStopRequest) (*emptypb.Empty, error)
+	// 创建设备
+	Save(context.Context, *DeviceSaveRequest) (*DeviceSaveReply, error)
 	mustEmbedUnimplementedDeviceIntServiceServer()
 }
 
@@ -110,17 +110,17 @@ type DeviceIntServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDeviceIntServiceServer struct{}
 
-func (UnimplementedDeviceIntServiceServer) ConnSignIn(context.Context, *ConnSignInRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConnSignIn not implemented")
+func (UnimplementedDeviceIntServiceServer) SignIn(context.Context, *SignInRequest) (*SignInReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+}
+func (UnimplementedDeviceIntServiceServer) Heartbeat(context.Context, *HeartbeatRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Heartbeat not implemented")
 }
 func (UnimplementedDeviceIntServiceServer) Offline(context.Context, *OfflineRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Offline not implemented")
 }
-func (UnimplementedDeviceIntServiceServer) GetDevice(context.Context, *GetDeviceRequest) (*GetDeviceReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
-}
-func (UnimplementedDeviceIntServiceServer) ServerStop(context.Context, *ServerStopRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ServerStop not implemented")
+func (UnimplementedDeviceIntServiceServer) Save(context.Context, *DeviceSaveRequest) (*DeviceSaveReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
 }
 func (UnimplementedDeviceIntServiceServer) mustEmbedUnimplementedDeviceIntServiceServer() {}
 func (UnimplementedDeviceIntServiceServer) testEmbeddedByValue()                          {}
@@ -143,20 +143,38 @@ func RegisterDeviceIntServiceServer(s grpc.ServiceRegistrar, srv DeviceIntServic
 	s.RegisterService(&DeviceIntService_ServiceDesc, srv)
 }
 
-func _DeviceIntService_ConnSignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConnSignInRequest)
+func _DeviceIntService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeviceIntServiceServer).ConnSignIn(ctx, in)
+		return srv.(DeviceIntServiceServer).SignIn(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DeviceIntService_ConnSignIn_FullMethodName,
+		FullMethod: DeviceIntService_SignIn_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceIntServiceServer).ConnSignIn(ctx, req.(*ConnSignInRequest))
+		return srv.(DeviceIntServiceServer).SignIn(ctx, req.(*SignInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeviceIntService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceIntServiceServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeviceIntService_Heartbeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceIntServiceServer).Heartbeat(ctx, req.(*HeartbeatRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -179,38 +197,20 @@ func _DeviceIntService_Offline_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DeviceIntService_GetDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDeviceRequest)
+func _DeviceIntService_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeviceSaveRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeviceIntServiceServer).GetDevice(ctx, in)
+		return srv.(DeviceIntServiceServer).Save(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DeviceIntService_GetDevice_FullMethodName,
+		FullMethod: DeviceIntService_Save_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceIntServiceServer).GetDevice(ctx, req.(*GetDeviceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _DeviceIntService_ServerStop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ServerStopRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DeviceIntServiceServer).ServerStop(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DeviceIntService_ServerStop_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceIntServiceServer).ServerStop(ctx, req.(*ServerStopRequest))
+		return srv.(DeviceIntServiceServer).Save(ctx, req.(*DeviceSaveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -223,20 +223,20 @@ var DeviceIntService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DeviceIntServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ConnSignIn",
-			Handler:    _DeviceIntService_ConnSignIn_Handler,
+			MethodName: "SignIn",
+			Handler:    _DeviceIntService_SignIn_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _DeviceIntService_Heartbeat_Handler,
 		},
 		{
 			MethodName: "Offline",
 			Handler:    _DeviceIntService_Offline_Handler,
 		},
 		{
-			MethodName: "GetDevice",
-			Handler:    _DeviceIntService_GetDevice_Handler,
-		},
-		{
-			MethodName: "ServerStop",
-			Handler:    _DeviceIntService_ServerStop_Handler,
+			MethodName: "Save",
+			Handler:    _DeviceIntService_Save_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -7,7 +7,6 @@
 package logicpb
 
 import (
-	connectpb "gim/pkg/protocol/pb/connectpb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -21,124 +20,22 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type SyncRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Seq uint64 `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"` // 序列号
-}
-
-func (x *SyncRequest) Reset() {
-	*x = SyncRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *SyncRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SyncRequest) ProtoMessage() {}
-
-func (x *SyncRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SyncRequest.ProtoReflect.Descriptor instead.
-func (*SyncRequest) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *SyncRequest) GetSeq() uint64 {
-	if x != nil {
-		return x.Seq
-	}
-	return 0
-}
-
-type SyncReply struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Messages []*connectpb.Message `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`               // 消息列表
-	HasMore  bool                 `protobuf:"varint,2,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"` // 是否有更多数据
-}
-
-func (x *SyncReply) Reset() {
-	*x = SyncReply{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *SyncReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SyncReply) ProtoMessage() {}
-
-func (x *SyncReply) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SyncReply.ProtoReflect.Descriptor instead.
-func (*SyncReply) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *SyncReply) GetMessages() []*connectpb.Message {
-	if x != nil {
-		return x.Messages
-	}
-	return nil
-}
-
-func (x *SyncReply) GetHasMore() bool {
-	if x != nil {
-		return x.HasMore
-	}
-	return false
-}
-
 type User struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserId    uint64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`         // 发送者id
-	DeviceId  uint64 `protobuf:"varint,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`   // 发送者设备id
-	AvatarUrl string `protobuf:"bytes,4,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // 昵称
-	Nickname  string `protobuf:"bytes,5,opt,name=nickname,proto3" json:"nickname,omitempty"`                    // 头像
-	Extra     string `protobuf:"bytes,6,opt,name=extra,proto3" json:"extra,omitempty"`                          // 扩展字段
+	UserId    uint64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`         // 发送者id
+	DeviceId  uint64 `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`   // 发送者设备id
+	Nickname  string `protobuf:"bytes,3,opt,name=nickname,proto3" json:"nickname,omitempty"`                    // 昵称
+	AvatarUrl string `protobuf:"bytes,4,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // 头像
+	Extra     string `protobuf:"bytes,5,opt,name=extra,proto3" json:"extra,omitempty"`                          // 扩展字段
 }
 
 func (x *User) Reset() {
 	*x = User{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[2]
+		mi := &file_logic_message_ext_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -151,7 +48,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[2]
+	mi := &file_logic_message_ext_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +61,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{2}
+	return file_logic_message_ext_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *User) GetUserId() uint64 {
@@ -181,16 +78,16 @@ func (x *User) GetDeviceId() uint64 {
 	return 0
 }
 
-func (x *User) GetAvatarUrl() string {
+func (x *User) GetNickname() string {
 	if x != nil {
-		return x.AvatarUrl
+		return x.Nickname
 	}
 	return ""
 }
 
-func (x *User) GetNickname() string {
+func (x *User) GetAvatarUrl() string {
 	if x != nil {
-		return x.Nickname
+		return x.AvatarUrl
 	}
 	return ""
 }
@@ -208,14 +105,15 @@ type UserMessagePush struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	FromUser *User  `protobuf:"bytes,1,opt,name=from_user,json=fromUser,proto3" json:"from_user,omitempty"` // 发送者信息
-	Content  []byte `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`                   // 用户发送的消息内容
+	FromUser *User  `protobuf:"bytes,1,opt,name=from_user,json=fromUser,proto3" json:"from_user,omitempty"`    // 发送者用户
+	ToUserId uint64 `protobuf:"varint,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"` // 接收者用户ID
+	Content  []byte `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                      // 用户发送的消息内容
 }
 
 func (x *UserMessagePush) Reset() {
 	*x = UserMessagePush{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[3]
+		mi := &file_logic_message_ext_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -228,7 +126,7 @@ func (x *UserMessagePush) String() string {
 func (*UserMessagePush) ProtoMessage() {}
 
 func (x *UserMessagePush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[3]
+	mi := &file_logic_message_ext_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -241,7 +139,7 @@ func (x *UserMessagePush) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserMessagePush.ProtoReflect.Descriptor instead.
 func (*UserMessagePush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{3}
+	return file_logic_message_ext_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *UserMessagePush) GetFromUser() *User {
@@ -249,6 +147,13 @@ func (x *UserMessagePush) GetFromUser() *User {
 		return x.FromUser
 	}
 	return nil
+}
+
+func (x *UserMessagePush) GetToUserId() uint64 {
+	if x != nil {
+		return x.ToUserId
+	}
+	return 0
 }
 
 func (x *UserMessagePush) GetContent() []byte {
@@ -264,7 +169,7 @@ type GroupMessagePush struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	FromUser *User  `protobuf:"bytes,1,opt,name=from_user,json=fromUser,proto3" json:"from_user,omitempty"` // 发送者信息
+	FromUser *User  `protobuf:"bytes,1,opt,name=from_user,json=fromUser,proto3" json:"from_user,omitempty"` // 发送者用户
 	GroupId  uint64 `protobuf:"varint,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`   // 群组ID
 	Content  []byte `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                   // 用户发送的消息内容
 }
@@ -272,7 +177,7 @@ type GroupMessagePush struct {
 func (x *GroupMessagePush) Reset() {
 	*x = GroupMessagePush{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[4]
+		mi := &file_logic_message_ext_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -285,7 +190,7 @@ func (x *GroupMessagePush) String() string {
 func (*GroupMessagePush) ProtoMessage() {}
 
 func (x *GroupMessagePush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[4]
+	mi := &file_logic_message_ext_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -298,7 +203,7 @@ func (x *GroupMessagePush) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupMessagePush.ProtoReflect.Descriptor instead.
 func (*GroupMessagePush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{4}
+	return file_logic_message_ext_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GroupMessagePush) GetFromUser() *User {
@@ -322,444 +227,37 @@ func (x *GroupMessagePush) GetContent() []byte {
 	return nil
 }
 
-// 添加好友 PC_ADD_FRIEND = 110
-type AddFriendPush struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	FriendId    uint64 `protobuf:"varint,1,opt,name=friend_id,json=friendId,proto3" json:"friend_id,omitempty"`   // 好友id
-	Nickname    string `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"`                    // 昵称
-	AvatarUrl   string `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // 头像
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`              // 描述
-}
-
-func (x *AddFriendPush) Reset() {
-	*x = AddFriendPush{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *AddFriendPush) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddFriendPush) ProtoMessage() {}
-
-func (x *AddFriendPush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddFriendPush.ProtoReflect.Descriptor instead.
-func (*AddFriendPush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *AddFriendPush) GetFriendId() uint64 {
-	if x != nil {
-		return x.FriendId
-	}
-	return 0
-}
-
-func (x *AddFriendPush) GetNickname() string {
-	if x != nil {
-		return x.Nickname
-	}
-	return ""
-}
-
-func (x *AddFriendPush) GetAvatarUrl() string {
-	if x != nil {
-		return x.AvatarUrl
-	}
-	return ""
-}
-
-func (x *AddFriendPush) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-// 同意 添加好友 PC_AGREE_ADD_FRIEND = 111
-type AgreeAddFriendPush struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	FriendId  uint64 `protobuf:"varint,1,opt,name=friend_id,json=friendId,proto3" json:"friend_id,omitempty"`   // 好友id
-	Nickname  string `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"`                    // 昵称
-	AvatarUrl string `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // 头像
-}
-
-func (x *AgreeAddFriendPush) Reset() {
-	*x = AgreeAddFriendPush{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *AgreeAddFriendPush) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AgreeAddFriendPush) ProtoMessage() {}
-
-func (x *AgreeAddFriendPush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AgreeAddFriendPush.ProtoReflect.Descriptor instead.
-func (*AgreeAddFriendPush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *AgreeAddFriendPush) GetFriendId() uint64 {
-	if x != nil {
-		return x.FriendId
-	}
-	return 0
-}
-
-func (x *AgreeAddFriendPush) GetNickname() string {
-	if x != nil {
-		return x.Nickname
-	}
-	return ""
-}
-
-func (x *AgreeAddFriendPush) GetAvatarUrl() string {
-	if x != nil {
-		return x.AvatarUrl
-	}
-	return ""
-}
-
-// 更新群组 PC_UPDATE_GROUP = 120
-type UpdateGroupPush struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	OptId        uint64 `protobuf:"varint,1,opt,name=opt_id,json=optId,proto3" json:"opt_id,omitempty"`            // 操作人用户id
-	OptName      string `protobuf:"bytes,2,opt,name=opt_name,json=optName,proto3" json:"opt_name,omitempty"`       // 操作人昵称
-	Name         string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                            // 群组名称
-	AvatarUrl    string `protobuf:"bytes,4,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"` // 群组头像
-	Introduction string `protobuf:"bytes,5,opt,name=introduction,proto3" json:"introduction,omitempty"`            // 群组简介
-	Extra        string `protobuf:"bytes,6,opt,name=extra,proto3" json:"extra,omitempty"`                          // 附加字段
-}
-
-func (x *UpdateGroupPush) Reset() {
-	*x = UpdateGroupPush{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *UpdateGroupPush) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateGroupPush) ProtoMessage() {}
-
-func (x *UpdateGroupPush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateGroupPush.ProtoReflect.Descriptor instead.
-func (*UpdateGroupPush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *UpdateGroupPush) GetOptId() uint64 {
-	if x != nil {
-		return x.OptId
-	}
-	return 0
-}
-
-func (x *UpdateGroupPush) GetOptName() string {
-	if x != nil {
-		return x.OptName
-	}
-	return ""
-}
-
-func (x *UpdateGroupPush) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *UpdateGroupPush) GetAvatarUrl() string {
-	if x != nil {
-		return x.AvatarUrl
-	}
-	return ""
-}
-
-func (x *UpdateGroupPush) GetIntroduction() string {
-	if x != nil {
-		return x.Introduction
-	}
-	return ""
-}
-
-func (x *UpdateGroupPush) GetExtra() string {
-	if x != nil {
-		return x.Extra
-	}
-	return ""
-}
-
-// 添加群组成员 PC_AGREE_ADD_GROUPS = 121
-type AddGroupMembersPush struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	OptId   uint64         `protobuf:"varint,1,opt,name=opt_id,json=optId,proto3" json:"opt_id,omitempty"`      // 操作人用户id
-	OptName string         `protobuf:"bytes,2,opt,name=opt_name,json=optName,proto3" json:"opt_name,omitempty"` // 操作人昵称
-	Members []*GroupMember `protobuf:"bytes,3,rep,name=members,proto3" json:"members,omitempty"`                // 群组成员
-}
-
-func (x *AddGroupMembersPush) Reset() {
-	*x = AddGroupMembersPush{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *AddGroupMembersPush) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddGroupMembersPush) ProtoMessage() {}
-
-func (x *AddGroupMembersPush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddGroupMembersPush.ProtoReflect.Descriptor instead.
-func (*AddGroupMembersPush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *AddGroupMembersPush) GetOptId() uint64 {
-	if x != nil {
-		return x.OptId
-	}
-	return 0
-}
-
-func (x *AddGroupMembersPush) GetOptName() string {
-	if x != nil {
-		return x.OptName
-	}
-	return ""
-}
-
-func (x *AddGroupMembersPush) GetMembers() []*GroupMember {
-	if x != nil {
-		return x.Members
-	}
-	return nil
-}
-
-// 删除群组成员 PC_REMOVE_GROUP_MEMBER = 122
-type RemoveGroupMemberPush struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	OptId         uint64 `protobuf:"varint,1,opt,name=opt_id,json=optId,proto3" json:"opt_id,omitempty"`                           // 操作人用户id
-	OptName       string `protobuf:"bytes,2,opt,name=opt_name,json=optName,proto3" json:"opt_name,omitempty"`                      // 操作人昵称
-	DeletedUserId uint64 `protobuf:"varint,3,opt,name=deleted_user_id,json=deletedUserId,proto3" json:"deleted_user_id,omitempty"` // 被删除的成员id
-}
-
-func (x *RemoveGroupMemberPush) Reset() {
-	*x = RemoveGroupMemberPush{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_message_ext_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RemoveGroupMemberPush) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RemoveGroupMemberPush) ProtoMessage() {}
-
-func (x *RemoveGroupMemberPush) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_message_ext_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RemoveGroupMemberPush.ProtoReflect.Descriptor instead.
-func (*RemoveGroupMemberPush) Descriptor() ([]byte, []int) {
-	return file_logic_message_ext_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *RemoveGroupMemberPush) GetOptId() uint64 {
-	if x != nil {
-		return x.OptId
-	}
-	return 0
-}
-
-func (x *RemoveGroupMemberPush) GetOptName() string {
-	if x != nil {
-		return x.OptName
-	}
-	return ""
-}
-
-func (x *RemoveGroupMemberPush) GetDeletedUserId() uint64 {
-	if x != nil {
-		return x.DeletedUserId
-	}
-	return 0
-}
-
 var File_logic_message_ext_proto protoreflect.FileDescriptor
 
 var file_logic_message_ext_proto_rawDesc = []byte{
 	0x0a, 0x17, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e,
 	0x65, 0x78, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x05, 0x6c, 0x6f, 0x67, 0x69, 0x63,
-	0x1a, 0x15, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x2e, 0x65, 0x78,
-	0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74,
-	0x2f, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x2e, 0x65, 0x78, 0x74, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x1f, 0x0a, 0x0b, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x10, 0x0a, 0x03, 0x73, 0x65, 0x71, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x03,
-	0x73, 0x65, 0x71, 0x22, 0x54, 0x0a, 0x09, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x70, 0x6c, 0x79,
-	0x12, 0x2c, 0x0a, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x10, 0x2e, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x2e, 0x4d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x52, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x12, 0x19,
-	0x0a, 0x08, 0x68, 0x61, 0x73, 0x5f, 0x6d, 0x6f, 0x72, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08,
-	0x52, 0x07, 0x68, 0x61, 0x73, 0x4d, 0x6f, 0x72, 0x65, 0x22, 0x8d, 0x01, 0x0a, 0x04, 0x55, 0x73,
-	0x65, 0x72, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x04, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1b, 0x0a, 0x09, 0x64,
-	0x65, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08,
-	0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x61, 0x76, 0x61, 0x74,
-	0x61, 0x72, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x61, 0x76,
-	0x61, 0x74, 0x61, 0x72, 0x55, 0x72, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e,
-	0x61, 0x6d, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e,
-	0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x78, 0x74, 0x72, 0x61, 0x18, 0x06, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x05, 0x65, 0x78, 0x74, 0x72, 0x61, 0x22, 0x55, 0x0a, 0x0f, 0x55, 0x73, 0x65,
-	0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x50, 0x75, 0x73, 0x68, 0x12, 0x28, 0x0a, 0x09,
-	0x66, 0x72, 0x6f, 0x6d, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x0b, 0x2e, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x08, 0x66, 0x72,
-	0x6f, 0x6d, 0x55, 0x73, 0x65, 0x72, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e,
-	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74,
-	0x22, 0x71, 0x0a, 0x10, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x50, 0x75, 0x73, 0x68, 0x12, 0x28, 0x0a, 0x09, 0x66, 0x72, 0x6f, 0x6d, 0x5f, 0x75, 0x73, 0x65,
-	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2e,
-	0x55, 0x73, 0x65, 0x72, 0x52, 0x08, 0x66, 0x72, 0x6f, 0x6d, 0x55, 0x73, 0x65, 0x72, 0x12, 0x19,
-	0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04,
-	0x52, 0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e,
-	0x74, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74,
-	0x65, 0x6e, 0x74, 0x22, 0x89, 0x01, 0x0a, 0x0d, 0x41, 0x64, 0x64, 0x46, 0x72, 0x69, 0x65, 0x6e,
-	0x64, 0x50, 0x75, 0x73, 0x68, 0x12, 0x1b, 0x0a, 0x09, 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64, 0x5f,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64,
-	0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1d,
-	0x0a, 0x0a, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x03, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x09, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x55, 0x72, 0x6c, 0x12, 0x20, 0x0a,
-	0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x22,
-	0x6c, 0x0a, 0x12, 0x41, 0x67, 0x72, 0x65, 0x65, 0x41, 0x64, 0x64, 0x46, 0x72, 0x69, 0x65, 0x6e,
-	0x64, 0x50, 0x75, 0x73, 0x68, 0x12, 0x1b, 0x0a, 0x09, 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64, 0x5f,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x66, 0x72, 0x69, 0x65, 0x6e, 0x64,
-	0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1d,
-	0x0a, 0x0a, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x03, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x09, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x55, 0x72, 0x6c, 0x22, 0xb0, 0x01,
-	0x0a, 0x0f, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x50, 0x75, 0x73,
-	0x68, 0x12, 0x15, 0x0a, 0x06, 0x6f, 0x70, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x04, 0x52, 0x05, 0x6f, 0x70, 0x74, 0x49, 0x64, 0x12, 0x19, 0x0a, 0x08, 0x6f, 0x70, 0x74, 0x5f,
-	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6f, 0x70, 0x74, 0x4e,
-	0x61, 0x6d, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x61, 0x76, 0x61, 0x74, 0x61,
-	0x72, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x61, 0x76, 0x61,
-	0x74, 0x61, 0x72, 0x55, 0x72, 0x6c, 0x12, 0x22, 0x0a, 0x0c, 0x69, 0x6e, 0x74, 0x72, 0x6f, 0x64,
-	0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x69, 0x6e,
-	0x74, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x78,
-	0x74, 0x72, 0x61, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x78, 0x74, 0x72, 0x61,
-	0x22, 0x75, 0x0a, 0x13, 0x41, 0x64, 0x64, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65, 0x6d, 0x62,
-	0x65, 0x72, 0x73, 0x50, 0x75, 0x73, 0x68, 0x12, 0x15, 0x0a, 0x06, 0x6f, 0x70, 0x74, 0x5f, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x05, 0x6f, 0x70, 0x74, 0x49, 0x64, 0x12, 0x19,
-	0x0a, 0x08, 0x6f, 0x70, 0x74, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x07, 0x6f, 0x70, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2c, 0x0a, 0x07, 0x6d, 0x65, 0x6d,
-	0x62, 0x65, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x6c, 0x6f, 0x67,
-	0x69, 0x63, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x07,
-	0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x22, 0x71, 0x0a, 0x15, 0x52, 0x65, 0x6d, 0x6f, 0x76,
-	0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x50, 0x75, 0x73, 0x68,
-	0x12, 0x15, 0x0a, 0x06, 0x6f, 0x70, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04,
-	0x52, 0x05, 0x6f, 0x70, 0x74, 0x49, 0x64, 0x12, 0x19, 0x0a, 0x08, 0x6f, 0x70, 0x74, 0x5f, 0x6e,
-	0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6f, 0x70, 0x74, 0x4e, 0x61,
-	0x6d, 0x65, 0x12, 0x26, 0x0a, 0x0f, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x5f, 0x75, 0x73,
-	0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0d, 0x64, 0x65, 0x6c,
-	0x65, 0x74, 0x65, 0x64, 0x55, 0x73, 0x65, 0x72, 0x49, 0x64, 0x32, 0x41, 0x0a, 0x11, 0x4d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x45, 0x78, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12,
-	0x2c, 0x0a, 0x04, 0x53, 0x79, 0x6e, 0x63, 0x12, 0x12, 0x2e, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2e,
-	0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x10, 0x2e, 0x6c, 0x6f,
-	0x67, 0x69, 0x63, 0x2e, 0x53, 0x79, 0x6e, 0x63, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x42, 0x1d, 0x5a,
-	0x1b, 0x67, 0x69, 0x6d, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f,
-	0x6c, 0x2f, 0x70, 0x62, 0x2f, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x8d, 0x01, 0x0a, 0x04, 0x55, 0x73, 0x65, 0x72, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65,
+	0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72,
+	0x49, 0x64, 0x12, 0x1b, 0x0a, 0x09, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x49, 0x64, 0x12,
+	0x1a, 0x0a, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x08, 0x6e, 0x69, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x61,
+	0x76, 0x61, 0x74, 0x61, 0x72, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x09, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x55, 0x72, 0x6c, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x78,
+	0x74, 0x72, 0x61, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x78, 0x74, 0x72, 0x61,
+	0x22, 0x73, 0x0a, 0x0f, 0x55, 0x73, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x50,
+	0x75, 0x73, 0x68, 0x12, 0x28, 0x0a, 0x09, 0x66, 0x72, 0x6f, 0x6d, 0x5f, 0x75, 0x73, 0x65, 0x72,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2e, 0x55,
+	0x73, 0x65, 0x72, 0x52, 0x08, 0x66, 0x72, 0x6f, 0x6d, 0x55, 0x73, 0x65, 0x72, 0x12, 0x1c, 0x0a,
+	0x0a, 0x74, 0x6f, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x04, 0x52, 0x08, 0x74, 0x6f, 0x55, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x63,
+	0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x07, 0x63, 0x6f,
+	0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0x71, 0x0a, 0x10, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x50, 0x75, 0x73, 0x68, 0x12, 0x28, 0x0a, 0x09, 0x66, 0x72, 0x6f,
+	0x6d, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x6c,
+	0x6f, 0x67, 0x69, 0x63, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x08, 0x66, 0x72, 0x6f, 0x6d, 0x55,
+	0x73, 0x65, 0x72, 0x12, 0x19, 0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x18,
+	0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x42, 0x1d, 0x5a, 0x1b, 0x67, 0x69, 0x6d, 0x2f,
+	0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x70, 0x62, 0x2f,
+	0x6c, 0x6f, 0x67, 0x69, 0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -774,33 +272,20 @@ func file_logic_message_ext_proto_rawDescGZIP() []byte {
 	return file_logic_message_ext_proto_rawDescData
 }
 
-var file_logic_message_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_logic_message_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_logic_message_ext_proto_goTypes = []interface{}{
-	(*SyncRequest)(nil),           // 0: logic.SyncRequest
-	(*SyncReply)(nil),             // 1: logic.SyncReply
-	(*User)(nil),                  // 2: logic.User
-	(*UserMessagePush)(nil),       // 3: logic.UserMessagePush
-	(*GroupMessagePush)(nil),      // 4: logic.GroupMessagePush
-	(*AddFriendPush)(nil),         // 5: logic.AddFriendPush
-	(*AgreeAddFriendPush)(nil),    // 6: logic.AgreeAddFriendPush
-	(*UpdateGroupPush)(nil),       // 7: logic.UpdateGroupPush
-	(*AddGroupMembersPush)(nil),   // 8: logic.AddGroupMembersPush
-	(*RemoveGroupMemberPush)(nil), // 9: logic.RemoveGroupMemberPush
-	(*connectpb.Message)(nil),     // 10: connect.Message
-	(*GroupMember)(nil),           // 11: logic.GroupMember
+	(*User)(nil),             // 0: logic.User
+	(*UserMessagePush)(nil),  // 1: logic.UserMessagePush
+	(*GroupMessagePush)(nil), // 2: logic.GroupMessagePush
 }
 var file_logic_message_ext_proto_depIdxs = []int32{
-	10, // 0: logic.SyncReply.messages:type_name -> connect.Message
-	2,  // 1: logic.UserMessagePush.from_user:type_name -> logic.User
-	2,  // 2: logic.GroupMessagePush.from_user:type_name -> logic.User
-	11, // 3: logic.AddGroupMembersPush.members:type_name -> logic.GroupMember
-	0,  // 4: logic.MessageExtService.Sync:input_type -> logic.SyncRequest
-	1,  // 5: logic.MessageExtService.Sync:output_type -> logic.SyncReply
-	5,  // [5:6] is the sub-list for method output_type
-	4,  // [4:5] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	0, // 0: logic.UserMessagePush.from_user:type_name -> logic.User
+	0, // 1: logic.GroupMessagePush.from_user:type_name -> logic.User
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_logic_message_ext_proto_init() }
@@ -808,33 +293,8 @@ func file_logic_message_ext_proto_init() {
 	if File_logic_message_ext_proto != nil {
 		return
 	}
-	file_logic_group_ext_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_logic_message_ext_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SyncRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SyncReply); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*User); i {
 			case 0:
 				return &v.state
@@ -846,7 +306,7 @@ func file_logic_message_ext_proto_init() {
 				return nil
 			}
 		}
-		file_logic_message_ext_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_logic_message_ext_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UserMessagePush); i {
 			case 0:
 				return &v.state
@@ -858,68 +318,8 @@ func file_logic_message_ext_proto_init() {
 				return nil
 			}
 		}
-		file_logic_message_ext_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_logic_message_ext_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GroupMessagePush); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AddFriendPush); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AgreeAddFriendPush); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateGroupPush); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AddGroupMembersPush); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_logic_message_ext_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveGroupMemberPush); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -937,9 +337,9 @@ func file_logic_message_ext_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_logic_message_ext_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   3,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_logic_message_ext_proto_goTypes,
 		DependencyIndexes: file_logic_message_ext_proto_depIdxs,

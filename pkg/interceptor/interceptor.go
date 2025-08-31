@@ -11,7 +11,7 @@ import (
 
 	"gim/pkg/gerrors"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/userpb"
+	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/rpc"
 )
 
@@ -38,16 +38,15 @@ func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServer
 	serverName := strings.Split(info.FullMethod, "/")[1]
 	if !strings.HasSuffix(serverName, "IntService") {
 		if _, ok := urlWhitelist[info.FullMethod]; !ok {
-			userID, deviceID, err := md.GetData(ctx)
+			userID, _, err := md.GetData(ctx)
 			if err != nil {
 				return nil, err
 			}
 			token := md.GetToken(ctx)
 
-			_, err = rpc.GetUserIntClient().Auth(ctx, &userpb.AuthRequest{
-				UserId:   userID,
-				DeviceId: deviceID,
-				Token:    token,
+			_, err = rpc.GetUserIntClient().Auth(ctx, &businesspb.AuthRequest{
+				UserId: userID,
+				Token:  token,
 			})
 
 			if err != nil {
