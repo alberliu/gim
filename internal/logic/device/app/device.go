@@ -1,19 +1,21 @@
-package device
+package app
 
 import (
 	"context"
 
+	"gim/internal/logic/device/domain"
+	"gim/internal/logic/device/repo"
 	"gim/pkg/protocol/pb/businesspb"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 
-type app struct{}
+var DeviceApp = new(deviceApp)
 
-var App = new(app)
+type deviceApp struct{}
 
 // SignIn 登录
-func (*app) SignIn(ctx context.Context, request *pb.SignInRequest) error {
+func (*deviceApp) SignIn(ctx context.Context, request *pb.SignInRequest) error {
 	_, err := rpc.GetUserIntClient().Auth(ctx, &businesspb.AuthRequest{
 		UserId:   request.UserId,
 		DeviceId: request.DeviceId,
@@ -23,39 +25,39 @@ func (*app) SignIn(ctx context.Context, request *pb.SignInRequest) error {
 		return err
 	}
 
-	device, err := Repo.Get(request.DeviceId)
+	device, err := repo.DeviceRepo.Get(request.DeviceId)
 	if err != nil {
 		return err
 	}
 	device.UserID = request.UserId
 	device.ConnectAddr = request.ConnectAddr
 	device.ClientAddr = request.ClientAddr
-	err = Repo.Save(device)
+	err = repo.DeviceRepo.Save(device)
 	if err != nil {
 		return err
 	}
 
-	return Repo.SetOnline(request.DeviceId)
+	return repo.DeviceRepo.SetOnline(request.DeviceId)
 }
 
 // Heartbeat 设备离线
-func (*app) Heartbeat(_ context.Context, userID, deviceID uint64) error {
-	return Repo.SetOnline(deviceID)
+func (*deviceApp) Heartbeat(_ context.Context, userID, deviceID uint64) error {
+	return repo.DeviceRepo.SetOnline(deviceID)
 }
 
 // Offline 设备离线
-func (*app) Offline(_ context.Context, deviceID uint64, clientAddr string) error {
-	return Repo.SetOffline(deviceID)
+func (*deviceApp) Offline(_ context.Context, deviceID uint64, clientAddr string) error {
+	return repo.DeviceRepo.SetOffline(deviceID)
 }
 
 // ListByUserID 获取用户所有在线设备
-func (*app) ListByUserID(_ context.Context, userID uint64) ([]Device, error) {
-	return Repo.ListByUserID(userID)
+func (*deviceApp) ListByUserID(_ context.Context, userID uint64) ([]domain.Device, error) {
+	return repo.DeviceRepo.ListByUserID(userID)
 }
 
 // Save 获取设备信息
-func (*app) Save(_ context.Context, pbdevice *pb.Device) (uint64, error) {
-	device := &Device{
+func (*deviceApp) Save(_ context.Context, pbdevice *pb.Device) (uint64, error) {
+	device := &domain.Device{
 		ID:            pbdevice.Id,
 		Type:          pbdevice.Type,
 		Brand:         pbdevice.Brand,
@@ -65,6 +67,6 @@ func (*app) Save(_ context.Context, pbdevice *pb.Device) (uint64, error) {
 		BrandPushID:   pbdevice.BranchPushId,
 	}
 
-	err := Repo.Save(device)
+	err := repo.DeviceRepo.Save(device)
 	return device.ID, err
 }

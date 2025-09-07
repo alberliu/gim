@@ -1,4 +1,4 @@
-package message
+package api
 
 import (
 	"context"
@@ -20,7 +20,6 @@ func getClient() pb.MessageIntServiceClient {
 
 func TestMessageIntService_PushToUsers(t *testing.T) {
 	reply, err := getClient().PushToUsers(context.TODO(), &pb.PushToUsersRequest{
-
 		UserIds:   []uint64{1},
 		Command:   200,
 		Content:   []byte("hello gim"),

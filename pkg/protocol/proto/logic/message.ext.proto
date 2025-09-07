@@ -2,6 +2,21 @@ syntax = "proto3";
 package logic;
 option go_package = "gim/pkg/protocol/pb/logicpb";
 
+import "connect/connect.ext.proto";
+
+service MessageExtService {
+  // 消息同步
+  rpc Sync (SyncRequest) returns (SyncReply);
+}
+
+message SyncRequest {
+  uint64 seq = 1; // 序列号
+}
+message SyncReply {
+  repeated connect.Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
+}
+
 message User {
   uint64 user_id = 1; // 发送者id
   uint64 device_id = 2; // 发送者设备id

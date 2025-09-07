@@ -13,7 +13,6 @@ type Message struct {
 	RequestID string            // 请求id
 	Command   connectpb.Command // 指令
 	Content   []byte            // 消息内容
-	Status    int8              // 消息状态，0：未处理;1：消息撤回
 }
 
 func (m *Message) TableName() string {

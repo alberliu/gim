@@ -1,21 +1,22 @@
-package friend
+package repo
 
 import (
 	"errors"
 
 	"gorm.io/gorm"
 
+	"gim/internal/business/friend/domain"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )
 
-type repo struct{}
+var FriendRepo = new(friendRepo)
 
-var Repo = new(repo)
+type friendRepo struct{}
 
 // Get 获取好友
-func (*repo) Get(userId, friendId uint64) (*Friend, error) {
-	friend := Friend{}
+func (*friendRepo) Get(userId, friendId uint64) (*domain.Friend, error) {
+	friend := domain.Friend{}
 	err := db.DB.First(&friend, "user_id = ? and friend_id = ?", userId, friendId).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrFriendNotFound
@@ -24,18 +25,18 @@ func (*repo) Get(userId, friendId uint64) (*Friend, error) {
 }
 
 // Create 添加好友
-func (*repo) Create(friend *Friend) error {
+func (*friendRepo) Create(friend *domain.Friend) error {
 	return db.DB.Create(friend).Error
 }
 
 // Save 添加好友
-func (*repo) Save(friend *Friend) error {
+func (*friendRepo) Save(friend *domain.Friend) error {
 	return db.DB.Where("user_id = ? and friend_id = ?", friend.UserID, friend.FriendID).Save(friend).Error
 }
 
 // List 获取好友列表
-func (*repo) List(userId uint64, status int) ([]Friend, error) {
-	var friends []Friend
+func (*friendRepo) List(userId uint64, status int) ([]domain.Friend, error) {
+	var friends []domain.Friend
 	err := db.DB.Where("user_id = ? and status = ?", userId, status).Find(&friends).Error
 	return friends, err
 }

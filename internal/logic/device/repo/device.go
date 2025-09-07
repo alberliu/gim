@@ -1,4 +1,4 @@
-package device
+package repo
 
 import (
 	"errors"
@@ -8,17 +8,18 @@ import (
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 
+	"gim/internal/logic/device/domain"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )
 
-type repo struct{}
+var DeviceRepo = new(deviceRepo)
 
-var Repo = new(repo)
+type deviceRepo struct{}
 
 // Get 获取设备
-func (*repo) Get(deviceID uint64) (*Device, error) {
-	var device Device
+func (*deviceRepo) Get(deviceID uint64) (*domain.Device, error) {
+	var device domain.Device
 	err := db.DB.First(&device, "id = ?", deviceID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrDeviceNotFound
@@ -27,13 +28,13 @@ func (*repo) Get(deviceID uint64) (*Device, error) {
 }
 
 // Save 保存设备信息
-func (*repo) Save(device *Device) error {
+func (*deviceRepo) Save(device *domain.Device) error {
 	return db.DB.Save(&device).Error
 }
 
 // ListByUserID 获取用户设备
-func (r *repo) ListByUserID(userID uint64) ([]Device, error) {
-	var devices []Device
+func (r *deviceRepo) ListByUserID(userID uint64) ([]domain.Device, error) {
+	var devices []domain.Device
 	err := db.DB.Find(&devices, "user_id = ?", userID).Error
 	if err != nil {
 		return nil, err
@@ -52,20 +53,20 @@ func (r *repo) ListByUserID(userID uint64) ([]Device, error) {
 const deviceStatus = "deviceStatus:%d"
 
 // SetOnline 设置在线
-func (*repo) SetOnline(deviceID uint64) error {
+func (*deviceRepo) SetOnline(deviceID uint64) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
 	_, err := db.RedisCli.Set(key, "", 12*time.Minute).Result()
 	return err
 }
 
 // SetOffline 设置在线
-func (*repo) SetOffline(deviceID uint64) error {
+func (*deviceRepo) SetOffline(deviceID uint64) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
 	_, err := db.RedisCli.Del(key).Result()
 	return err
 }
 
-func (*repo) GetIsOnline(deviceID uint64) (bool, error) {
+func (*deviceRepo) GetIsOnline(deviceID uint64) (bool, error) {
 	key := fmt.Sprintf(deviceStatus, deviceID)
 	_, err := db.RedisCli.Get(key).Result()
 	if errors.Is(err, redis.Nil) {

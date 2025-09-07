@@ -3,9 +3,6 @@ package config
 import (
 	"log/slog"
 	"os"
-
-	"gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/logicpb"
 )
 
 const EnvLocal = "local"
@@ -39,14 +36,12 @@ type Configuration struct {
 	ConnectTCPListenAddr string
 	ConnectWSListenAddr  string
 
-	LogicRPCListenAddr string
-	UserRPCListenAddr  string
-	FileHTTPListenAddr string
+	LogicRPCListenAddr    string
+	BusinessRPCListenAddr string
+	FileHTTPListenAddr    string
 
-	DeviceIntClientBuilder  func() logicpb.DeviceIntServiceClient
-	MessageIntClientBuilder func() logicpb.MessageIntServiceClient
-	RoomIntClientBuilder    func() logicpb.RoomIntServiceClient
-	UserIntClientBuilder    func() businesspb.UserIntServiceClient
+	LogicServerAddr    string
+	BusinessServerAddr string
 }
 
 func init() {

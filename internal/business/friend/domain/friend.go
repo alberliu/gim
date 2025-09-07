@@ -1,4 +1,4 @@
-package friend
+package domain
 
 import "time"
 

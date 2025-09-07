@@ -1,4 +1,4 @@
-package group
+package repo
 
 import (
 	"errors"
@@ -8,20 +8,21 @@ import (
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 
+	"gim/internal/logic/group/domain"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 )
 
 const GroupKey = "group:%d"
 
-type repo struct{}
+var GroupRepo = new(groupRepo)
 
-var Repo = new(repo)
+type groupRepo struct{}
 
 // Get 获取群组信息
-func (*repo) Get(groupId uint64) (*Group, error) {
+func (*groupRepo) Get(groupId uint64) (*domain.Group, error) {
 	key := fmt.Sprintf(GroupKey, groupId)
-	var group Group
+	var group domain.Group
 	err := db.RedisCli.GetAny(key, &group)
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, err
@@ -45,12 +46,12 @@ func (*repo) Get(groupId uint64) (*Group, error) {
 	return &group, nil
 }
 
-func (*repo) Create(group *Group) error {
+func (*groupRepo) Create(group *domain.Group) error {
 	return db.DB.Create(group).Error
 }
 
 // Save 修改群组信息
-func (*repo) Save(group *Group) error {
+func (*groupRepo) Save(group *domain.Group) error {
 	err := db.DB.Save(group).Error
 	if err != nil {
 		return err

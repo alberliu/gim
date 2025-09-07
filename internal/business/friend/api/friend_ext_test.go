@@ -1,4 +1,4 @@
-package friend
+package api
 
 import (
 	"context"

@@ -6,18 +6,10 @@ enum Command {
   UNKNOWN = 0; // 未知
   SIGN_IN = 1; // 设备登录请求
   HEARTBEAT = 2; // 心跳
-  SYNC = 3; // 消息同步
-  SUBSCRIBE_ROOM = 4; // 订阅房间
+  SUBSCRIBE_ROOM = 3; // 订阅房间
 
   USER_MESSAGE = 100; // 用户消息
   GROUP_MESSAGE = 101; // 群组消息
-
-  ADD_FRIEND = 110; // 添加好友请求
-  AGREE_ADD_FRIEND = 111; // 同意添加好友
-
-  UPDATE_GROUP = 120; // 更新群组
-  ADD_GROUP_MEMBERS = 121; // 添加群组成员
-  REMOVE_GROUP_MEMBER = 122; // 移除群组成员
 }
 
 // 消息
@@ -35,14 +27,6 @@ message SignInRequest {
   uint64 user_id = 1; // 用户id
   uint64 device_id = 2;  // 设备ID
   string token = 3; // token
-}
-
-message SyncRequest {
-  uint64 seq = 1; // 序列号
-}
-message SyncReply {
-  repeated connect.Message messages = 1; // 消息列表
-  bool has_more = 2; // 是否有更多数据
 }
 
 // 订阅房间请求

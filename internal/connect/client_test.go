@@ -20,19 +20,19 @@ import (
 )
 
 func TestTCPClient(t *testing.T) {
-	runClient("tcp", "127.0.0.1:8001", 1, 1, 1)
+	runClient("tcp", "127.0.0.1:8001", 1, 1)
 }
 
 func TestWSClient(t *testing.T) {
-	runClient("ws", "ws://127.0.0.1:8002/ws", 1, 1, 1)
+	runClient("ws", "ws://127.0.0.1:8002/ws", 1, 1)
 
 }
 
 func TestGroupTCPClient(t *testing.T) {
 	log.SetFlags(log.Lshortfile)
 
-	go runClient("tcp", "127.0.0.1:8001", 1, 1, 1)
-	go runClient("tcp", "127.0.0.1:8001", 2, 2, 1)
+	go runClient("tcp", "127.0.0.1:8001", 1, 1)
+	go runClient("tcp", "127.0.0.1:8001", 2, 2)
 	select {}
 }
 
@@ -115,11 +115,10 @@ func (c *wsConn) receive(handler func([]byte)) {
 type client struct {
 	UserID   uint64
 	DeviceID uint64
-	Seq      uint64
 	conn     conn
 }
 
-func runClient(network string, url string, userID, deviceID, seq uint64) {
+func runClient(network string, url string, userID, deviceID uint64) {
 	var conn conn
 	var err error
 	switch network {
@@ -137,7 +136,6 @@ func runClient(network string, url string, userID, deviceID, seq uint64) {
 	client := &client{
 		UserID:   userID,
 		DeviceID: deviceID,
-		Seq:      seq,
 		conn:     conn,
 	}
 	client.run()
@@ -226,24 +224,8 @@ func (c *client) handleMessage(buf []byte) {
 		log.Println(c.info(), "登录响应:", jsonString(&message), jsonString(getReply(&message)))
 
 		time.Sleep(1 * time.Second)
-		c.send(pb.Command_SYNC, getRequestID(), &pb.SyncRequest{
-			Seq: 0,
-		})
 	case pb.Command_HEARTBEAT:
 		log.Println(c.info(), "心跳响应")
-	case pb.Command_SYNC:
-		log.Println(c.info(), "消息同步开始")
-		reply := getReply(&message)
-		log.Println(c.info(), "消息同步响应", reply.Code, reply.Message)
-		var syncReply pb.SyncReply
-		err := proto.Unmarshal(reply.Data, &syncReply)
-		if err != nil {
-			log.Println(err)
-		}
-		for _, msg := range syncReply.Messages {
-			log.Println(c.info(), "消息同步", jsonString(msg))
-		}
-		log.Println(c.info(), "消息同步结束")
 	case pb.Command_SUBSCRIBE_ROOM:
 		log.Println(c.info(), "订阅房间响应", jsonString(&message), jsonString(getReply(&message)))
 	default:

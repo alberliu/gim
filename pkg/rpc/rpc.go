@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 
+	"google.golang.org/protobuf/proto"
+
 	"gim/config"
 	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/connectpb"
@@ -14,10 +16,15 @@ import (
 var connectIntClients sync.Map
 
 var (
-	deviceIntClient  logicpb.DeviceIntServiceClient
-	messageIntClient logicpb.MessageIntServiceClient
-	roomIntClient    logicpb.RoomIntServiceClient
-	userIntClient    businesspb.UserIntServiceClient
+	logicConn    = ugrpc.NewClient(config.Config.LogicServerAddr)
+	businessConn = ugrpc.NewClient(config.Config.BusinessServerAddr)
+)
+
+var (
+	deviceIntClient  = logicpb.NewDeviceIntServiceClient(logicConn)
+	messageIntClient = logicpb.NewMessageIntServiceClient(logicConn)
+	roomIntClient    = logicpb.NewRoomIntServiceClient(logicConn)
+	userIntClient    = businesspb.NewUserIntServiceClient(businessConn)
 )
 
 func GetConnectIntClient(addr string) connectpb.ConnectIntServiceClient {
@@ -33,43 +40,38 @@ func GetConnectIntClient(addr string) connectpb.ConnectIntServiceClient {
 }
 
 func GetDeviceIntClient() logicpb.DeviceIntServiceClient {
-	if deviceIntClient == nil {
-		deviceIntClient = config.Config.DeviceIntClientBuilder()
-	}
 	return deviceIntClient
 }
 
 func GetMessageIntClient() logicpb.MessageIntServiceClient {
-	if messageIntClient == nil {
-		messageIntClient = config.Config.MessageIntClientBuilder()
-	}
 	return messageIntClient
 }
 
 func GetRoomIntClient() logicpb.RoomIntServiceClient {
-	if roomIntClient == nil {
-		roomIntClient = config.Config.RoomIntClientBuilder()
-	}
 	return roomIntClient
 }
 
 func GetUserIntClient() businesspb.UserIntServiceClient {
-	if userIntClient == nil {
-		userIntClient = config.Config.UserIntClientBuilder()
-	}
 	return userIntClient
 }
 
-func GetUser(deviceID, userID uint64) (*logicpb.User, error) {
-	user, err := GetUserIntClient().GetUser(context.TODO(), &businesspb.GetUserRequest{UserId: userID})
+type PushRequest struct {
+	UserIDs   []uint64
+	Command   connectpb.Command
+	Message   proto.Message
+	IsPersist bool
+}
+
+func PushToUsers(ctx context.Context, request PushRequest) (*logicpb.PushToUsersReply, error) {
+	content, err := proto.Marshal(request.Message)
 	if err != nil {
 		return nil, err
 	}
-	return &logicpb.User{
-		UserId:    userID,
-		DeviceId:  deviceID,
-		AvatarUrl: user.User.AvatarUrl,
-		Nickname:  user.User.Nickname,
-		Extra:     user.User.Extra,
-	}, nil
+	return GetMessageIntClient().PushToUsers(ctx, &logicpb.PushToUsersRequest{
+		UserIds:   request.UserIDs,
+		Command:   request.Command,
+		Content:   content,
+		IsPersist: request.IsPersist,
+	})
+
 }

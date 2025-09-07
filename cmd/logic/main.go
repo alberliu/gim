@@ -10,9 +10,9 @@ import (
 	"google.golang.org/grpc"
 
 	"gim/config"
-	"gim/internal/logic/device"
-	"gim/internal/logic/group"
-	"gim/internal/logic/message"
+	deviceapi "gim/internal/logic/device/api"
+	groupapi "gim/internal/logic/group/api"
+	messageapi "gim/internal/logic/message/api"
 	"gim/internal/logic/room"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
@@ -33,9 +33,10 @@ func main() {
 		server.GracefulStop()
 	}()
 
-	pb.RegisterDeviceIntServiceServer(server, &device.DeviceIntService{})
-	pb.RegisterMessageIntServiceServer(server, &message.MessageIntService{})
-	pb.RegisterGroupIntServiceServer(server, &group.GroupIntService{})
+	pb.RegisterDeviceIntServiceServer(server, &deviceapi.DeviceIntService{})
+	pb.RegisterMessageExtServiceServer(server, &messageapi.MessageExtService{})
+	pb.RegisterMessageIntServiceServer(server, &messageapi.MessageIntService{})
+	pb.RegisterGroupIntServiceServer(server, &groupapi.GroupIntService{})
 	pb.RegisterRoomIntServiceServer(server, &room.RoomIntService{})
 
 	listen, err := net.Listen("tcp", config.Config.LogicRPCListenAddr)

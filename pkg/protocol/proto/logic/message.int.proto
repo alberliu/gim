@@ -7,19 +7,12 @@ import "google/protobuf/empty.proto";
 import "connect/connect.ext.proto";
 
 service MessageIntService {
-  // 消息同步
-  rpc Sync (SyncRequest) returns (connect.SyncReply);
   // 设备收到消息回执
   rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
   // 推送
   rpc PushToUsers (PushToUsersRequest) returns (PushToUsersReply);
   // 全服推送
   rpc PushToAll(PushToAllRequest)returns(google.protobuf.Empty);
-}
-
-message SyncRequest {
-  uint64 user_id = 1; // 用户ID
-  uint64 seq = 2; // 序列号
 }
 
 message MessageACKRequest {

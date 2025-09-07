@@ -19,20 +19,14 @@ func (s *UserExtService) SignIn(ctx context.Context, req *pb.SignInRequest) (*pb
 }
 
 func (s *UserExtService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserReply, error) {
-	userID, _, err := md.GetData(ctx)
-	if err != nil {
-		return nil, err
-	}
+	userID := md.GetUserID(ctx)
 
 	user, err := app.UserApp.Get(ctx, userID)
 	return &pb.GetUserReply{User: user}, err
 }
 
 func (s *UserExtService) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*emptypb.Empty, error) {
-	userID, _, err := md.GetData(ctx)
-	if err != nil {
-		return nil, err
-	}
+	userID := md.GetUserID(ctx)
 
 	return new(emptypb.Empty), app.UserApp.Update(ctx, userID, req)
 }

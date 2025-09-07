@@ -143,8 +143,6 @@ func (c *Conn) HandleMessage(buf []byte) {
 		c.SignIn(message)
 	case pb.Command_HEARTBEAT:
 		c.Heartbeat(message)
-	case pb.Command_SYNC:
-
 	case pb.Command_SUBSCRIBE_ROOM:
 		c.SubscribedRoom(message)
 	default:
@@ -210,27 +208,6 @@ func (c *Conn) Heartbeat(message *pb.Message) {
 	}
 
 	slog.Info("heartbeat", "deviceID", c.DeviceID, "userID", c.UserID)
-}
-
-func (c *Conn) Sync(message *pb.Message) {
-	var request pb.SyncRequest
-	err := proto.Unmarshal(message.Content, &request)
-	if err != nil {
-		slog.Error("proto unmarshal error", "error", err)
-		return
-	}
-
-	reply, err := rpc.GetMessageIntClient().Sync(context.TODO(), &logicpb.SyncRequest{
-		UserId: c.UserID,
-		Seq:    request.Seq,
-	})
-	if err != nil {
-		slog.Error("Sync error", "deviceID", c.DeviceID, "userID", c.UserID, "error", err)
-	}
-
-	slog.Info("Sync", "deviceID", c.DeviceID, "userID", c.UserID, "request", &request, "reply", reply)
-	setContent(message, err, reply)
-	c.Send(message)
 }
 
 // SubscribedRoom 订阅房间
