@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 
 	"gim/config"
-	"gim/internal/business/friend"
+	friendapi "gim/internal/business/friend/api"
 	userapi "gim/internal/business/user/api"
 	"gim/pkg/interceptor"
 	"gim/pkg/logger"
@@ -33,8 +33,8 @@ func main() {
 
 	pb.RegisterUserIntServiceServer(server, &userapi.UserIntService{})
 	pb.RegisterUserExtServiceServer(server, &userapi.UserExtService{})
-	pb.RegisterFriendExtServiceServer(server, &friend.FriendExtService{})
-	listen, err := net.Listen("tcp", config.Config.UserRPCListenAddr)
+	pb.RegisterFriendExtServiceServer(server, &friendapi.FriendExtService{})
+	listen, err := net.Listen("tcp", config.Config.BusinessRPCListenAddr)
 	if err != nil {
 		panic(err)
 	}

@@ -38,13 +38,10 @@ func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServer
 	serverName := strings.Split(info.FullMethod, "/")[1]
 	if !strings.HasSuffix(serverName, "IntService") {
 		if _, ok := urlWhitelist[info.FullMethod]; !ok {
-			userID, _, err := md.GetData(ctx)
-			if err != nil {
-				return nil, err
-			}
+			userID := md.GetUserID(ctx)
 			token := md.GetToken(ctx)
 
-			_, err = rpc.GetUserIntClient().Auth(ctx, &businesspb.AuthRequest{
+			_, err := rpc.GetUserIntClient().Auth(ctx, &businesspb.AuthRequest{
 				UserId: userID,
 				Token:  token,
 			})

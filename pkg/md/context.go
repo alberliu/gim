@@ -5,8 +5,6 @@ import (
 	"strconv"
 
 	"google.golang.org/grpc/metadata"
-
-	"gim/pkg/gerrors"
 )
 
 const (
@@ -38,26 +36,14 @@ func GetRequestID(ctx context.Context) string {
 	return Get(ctx, CtxRequestID)
 }
 
-// GetData 获取ctx的用户数据，依次返回user_id,device_id
-func GetData(ctx context.Context) (uint64, uint64, error) {
-	var (
-		userID   uint64
-		deviceID uint64
-		err      error
-	)
+func GetUserID(ctx context.Context) uint64 {
+	userID, _ := strconv.ParseUint(Get(ctx, CtxUserID), 10, 64)
+	return userID
+}
 
-	userIDStr := Get(ctx, CtxUserID)
-	userID, err = strconv.ParseUint(userIDStr, 10, 64)
-	if err != nil {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
-
-	deviceIDStr := Get(ctx, CtxDeviceID)
-	deviceID, err = strconv.ParseUint(deviceIDStr, 10, 64)
-	if err != nil {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
-	return userID, deviceID, nil
+func GetDeviceID(ctx context.Context) uint64 {
+	deviceID, _ := strconv.ParseUint(Get(ctx, CtxDeviceID), 10, 64)
+	return deviceID
 }
 
 // GetToken 获取ctx的token

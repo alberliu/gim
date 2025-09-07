@@ -2,7 +2,7 @@
 --
 -- Host: 127.0.0.1    Database: gim
 -- ------------------------------------------------------
--- Server version	8.4.3
+-- Server version	8.0.43
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -92,9 +92,10 @@ CREATE TABLE `message` (
   `request_id` bigint NOT NULL COMMENT '请求id',
   `command` int NOT NULL COMMENT '消息类型',
   `content` blob NOT NULL COMMENT '消息内容',
-  `status` tinyint NOT NULL DEFAULT '0' COMMENT '消息状态，0：未处理1：消息撤回',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息'
+/*!50100 PARTITION BY HASH (`id`)
+PARTITIONS 8 */;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -148,7 +149,9 @@ CREATE TABLE `user_message` (
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `message_id` bigint unsigned NOT NULL COMMENT '消息ID',
   PRIMARY KEY (`user_id`,`seq`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户消息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户消息'
+/*!50100 PARTITION BY HASH (`user_id`)
+PARTITIONS 8 */;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -157,4 +160,4 @@ CREATE TABLE `user_message` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-31 21:51:04
+-- Dump completed on 2025-09-07 21:47:54

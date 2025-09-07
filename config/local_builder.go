@@ -2,10 +2,6 @@ package config
 
 import (
 	"log/slog"
-
-	"gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/ugrpc"
 )
 
 type localBuilder struct{}
@@ -28,25 +24,11 @@ func (*localBuilder) Build() Configuration {
 		ConnectTCPListenAddr: ":8001",
 		ConnectWSListenAddr:  ":8002",
 
-		LogicRPCListenAddr: ":8010",
-		UserRPCListenAddr:  ":8020",
-		FileHTTPListenAddr: "8030",
+		LogicRPCListenAddr:    ":8010",
+		BusinessRPCListenAddr: ":8020",
+		FileHTTPListenAddr:    "8030",
 
-		DeviceIntClientBuilder: func() logicpb.DeviceIntServiceClient {
-			conn := ugrpc.NewClient("127.0.0.1:8010")
-			return logicpb.NewDeviceIntServiceClient(conn)
-		},
-		MessageIntClientBuilder: func() logicpb.MessageIntServiceClient {
-			conn := ugrpc.NewClient("127.0.0.1:8010")
-			return logicpb.NewMessageIntServiceClient(conn)
-		},
-		RoomIntClientBuilder: func() logicpb.RoomIntServiceClient {
-			conn := ugrpc.NewClient("127.0.0.1:8010")
-			return logicpb.NewRoomIntServiceClient(conn)
-		},
-		UserIntClientBuilder: func() businesspb.UserIntServiceClient {
-			conn := ugrpc.NewClient("127.0.0.1:8020")
-			return businesspb.NewUserIntServiceClient(conn)
-		},
+		LogicServerAddr:    "127.0.0.1:8010",
+		BusinessServerAddr: "127.0.0.1:8020",
 	}
 }

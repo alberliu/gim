@@ -7,14 +7,16 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/sercand/kuberesolver/v6"
+	"google.golang.org/grpc/resolver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"gim/pkg/grpclib/resolver/k8s"
-	"gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/logicpb"
-	"gim/pkg/ugrpc"
 	"gim/pkg/uk8s"
 )
+
+func init() {
+	resolver.Register(kuberesolver.NewBuilder(nil, "k8s"))
+}
 
 type k8sBuilder struct{}
 
@@ -51,26 +53,12 @@ func (*k8sBuilder) Build() Configuration {
 		ConnectTCPListenAddr: ":8001",
 		ConnectWSListenAddr:  ":8002",
 
-		LogicRPCListenAddr: RPCListenAddr,
-		UserRPCListenAddr:  RPCListenAddr,
-		FileHTTPListenAddr: "8005",
+		LogicRPCListenAddr:    RPCListenAddr,
+		BusinessRPCListenAddr: RPCListenAddr,
+		FileHTTPListenAddr:    "8005",
 
-		DeviceIntClientBuilder: func() logicpb.DeviceIntServiceClient {
-			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
-			return logicpb.NewDeviceIntServiceClient(conn)
-		},
-		MessageIntClientBuilder: func() logicpb.MessageIntServiceClient {
-			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
-			return logicpb.NewMessageIntServiceClient(conn)
-		},
-		RoomIntClientBuilder: func() logicpb.RoomIntServiceClient {
-			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "logic", RPCDialAddr))
-			return logicpb.NewRoomIntServiceClient(conn)
-		},
-		UserIntClientBuilder: func() businesspb.UserIntServiceClient {
-			conn := ugrpc.NewClient(k8s.GetK8STarget(namespace, "business", RPCDialAddr))
-			return businesspb.NewUserIntServiceClient(conn)
-		},
+		LogicServerAddr:    "k8s:///logic:8000",
+		BusinessServerAddr: "k8s:///business:8000",
 	}
 }
 
