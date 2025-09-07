@@ -11,7 +11,6 @@ func Test_messageRepo_Save(t *testing.T) {
 		RequestID: "1",
 		Command:   1,
 		Content:   []byte("hello world"),
-		Status:    0,
 	}
 	err := MessageRepo.Save(&msg)
 	t.Log(err)
