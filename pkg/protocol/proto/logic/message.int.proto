@@ -7,20 +7,12 @@ import "google/protobuf/empty.proto";
 import "connect/connect.ext.proto";
 
 service MessageIntService {
-  // 设备收到消息回执
-  rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
   // 推送
   rpc PushToUsers (PushToUsersRequest) returns (PushToUsersReply);
   // 全服推送
   rpc PushToAll(PushToAllRequest)returns(google.protobuf.Empty);
 }
 
-message MessageACKRequest {
-  uint64 user_id = 1; // 用户id
-  uint64 device_id = 2; // 设备id
-  uint64 device_ack = 3; // 设备收到消息的确认号
-  int64 receive_time = 4; // 消息接收时间戳，精确到毫秒
-}
 
 message PushToUsersRequest{
   repeated uint64 user_ids = 1; // 用户ID

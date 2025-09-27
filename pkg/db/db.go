@@ -17,11 +17,11 @@ var (
 )
 
 func init() {
-	DB = NewDB(config.Config.MySQL)
+	DB = newDB(config.Config.MySQL)
 	RedisCli = uredis.NewClient(config.Config.RedisHost, config.Config.RedisPassword)
 }
 
-func NewDB(dsn string) *gorm.DB {
+func newDB(dsn string) *gorm.DB {
 	db, err := gorm.Open(
 		mysql.Open(dsn),
 		&gorm.Config{

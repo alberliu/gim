@@ -12,15 +12,15 @@ type deviceACKApp struct{}
 
 // getMaxByUserId 根据用户id获取最大ack
 func (*deviceACKApp) getMaxByUserId(ctx context.Context, userId uint64) (uint64, error) {
-	acks, err := repo.DeviceACKRepo.Get(ctx, userId)
+	acks, err := repo.DeviceACKRepo.List(ctx, userId)
 	if err != nil {
 		return 0, err
 	}
 
 	var max uint64 = 0
-	for i := range acks {
-		if acks[i] > max {
-			max = acks[i]
+	for _, ack := range acks {
+		if ack.ACK > max {
+			max = ack.ACK
 		}
 	}
 	return max, nil

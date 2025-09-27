@@ -14,11 +14,6 @@ type MessageIntService struct {
 	pb.UnsafeMessageIntServiceServer
 }
 
-// MessageACK 设备收到消息ack
-func (*MessageIntService) MessageACK(ctx context.Context, request *pb.MessageACKRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, app.DeviceACKApp.MessageAck(ctx, request.UserId, request.DeviceId, request.DeviceAck)
-}
-
 // PushToUsers 推送
 func (*MessageIntService) PushToUsers(ctx context.Context, request *pb.PushToUsersRequest) (*pb.PushToUsersReply, error) {
 	message := &connectpb.Message{
