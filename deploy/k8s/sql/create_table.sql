@@ -43,6 +43,23 @@ CREATE TABLE `device` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `device_ack`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `device_ack` (
+  `device_id` bigint unsigned NOT NULL COMMENT '设备ID',
+  `created_at` datetime NOT NULL COMMENT '创建时间',
+  `updated_at` datetime NOT NULL COMMENT '更新时间',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户ID',
+  `ack` bigint unsigned NOT NULL COMMENT '序列号',
+  PRIMARY KEY (`device_id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='ack';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `friend`
 --
 
@@ -160,4 +177,4 @@ PARTITIONS 8 */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-07 21:47:54
+-- Dump completed on 2025-09-27 13:25:11

@@ -24,7 +24,7 @@ func (*groupApp) Create(ctx context.Context, pbgroup *pb.Group) (uint64, error) 
 		Extra:        pbgroup.Extra,
 		Members:      pbgroup.Members,
 	}
-	err := repo.GroupRepo.Create(group)
+	err := repo.GroupRepo.Create(ctx, group)
 	if err != nil {
 		return 0, err
 	}
@@ -33,7 +33,7 @@ func (*groupApp) Create(ctx context.Context, pbgroup *pb.Group) (uint64, error) 
 
 // Get 获取群组信息
 func (*groupApp) Get(ctx context.Context, groupID uint64) (*pb.Group, error) {
-	group, err := repo.GroupRepo.Get(groupID)
+	group, err := repo.GroupRepo.Get(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +50,12 @@ func (*groupApp) Update(ctx context.Context, pbgroup *pb.Group) error {
 		Extra:        pbgroup.Extra,
 		Members:      pbgroup.Members,
 	}
-	return repo.GroupRepo.Save(group)
+	return repo.GroupRepo.Save(ctx, group)
 }
 
 // Push 发送群组消息
 func (*groupApp) Push(ctx context.Context, request *pb.GroupPushRequest) (uint64, error) {
-	group, err := repo.GroupRepo.Get(request.GroupId)
+	group, err := repo.GroupRepo.Get(ctx, request.GroupId)
 	if err != nil {
 		return 0, err
 	}

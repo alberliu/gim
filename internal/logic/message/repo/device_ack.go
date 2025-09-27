@@ -1,37 +1,31 @@
 package repo
 
 import (
-	"fmt"
-	"strconv"
+	"context"
 
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	"gim/internal/logic/message/domain"
 	"gim/pkg/db"
 )
-
-const DeviceACKKey = "device_ack:%d"
 
 type deviceACKRepo struct{}
 
 var DeviceACKRepo = new(deviceACKRepo)
 
 // Set 设置设备同步序列号
-func (c *deviceACKRepo) Set(userId, deviceId, ack uint64) error {
-	key := fmt.Sprintf(DeviceACKKey, userId)
-	_, err := db.RedisCli.HSet(key, strconv.FormatUint(deviceId, 10), strconv.FormatUint(ack, 10)).Result()
-	return err
+func (c *deviceACKRepo) Set(ctx context.Context, userID, deviceID, ack uint64) error {
+	deviceACK := &domain.DeviceACK{
+		DeviceID: deviceID,
+		UserID:   userID,
+		ACK:      ack,
+	}
+	return db.DB.WithContext(ctx).Clauses(clause.OnConflict{
+		DoUpdates: clause.AssignmentColumns([]string{"ack", "updated_at"}),
+	}).Create(deviceACK).Error
 }
 
-func (c *deviceACKRepo) Get(userId uint64) (map[uint64]uint64, error) {
-	key := fmt.Sprintf(DeviceACKKey, userId)
-	result, err := db.RedisCli.HGetAll(key).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	acks := make(map[uint64]uint64, len(result))
-	for k, v := range result {
-		deviceId, _ := strconv.ParseUint(k, 10, 64)
-		ack, _ := strconv.ParseUint(v, 10, 64)
-		acks[deviceId] = ack
-	}
-	return acks, nil
+func (c *deviceACKRepo) List(ctx context.Context, userID uint64) ([]domain.DeviceACK, error) {
+	return gorm.G[domain.DeviceACK](db.DB).Where("user_id = ?", userID).Find(ctx)
 }

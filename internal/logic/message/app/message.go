@@ -37,7 +37,7 @@ func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message 
 			Content:   message.Content,
 			CreatedAt: time.Unix(message.CreatedAt, 0),
 		}
-		err := repo.MessageRepo.Save(&msg)
+		err := repo.MessageRepo.Save(ctx, &msg)
 		if err != nil {
 			return 0, err
 		}
@@ -45,7 +45,13 @@ func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message 
 	}
 
 	for _, userID := range userIDs {
-		err := a.PushToUser(ctx, userID, messageID, *message, isPersist)
+		msg := &connectpb.Message{
+			RequestId: message.RequestId,
+			Command:   message.Command,
+			Content:   message.Content,
+			CreatedAt: message.CreatedAt,
+		}
+		err := a.PushToUser(ctx, userID, messageID, msg, isPersist)
 		if err != nil {
 			slog.Error("PushToUser", "error", err, "userID", userID)
 		}
@@ -53,38 +59,29 @@ func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message 
 	return messageID, nil
 }
 
-func (a *messageApp) PushToUser(ctx context.Context, userID, messageID uint64, message connectpb.Message, isPersist bool) error {
+func (a *messageApp) PushToUser(ctx context.Context, userID, messageID uint64, message *connectpb.Message, isPersist bool) error {
 	slog.Debug("PushToUser", "userID", userID, "messageID", messageID, "message", message)
-	var (
-		seq uint64
-		err error
-	)
-	if isPersist {
-		seq, err = repo.SeqRepo.Incr(repo.SeqObjectTypeUser, userID)
-		if err != nil {
-			return err
-		}
 
+	if isPersist {
 		userMessage := domain.UserMessage{
 			UserID:    userID,
-			Seq:       seq,
 			MessageID: messageID,
 		}
 
-		err = repo.UserMessageRepo.Create(&userMessage)
+		err := repo.UserMessageRepo.Create(ctx, &userMessage)
 		if err != nil {
 			return err
 		}
+		message.Seq = userMessage.Seq
 	}
 
-	message.Seq = seq
 	devices, err := deviceapp.DeviceApp.ListByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
 
 	for i := range devices {
-		err = a.PushToDevice(ctx, &devices[i], &message)
+		err = a.PushToDevice(ctx, &devices[i], message)
 		if err != nil {
 			return err
 		}
@@ -125,7 +122,7 @@ func (*messageApp) PushToAll(ctx context.Context, req *pb.PushToAllRequest) erro
 	if err != nil {
 		return err
 	}
-	return mq.Publish(mq.PushAllTopic, bytes)
+	return mq.Publish(ctx, mq.PushAllTopic, bytes)
 }
 
 // Sync 消息同步
@@ -149,5 +146,5 @@ func (a *messageApp) listByUserIdAndSeq(ctx context.Context, userId, seq uint64)
 			return nil, false, err
 		}
 	}
-	return repo.UserMessageRepo.ListBySeq(userId, seq, pageSize)
+	return repo.UserMessageRepo.ListBySeq(ctx, userId, seq, pageSize)
 }

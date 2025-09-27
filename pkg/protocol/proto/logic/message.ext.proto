@@ -2,11 +2,14 @@ syntax = "proto3";
 package logic;
 option go_package = "gim/pkg/protocol/pb/logicpb";
 
+import "google/protobuf/empty.proto";
 import "connect/connect.ext.proto";
 
 service MessageExtService {
   // 消息同步
   rpc Sync (SyncRequest) returns (SyncReply);
+  // 设备收到消息回执
+  rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
 }
 
 message SyncRequest {
@@ -15,6 +18,10 @@ message SyncRequest {
 message SyncReply {
   repeated connect.Message messages = 1; // 消息列表
   bool has_more = 2; // 是否有更多数据
+}
+
+message MessageACKRequest {
+  uint64 device_ack = 1; // 设备收到消息的确认号
 }
 
 message User {

@@ -1,11 +1,12 @@
 package uredis
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 )
 
 type Client struct {
@@ -19,7 +20,7 @@ func NewClient(addr, password string) *Client {
 		Password: password,
 	})
 
-	_, err := client.Ping().Result()
+	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
 		slog.Error("redis ping error", "error", err)
 		panic(err)
@@ -28,18 +29,18 @@ func NewClient(addr, password string) *Client {
 }
 
 // SetAny 将指定值设置到redis中，使用json的序列化方式
-func (c *Client) SetAny(key string, value any, duration time.Duration) error {
+func (c *Client) SetAny(ctx context.Context, key string, value any, duration time.Duration) error {
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
 
-	return c.Set(key, bytes, duration).Err()
+	return c.Set(ctx, key, bytes, duration).Err()
 }
 
 // GetAny 从redis中读取指定值，使用json的反序列化方式
-func (c *Client) GetAny(key string, value any) error {
-	bytes, err := c.Get(key).Bytes()
+func (c *Client) GetAny(ctx context.Context, key string, value any) error {
+	bytes, err := c.Get(ctx, key).Bytes()
 	if err != nil {
 		return err
 	}

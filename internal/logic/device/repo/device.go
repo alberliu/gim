@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -18,9 +19,9 @@ var DeviceRepo = new(deviceRepo)
 type deviceRepo struct{}
 
 // Get 获取设备
-func (*deviceRepo) Get(deviceID uint64) (*domain.Device, error) {
+func (*deviceRepo) Get(ctx context.Context, deviceID uint64) (*domain.Device, error) {
 	var device domain.Device
-	err := db.DB.First(&device, "id = ?", deviceID).Error
+	err := db.DB.WithContext(ctx).First(&device, "id = ?", deviceID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrDeviceNotFound
 	}
@@ -28,20 +29,20 @@ func (*deviceRepo) Get(deviceID uint64) (*domain.Device, error) {
 }
 
 // Save 保存设备信息
-func (*deviceRepo) Save(device *domain.Device) error {
-	return db.DB.Save(&device).Error
+func (*deviceRepo) Save(ctx context.Context, device *domain.Device) error {
+	return db.DB.WithContext(ctx).Save(&device).Error
 }
 
 // ListByUserID 获取用户设备
-func (r *deviceRepo) ListByUserID(userID uint64) ([]domain.Device, error) {
+func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.Device, error) {
 	var devices []domain.Device
-	err := db.DB.Find(&devices, "user_id = ?", userID).Error
+	err := db.DB.WithContext(ctx).Find(&devices, "user_id = ?", userID).Error
 	if err != nil {
 		return nil, err
 	}
 
 	for i := range devices {
-		isOnline, err := r.GetIsOnline(devices[i].ID)
+		isOnline, err := r.GetIsOnline(ctx, devices[i].ID)
 		if err != nil {
 			return nil, err
 		}
@@ -53,22 +54,22 @@ func (r *deviceRepo) ListByUserID(userID uint64) ([]domain.Device, error) {
 const deviceStatus = "deviceStatus:%d"
 
 // SetOnline 设置在线
-func (*deviceRepo) SetOnline(deviceID uint64) error {
+func (*deviceRepo) SetOnline(ctx context.Context, deviceID uint64) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
-	_, err := db.RedisCli.Set(key, "", 12*time.Minute).Result()
+	_, err := db.RedisCli.Set(ctx, key, "", 12*time.Minute).Result()
 	return err
 }
 
 // SetOffline 设置在线
-func (*deviceRepo) SetOffline(deviceID uint64) error {
+func (*deviceRepo) SetOffline(ctx context.Context, deviceID uint64) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
-	_, err := db.RedisCli.Del(key).Result()
+	_, err := db.RedisCli.Del(ctx, key).Result()
 	return err
 }
 
-func (*deviceRepo) GetIsOnline(deviceID uint64) (bool, error) {
+func (*deviceRepo) GetIsOnline(ctx context.Context, deviceID uint64) (bool, error) {
 	key := fmt.Sprintf(deviceStatus, deviceID)
-	_, err := db.RedisCli.Get(key).Result()
+	_, err := db.RedisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return false, nil
 	}

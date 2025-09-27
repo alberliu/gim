@@ -1,10 +1,11 @@
 package connect
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/protobuf/proto"
 
 	"gim/config"
@@ -15,13 +16,13 @@ import (
 
 // StartSubscribe 启动MQ消息处理逻辑
 func StartSubscribe() {
-	pushRoomPriorityChannel := db.RedisCli.Subscribe(mq.PushRoomPriorityTopic).Channel()
-	pushRoomChannel := db.RedisCli.Subscribe(mq.PushRoomTopic).Channel()
+	pushRoomPriorityChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushRoomPriorityTopic).Channel()
+	pushRoomChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushRoomTopic).Channel()
 	for i := 0; i < config.Config.PushRoomSubscribeNum; i++ {
 		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
 	}
 
-	pushAllChannel := db.RedisCli.Subscribe(mq.PushAllTopic).Channel()
+	pushAllChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushAllTopic).Channel()
 	for i := 0; i < config.Config.PushAllSubscribeNum; i++ {
 		go handlePushAllMsg(pushAllChannel)
 	}

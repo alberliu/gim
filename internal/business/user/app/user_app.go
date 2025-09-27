@@ -13,12 +13,12 @@ type userApp struct{}
 var UserApp = new(userApp)
 
 func (*userApp) Get(ctx context.Context, userID uint64) (*pb.User, error) {
-	user, err := repo.UserRepo.Get(userID)
+	user, err := repo.UserRepo.Get(ctx, userID)
 	return user.ToProto(), err
 }
 
 func (*userApp) Update(ctx context.Context, userID uint64, req *pb.UpdateUserRequest) error {
-	u, err := repo.UserRepo.Get(userID)
+	u, err := repo.UserRepo.Get(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -32,11 +32,11 @@ func (*userApp) Update(ctx context.Context, userID uint64, req *pb.UpdateUserReq
 	u.Extra = req.Extra
 	u.UpdatedAt = time.Now()
 
-	return repo.UserRepo.Save(u)
+	return repo.UserRepo.Save(ctx, u)
 }
 
 func (*userApp) GetUsers(ctx context.Context, userIDs []uint64) (map[uint64]*pb.User, error) {
-	users, err := repo.UserRepo.GetByIDs(userIDs)
+	users, err := repo.UserRepo.GetByIDs(ctx, userIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (*userApp) GetUsers(ctx context.Context, userIDs []uint64) (map[uint64]*pb.
 }
 
 func (*userApp) Search(ctx context.Context, key string) ([]*pb.User, error) {
-	users, err := repo.UserRepo.Search(key)
+	users, err := repo.UserRepo.Search(ctx, key)
 	if err != nil {
 		return nil, err
 	}

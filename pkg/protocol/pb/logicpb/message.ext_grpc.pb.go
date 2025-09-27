@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MessageExtService_Sync_FullMethodName = "/logic.MessageExtService/Sync"
+	MessageExtService_Sync_FullMethodName       = "/logic.MessageExtService/Sync"
+	MessageExtService_MessageACK_FullMethodName = "/logic.MessageExtService/MessageACK"
 )
 
 // MessageExtServiceClient is the client API for MessageExtService service.
@@ -28,6 +30,8 @@ const (
 type MessageExtServiceClient interface {
 	// 消息同步
 	Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*SyncReply, error)
+	// 设备收到消息回执
+	MessageACK(ctx context.Context, in *MessageACKRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type messageExtServiceClient struct {
@@ -48,12 +52,24 @@ func (c *messageExtServiceClient) Sync(ctx context.Context, in *SyncRequest, opt
 	return out, nil
 }
 
+func (c *messageExtServiceClient) MessageACK(ctx context.Context, in *MessageACKRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MessageExtService_MessageACK_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageExtServiceServer is the server API for MessageExtService service.
 // All implementations must embed UnimplementedMessageExtServiceServer
 // for forward compatibility.
 type MessageExtServiceServer interface {
 	// 消息同步
 	Sync(context.Context, *SyncRequest) (*SyncReply, error)
+	// 设备收到消息回执
+	MessageACK(context.Context, *MessageACKRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMessageExtServiceServer()
 }
 
@@ -66,6 +82,9 @@ type UnimplementedMessageExtServiceServer struct{}
 
 func (UnimplementedMessageExtServiceServer) Sync(context.Context, *SyncRequest) (*SyncReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
+}
+func (UnimplementedMessageExtServiceServer) MessageACK(context.Context, *MessageACKRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MessageACK not implemented")
 }
 func (UnimplementedMessageExtServiceServer) mustEmbedUnimplementedMessageExtServiceServer() {}
 func (UnimplementedMessageExtServiceServer) testEmbeddedByValue()                           {}
@@ -106,6 +125,24 @@ func _MessageExtService_Sync_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MessageExtService_MessageACK_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MessageACKRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageExtServiceServer).MessageACK(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MessageExtService_MessageACK_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageExtServiceServer).MessageACK(ctx, req.(*MessageACKRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MessageExtService_ServiceDesc is the grpc.ServiceDesc for MessageExtService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +153,10 @@ var MessageExtService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Sync",
 			Handler:    _MessageExtService_Sync_Handler,
+		},
+		{
+			MethodName: "MessageACK",
+			Handler:    _MessageExtService_MessageACK_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

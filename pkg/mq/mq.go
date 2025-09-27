@@ -1,6 +1,8 @@
 package mq
 
 import (
+	"context"
+
 	"gim/pkg/db"
 )
 
@@ -10,7 +12,7 @@ const (
 	PushAllTopic          = "push_all_topic"           // 全服消息队列
 )
 
-func Publish(topic string, bytes []byte) error {
-	_, err := db.RedisCli.Publish(topic, bytes).Result()
+func Publish(ctx context.Context, topic string, bytes []byte) error {
+	_, err := db.RedisCli.Publish(ctx, topic, bytes).Result()
 	return err
 }

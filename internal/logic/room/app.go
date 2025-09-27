@@ -36,7 +36,7 @@ func (s *app) Push(ctx context.Context, req *pb.PushRoomRequest) error {
 	if req.IsPriority {
 		topicName = mq.PushRoomPriorityTopic
 	}
-	return mq.Publish(topicName, buf)
+	return mq.Publish(ctx, topicName, buf)
 }
 
 // SubscribeRoom 订阅房间
