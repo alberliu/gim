@@ -1,13 +1,14 @@
 package repo
 
 import (
+	"context"
 	"testing"
 
 	"gim/internal/business/user/domain"
 )
 
 func Test_userRepo_Get(t *testing.T) {
-	user, err := UserRepo.Get(10000)
+	user, err := UserRepo.Get(context.Background(), 10000)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -15,7 +16,7 @@ func Test_userRepo_Get(t *testing.T) {
 }
 
 func Test_userRepo_Save(t *testing.T) {
-	err := UserRepo.Save(&domain.User{
+	err := UserRepo.Save(context.Background(), &domain.User{
 		PhoneNumber: "1",
 		Nickname:    "1",
 		Sex:         1,

@@ -25,7 +25,7 @@ func (*authApp) SignIn(ctx context.Context, request *pb.SignInRequest) (*pb.Sign
 		return nil, gerrors.ErrBadCode
 	}
 
-	user, err := repo.UserRepo.GetByPhoneNumber(request.PhoneNumber)
+	user, err := repo.UserRepo.GetByPhoneNumber(ctx, request.PhoneNumber)
 	if err != nil && !errors.Is(err, gerrors.ErrUserNotFound) {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (*authApp) SignIn(ctx context.Context, request *pb.SignInRequest) (*pb.Sign
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 		}
-		err := repo.UserRepo.Save(user)
+		err := repo.UserRepo.Save(ctx, user)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (*authApp) SignIn(ctx context.Context, request *pb.SignInRequest) (*pb.Sign
 	// 方便测试
 	token := "0"
 	//token := util.RandString(40)
-	err = repo.AuthRepo.Set(user.ID, reply.DeviceId, domain.Device{
+	err = repo.AuthRepo.Set(ctx, user.ID, reply.DeviceId, domain.Device{
 		Type:   request.Device.Type,
 		Token:  token,
 		Expire: time.Now().AddDate(0, 3, 0).Unix(),
@@ -76,7 +76,7 @@ func verify(phoneNumber, code string) bool {
 
 // Auth 验证用户是否登录
 func (*authApp) Auth(ctx context.Context, userID, deviceID uint64, token string) error {
-	device, err := repo.AuthRepo.Get(userID, deviceID)
+	device, err := repo.AuthRepo.Get(ctx, userID, deviceID)
 	if errors.Is(err, redis.Nil) {
 		return gerrors.ErrUnauthorized
 	}

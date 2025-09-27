@@ -21,7 +21,7 @@ type friendApp struct{}
 
 // List 获取好友列表
 func (s *friendApp) List(ctx context.Context, userID uint64) ([]*pb.Friend, error) {
-	friends, err := repo.FriendRepo.List(userID, domain.FriendStatusAgree)
+	friends, err := repo.FriendRepo.List(ctx, userID, domain.FriendStatusAgree)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (s *friendApp) List(ctx context.Context, userID uint64) ([]*pb.Friend, erro
 
 // AddFriend 添加好友
 func (*friendApp) AddFriend(ctx context.Context, userId, friendId uint64, remarks, description string) error {
-	friend, err := repo.FriendRepo.Get(userId, friendId)
+	friend, err := repo.FriendRepo.Get(ctx, userId, friendId)
 	if err != nil && !errors.Is(err, gerrors.ErrFriendNotFound) {
 		return err
 	}
@@ -71,7 +71,7 @@ func (*friendApp) AddFriend(ctx context.Context, userId, friendId uint64, remark
 		}
 	}
 
-	err = repo.FriendRepo.Create(&domain.Friend{
+	err = repo.FriendRepo.Create(ctx, &domain.Friend{
 		UserID:   userId,
 		FriendID: friendId,
 		Remarks:  remarks,
@@ -102,7 +102,7 @@ func (*friendApp) AddFriend(ctx context.Context, userId, friendId uint64, remark
 
 // AgreeAddFriend 同意添加好友
 func (*friendApp) AgreeAddFriend(ctx context.Context, userId, friendId uint64, remarks string) error {
-	friend, err := repo.FriendRepo.Get(friendId, userId)
+	friend, err := repo.FriendRepo.Get(ctx, friendId, userId)
 	if err != nil {
 		return err
 	}
@@ -110,12 +110,12 @@ func (*friendApp) AgreeAddFriend(ctx context.Context, userId, friendId uint64, r
 		return nil
 	}
 	friend.Status = domain.FriendStatusAgree
-	err = repo.FriendRepo.Save(friend)
+	err = repo.FriendRepo.Save(ctx, friend)
 	if err != nil {
 		return err
 	}
 
-	err = repo.FriendRepo.Save(&domain.Friend{
+	err = repo.FriendRepo.Save(ctx, &domain.Friend{
 		UserID:   userId,
 		FriendID: friendId,
 		Remarks:  remarks,
@@ -145,7 +145,7 @@ func (*friendApp) AgreeAddFriend(ctx context.Context, userId, friendId uint64, r
 
 // SetFriend 设置好友信息
 func (*friendApp) SetFriend(ctx context.Context, userId uint64, req *pb.FriendSetRequest) error {
-	friend, err := repo.FriendRepo.Get(userId, req.FriendId)
+	friend, err := repo.FriendRepo.Get(ctx, userId, req.FriendId)
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func (*friendApp) SetFriend(ctx context.Context, userId uint64, req *pb.FriendSe
 	friend.Extra = req.Extra
 	friend.UpdatedAt = time.Now()
 
-	return repo.FriendRepo.Save(friend)
+	return repo.FriendRepo.Save(ctx, friend)
 }
 
 // SendToFriend 消息发送至好友

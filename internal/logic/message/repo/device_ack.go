@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -14,15 +15,15 @@ type deviceACKRepo struct{}
 var DeviceACKRepo = new(deviceACKRepo)
 
 // Set 设置设备同步序列号
-func (c *deviceACKRepo) Set(userId, deviceId, ack uint64) error {
+func (c *deviceACKRepo) Set(ctx context.Context, userId, deviceId, ack uint64) error {
 	key := fmt.Sprintf(DeviceACKKey, userId)
-	_, err := db.RedisCli.HSet(key, strconv.FormatUint(deviceId, 10), strconv.FormatUint(ack, 10)).Result()
+	_, err := db.RedisCli.HSet(ctx, key, strconv.FormatUint(deviceId, 10), strconv.FormatUint(ack, 10)).Result()
 	return err
 }
 
-func (c *deviceACKRepo) Get(userId uint64) (map[uint64]uint64, error) {
+func (c *deviceACKRepo) Get(ctx context.Context, userId uint64) (map[uint64]uint64, error) {
 	key := fmt.Sprintf(DeviceACKKey, userId)
-	result, err := db.RedisCli.HGetAll(key).Result()
+	result, err := db.RedisCli.HGetAll(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}

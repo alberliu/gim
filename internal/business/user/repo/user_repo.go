@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"errors"
 
 	"gorm.io/gorm"
@@ -15,18 +16,18 @@ type userRepo struct{}
 var UserRepo = new(userRepo)
 
 // Get 获取单个用户
-func (*userRepo) Get(userID uint64) (*domain.User, error) {
+func (*userRepo) Get(ctx context.Context, userID uint64) (*domain.User, error) {
 	var user domain.User
-	err := db.DB.First(&user, "id = ?", userID).Error
+	err := db.DB.WithContext(ctx).First(&user, "id = ?", userID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrUserNotFound
 	}
 	return &user, err
 }
 
-func (*userRepo) GetByPhoneNumber(phoneNumber string) (*domain.User, error) {
+func (*userRepo) GetByPhoneNumber(ctx context.Context, phoneNumber string) (*domain.User, error) {
 	var user domain.User
-	err := db.DB.First(&user, "phone_number = ?", phoneNumber).Error
+	err := db.DB.WithContext(ctx).First(&user, "phone_number = ?", phoneNumber).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, gerrors.ErrUserNotFound
 	}
@@ -34,17 +35,17 @@ func (*userRepo) GetByPhoneNumber(phoneNumber string) (*domain.User, error) {
 }
 
 // GetByIDs 获取多个用户
-func (*userRepo) GetByIDs(userIDs []uint64) ([]domain.User, error) {
+func (*userRepo) GetByIDs(ctx context.Context, userIDs []uint64) ([]domain.User, error) {
 	var users []domain.User
-	err := db.DB.Find(&users, "id in (?)", userIDs).Error
+	err := db.DB.WithContext(ctx).Find(&users, "id in (?)", userIDs).Error
 	return users, err
 }
 
 // Search 搜索用户
-func (*userRepo) Search(key string) ([]domain.User, error) {
+func (*userRepo) Search(ctx context.Context, key string) ([]domain.User, error) {
 	var users []domain.User
 	key = "%" + key + "%"
-	err := db.DB.Where("phone_number like ? or nickname like ?", key, key).Find(&users).Error
+	err := db.DB.WithContext(ctx).Where("phone_number like ? or nickname like ?", key, key).Find(&users).Error
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +53,6 @@ func (*userRepo) Search(key string) ([]domain.User, error) {
 }
 
 // Save 保存用户
-func (*userRepo) Save(user *domain.User) error {
-	return db.DB.Save(user).Error
+func (*userRepo) Save(ctx context.Context, user *domain.User) error {
+	return db.DB.WithContext(ctx).Save(user).Error
 }

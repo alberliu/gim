@@ -2,6 +2,7 @@ package connect
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	jsoniter "github.com/json-iterator/go"
 	"google.golang.org/protobuf/proto"
 
 	"gim/pkg/codec"
@@ -240,6 +240,6 @@ func getReply(message *pb.Message) *pb.Reply {
 }
 
 func jsonString(any any) string {
-	bytes, _ := jsoniter.Marshal(any)
+	bytes, _ := json.Marshal(any)
 	return string(bytes)
 }
