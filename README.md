@@ -8,7 +8,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要特�
 5.支持服务水平扩展  
 6.使用领域驱动设计  
 7.支持docker compose和k8s部署  
-gim可以作为以业务服务器的一个组件，为现有业务服务器提供im的能力，业务服务器
+gim可以作为业务服务器的一个组件，为现有业务服务器提供im的能力，业务服务器
 只需要实现user.int.proto协议中UserIntService.Auth接口，为gim服务提供基本的鉴权功能即可
 ### 使用技术
 数据库：MySQL+Redis  
