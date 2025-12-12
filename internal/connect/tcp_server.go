@@ -50,7 +50,7 @@ func handleConn(tcpConn *net.TCPConn) {
 	defer util.RecoverPanic()
 
 	conn := &Conn{
-		CoonType: CoonTypeTCP,
+		ConnType: ConnTypeTCP,
 		TCP:      tcpConn,
 		Reader:   bufio.NewReader(tcpConn),
 	}

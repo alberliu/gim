@@ -23,9 +23,7 @@ message SignInRequest {
   string client_addr = 5; // 客户端地址
 }
 
-message SignInReply {
-  uint64 device_id = 1; // 设备id
-}
+message SignInReply {}
 
 message HeartbeatRequest{
   uint64 user_id = 1; // 用户id

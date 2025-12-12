@@ -15,19 +15,22 @@ import (
 
 	"gim/config"
 	"gim/pkg/codec"
+	"gim/pkg/gerrors"
 	"gim/pkg/md"
 	pb "gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 
+const WriteDeadline = time.Second * 3
+
 const (
-	CoonTypeTCP int8 = 1 // tcp连接
+	ConnTypeTCP int8 = 1 // tcp连接
 	ConnTypeWS  int8 = 2 // websocket连接
 )
 
 type Conn struct {
-	CoonType int8 // 连接类型
+	ConnType int8 // 连接类型
 
 	TCP    *net.TCPConn  // tcp连接
 	Reader *bufio.Reader // reader
@@ -44,8 +47,8 @@ type Conn struct {
 // Write 写入数据
 func (c *Conn) Write(buf []byte) error {
 	var err error
-	switch c.CoonType {
-	case CoonTypeTCP:
+	switch c.ConnType {
+	case ConnTypeTCP:
 		err = c.WriteToTCP(buf)
 	case ConnTypeWS:
 		err = c.WriteToWS(buf)
@@ -57,9 +60,9 @@ func (c *Conn) Write(buf []byte) error {
 	return err
 }
 
-// WriteToTCP 消息写入WebSocket
+// WriteToTCP 消息写入TCP
 func (c *Conn) WriteToTCP(buf []byte) error {
-	err := c.TCP.SetWriteDeadline(time.Now().Add(10 * time.Millisecond))
+	err := c.TCP.SetWriteDeadline(time.Now().Add(WriteDeadline))
 	if err != nil {
 		return err
 	}
@@ -73,7 +76,7 @@ func (c *Conn) WriteToWS(buf []byte) error {
 	c.WSMutex.Lock()
 	defer c.WSMutex.Unlock()
 
-	err := c.WS.SetWriteDeadline(time.Now().Add(10 * time.Millisecond))
+	err := c.WS.SetWriteDeadline(time.Now().Add(WriteDeadline))
 	if err != nil {
 		return err
 	}
@@ -103,8 +106,8 @@ func (c *Conn) Close(err error) {
 		})
 	}
 
-	switch c.CoonType {
-	case CoonTypeTCP:
+	switch c.ConnType {
+	case ConnTypeTCP:
 		_ = c.TCP.Close()
 	case ConnTypeWS:
 		_ = c.WS.Close()
@@ -112,8 +115,8 @@ func (c *Conn) Close(err error) {
 }
 
 func (c *Conn) GetAddr() string {
-	switch c.CoonType {
-	case CoonTypeTCP:
+	switch c.ConnType {
+	case ConnTypeTCP:
 		return c.TCP.RemoteAddr().String()
 	case ConnTypeWS:
 		return c.WS.RemoteAddr().String()
@@ -133,7 +136,7 @@ func (c *Conn) HandleMessage(buf []byte) {
 
 	// 对未登录的用户进行拦截
 	if message.Command != pb.Command_SIGN_IN && c.UserID == 0 {
-		setContent(message, err, nil)
+		setContent(message, gerrors.ErrUnauthorized, nil)
 		c.Send(message)
 		return
 	}
@@ -176,7 +179,7 @@ func (c *Conn) SignIn(message *pb.Message) {
 		return
 	}
 
-	reply, err := rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.SignInRequest{
+	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.SignInRequest{
 		UserId:      request.UserId,
 		DeviceId:    request.DeviceId,
 		Token:       request.Token,
@@ -191,8 +194,8 @@ func (c *Conn) SignIn(message *pb.Message) {
 	}
 
 	c.UserID = request.UserId
-	c.DeviceID = reply.DeviceId
-	SetConn(reply.DeviceId, c)
+	c.DeviceID = request.DeviceId
+	SetConn(request.DeviceId, c)
 }
 
 // Heartbeat 心跳

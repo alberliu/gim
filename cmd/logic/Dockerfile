@@ -1,3 +1,3 @@
-FROM docker.1ms.run/library/alpine:3.14
+FROM docker.1ms.run/library/alpine:3.23.0
 COPY logic .
 CMD ["/logic"]

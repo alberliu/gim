@@ -95,7 +95,7 @@ func (a *messageApp) PushToDevice(ctx context.Context, device *devicedomain.Devi
 		request := &connectpb.PushToDevicesRequest{
 			DeviceMessageList: []*connectpb.DeviceMessage{
 				{
-					DeviceId: 0,
+					DeviceId: device.ID,
 					Message:  message,
 				},
 			},

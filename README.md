@@ -1,3 +1,4 @@
+# GIM
 ### 简要介绍
 gim是一个即时通讯服务器，代码全部使用golang完成。主要特性  
 1.支持tcp，websocket接入  
@@ -9,7 +10,7 @@ gim是一个即时通讯服务器，代码全部使用golang完成。主要特�
 7.支持docker compose和k8s部署  
 gim可以作为以业务服务器的一个组件，为现有业务服务器提供im的能力，业务服务器
 只需要实现user.int.proto协议中UserIntService.Auth接口，为gim服务提供基本的鉴权功能即可
-### 使用技术：
+### 使用技术
 数据库：MySQL+Redis  
 通讯框架：GRPC  
 长连接通讯协议：Protocol Buffers  
@@ -24,7 +25,7 @@ ORM框架：GORM
 ```
 cmd:          服务启动入口
 config:       服务配置
-deploy        部署配置文件
+deploy:       部署配置文件
 internal:     服务私有代码
 pkg:          服务共有代码
 sql:          项目sql文件
@@ -39,14 +40,14 @@ sql:          项目sql文件
 ### 客户端接入流程
 1. 调用business.UserExtService.SignIn接口，进行登录，获取device_id，user_id以及token    
 2. 建立长连接，使用步骤1拿到的device_id，user_id,token，完成长连接登录。  
-如果是web端,需要调用建立WebSocket时,如果是APP端，就需要建立TCP长连接。  
+如果是web端,需要建立WebSocket时,如果是APP端，就需要建立TCP长连接。  
 在完成建立TCP长连接时，第一个包应该是长连接登录包（SignInInput），如果信息无误，客户端就会成功建立长连接。  
 3. 调用logic.MessageExtService.Sync，完成离线消息同步  
 注意：seq字段是客户端接收到消息的最大同步序列号，如果用户是换设备登录或者第一次登录，seq应该传0。  
 
 接下来，用户可以使用MessageIntService.PushToUsers接口来发送消息，消息接收方可以使用长连接接收到对应的消息。
 ### 单用户多设备支持，离线消息同步
-每个用户都会维护一个自增的序列号，当用户A给用户B发送消息是，首先会获取A的最大序列号，设置为这条消息的seq，持久化到用户A的消息列表，
+每个用户都会维护一个自增的序列号，当用户A给用户B发送消息时，首先会获取A的最大序列号，设置为这条消息的seq，持久化到用户A的消息列表，
 再通过长连接下发到用户A账号登录的所有设备，再获取用户B的最大序列号，设置为这条消息的seq，持久化到用户B的消息列表，再通过长连接下发
 到用户B账号登录的所有设备。  
 假如用户的某个设备不在线，在设备长连接登录时，用本地收到消息的最大序列号，到服务器做消息同步，这样就可以保证离线消息不丢失。

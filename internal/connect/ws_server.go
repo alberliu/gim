@@ -38,7 +38,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 // DoConn 处理连接
 func DoConn(wsConn *websocket.Conn) {
 	conn := &Conn{
-		CoonType: ConnTypeWS,
+		ConnType: ConnTypeWS,
 		WS:       wsConn,
 	}
 

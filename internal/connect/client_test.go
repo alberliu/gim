@@ -25,7 +25,6 @@ func TestTCPClient(t *testing.T) {
 
 func TestWSClient(t *testing.T) {
 	runClient("ws", "ws://127.0.0.1:8002/ws", 1, 1)
-
 }
 
 func TestGroupTCPClient(t *testing.T) {
