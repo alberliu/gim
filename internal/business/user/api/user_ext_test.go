@@ -34,10 +34,10 @@ func getCtx() context.Context {
 
 func TestUserExtServer_SignIn(t *testing.T) {
 	reply, err := getUserExtServiceClient().SignIn(context.TODO(), &pb.SignInRequest{
-		PhoneNumber: "1",
+		PhoneNumber: "2",
 		Code:        "0",
 		Device: &logicpb.Device{
-			Id:            1,
+			Id:            2,
 			Type:          logicpb.DeviceType_DT_ANDROID,
 			Brand:         "xiaomi",
 			Model:         "xiaomi 15",

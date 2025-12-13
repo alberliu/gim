@@ -15,7 +15,6 @@ type Group struct {
 	AvatarUrl    string    // 头像
 	Introduction string    // 群简介
 	Extra        string    // 附加字段
-	Members      []uint64  `gorm:"serializer:json"` // 群组成员
 }
 
 func (g *Group) ToProto() *pb.Group {
@@ -29,6 +28,5 @@ func (g *Group) ToProto() *pb.Group {
 		AvatarUrl:    g.AvatarUrl,
 		Introduction: g.Introduction,
 		Extra:        g.Extra,
-		Members:      g.Members,
 	}
 }

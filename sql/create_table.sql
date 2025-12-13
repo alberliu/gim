@@ -91,9 +91,28 @@ CREATE TABLE `group` (
   `avatar_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组头像',
   `introduction` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '群组简介',
   `extra` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
-  `members` json NOT NULL COMMENT '群组成员',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `group_member`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `group_member` (
+  `group_id` bigint unsigned NOT NULL COMMENT '群组ID',
+  `user_id` bigint unsigned NOT NULL COMMENT '用户ID',
+  `created_at` datetime NOT NULL COMMENT '创建时间',
+  `updated_at` datetime NOT NULL COMMENT '更新时间',
+  `nickname` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '昵称',
+  `type` tinyint NOT NULL COMMENT '类型',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `extra` varchar(1024) COLLATE utf8mb4_bin NOT NULL COMMENT '附加属性',
+  PRIMARY KEY (`group_id`,`user_id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -177,4 +196,4 @@ PARTITIONS 8 */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-27 13:25:11
+-- Dump completed on 2025-12-13 22:31:59

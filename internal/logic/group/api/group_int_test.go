@@ -15,7 +15,6 @@ func TestGroupExtService_Create(t *testing.T) {
 			AvatarUrl:    "",
 			Introduction: "群组B的介绍",
 			Extra:        "",
-			Members:      []uint64{1, 2, 3},
 		},
 	})
 	if err != nil {
@@ -32,7 +31,6 @@ func TestGroupExtService_Update(t *testing.T) {
 			AvatarUrl:    "",
 			Introduction: "群组B的介绍",
 			Extra:        "",
-			Members:      []uint64{1, 2, 3},
 		},
 	})
 	if err != nil {

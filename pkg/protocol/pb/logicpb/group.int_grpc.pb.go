@@ -20,10 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GroupIntService_Push_FullMethodName   = "/logic.GroupIntService/Push"
-	GroupIntService_Create_FullMethodName = "/logic.GroupIntService/Create"
-	GroupIntService_Update_FullMethodName = "/logic.GroupIntService/Update"
-	GroupIntService_Get_FullMethodName    = "/logic.GroupIntService/Get"
+	GroupIntService_Push_FullMethodName         = "/logic.GroupIntService/Push"
+	GroupIntService_Create_FullMethodName       = "/logic.GroupIntService/Create"
+	GroupIntService_Update_FullMethodName       = "/logic.GroupIntService/Update"
+	GroupIntService_Get_FullMethodName          = "/logic.GroupIntService/Get"
+	GroupIntService_AddMember_FullMethodName    = "/logic.GroupIntService/AddMember"
+	GroupIntService_RemoveMember_FullMethodName = "/logic.GroupIntService/RemoveMember"
 )
 
 // GroupIntServiceClient is the client API for GroupIntService service.
@@ -38,6 +40,10 @@ type GroupIntServiceClient interface {
 	Update(ctx context.Context, in *GroupUpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 获取群组信息
 	Get(ctx context.Context, in *GroupGetRequest, opts ...grpc.CallOption) (*GroupGetReply, error)
+	// 添加成员
+	AddMember(ctx context.Context, in *GroupAddMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 移除成员
+	RemoveMember(ctx context.Context, in *GroupRemoveMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type groupIntServiceClient struct {
@@ -88,6 +94,26 @@ func (c *groupIntServiceClient) Get(ctx context.Context, in *GroupGetRequest, op
 	return out, nil
 }
 
+func (c *groupIntServiceClient) AddMember(ctx context.Context, in *GroupAddMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GroupIntService_AddMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupIntServiceClient) RemoveMember(ctx context.Context, in *GroupRemoveMemberRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GroupIntService_RemoveMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupIntServiceServer is the server API for GroupIntService service.
 // All implementations must embed UnimplementedGroupIntServiceServer
 // for forward compatibility.
@@ -100,6 +126,10 @@ type GroupIntServiceServer interface {
 	Update(context.Context, *GroupUpdateRequest) (*emptypb.Empty, error)
 	// 获取群组信息
 	Get(context.Context, *GroupGetRequest) (*GroupGetReply, error)
+	// 添加成员
+	AddMember(context.Context, *GroupAddMemberRequest) (*emptypb.Empty, error)
+	// 移除成员
+	RemoveMember(context.Context, *GroupRemoveMemberRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedGroupIntServiceServer()
 }
 
@@ -121,6 +151,12 @@ func (UnimplementedGroupIntServiceServer) Update(context.Context, *GroupUpdateRe
 }
 func (UnimplementedGroupIntServiceServer) Get(context.Context, *GroupGetRequest) (*GroupGetReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedGroupIntServiceServer) AddMember(context.Context, *GroupAddMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMember not implemented")
+}
+func (UnimplementedGroupIntServiceServer) RemoveMember(context.Context, *GroupRemoveMemberRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveMember not implemented")
 }
 func (UnimplementedGroupIntServiceServer) mustEmbedUnimplementedGroupIntServiceServer() {}
 func (UnimplementedGroupIntServiceServer) testEmbeddedByValue()                         {}
@@ -215,6 +251,42 @@ func _GroupIntService_Get_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupIntService_AddMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupAddMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupIntServiceServer).AddMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupIntService_AddMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupIntServiceServer).AddMember(ctx, req.(*GroupAddMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupIntService_RemoveMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupRemoveMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupIntServiceServer).RemoveMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupIntService_RemoveMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupIntServiceServer).RemoveMember(ctx, req.(*GroupRemoveMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GroupIntService_ServiceDesc is the grpc.ServiceDesc for GroupIntService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -237,6 +309,14 @@ var GroupIntService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _GroupIntService_Get_Handler,
+		},
+		{
+			MethodName: "AddMember",
+			Handler:    _GroupIntService_AddMember_Handler,
+		},
+		{
+			MethodName: "RemoveMember",
+			Handler:    _GroupIntService_RemoveMember_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

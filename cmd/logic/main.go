@@ -8,6 +8,8 @@ import (
 	"syscall"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"gim/config"
 	deviceapi "gim/internal/logic/device/api"
@@ -24,15 +26,7 @@ func main() {
 
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptor.NewInterceptor(nil)))
 
-	// 监听服务关闭信号，服务平滑重启
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGTERM)
-		s := <-c
-		slog.Info("server stop", "signal", s)
-		server.GracefulStop()
-	}()
-
+	grpc_health_v1.RegisterHealthServer(server, health.NewServer())
 	pb.RegisterDeviceIntServiceServer(server, &deviceapi.DeviceIntService{})
 	pb.RegisterMessageExtServiceServer(server, &messageapi.MessageExtService{})
 	pb.RegisterMessageIntServiceServer(server, &messageapi.MessageIntService{})
@@ -44,9 +38,19 @@ func main() {
 		panic(err)
 	}
 
-	slog.Info("rpc服务已经开启")
-	err = server.Serve(listen)
-	if err != nil {
-		slog.Error("serve error", "error", err)
-	}
+	go func() {
+		slog.Info("rpc服务已经开启")
+		err = server.Serve(listen)
+		if err != nil {
+			slog.Error("serve error", "error", err)
+			panic(err)
+		}
+	}()
+
+	// 监听服务关闭信号，服务平滑重启
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM)
+	s := <-c
+	slog.Info("server stop", "signal", s)
+	server.GracefulStop()
 }

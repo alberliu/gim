@@ -239,11 +239,7 @@ func (c *Conn) SubscribedRoom(message *pb.Message) {
 func setContent(message *pb.Message, err error, data proto.Message) {
 	var reply pb.Reply
 	if err != nil {
-		statusErr, _ := status.FromError(err)
-		if statusErr == nil {
-			return
-		}
-
+		statusErr := status.Convert(err)
 		reply.Code = int32(statusErr.Code())
 		reply.Message = statusErr.Message()
 	}

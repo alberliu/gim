@@ -24,7 +24,7 @@ func (*GroupIntService) Push(ctx context.Context, request *pb.GroupPushRequest) 
 
 // Create 创建群组
 func (*GroupIntService) Create(ctx context.Context, request *pb.GroupCreateRequest) (*pb.GroupCreateReply, error) {
-	groupID, err := app.GroupApp.Create(ctx, request.Group)
+	groupID, err := app.GroupApp.Create(ctx, request)
 	return &pb.GroupCreateReply{GroupId: groupID}, err
 }
 
@@ -38,4 +38,16 @@ func (*GroupIntService) Update(ctx context.Context, request *pb.GroupUpdateReque
 func (*GroupIntService) Get(ctx context.Context, request *pb.GroupGetRequest) (*pb.GroupGetReply, error) {
 	group, err := app.GroupApp.Get(ctx, request.GroupId)
 	return &pb.GroupGetReply{Group: group}, err
+}
+
+// AddMember 添加成员
+func (*GroupIntService) AddMember(ctx context.Context, request *pb.GroupAddMemberRequest) (*emptypb.Empty, error) {
+	err := app.GroupApp.AddMember(ctx, request)
+	return &emptypb.Empty{}, err
+}
+
+// RemoveMember 移除成员
+func (*GroupIntService) RemoveMember(ctx context.Context, request *pb.GroupRemoveMemberRequest) (*emptypb.Empty, error) {
+	err := app.GroupApp.RemoveMember(ctx, request)
+	return &emptypb.Empty{}, err
 }

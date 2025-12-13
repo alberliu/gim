@@ -15,6 +15,10 @@ service GroupIntService {
   rpc Update (GroupUpdateRequest) returns (google.protobuf.Empty);
   // 获取群组信息
   rpc Get (GroupGetRequest) returns (GroupGetReply);
+  // 添加成员
+  rpc AddMember (GroupAddMemberRequest) returns (google.protobuf.Empty);
+  // 移除成员
+  rpc RemoveMember (GroupRemoveMemberRequest) returns (google.protobuf.Empty);
 }
 
 message Group {
@@ -23,7 +27,21 @@ message Group {
   string avatar_url = 3; // 头像
   string introduction = 4; // 简介
   string extra = 5; // 附加字段
-  repeated uint64 members = 6; // 群组成员
+}
+
+message GroupMember {
+  uint64 user_id = 1; // 用户ID
+  string nickname = 2; // 昵称
+  GroupMemberType type = 3; // 类型
+  GroupMemberStatus status = 4; // 状态
+  string extra = 5; // 附加字段
+}
+
+enum GroupMemberType{
+  GMT_DEFAULT = 0;
+}
+enum GroupMemberStatus{
+  GMS_DEFAULT = 0;
 }
 
 message GroupPushRequest {
@@ -38,6 +56,7 @@ message GroupPushReply {
 
 message GroupCreateRequest {
   Group group = 1; // 群组
+  repeated GroupMember members = 2; // 成员
 }
 message GroupCreateReply {
   uint64 group_id = 1; // 群组id
@@ -52,4 +71,14 @@ message GroupGetRequest {
 }
 message GroupGetReply {
   Group group = 1;
+}
+
+message GroupAddMemberRequest {
+  uint64 group_id = 1; // 群组ID
+  repeated GroupMember members = 2; // 成员列表
+}
+
+message GroupRemoveMemberRequest {
+  uint64 group_id = 1; // 群组ID
+  repeated uint64 user_ids = 2; // 用户ID列表
 }

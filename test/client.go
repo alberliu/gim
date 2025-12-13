@@ -1,38 +1,64 @@
-package connect
+package test
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
 
 	"gim/pkg/codec"
-	pb "gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/businesspb"
+	"gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/protocol/pb/logicpb"
 )
 
-func TestTCPClient(t *testing.T) {
-	runClient("tcp", "127.0.0.1:8001", 1, 1)
+var (
+	connectTcpServerAddr = "127.0.0.1:8001"
+	businessServerAddr   = "127.0.0.1:8020"
+	logicServerAddr      = "127.0.0.1:8010"
+)
+
+func connect(userID, deviceID uint64) {
+	log := slog.With("userID", userID, "deviceID", deviceID)
+
+	reply, err := getUserExtServiceClient().SignIn(context.TODO(), &businesspb.SignInRequest{
+		PhoneNumber: strconv.FormatUint(userID, 10),
+		Code:        "0",
+		Device: &logicpb.Device{
+			Id:            deviceID,
+			Type:          logicpb.DeviceType_DT_ANDROID,
+			Brand:         "xiaomi",
+			Model:         "xiaomi 15",
+			SystemVersion: "15.0.0",
+			SdkVersion:    "1.0.0",
+			BranchPushId:  "xiaomi push id",
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	log.Info("短连接登录成功", "reply", reply)
+	go runClient(log, "tcp", connectTcpServerAddr, userID, deviceID, reply.Token)
 }
 
-func TestWSClient(t *testing.T) {
-	runClient("ws", "ws://127.0.0.1:8002/ws", 1, 1)
-}
-
-func TestGroupTCPClient(t *testing.T) {
-	log.SetFlags(log.Lshortfile)
-
-	go runClient("tcp", "127.0.0.1:8001", 1, 1)
-	go runClient("tcp", "127.0.0.1:8001", 2, 2)
-	select {}
+func getUserExtServiceClient() businesspb.UserExtServiceClient {
+	conn, err := grpc.NewClient(businessServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return businesspb.NewUserExtServiceClient(conn)
 }
 
 type conn interface {
@@ -114,17 +140,19 @@ func (c *wsConn) receive(handler func([]byte)) {
 type client struct {
 	UserID   uint64
 	DeviceID uint64
+	Token    string
 	conn     conn
+	log      *slog.Logger
 }
 
-func runClient(network string, url string, userID, deviceID uint64) {
+func runClient(log *slog.Logger, network string, addr string, userID, deviceID uint64, token string) {
 	var conn conn
 	var err error
 	switch network {
 	case "tcp":
-		conn, err = newTCPConn(url)
+		conn, err = newTCPConn(addr)
 	case "ws":
-		conn, err = newWsConn(url)
+		conn, err = newWsConn(addr)
 	default:
 		panic("unsupported network")
 	}
@@ -135,7 +163,9 @@ func runClient(network string, url string, userID, deviceID uint64) {
 	client := &client{
 		UserID:   userID,
 		DeviceID: deviceID,
+		Token:    token,
 		conn:     conn,
+		log:      log,
 	}
 	client.run()
 }
@@ -147,12 +177,8 @@ func (c *client) run() {
 	c.heartbeat()
 }
 
-func (c *client) info() string {
-	return fmt.Sprintf("%-5d%-5d", c.UserID, c.DeviceID)
-}
-
-func (c *client) send(pt pb.Command, requestID string, msg proto.Message) {
-	var message = pb.Message{
+func (c *client) send(pt connectpb.Command, requestID string, msg proto.Message) {
+	var message = connectpb.Message{
 		Command:   pt,
 		RequestId: requestID,
 	}
@@ -160,7 +186,7 @@ func (c *client) send(pt pb.Command, requestID string, msg proto.Message) {
 	if msg != nil {
 		bytes, err := proto.Marshal(msg)
 		if err != nil {
-			log.Println(c.info(), err)
+			c.log.Error("send", "error", err)
 			return
 		}
 		message.Content = bytes
@@ -168,13 +194,13 @@ func (c *client) send(pt pb.Command, requestID string, msg proto.Message) {
 
 	buf, err := proto.Marshal(&message)
 	if err != nil {
-		log.Println(c.info(), err)
+		c.log.Error("send", "error", err)
 		return
 	}
 
 	err = c.conn.write(buf)
 	if err != nil {
-		log.Println(c.info(), err)
+		c.log.Error("send", "error", err)
 	}
 }
 
@@ -184,34 +210,34 @@ func getRequestID() string {
 }
 
 func (c *client) signIn() {
-	request := pb.SignInRequest{
+	request := logicpb.SignInRequest{
 		UserId:   c.UserID,
-		DeviceId: 1,
-		Token:    "0",
+		DeviceId: c.DeviceID,
+		Token:    c.Token,
 	}
-	c.send(pb.Command_SIGN_IN, getRequestID(), &request)
-	log.Println(c.info(), "发送登录指令")
+	c.send(connectpb.Command_SIGN_IN, getRequestID(), &request)
+	c.log.Info("发送登录指令")
 	time.Sleep(1 * time.Second)
 }
 
 func (c *client) heartbeat() {
 	ticker := time.NewTicker(time.Minute * 5)
 	for range ticker.C {
-		c.send(pb.Command_HEARTBEAT, getRequestID(), nil)
-		fmt.Println(c.info(), "心跳发送")
+		c.send(connectpb.Command_HEARTBEAT, getRequestID(), nil)
+		c.log.Info("心跳发送")
 	}
 }
 
 func (c *client) subscribeRoom() {
 	var roomID uint64 = 1
-	c.send(pb.Command_SUBSCRIBE_ROOM, getRequestID(), &pb.SubscribeRoomRequest{
+	c.send(connectpb.Command_SUBSCRIBE_ROOM, getRequestID(), &logicpb.SubscribeRoomRequest{
 		RoomId: roomID,
 	})
-	log.Println(c.info(), "订阅房间:", roomID)
+	c.log.Info("订阅房间", "roomID", roomID)
 }
 
 func (c *client) handleMessage(buf []byte) {
-	var message pb.Message
+	var message connectpb.Message
 	err := proto.Unmarshal(buf, &message)
 	if err != nil {
 		log.Println(err)
@@ -219,21 +245,21 @@ func (c *client) handleMessage(buf []byte) {
 	}
 
 	switch message.Command {
-	case pb.Command_SIGN_IN:
-		log.Println(c.info(), "登录响应:", jsonString(&message), jsonString(getReply(&message)))
+	case connectpb.Command_SIGN_IN:
+		c.log.Info("登录响应", "message", jsonString(&message), "reply", jsonString(getReply(&message)))
 
 		time.Sleep(1 * time.Second)
-	case pb.Command_HEARTBEAT:
-		log.Println(c.info(), "心跳响应")
-	case pb.Command_SUBSCRIBE_ROOM:
-		log.Println(c.info(), "订阅房间响应", jsonString(&message), jsonString(getReply(&message)))
+	case connectpb.Command_HEARTBEAT:
+		c.log.Info("心跳响应")
+	case connectpb.Command_SUBSCRIBE_ROOM:
+		c.log.Info("订阅房间响应", "message", jsonString(&message), "reply", jsonString(getReply(&message)))
 	default:
-		log.Println(c.info(), "other", &message)
+		c.log.Info("other", "message", &message)
 	}
 }
 
-func getReply(message *pb.Message) *pb.Reply {
-	var reply pb.Reply
+func getReply(message *connectpb.Message) *connectpb.Reply {
+	var reply connectpb.Reply
 	_ = proto.Unmarshal(message.Content, &reply)
 	return &reply
 }
