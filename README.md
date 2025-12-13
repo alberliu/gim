@@ -1,70 +1,169 @@
 # GIM
-### 简要介绍
-gim是一个即时通讯服务器，代码全部使用golang完成。主要特性  
-1.支持tcp，websocket接入  
-2.离线消息同步    
-3.单用户多设备同时在线    
-4.单聊，群聊，以及房间聊天场景  
-5.支持服务水平扩展  
-6.使用领域驱动设计  
-7.支持docker compose和k8s部署  
-gim可以作为业务服务器的一个组件，为现有业务服务器提供im的能力，业务服务器
-只需要实现user.int.proto协议中UserIntService.Auth接口，为gim服务提供基本的鉴权功能即可
-### 使用技术
-数据库：MySQL+Redis  
-通讯框架：GRPC  
-长连接通讯协议：Protocol Buffers  
-ORM框架：GORM
-### 安装部署
-#### docker compose部署
-直接执行脚本deploy_compose.sh，即可部署一个单机集群
-#### k8s部署
-直接执行脚本deploy_k8s.sh   
-### 项目目录简介
-项目结构遵循 https://github.com/golang-standards/project-layout
-```
-cmd:          服务启动入口
-config:       服务配置
-deploy:       部署配置文件
-internal:     服务私有代码
-pkg:          服务共有代码
-sql:          项目sql文件
-```
-### 服务简介
-1.connect  
-维持与客户端的TCP和WebSocket长连接，心跳，以及TCP拆包粘包，消息编解码   
-2.logic  
-设备信息，好友信息，群组信息管理，消息转发逻辑  
-3.business  
-一个简单的业务服务，可以根据自己的业务需求，进行扩展,但是前提是，你的业务服务器实现了user.int.proto的Auth接口
-### 客户端接入流程
-1. 调用business.UserExtService.SignIn接口，进行登录，获取device_id，user_id以及token    
-2. 建立长连接，使用步骤1拿到的device_id，user_id,token，完成长连接登录。  
-如果是web端,需要建立WebSocket时,如果是APP端，就需要建立TCP长连接。  
-在完成建立TCP长连接时，第一个包应该是长连接登录包（SignInInput），如果信息无误，客户端就会成功建立长连接。  
-3. 调用logic.MessageExtService.Sync，完成离线消息同步  
-注意：seq字段是客户端接收到消息的最大同步序列号，如果用户是换设备登录或者第一次登录，seq应该传0。  
 
-接下来，用户可以使用MessageIntService.PushToUsers接口来发送消息，消息接收方可以使用长连接接收到对应的消息。
-### 单用户多设备支持，离线消息同步
-每个用户都会维护一个自增的序列号，当用户A给用户B发送消息时，首先会获取A的最大序列号，设置为这条消息的seq，持久化到用户A的消息列表，
-再通过长连接下发到用户A账号登录的所有设备，再获取用户B的最大序列号，设置为这条消息的seq，持久化到用户B的消息列表，再通过长连接下发
-到用户B账号登录的所有设备。  
-假如用户的某个设备不在线，在设备长连接登录时，用本地收到消息的最大序列号，到服务器做消息同步，这样就可以保证离线消息不丢失。
-### 读扩散和写扩散
-首先解释一下，什么是读扩散，什么是写扩散  
-#### 读扩散
-**简介**：群组成员发送消息时，先建立一个会话，都将这个消息写入这个会话中，同步离线消息时，需要同步这个会话的未同步消息  
-**优点**：每个消息只需要写入数据库一次就行，减少数据库访问次数，节省数据库空间  
-**缺点**：一个用户有n个群组，客户端每次同步消息时，要上传n个序列号，服务器要对这n个群组分别做消息同步  
-#### 写扩散
-**简介**：在群组中，每个用户维持一个自己的消息列表，当群组中有人发送消息时，给群组的每个用户的消息列表插入一条消息即可  
-**优点**：每个用户只需要维护一个序列号和消息列表  
-**缺点**：一个群组有多少人，就要插入多少条消息，当群组成员很多时，DB的压力会增大
-### 消息转发逻辑选型以及特点
-#### 群组：
-采用写扩散，群组成员信息持久化到数据库保存。支持消息离线同步。  
-#### 房间：  
-采用读扩散，会将消息短暂的保存到Redis，长连接登录消息同步不会同步离线消息。
-### github
-https://github.com/alberliu/gim
+[![Go](https://img.shields.io/badge/Go-1.18+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub](https://img.shields.io/github/stars/alberliu/gim?style=social)](https://github.com/alberliu/gim)
+
+GIM 是一个使用 Go 语言开发的高性能即时通讯服务器，可作为业务系统的 IM 组件快速集成。
+
+## 特性
+
+- **多协议支持** - 同时支持 TCP 和 WebSocket 接入
+- **多设备同步** - 单用户多设备同时在线，消息实时同步
+- **离线消息** - 完整的离线消息存储与同步机制
+- **多场景支持** - 支持单聊、群聊、房间聊天等多种场景
+- **水平扩展** - 支持服务水平扩展，轻松应对高并发
+- **容器化部署** - 支持 Docker Compose 和 Kubernetes 部署
+- **领域驱动设计** - 代码结构清晰，易于维护和扩展
+
+## 技术栈
+
+| 组件 | 技术 |
+|------|------|
+| 语言 | Go 1.18+ |
+| 数据库 | MySQL |
+| 缓存 | Redis |
+| 通讯框架 | gRPC |
+| 传输协议 | Protocol Buffers |
+| ORM | GORM |
+
+## 快速开始
+
+### Docker Compose 部署（推荐）
+
+```bash
+# 克隆项目
+git clone https://github.com/alberliu/gim.git
+cd gim
+
+# 一键部署
+./deploy_compose.sh
+```
+
+### Kubernetes 部署
+
+```bash
+./deploy_k8s.sh
+```
+
+## 项目结构
+
+项目结构遵循 [golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+
+```
+gim/
+├── cmd/           # 服务启动入口
+├── config/        # 服务配置文件
+├── deploy/        # 部署配置（Docker、K8s）
+├── docs/          # 项目文档
+├── internal/      # 私有代码（不对外暴露）
+├── pkg/           # 公共代码（可被外部引用）
+├── sql/           # 数据库脚本
+└── test/          # 测试代码
+```
+
+## 服务架构
+
+GIM 由三个核心服务组成：
+
+### 1. Connect 服务
+长连接管理服务，负责：
+- 维持客户端 TCP/WebSocket 长连接
+- 心跳检测与连接保活
+- TCP 拆包粘包处理
+- 消息编解码
+
+### 2. Logic 服务
+业务逻辑服务，负责：
+- 设备信息管理
+- 好友关系管理
+- 群组信息管理
+- 消息转发与路由
+
+### 3. Business 服务
+业务扩展服务，提供：
+- 用户注册登录
+- 基础鉴权功能
+- 可根据业务需求自定义扩展
+
+> 如需接入自有业务系统，只需实现 `user.int.proto` 中的 `UserIntService.Auth` 接口即可。
+
+## 客户端接入
+
+### 接入流程
+
+```
+1. 登录获取凭证
+   └─► 调用 business.UserExtService.SignIn
+   └─► 获取 device_id, user_id, token
+
+2. 建立长连接
+   └─► Web 端：WebSocket 连接
+   └─► APP 端：TCP 长连接
+   └─► 发送 SignInInput 完成长连接登录
+
+3. 同步离线消息
+   └─► 调用 logic.MessageExtService.Sync
+   └─► 参数 seq：客户端已收到消息的最大序列号
+   └─► 首次登录或换设备登录时 seq 传 0
+
+4. 收发消息
+   └─► 发送：调用 MessageIntService.PushToUsers
+   └─► 接收：通过长连接实时接收
+```
+
+### 消息同步机制
+
+每个用户维护一个自增序列号（seq），用于消息同步：
+
+1. **发送消息时**：获取发送者的 seq 并递增，将消息持久化到发送者的消息列表
+2. **接收消息时**：获取接收者的 seq 并递增，将消息持久化到接收者的消息列表
+3. **离线同步时**：客户端携带本地最大 seq，服务端返回大于该 seq 的所有消息
+
+## 消息模型
+
+### 读扩散 vs 写扩散
+
+| 对比项 | 读扩散 | 写扩散 |
+|--------|--------|--------|
+| **原理** | 消息写入会话，成员各自同步 | 消息写入每个成员的消息列表 |
+| **优点** | 写入次数少，节省存储空间 | 同步简单，只需维护一个 seq |
+| **缺点** | 同步时需要处理多个会话 | 群成员多时写入压力大 |
+
+### GIM 的选择
+
+| 场景 | 模型 | 说明 |
+|------|------|------|
+| **群聊** | 写扩散 | 成员信息持久化，支持完整离线同步 |
+| **房间** | 读扩散 | 消息暂存 Redis，不同步离线消息 |
+
+## API 接口
+
+主要 Proto 文件位于 `pkg/protocol/proto/` 目录：
+
+```
+business/
+├── user.ext.proto      # 用户外部接口（登录注册等）
+├── user.int.proto      # 用户内部接口（鉴权）
+├── friend.ext.proto    # 好友接口
+└── message.ext.proto   # 消息接口
+
+logic/
+├── message.ext.proto   # 消息外部接口
+├── message.int.proto   # 消息内部接口
+├── device.int.proto    # 设备接口
+├── group.int.proto     # 群组接口
+└── room.int.proto      # 房间接口
+
+connect/
+├── connect.ext.proto   # 连接外部接口
+└── connect.int.proto   # 连接内部接口
+```
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
+
+## 链接
+
+- GitHub: https://github.com/alberliu/gim
