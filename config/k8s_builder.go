@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 	"strconv"
 
 	"github.com/sercand/kuberesolver/v6"
@@ -21,10 +20,6 @@ func init() {
 type k8sBuilder struct{}
 
 func (*k8sBuilder) Build() Configuration {
-	const (
-		RPCListenAddr = ":8000"
-		RPCDialAddr   = "8000"
-	)
 	const namespace = "default"
 
 	k8sClient, err := uk8s.GetK8sClient()
@@ -47,18 +42,6 @@ func (*k8sBuilder) Build() Configuration {
 		RedisPassword:        configmap.Data["redisPassword"],
 		PushRoomSubscribeNum: getInt(configmap.Data, "pushRoomSubscribeNum"),
 		PushAllSubscribeNum:  getInt(configmap.Data, "pushAllSubscribeNum"),
-
-		ConnectLocalAddr:     os.Getenv("POD_IP") + RPCListenAddr,
-		ConnectRPCListenAddr: RPCListenAddr,
-		ConnectTCPListenAddr: ":8001",
-		ConnectWSListenAddr:  ":8002",
-
-		LogicRPCListenAddr:    RPCListenAddr,
-		BusinessRPCListenAddr: RPCListenAddr,
-		FileHTTPListenAddr:    "8005",
-
-		LogicServerAddr:    "k8s:///logic:8000",
-		BusinessServerAddr: "k8s:///business:8000",
 	}
 }
 

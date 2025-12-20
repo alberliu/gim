@@ -56,7 +56,7 @@ func handleConn(tcpConn *net.TCPConn) {
 	}
 
 	for {
-		err := conn.TCP.SetReadDeadline(time.Now().Add(12 * time.Minute))
+		err := conn.TCP.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
 			conn.Close(err)
 			return

@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"gim/config"
 	deviceapp "gim/internal/logic/device/app"
 	devicedomain "gim/internal/logic/device/domain"
 	"gim/internal/logic/message/domain"
@@ -101,7 +102,8 @@ func (a *messageApp) PushToDevice(ctx context.Context, device *devicedomain.Devi
 			},
 		}
 
-		_, err := rpc.GetConnectIntClient(device.ConnectAddr).PushToDevices(ctx, request)
+		addr := device.ConnectIP + config.GrpcListenAddr
+		_, err := rpc.GetConnectIntClient(addr).PushToDevices(ctx, request)
 		return err
 	}
 

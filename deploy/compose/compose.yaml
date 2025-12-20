@@ -35,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20251213.215015
+    image: connect:20251221.001530
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/connect:/data/log/connect
@@ -55,12 +55,12 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20251213.215022
+    image: logic:20251221.001537
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/logic:/data/log/logic
     ports:
-      - "8010:8010"
+      - "8010:8000"
     environment:
       ENV: compose
     depends_on:
@@ -72,12 +72,12 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20251213.215024
+    image: business:20251221.001539
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/user:/data/log/user
     ports:
-      - "8020:8020"
+      - "8020:8000"
     environment:
       ENV: compose
     depends_on:
@@ -89,13 +89,13 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20251213.215026
+    image: file:20251221.001541
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/file:/data/file
       - /Users/alber/data/log/file:/data/log/file
     ports:
-      - "8030:8030"
+      - "8031:8001"
     environment:
       ENV: compose
     depends_on:

@@ -5,15 +5,21 @@ import (
 	"os"
 )
 
-const EnvLocal = "local"
+const (
+	EnvLocal   = "local"
+	EnvCompose = "compose"
+	EnvK8s     = "k8s"
+)
 
 var ENV = os.Getenv("ENV")
 
 var builders = map[string]Builder{
-	"local":   &localBuilder{},
-	"compose": &composeBuilder{},
-	"k8s":     &k8sBuilder{},
+	EnvLocal:   &localBuilder{},
+	EnvCompose: &composeBuilder{},
+	EnvK8s:     &k8sBuilder{},
 }
+
+const GrpcListenAddr = ":8000"
 
 var Config Configuration
 
@@ -30,18 +36,6 @@ type Configuration struct {
 	RedisPassword        string
 	PushRoomSubscribeNum int
 	PushAllSubscribeNum  int
-
-	ConnectLocalAddr     string
-	ConnectRPCListenAddr string
-	ConnectTCPListenAddr string
-	ConnectWSListenAddr  string
-
-	LogicRPCListenAddr    string
-	BusinessRPCListenAddr string
-	FileHTTPListenAddr    string
-
-	LogicServerAddr    string
-	BusinessServerAddr string
 }
 
 func init() {

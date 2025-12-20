@@ -52,7 +52,7 @@ func main() {
 			Data:    map[string]string{"url": baseURL + name},
 		})
 	})
-	err := router.Run(":8085")
+	err := router.Run(":8001")
 	if err != nil {
 		slog.Error("Run error", "error", err)
 	}

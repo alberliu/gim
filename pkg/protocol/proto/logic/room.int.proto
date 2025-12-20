@@ -26,5 +26,4 @@ message SubscribeRoomRequest{
   uint64 device_id = 2; // 设备id
   uint64 room_id = 3; // 房间id
   uint64 seq = 4; // 消息序列号
-  string conn_addr = 5; // 服务器地址
 }

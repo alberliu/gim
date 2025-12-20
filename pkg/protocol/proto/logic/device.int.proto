@@ -19,8 +19,7 @@ message SignInRequest {
   uint64 user_id = 1; // 用户id
   uint64 device_id = 2; // 设备ID
   string token = 3; // 秘钥
-  string connect_addr = 4; // connect服务地址
-  string client_addr = 5; // 客户端地址
+  string client_addr = 4; // 客户端地址
 }
 
 message SignInReply {}

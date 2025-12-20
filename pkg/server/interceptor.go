@@ -1,4 +1,4 @@
-package interceptor
+package server
 
 import (
 	"context"
@@ -16,13 +16,13 @@ import (
 )
 
 // NewInterceptor 生成GRPC过滤器
-func NewInterceptor(urlWhitelist map[string]struct{}) grpc.UnaryServerInterceptor {
+func NewInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (reply interface{}, err error) {
 		defer gerrors.LogPanic(ctx, req, info, &err)
 		md, _ := metadata.FromIncomingContext(ctx)
 		logger := slog.With("method", info.FullMethod, "md", md, "request", req, "reply", reply)
 
-		reply, err = handleWithAuth(ctx, req, info, handler, urlWhitelist)
+		reply, err = handleWithAuth(ctx, req, info, handler)
 
 		s, _ := status.FromError(err)
 		if s.Code() != 0 && s.Code() < 10000 {
@@ -34,10 +34,10 @@ func NewInterceptor(urlWhitelist map[string]struct{}) grpc.UnaryServerIntercepto
 }
 
 // handleWithAuth 处理鉴权逻辑
-func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, urlWhitelist map[string]struct{}) (interface{}, error) {
+func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	serverName := strings.Split(info.FullMethod, "/")[1]
-	if !strings.HasSuffix(serverName, "IntService") {
-		if _, ok := urlWhitelist[info.FullMethod]; !ok {
+	if strings.HasSuffix(serverName, "ExtService") {
+		if _, ok := URLWhitelist[info.FullMethod]; !ok {
 			userID := md.GetUserID(ctx)
 			token := md.GetToken(ctx)
 

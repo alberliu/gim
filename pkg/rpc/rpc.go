@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"google.golang.org/protobuf/proto"
@@ -13,11 +14,22 @@ import (
 	"gim/pkg/ugrpc"
 )
 
+func getTarget(server string) string {
+	switch config.ENV {
+	case config.EnvCompose:
+		return fmt.Sprintf("dns:///%s:8000", server)
+	case config.EnvK8s:
+		return fmt.Sprintf("k8s:///%s:8000", server)
+	default:
+		panic("unknown env")
+	}
+}
+
 var connectIntClients sync.Map
 
 var (
-	logicConn    = ugrpc.NewClient(config.Config.LogicServerAddr)
-	businessConn = ugrpc.NewClient(config.Config.BusinessServerAddr)
+	logicConn    = ugrpc.NewClient(getTarget("logic"))
+	businessConn = ugrpc.NewClient(getTarget("business"))
 )
 
 var (

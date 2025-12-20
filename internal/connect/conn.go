@@ -13,7 +13,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	"gim/config"
 	"gim/pkg/codec"
 	"gim/pkg/gerrors"
 	"gim/pkg/md"
@@ -22,7 +21,8 @@ import (
 	"gim/pkg/rpc"
 )
 
-const WriteDeadline = time.Second * 3
+const ReadDeadline = time.Minute * 12
+const WriteDeadline = time.Second * 5
 
 const (
 	ConnTypeTCP int8 = 1 // tcp连接
@@ -180,11 +180,10 @@ func (c *Conn) SignIn(message *pb.Message) {
 	}
 
 	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.SignInRequest{
-		UserId:      request.UserId,
-		DeviceId:    request.DeviceId,
-		Token:       request.Token,
-		ConnectAddr: config.Config.ConnectLocalAddr,
-		ClientAddr:  c.GetAddr(),
+		UserId:     request.UserId,
+		DeviceId:   request.DeviceId,
+		Token:      request.Token,
+		ClientAddr: c.GetAddr(),
 	})
 
 	setContent(message, err, nil)
@@ -229,7 +228,6 @@ func (c *Conn) SubscribedRoom(message *pb.Message) {
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 		RoomId:   subscribeRoom.RoomId,
-		ConnAddr: config.Config.ConnectLocalAddr,
 	})
 	if err != nil {
 		slog.Error("SubscribedRoom error", "error", err)

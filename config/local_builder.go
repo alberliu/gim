@@ -18,17 +18,5 @@ func (*localBuilder) Build() Configuration {
 		RedisPassword:        "123456",
 		PushRoomSubscribeNum: 100,
 		PushAllSubscribeNum:  100,
-
-		ConnectLocalAddr:     "127.0.0.1:8000",
-		ConnectRPCListenAddr: ":8000",
-		ConnectTCPListenAddr: ":8001",
-		ConnectWSListenAddr:  ":8002",
-
-		LogicRPCListenAddr:    ":8010",
-		BusinessRPCListenAddr: ":8020",
-		FileHTTPListenAddr:    "8030",
-
-		LogicServerAddr:    "127.0.0.1:8010",
-		BusinessServerAddr: "127.0.0.1:8020",
 	}
 }

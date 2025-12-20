@@ -43,7 +43,7 @@ func DoConn(wsConn *websocket.Conn) {
 	}
 
 	for {
-		err := conn.WS.SetReadDeadline(time.Now().Add(12 * time.Minute))
+		err := conn.WS.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
 			conn.Close(err)
 			return

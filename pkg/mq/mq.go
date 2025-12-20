@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	PushRoomTopic         = "push_room_topic"          // 房间消息队列
-	PushRoomPriorityTopic = "push_room_priority_topic" // 房间优先级消息队列
-	PushAllTopic          = "push_all_topic"           // 全服消息队列
+	PushRoomTopic         = "pushRoom"         // 房间消息队列
+	PushRoomPriorityTopic = "pushRoomPriority" // 房间优先级消息队列
+	PushAllTopic          = "pushAll"          // 全服消息队列
 )
 
 func Publish(ctx context.Context, topic string, bytes []byte) error {

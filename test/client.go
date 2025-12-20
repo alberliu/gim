@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	connectTcpServerAddr = "127.0.0.1:8001"
+	connectTcpServerAddr = "127.0.0.1:8002"
 	businessServerAddr   = "127.0.0.1:8020"
 	logicServerAddr      = "127.0.0.1:8010"
 )

@@ -31,16 +31,16 @@ func initData() {
 	}
 
 	// 插入 device 数据
-	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_addr`, `client_addr`) VALUES (11, now(), now(), 1, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
+	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_ip`, `client_addr`) VALUES (11, now(), now(), 1, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_addr`, `client_addr`) VALUES (12, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
+	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_ip`, `client_addr`) VALUES (12, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_addr`, `client_addr`) VALUES (2, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
+	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_ip`, `client_addr`) VALUES (2, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_addr`, `client_addr`) VALUES (3, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
+	if err := db.DB.Exec("INSERT INTO `device` (`id`, `created_at`, `updated_at`, `user_id`, `type`, `brand`, `model`, `system_version`, `sdk_version`, `brand_push_id`, `connect_ip`, `client_addr`) VALUES (3, now(), now(), 0, 1, 'xiaomi', 'xiaomi 15', '15.0.0', '1.0.0', 'xiaomi push id', '', '')").Error; err != nil {
 		panic(err)
 	}
 

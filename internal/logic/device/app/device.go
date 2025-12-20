@@ -5,6 +5,7 @@ import (
 
 	"gim/internal/logic/device/domain"
 	"gim/internal/logic/device/repo"
+	"gim/pkg/md"
 	"gim/pkg/protocol/pb/businesspb"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
@@ -30,7 +31,7 @@ func (*deviceApp) SignIn(ctx context.Context, request *pb.SignInRequest) error {
 		return err
 	}
 	device.UserID = request.UserId
-	device.ConnectAddr = request.ConnectAddr
+	device.ConnectIP = md.GetClientIP(ctx)
 	device.ClientAddr = request.ClientAddr
 	err = repo.DeviceRepo.Save(ctx, device)
 	if err != nil {

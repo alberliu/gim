@@ -2,9 +2,11 @@ package md
 
 import (
 	"context"
+	"net"
 	"strconv"
 
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 )
 
 const (
@@ -64,4 +66,13 @@ func NewAndCopyRequestID(ctx context.Context) context.Context {
 		return newCtx
 	}
 	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestID, requestIDs[0]))
+}
+
+func GetClientIP(ctx context.Context) string {
+	if p, ok := peer.FromContext(ctx); ok {
+		if tcpAddr, ok := p.Addr.(*net.TCPAddr); ok {
+			return tcpAddr.IP.String()
+		}
+	}
+	return ""
 }
