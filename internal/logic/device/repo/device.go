@@ -60,7 +60,7 @@ func (*deviceRepo) SetOnline(ctx context.Context, deviceID uint64) error {
 	return err
 }
 
-// SetOffline 设置在线
+// SetOffline 设置离线
 func (*deviceRepo) SetOffline(ctx context.Context, deviceID uint64) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
 	_, err := db.RedisCli.Del(ctx, key).Result()
