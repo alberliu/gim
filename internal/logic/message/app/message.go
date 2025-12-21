@@ -92,7 +92,7 @@ func (a *messageApp) PushToUser(ctx context.Context, userID, messageID uint64, m
 
 func (a *messageApp) PushToDevice(ctx context.Context, device *devicedomain.Device, message *connectpb.Message) error {
 	slog.Debug("PushToDevice", "device", device, "message", message)
-	if device.IsOnline {
+	if device.Status == devicedomain.StatusOnline {
 		request := &connectpb.PushToDevicesRequest{
 			DeviceMessageList: []*connectpb.DeviceMessage{
 				{

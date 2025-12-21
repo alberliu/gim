@@ -25,18 +25,18 @@ const ReadDeadline = time.Minute * 12
 const WriteDeadline = time.Second * 5
 
 const (
-	ConnTypeTCP int8 = 1 // tcp连接
-	ConnTypeWS  int8 = 2 // websocket连接
+	ConnTypeTCP int8 = 1 // TCP连接
+	ConnTypeWS  int8 = 2 // WebSocket连接
 )
 
 type Conn struct {
 	ConnType int8 // 连接类型
 
-	TCP    *net.TCPConn  // tcp连接
-	Reader *bufio.Reader // reader
+	TCP    *net.TCPConn  // TCP连接
+	Reader *bufio.Reader // Reader
 
 	WSMutex sync.Mutex      // WS写锁
-	WS      *websocket.Conn // websocket连接
+	WS      *websocket.Conn // WebSocket连接
 
 	UserID   uint64        // 用户ID
 	DeviceID uint64        // 设备ID
@@ -88,6 +88,7 @@ func (c *Conn) WriteToWS(buf []byte) error {
 // io.EOF是用户主动断开连接
 // io timeout是SetReadDeadline之后，超时返回的错误
 func (c *Conn) Close(err error) {
+	slog.Warn("Conn Close", "error", err)
 	// 取消设备和连接的对应关系
 	if c.DeviceID != 0 {
 		DeleteConn(c.DeviceID)

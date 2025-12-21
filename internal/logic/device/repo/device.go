@@ -42,39 +42,38 @@ func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.
 	}
 
 	for i := range devices {
-		isOnline, err := r.GetIsOnline(ctx, devices[i].ID)
+		status, err := r.GetStatus(ctx, devices[i].ID)
 		if err != nil {
 			return nil, err
 		}
-		devices[i].IsOnline = isOnline
+		devices[i].Status = status
 	}
-	return devices, err
+	return devices, nil
 }
 
 const deviceStatus = "deviceStatus:%d"
 
-// SetOnline 设置在线
-func (*deviceRepo) SetOnline(ctx context.Context, deviceID uint64) error {
+// SetStatus 设置在线
+func (*deviceRepo) SetStatus(ctx context.Context, deviceID uint64, status domain.Status) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
-	_, err := db.RedisCli.Set(ctx, key, "", 12*time.Minute).Result()
+	var err error
+	if status == domain.StatusOnline {
+		_, err = db.RedisCli.Set(ctx, key, "", 12*time.Minute).Result()
+	} else {
+		_, err = db.RedisCli.Del(ctx, key).Result()
+	}
 	return err
 }
 
-// SetOffline 设置离线
-func (*deviceRepo) SetOffline(ctx context.Context, deviceID uint64) error {
-	key := fmt.Sprintf(deviceStatus, deviceID)
-	_, err := db.RedisCli.Del(ctx, key).Result()
-	return err
-}
-
-func (*deviceRepo) GetIsOnline(ctx context.Context, deviceID uint64) (bool, error) {
+// GetStatus 获取状态
+func (*deviceRepo) GetStatus(ctx context.Context, deviceID uint64) (domain.Status, error) {
 	key := fmt.Sprintf(deviceStatus, deviceID)
 	_, err := db.RedisCli.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		return false, nil
+		return domain.StatusOffline, nil
 	}
 	if err != nil {
-		return false, err
+		return domain.StatusOffline, err
 	}
-	return true, nil
+	return domain.StatusOnline, nil
 }

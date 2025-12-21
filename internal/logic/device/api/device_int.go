@@ -20,13 +20,13 @@ func (*DeviceIntService) SignIn(ctx context.Context, request *pb.SignInRequest) 
 }
 
 func (s *DeviceIntService) Heartbeat(ctx context.Context, request *pb.HeartbeatRequest) (*emptypb.Empty, error) {
-	err := app.DeviceApp.Heartbeat(ctx, request.UserId, request.DeviceId)
+	err := app.DeviceApp.Heartbeat(ctx, request.DeviceId)
 	return &emptypb.Empty{}, err
 }
 
 // Offline 设备离线
 func (*DeviceIntService) Offline(ctx context.Context, request *pb.OfflineRequest) (*emptypb.Empty, error) {
-	err := app.DeviceApp.Offline(ctx, request.DeviceId, request.ClientAddr)
+	err := app.DeviceApp.Offline(ctx, request.DeviceId)
 	return &emptypb.Empty{}, err
 }
 

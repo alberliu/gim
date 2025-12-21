@@ -6,6 +6,13 @@ import (
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
+type Status int
+
+const (
+	StatusOffline Status = 0 // 离线
+	StatusOnline  Status = 1 // 在线
+)
+
 // Device 设备
 type Device struct {
 	ID            uint64        // 设备id
@@ -21,7 +28,7 @@ type Device struct {
 	ConnectIP     string        // 连接层服务器IP
 	ClientAddr    string        // 客户端地址
 
-	IsOnline bool `gorm:"-"` // 是否在线
+	Status Status `gorm:"-"` // 状态
 }
 
 func (d *Device) IsLegal() bool {
