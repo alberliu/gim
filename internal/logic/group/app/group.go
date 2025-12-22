@@ -39,7 +39,7 @@ func (*groupApp) Create(ctx context.Context, request *pb.GroupCreateRequest) (ui
 			Extra:    member.Extra,
 		})
 	}
-	err = repo.GroupMemberRepo.BatchCreate(ctx, members)
+	err = repo.GroupMemberRepo.BatchCreate(ctx, group.ID, members)
 	if err != nil {
 		return 0, err
 	}
@@ -80,7 +80,7 @@ func (*groupApp) AddMember(ctx context.Context, request *pb.GroupAddMemberReques
 			Extra:    member.Extra,
 		})
 	}
-	return repo.GroupMemberRepo.BatchCreate(ctx, members)
+	return repo.GroupMemberRepo.BatchCreate(ctx, request.GroupId, members)
 }
 
 // RemoveMember 移除成员

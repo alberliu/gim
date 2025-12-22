@@ -12,7 +12,10 @@ import (
 	"gim/internal/logic/device/domain"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
+	"gim/pkg/uredis"
 )
+
+const userDeviceKey = "userDevice:%d"
 
 var DeviceRepo = new(deviceRepo)
 
@@ -30,25 +33,37 @@ func (*deviceRepo) Get(ctx context.Context, deviceID uint64) (*domain.Device, er
 
 // Save 保存设备信息
 func (*deviceRepo) Save(ctx context.Context, device *domain.Device) error {
-	return db.DB.WithContext(ctx).Save(&device).Error
+	err := db.DB.WithContext(ctx).Save(&device).Error
+	if err != nil {
+		return err
+	}
+	key := fmt.Sprintf(userDeviceKey, device.UserID)
+	return db.RedisCli.Del(ctx, key).Err()
 }
 
 // ListByUserID 获取用户设备
 func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.Device, error) {
-	var devices []domain.Device
-	err := db.DB.WithContext(ctx).Find(&devices, "user_id = ?", userID).Error
+	key := fmt.Sprintf(userDeviceKey, userID)
+	devices, err := uredis.Get(db.RedisCli, ctx, key, 24*time.Hour, func() (*[]domain.Device, error) {
+		devices, err := gorm.G[domain.Device](db.DB).Where("user_id = ?", userID).Find(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return &devices, nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	for i := range devices {
-		status, err := r.GetStatus(ctx, devices[i].ID)
+	// Status 是动态的，需要实时获取
+	for i := range *devices {
+		status, err := r.GetStatus(ctx, (*devices)[i].ID)
 		if err != nil {
 			return nil, err
 		}
-		devices[i].Status = status
+		(*devices)[i].Status = status
 	}
-	return devices, nil
+	return *devices, nil
 }
 
 const deviceStatus = "deviceStatus:%d"

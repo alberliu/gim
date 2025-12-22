@@ -20,7 +20,7 @@ func TestClient(t *testing.T) {
 	connect(2, 2)
 	connect(3, 3)
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 	reply, err := getMessageIntClient().PushToUsers(context.TODO(), &pb.PushToUsersRequest{
 		UserIds:   []uint64{1},
 		Command:   200,
