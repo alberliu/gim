@@ -12,7 +12,7 @@ service ConnectIntService {
 }
 
 message PushToDevicesRequest {
-  repeated DeviceMessage DeviceMessageList = 1;
+  repeated DeviceMessage device_messages = 1;
 }
 
 message DeviceMessage{

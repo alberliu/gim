@@ -69,7 +69,7 @@ func GetUserIntClient() businesspb.UserIntServiceClient {
 
 type PushRequest struct {
 	UserIDs   []uint64
-	Command   connectpb.Command
+	Command   connectpb.MessageCommand
 	Message   proto.Message
 	IsPersist bool
 }

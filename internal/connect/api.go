@@ -18,7 +18,7 @@ type ConnIntService struct {
 func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDevicesRequest) (*emptypb.Empty, error) {
 	reply := &emptypb.Empty{}
 
-	for _, dm := range request.DeviceMessageList {
+	for _, dm := range request.DeviceMessages {
 		conn := GetConn(dm.DeviceId)
 		if conn == nil {
 			slog.Warn("PushToDevices warn conn not found", "device_id", dm.DeviceId)
@@ -29,7 +29,7 @@ func (s *ConnIntService) PushToDevices(ctx context.Context, request *pb.PushToDe
 			slog.Warn("PushToDevices warn deviceID not equal", "device_id", dm.DeviceId)
 			return reply, gerrors.ErrConnDeviceIDNotEqual
 		}
-		conn.Send(dm.Message)
+		conn.SendMessage(dm.Message)
 	}
 	return reply, nil
 }

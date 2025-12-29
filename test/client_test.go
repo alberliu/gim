@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
@@ -23,7 +24,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	reply, err := getMessageIntClient().PushToUsers(context.TODO(), &pb.PushToUsersRequest{
 		UserIds:   []uint64{1},
-		Command:   200,
+		Command:   connectpb.MessageCommand_MC_USER_MESSAGE,
 		Content:   []byte("hello gim"),
 		IsPersist: true,
 	})
@@ -35,7 +36,7 @@ func TestClient(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	groupReply, err := getGroupIntClient().Push(context.TODO(), &pb.GroupPushRequest{
 		GroupId:   1,
-		Command:   200,
+		Command:   connectpb.MessageCommand_MC_GROUP_MESSAGE,
 		Content:   []byte("hello gim from group"),
 		IsPersist: true,
 	})

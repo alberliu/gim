@@ -31,7 +31,7 @@ func DeleteConn(deviceID uint64) {
 func PushAll(message *pb.Message) {
 	ConnesManager.Range(func(key, value interface{}) bool {
 		conn := value.(*Conn)
-		conn.Send(message)
+		conn.SendMessage(message)
 		return true
 	})
 }

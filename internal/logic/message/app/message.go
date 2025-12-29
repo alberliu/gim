@@ -47,7 +47,6 @@ func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message 
 
 	for _, userID := range userIDs {
 		msg := &connectpb.Message{
-			RequestId: message.RequestId,
 			Command:   message.Command,
 			Content:   message.Content,
 			CreatedAt: message.CreatedAt,
@@ -94,7 +93,7 @@ func (a *messageApp) PushToDevice(ctx context.Context, device *devicedomain.Devi
 	slog.Debug("PushToDevice", "device", device, "message", message)
 	if device.Status == devicedomain.StatusOnline {
 		request := &connectpb.PushToDevicesRequest{
-			DeviceMessageList: []*connectpb.DeviceMessage{
+			DeviceMessages: []*connectpb.DeviceMessage{
 				{
 					DeviceId: device.ID,
 					Message:  message,

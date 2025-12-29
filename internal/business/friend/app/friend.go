@@ -88,7 +88,7 @@ func (*friendApp) AddFriend(ctx context.Context, userId, friendId uint64, remark
 
 	_, err = rpc.PushToUsers(ctx, rpc.PushRequest{
 		UserIDs: []uint64{friendId},
-		Command: connectpb.Command(pb.Command_ADD_FRIEND),
+		Command: connectpb.MessageCommand(pb.Command_ADD_FRIEND),
 		Message: &pb.AddFriendPush{
 			FriendId:    userId,
 			Nickname:    user.Nickname,
@@ -132,7 +132,7 @@ func (*friendApp) AgreeAddFriend(ctx context.Context, userId, friendId uint64, r
 
 	_, err = rpc.PushToUsers(ctx, rpc.PushRequest{
 		UserIDs: []uint64{friendId},
-		Command: connectpb.Command(pb.Command_AGREE_ADD_FRIEND),
+		Command: connectpb.MessageCommand(pb.Command_AGREE_ADD_FRIEND),
 		Message: &pb.AgreeAddFriendPush{
 			FriendId:  userId,
 			Nickname:  user.Nickname,
@@ -179,7 +179,7 @@ func (*friendApp) SendToFriend(ctx context.Context, fromDeviceID, fromUserID uin
 
 	pushReply, err := rpc.PushToUsers(ctx, rpc.PushRequest{
 		UserIDs:   []uint64{fromUserID, req.UserId},
-		Command:   connectpb.Command_USER_MESSAGE,
+		Command:   connectpb.MessageCommand_MC_USER_MESSAGE,
 		Message:   push,
 		IsPersist: true,
 	})

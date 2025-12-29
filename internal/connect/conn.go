@@ -125,38 +125,38 @@ func (c *Conn) GetAddr() string {
 	return ""
 }
 
-// HandleMessage 消息处理
-func (c *Conn) HandleMessage(buf []byte) {
-	var message = new(pb.Message)
-	err := proto.Unmarshal(buf, message)
+// HandlePacket 包处理
+func (c *Conn) HandlePacket(buf []byte) {
+	packet := new(pb.Packet)
+	err := proto.Unmarshal(buf, packet)
 	if err != nil {
 		slog.Error("unmarshal error", "error", err, "len", len(buf))
 		return
 	}
-	slog.Debug("HandleMessage", "message", message)
+	slog.Debug("HandlePacket", "packet", packet)
 
 	// 对未登录的用户进行拦截
-	if message.Command != pb.Command_SIGN_IN && c.UserID == 0 {
-		setContent(message, gerrors.ErrUnauthorized, nil)
-		c.Send(message)
+	if packet.Command != pb.PacketCommand_PC_SIGN_IN && c.UserID == 0 {
+		setContent(packet, gerrors.ErrUnauthorized, nil)
+		c.SendPacket(packet)
 		return
 	}
 
-	switch message.Command {
-	case pb.Command_SIGN_IN:
-		c.SignIn(message)
-	case pb.Command_HEARTBEAT:
-		c.Heartbeat(message)
-	case pb.Command_SUBSCRIBE_ROOM:
-		c.SubscribedRoom(message)
+	switch packet.Command {
+	case pb.PacketCommand_PC_SIGN_IN:
+		c.SignIn(packet)
+	case pb.PacketCommand_PC_HEARTBEAT:
+		c.Heartbeat(packet)
+	case pb.PacketCommand_PC_SUBSCRIBE_ROOM:
+		c.SubscribedRoom(packet)
 	default:
-		slog.Error("handler switch other", "command", message.Command)
+		slog.Error("handler switch other", "command", packet.Command)
 	}
 }
 
-// Send 下发消息
-func (c *Conn) Send(message *pb.Message) {
-	buf, err := proto.Marshal(message)
+// SendPacket 下发包
+func (c *Conn) SendPacket(packet *pb.Packet) {
+	buf, err := proto.Marshal(packet)
 	if err != nil {
 		slog.Error("proto.Marshal error", "error", err)
 		return
@@ -168,27 +168,43 @@ func (c *Conn) Send(message *pb.Message) {
 		c.Close(err)
 		return
 	}
-	slog.Info("Send", "userID", c.UserID, "message", message)
+	slog.Info("SendPacket", "userID", c.UserID, "packet", packet)
+}
+
+func (c *Conn) SendMessage(message *pb.Message) {
+	buf, err := proto.Marshal(message)
+	if err != nil {
+		slog.Error("proto.Marshal error", "error", err)
+		return
+	}
+
+	packet := &pb.Packet{
+		Command: pb.PacketCommand_PC_MESSAGE,
+		Content: buf,
+	}
+	c.SendPacket(packet)
+
+	slog.Info("SendMessage", "userID", c.UserID, "message", message)
 }
 
 // SignIn 登录
-func (c *Conn) SignIn(message *pb.Message) {
+func (c *Conn) SignIn(packet *pb.Packet) {
 	var request pb.SignInRequest
-	err := proto.Unmarshal(message.Content, &request)
+	err := proto.Unmarshal(packet.Content, &request)
 	if err != nil {
 		slog.Error("proto unmarshal error", "error", err)
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), message.RequestId), &logicpb.SignInRequest{
+	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), packet.RequestId), &logicpb.SignInRequest{
 		UserId:     request.UserId,
 		DeviceId:   request.DeviceId,
 		Token:      request.Token,
 		ClientAddr: c.GetAddr(),
 	})
 
-	setContent(message, err, nil)
-	c.Send(message)
+	setContent(packet, err, nil)
+	c.SendPacket(packet)
 	if err != nil {
 		return
 	}
@@ -199,8 +215,8 @@ func (c *Conn) SignIn(message *pb.Message) {
 }
 
 // Heartbeat 心跳
-func (c *Conn) Heartbeat(message *pb.Message) {
-	c.Send(message)
+func (c *Conn) Heartbeat(packet *pb.Packet) {
+	c.SendPacket(packet)
 
 	_, err := rpc.GetDeviceIntClient().Heartbeat(context.TODO(), &logicpb.HeartbeatRequest{
 		UserId:   c.UserID,
@@ -214,17 +230,17 @@ func (c *Conn) Heartbeat(message *pb.Message) {
 }
 
 // SubscribedRoom 订阅房间
-func (c *Conn) SubscribedRoom(message *pb.Message) {
+func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	var subscribeRoom pb.SubscribeRoomRequest
-	err := proto.Unmarshal(message.Content, &subscribeRoom)
+	err := proto.Unmarshal(packet.Content, &subscribeRoom)
 	if err != nil {
 		slog.Error("proto unmarshal", "error", err)
 		return
 	}
 
 	SubscribedRoom(c, subscribeRoom.RoomId)
-	setContent(message, nil, nil)
-	c.Send(message)
+	setContent(packet, nil, nil)
+	c.SendPacket(packet)
 	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
@@ -235,7 +251,7 @@ func (c *Conn) SubscribedRoom(message *pb.Message) {
 	}
 }
 
-func setContent(message *pb.Message, err error, data proto.Message) {
+func setContent(packet *pb.Packet, err error, message proto.Message) {
 	var reply pb.Reply
 	if err != nil {
 		statusErr := status.Convert(err)
@@ -243,8 +259,8 @@ func setContent(message *pb.Message, err error, data proto.Message) {
 		reply.Message = statusErr.Message()
 	}
 
-	if data != nil {
-		reply.Data, err = proto.Marshal(data)
+	if message != nil {
+		reply.Data, err = proto.Marshal(message)
 		if err != nil {
 			slog.Error("setContent error", "error", err)
 		}
@@ -256,5 +272,5 @@ func setContent(message *pb.Message, err error, data proto.Message) {
 		slog.Error("setContent error", "error", err)
 		return
 	}
-	message.Content = buf
+	packet.Content = buf
 }

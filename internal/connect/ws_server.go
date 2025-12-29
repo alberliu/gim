@@ -54,6 +54,6 @@ func DoConn(wsConn *websocket.Conn) {
 			return
 		}
 
-		conn.HandleMessage(data)
+		conn.HandlePacket(data)
 	}
 }

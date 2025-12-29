@@ -101,7 +101,7 @@ func (r *Room) Push(message *pb.Message) {
 	for {
 		conn := element.Value.(*Conn)
 		slog.Debug("PushRoom toUser", "userID", conn.UserID, "msg", message)
-		conn.Send(message)
+		conn.SendMessage(message)
 
 		element = element.Next()
 		if element == nil {

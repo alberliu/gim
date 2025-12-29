@@ -16,7 +16,7 @@ service MessageIntService {
 
 message PushToUsersRequest{
   repeated uint64 user_ids = 1; // 用户ID
-  connect.Command command = 2; // 推送码
+  connect.MessageCommand command = 2; // 推送码
   bytes content = 3; // 推送内容
   bool is_persist = 4; // 是否持久化
 }
@@ -25,6 +25,6 @@ message PushToUsersReply{
 }
 
 message PushToAllRequest{
-  connect.Command command = 1; // 推送码
+  connect.MessageCommand command = 1; // 推送码
   bytes content = 2; // 推送内容
 }

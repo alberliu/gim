@@ -46,7 +46,7 @@ enum GroupMemberStatus{
 
 message GroupPushRequest {
   uint64 group_id = 1; // 群组ID
-  connect.Command command = 2; // 推送码
+  connect.MessageCommand command = 2; // 推送码
   bytes content = 3; // 推送内容
   bool is_persist = 4; // 是否持久化
 }

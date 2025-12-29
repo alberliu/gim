@@ -68,6 +68,6 @@ func handleConn(tcpConn *net.TCPConn) {
 			return
 		}
 
-		conn.HandleMessage(buf)
+		conn.HandlePacket(buf)
 	}
 }
