@@ -1,0 +1,53 @@
+# deployment 配置
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logic-deployment
+  labels:
+    app: {{ .Values.server.logic.name }}
+spec:
+  replicas: {{ .Values.server.logic.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.server.logic.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.server.logic.name }}
+    spec:
+      containers:
+        - name: {{ .Values.server.logic.name }}
+          image: {{ .Values.server.logic.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /data/log/logic
+              name: log
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: ENV
+              value: {{ $.Values.env }}
+      volumes:
+        - name: log
+          hostPath:
+            path: /data/log/logic
+---
+# service 配置
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.server.logic.name }}
+  labels:
+    app: {{ .Values.server.logic.name }}
+spec:
+  selector:
+    app: {{ .Values.server.logic.name }}
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8000
+      targetPort: 8000

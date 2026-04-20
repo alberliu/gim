@@ -1,0 +1,30 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+import "connect/connect.ext.proto";
+
+service MessageIntService {
+  // 推送
+  rpc PushToUsers (PushToUsersRequest) returns (PushToUsersReply);
+  // 全服推送
+  rpc PushToAll(PushToAllRequest)returns(google.protobuf.Empty);
+}
+
+
+message PushToUsersRequest{
+  repeated uint64 user_ids = 1; // 用户ID
+  connect.MessageCommand command = 2; // 推送码
+  bytes content = 3; // 推送内容
+  bool is_persist = 4; // 是否持久化
+}
+message PushToUsersReply{
+  uint64 message_id = 1;
+}
+
+message PushToAllRequest{
+  connect.MessageCommand command = 1; // 推送码
+  bytes content = 2; // 推送内容
+}

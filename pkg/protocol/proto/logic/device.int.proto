@@ -1,0 +1,62 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+
+service DeviceIntService {
+  // 登录
+  rpc SignIn (SignInRequest) returns (SignInReply);
+  // 心跳
+  rpc Heartbeat (HeartbeatRequest) returns (google.protobuf.Empty);
+  // 设备离线
+  rpc Offline (OfflineRequest) returns (google.protobuf.Empty);
+  // 创建设备
+  rpc Save (DeviceSaveRequest) returns (DeviceSaveReply);
+}
+
+message SignInRequest {
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备ID
+  string token = 3; // 秘钥
+  string client_addr = 4; // 客户端地址
+}
+
+message SignInReply {}
+
+message HeartbeatRequest{
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备ID
+}
+
+message OfflineRequest {
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2; // 设备id
+  string client_addr = 3; // 客户端地址
+}
+
+message DeviceSaveRequest {
+  Device device = 1;
+}
+message DeviceSaveReply {
+  uint64 device_id = 1;
+}
+
+enum DeviceType{
+  DT_DEFAULT = 0;
+  DT_ANDROID = 1;
+  DT_IOS = 2;
+  DT_WINDOWS = 3;
+  DT_MACOS = 4;
+  DT_WEB = 5;
+}
+
+message Device {
+  uint64 id = 1; // 设备id
+  DeviceType type = 2; // 设备类型
+  string brand = 3; // 手机厂商
+  string model = 4; // 机型
+  string system_version = 5; // 系统版本
+  string sdk_version = 6; // SDK版本
+  string branch_push_id = 7; // 厂商推送ID
+}

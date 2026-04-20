@@ -1,0 +1,52 @@
+syntax = "proto3";
+package connect;
+option go_package = "gim/pkg/protocol/pb/connectpb";
+
+enum PacketCommand {
+  PC_UNKNOWN = 0; // 未知
+  PC_SIGN_IN = 1; // 设备登录请求
+  PC_HEARTBEAT = 2; // 心跳
+  PC_SUBSCRIBE_ROOM = 3; // 订阅房间
+  PC_MESSAGE = 4; // 消息
+}
+
+// 包
+message Packet {
+  string request_id = 1; // 请求id
+  PacketCommand command = 2; // 指令
+  bytes content = 3; // 数据内容
+  uint64 seq = 4; // 包序列号
+}
+
+enum MessageCommand{
+  MC_UNKNOWN = 0; // 未知
+  MC_USER_MESSAGE = 1; // 用户消息
+  MC_GROUP_MESSAGE = 2; // 群组消息
+}
+
+// 消息
+message Message {
+  MessageCommand command = 2; // 指令
+  bytes content = 3; // 数据内容
+  uint64 seq = 4; // 消息序列号
+  int64 created_at = 5; // 消息时间戳
+  uint64 room_id = 6; // 房间ID
+}
+
+// 设备登录,command:1
+message SignInRequest {
+  uint64 user_id = 1; // 用户id
+  uint64 device_id = 2;  // 设备ID
+  string token = 3; // token
+}
+
+// 订阅房间请求
+message SubscribeRoomRequest {
+  uint64 room_id = 1; // 房间ID，如果为0，取消房间订阅
+}
+
+message Reply{
+  int32 code = 1; // 错误码
+  string message = 2; // 错误信息
+  bytes data = 3; // 数据
+}

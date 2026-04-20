@@ -1,0 +1,31 @@
+@startuml
+participant c1
+participant c2
+participant c3
+
+participant connect
+participant logic
+
+c1 -> logic: 发送消息到群组
+logic --> c1: 消息发送成功
+
+logic -> logic: 查询群组所有成员
+
+logic -> logic: 将消息持久化到c1的消息列表
+logic -> connect: 发送消息给c1的其他在线设备
+connect -> c1: 发送消息给c1的其他在线设备
+c1 -> connect: 消息ack
+connect -> logic: 消息ack
+
+logic -> logic: 将消息持久化到c2的消息列表
+logic -> connect: 发送消息给c2的其他在线设备
+connect -> c2: 发送消息给c2的其他在线设备
+c2 -> connect: 消息ack
+connect -> logic: 消息ack
+
+logic -> logic: 将消息持久化到c3的消息列表
+logic -> connect: 发送消息给c3的其他在线设备
+connect -> c3: 发送消息给c3的其他在线设备
+c3 -> connect: 消息ack
+connect -> logic: 消息ack
+@enduml

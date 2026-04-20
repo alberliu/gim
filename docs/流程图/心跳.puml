@@ -1,0 +1,17 @@
+@startuml
+participant client
+participant connect
+participant logic
+
+client -> connect: 心跳包请求
+connect --> client: 心跳包响应
+
+client -> client: 等待一段时间
+
+client -> connect: 心跳包请求
+connect --> client: 心跳包响应
+
+
+connect -> connect: 连续n次没有收到，释放连接
+connect -> logic: 通知设备下线
+@enduml

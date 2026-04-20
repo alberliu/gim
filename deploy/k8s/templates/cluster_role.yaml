@@ -1,0 +1,43 @@
+# 为pod中的服务赋予发现服务和读取配置的权限
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/status
+      - services
+      - services/status
+      - endpoints
+      - endpoints/status
+      - configmaps
+      - configmaps/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "discovery.k8s.io"
+    resources:
+      - endpointslices
+      - endpointslices/status
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pod-role
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default

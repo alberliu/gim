@@ -1,0 +1,47 @@
+syntax = "proto3";
+package logic;
+option go_package = "gim/pkg/protocol/pb/logicpb";
+
+import "google/protobuf/empty.proto";
+import "connect/connect.ext.proto";
+
+service MessageExtService {
+  // 消息同步
+  rpc Sync (SyncRequest) returns (SyncReply);
+  // 设备收到消息回执
+  rpc MessageACK (MessageACKRequest) returns (google.protobuf.Empty);
+}
+
+message SyncRequest {
+  uint64 seq = 1; // 序列号
+}
+message SyncReply {
+  repeated connect.Message messages = 1; // 消息列表
+  bool has_more = 2; // 是否有更多数据
+}
+
+message MessageACKRequest {
+  uint64 device_ack = 1; // 设备收到消息的确认号
+}
+
+message User {
+  uint64 user_id = 1; // 发送者id
+  uint64 device_id = 2; // 发送者设备id
+  string nickname = 3; // 昵称
+  string avatar_url = 4; // 头像
+  string extra = 5; // 扩展字段
+}
+
+// 用户消息 PC_USER_MESSAGE = 100
+message UserMessagePush{
+  User from_user = 1; // 发送者用户
+  uint64 to_user_id = 2; // 接收者用户ID
+  bytes content = 3; // 用户发送的消息内容
+}
+
+// 群组消息 PC_GROUP_MESSAGE = 101
+message GroupMessagePush{
+  User from_user = 1; // 发送者用户
+  uint64 group_id = 2; // 群组ID
+  bytes content = 3; // 用户发送的消息内容
+}

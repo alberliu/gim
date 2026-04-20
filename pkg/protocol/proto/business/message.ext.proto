@@ -1,0 +1,14 @@
+syntax = "proto3";
+package business;
+option go_package = "gim/pkg/protocol/pb/businesspb";
+
+
+enum Command{
+  DEFAULT = 0;
+  ADD_FRIEND = 110; // 添加好友请求
+  AGREE_ADD_FRIEND = 111; // 同意添加好友
+
+  UPDATE_GROUP = 120; // 更新群组
+  ADD_GROUP_MEMBERS = 121; // 添加群组成员
+  REMOVE_GROUP_MEMBER = 122; // 移除群组成员
+}
