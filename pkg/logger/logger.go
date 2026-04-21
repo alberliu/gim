@@ -13,15 +13,15 @@ import (
 	"gim/config"
 )
 
-func Init(directory string) {
+func Init() {
 	var writer io.Writer
 
-	logFile := config.Config.LogFile(directory)
+	logFile := config.Config.LogFile(config.Server)
 	if logFile == "" {
 		writer = os.Stdout
 	} else {
 		writer = &lumberjack.Logger{
-			Filename:   fmt.Sprintf("/data/log/%s/log.log", directory),
+			Filename:   fmt.Sprintf("/data/log/%s/log.log", config.Server),
 			MaxSize:    100, // 单个文件大小megabytes
 			MaxBackups: 30,  // 最大备份数量
 			MaxAge:     30,  // 保存天数

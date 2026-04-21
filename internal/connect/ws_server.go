@@ -16,14 +16,18 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// StartWSServer 启动WebSocket服务器
-func StartWSServer(address string) {
-	http.HandleFunc("/ws", wsHandler)
-	slog.Info("websocket server running")
-	err := http.ListenAndServe(address, nil)
-	if err != nil {
-		panic(err)
-	}
+// StartWSServer 启动WebSocket服务器，返回 server 供调用方平滑关闭
+func StartWSServer(address string) *http.Server {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/ws", wsHandler)
+	server := &http.Server{Addr: address, Handler: mux}
+	go func() {
+		slog.Info("websocket server running")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
+	return server
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {

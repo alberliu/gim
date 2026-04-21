@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	logger.Init("logic")
+	logger.Init()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
 		pb.RegisterDeviceIntServiceServer(server, &deviceapi.DeviceIntService{})

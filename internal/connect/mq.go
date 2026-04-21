@@ -15,13 +15,13 @@ import (
 
 // StartSubscribe 启动MQ消息处理逻辑
 func StartSubscribe() {
-	pushRoomPriorityChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushRoomPriorityTopic).Channel()
-	pushRoomChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushRoomTopic).Channel()
+	pushRoomPriorityChannel := db.RedisCli.Subscribe(context.Background(), mq.PushRoomPriorityTopic).Channel()
+	pushRoomChannel := db.RedisCli.Subscribe(context.Background(), mq.PushRoomTopic).Channel()
 	for i := 0; i < config.Config.PushRoomSubscribeNum; i++ {
 		go handlePushRoomMsg(pushRoomPriorityChannel, pushRoomChannel)
 	}
 
-	pushAllChannel := db.RedisCli.Subscribe(context.TODO(), mq.PushAllTopic).Channel()
+	pushAllChannel := db.RedisCli.Subscribe(context.Background(), mq.PushAllTopic).Channel()
 	for i := 0; i < config.Config.PushAllSubscribeNum; i++ {
 		go handlePushAllMsg(pushAllChannel)
 	}

@@ -11,7 +11,10 @@ const (
 	EnvK8s     = "k8s"
 )
 
-var ENV = os.Getenv("ENV")
+var (
+	ENV    = os.Getenv("ENV")
+	Server = os.Getenv("SERVER")
+)
 
 var builders = map[string]Builder{
 	EnvLocal:   &localBuilder{},

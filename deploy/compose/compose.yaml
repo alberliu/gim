@@ -35,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20260417.185400
+    image: connect:20260421.100038
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/connect:/data/log/connect
@@ -45,6 +45,7 @@ services:
       - "8002:8002"
     environment:
       ENV: compose
+      SERVER: connect
 
     depends_on:
       mysql:
@@ -55,7 +56,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20260417.185411
+    image: logic:20260421.100047
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/logic:/data/log/logic
@@ -63,6 +64,7 @@ services:
       - "8010:8000"
     environment:
       ENV: compose
+      SERVER: logic
     depends_on:
       mysql:
         condition: service_started
@@ -72,7 +74,7 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20260417.185416
+    image: business:20260421.100050
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/log/user:/data/log/user
@@ -80,6 +82,7 @@ services:
       - "8020:8000"
     environment:
       ENV: compose
+      SERVER: business
     depends_on:
       mysql:
         condition: service_started
@@ -89,7 +92,7 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20260417.185419
+    image: file:20260421.100053
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/file:/data/file
@@ -98,6 +101,7 @@ services:
       - "8031:8001"
     environment:
       ENV: compose
+      SERVER: file
     depends_on:
       mysql:
         condition: service_started

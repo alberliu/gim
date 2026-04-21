@@ -33,7 +33,7 @@ var (
 func connect(userID, deviceID uint64) {
 	log := slog.With("userID", userID, "deviceID", deviceID)
 
-	reply, err := getUserExtServiceClient().SignIn(context.TODO(), &businesspb.SignInRequest{
+	reply, err := getUserExtServiceClient().SignIn(context.Background(), &businesspb.SignInRequest{
 		PhoneNumber: strconv.FormatUint(userID, 10),
 		Code:        "0",
 		Device: &logicpb.Device{

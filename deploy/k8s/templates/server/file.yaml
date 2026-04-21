@@ -33,6 +33,8 @@ spec:
                   fieldPath: status.podIP
             - name: ENV
               value: {{ $.Values.env }}
+            - name: SERVER
+              value: {{ $.Values.server.file.name }}
       volumes:
         - name: log
           hostPath:

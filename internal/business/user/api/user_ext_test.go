@@ -25,7 +25,7 @@ func getUserExtServiceClient() pb.UserExtServiceClient {
 
 func getCtx() context.Context {
 	token := "0"
-	return metadata.NewOutgoingContext(context.TODO(), metadata.Pairs(
+	return metadata.NewOutgoingContext(context.Background(), metadata.Pairs(
 		"user_id", "1",
 		"device_id", "1",
 		"token", token,
@@ -33,7 +33,7 @@ func getCtx() context.Context {
 }
 
 func TestUserExtServer_SignIn(t *testing.T) {
-	reply, err := getUserExtServiceClient().SignIn(context.TODO(), &pb.SignInRequest{
+	reply, err := getUserExtServiceClient().SignIn(context.Background(), &pb.SignInRequest{
 		PhoneNumber: "2",
 		Code:        "0",
 		Device: &logicpb.Device{

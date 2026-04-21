@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	logger.Init("user")
+	logger.Init()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
 		pb.RegisterUserIntServiceServer(server, &userapi.UserIntService{})

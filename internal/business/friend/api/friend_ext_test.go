@@ -15,9 +15,9 @@ import (
 func TestFriendExtService_Add(t *testing.T) {
 	local.Init()
 
-	ctx := metadata.NewIncomingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "2",
-		md.CtxDeviceID: "2",
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		md.UserID:   "2",
+		md.DeviceID: "2",
 	}))
 
 	reply, err := new(FriendExtService).Add(ctx, &pb.FriendAddRequest{
@@ -32,9 +32,9 @@ func TestFriendExtService_Add(t *testing.T) {
 }
 
 func TestFriendExtService_Agree(t *testing.T) {
-	ctx := metadata.NewIncomingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "1",
-		md.CtxDeviceID: "1",
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		md.UserID:   "1",
+		md.DeviceID: "1",
 	}))
 
 	reply, err := new(FriendExtService).Agree(ctx, &pb.FriendAgreeRequest{
@@ -50,9 +50,9 @@ func TestFriendExtService_Agree(t *testing.T) {
 func TestFriendExtService_SendMessage(t *testing.T) {
 	local.Init()
 
-	ctx := metadata.NewIncomingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "2",
-		md.CtxDeviceID: "2",
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		md.UserID:   "2",
+		md.DeviceID: "2",
 	}))
 
 	reply, err := new(FriendExtService).SendMessage(ctx, &pb.SendFriendMessageRequest{
@@ -68,9 +68,9 @@ func TestFriendExtService_SendMessage(t *testing.T) {
 func TestFriendExtService_GetFriends(t *testing.T) {
 	local.Init()
 
-	ctx := metadata.NewIncomingContext(context.TODO(), metadata.New(map[string]string{
-		md.CtxUserID:   "2",
-		md.CtxDeviceID: "2",
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		md.UserID:   "2",
+		md.DeviceID: "2",
 	}))
 
 	reply, err := new(FriendExtService).GetFriends(ctx, &emptypb.Empty{})

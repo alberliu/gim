@@ -100,7 +100,7 @@ func (c *Conn) Close(err error) {
 	}()
 
 	if c.DeviceID != 0 {
-		_, _ = rpc.GetDeviceIntClient().Offline(context.TODO(), &logicpb.OfflineRequest{
+		_, _ = rpc.GetDeviceIntClient().Offline(context.Background(), &logicpb.OfflineRequest{
 			UserId:     c.UserID,
 			DeviceId:   c.DeviceID,
 			ClientAddr: c.GetAddr(),
@@ -196,7 +196,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.TODO(), packet.RequestId), &logicpb.SignInRequest{
+	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.Background(), packet.RequestId), &logicpb.SignInRequest{
 		UserId:     request.UserId,
 		DeviceId:   request.DeviceId,
 		Token:      request.Token,
@@ -218,7 +218,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 func (c *Conn) Heartbeat(packet *pb.Packet) {
 	c.SendPacket(packet)
 
-	_, err := rpc.GetDeviceIntClient().Heartbeat(context.TODO(), &logicpb.HeartbeatRequest{
+	_, err := rpc.GetDeviceIntClient().Heartbeat(context.Background(), &logicpb.HeartbeatRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 	})
@@ -241,7 +241,7 @@ func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	setContent(packet, nil, nil)
 	c.SendPacket(packet)
-	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.TODO(), &logicpb.SubscribeRoomRequest{
+	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.Background(), &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 		RoomId:   subscribeRoom.RoomId,

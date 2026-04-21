@@ -26,7 +26,7 @@ func (*k8sBuilder) Build() Configuration {
 	if err != nil {
 		panic(err)
 	}
-	configmap, err := k8sClient.CoreV1().ConfigMaps(namespace).Get(context.TODO(), "config", metav1.GetOptions{})
+	configmap, err := k8sClient.CoreV1().ConfigMaps(namespace).Get(context.Background(), "config", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}

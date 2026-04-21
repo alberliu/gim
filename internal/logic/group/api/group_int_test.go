@@ -8,7 +8,7 @@ import (
 )
 
 func TestGroupExtService_Create(t *testing.T) {
-	reply, err := new(GroupIntService).Create(context.TODO(), &pb.GroupCreateRequest{
+	reply, err := new(GroupIntService).Create(context.Background(), &pb.GroupCreateRequest{
 		Group: &pb.Group{
 			Id:           5,
 			Name:         "群组B",
@@ -24,7 +24,7 @@ func TestGroupExtService_Create(t *testing.T) {
 }
 
 func TestGroupExtService_Update(t *testing.T) {
-	reply, err := new(GroupIntService).Update(context.TODO(), &pb.GroupUpdateRequest{
+	reply, err := new(GroupIntService).Update(context.Background(), &pb.GroupUpdateRequest{
 		Group: &pb.Group{
 			Id:           5,
 			Name:         "群组B",
@@ -40,7 +40,7 @@ func TestGroupExtService_Update(t *testing.T) {
 }
 
 func TestGroupExtService_Get(t *testing.T) {
-	reply, err := new(GroupIntService).Get(context.TODO(), &pb.GroupGetRequest{GroupId: 5})
+	reply, err := new(GroupIntService).Get(context.Background(), &pb.GroupGetRequest{GroupId: 5})
 	if err != nil {
 		t.Error(err)
 	}

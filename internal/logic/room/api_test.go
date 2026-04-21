@@ -20,7 +20,7 @@ func getIntClient() pb.RoomIntServiceClient {
 }
 
 func TestRoomIntService_PushRoom(t *testing.T) {
-	reply, err := getIntClient().PushRoom(context.TODO(), &pb.PushRoomRequest{
+	reply, err := getIntClient().PushRoom(context.Background(), &pb.PushRoomRequest{
 		RoomId:     1,
 		Command:    1000,
 		Content:    []byte("room msg"),

@@ -21,7 +21,7 @@ type Response struct {
 }
 
 func main() {
-	logger.Init("file")
+	logger.Init()
 
 	router := gin.Default()
 	router.Static("/file", "/data/file")

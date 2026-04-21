@@ -16,6 +16,7 @@ func StartTCPServer(addr string) {
 	if err != nil {
 		panic(err)
 	}
+
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	if err != nil {
 		panic(err)

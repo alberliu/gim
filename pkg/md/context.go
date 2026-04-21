@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	CtxUserID    = "user_id"
-	CtxDeviceID  = "device_id"
-	CtxToken     = "token"
-	CtxRequestID = "request_id"
+	UserID    = "user_id"
+	DeviceID  = "device_id"
+	Token     = "token"
+	RequestID = "request_id"
 )
 
 func ContextWithRequestID(ctx context.Context, requestID string) context.Context {
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(CtxRequestID, requestID))
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(RequestID, requestID))
 }
 
 func Get(ctx context.Context, key string) string {
@@ -35,37 +35,37 @@ func Get(ctx context.Context, key string) string {
 
 // GetRequestID 获取ctx的app_id
 func GetRequestID(ctx context.Context) string {
-	return Get(ctx, CtxRequestID)
+	return Get(ctx, RequestID)
 }
 
 func GetUserID(ctx context.Context) uint64 {
-	userID, _ := strconv.ParseUint(Get(ctx, CtxUserID), 10, 64)
+	userID, _ := strconv.ParseUint(Get(ctx, UserID), 10, 64)
 	return userID
 }
 
 func GetDeviceID(ctx context.Context) uint64 {
-	deviceID, _ := strconv.ParseUint(Get(ctx, CtxDeviceID), 10, 64)
+	deviceID, _ := strconv.ParseUint(Get(ctx, DeviceID), 10, 64)
 	return deviceID
 }
 
 // GetToken 获取ctx的token
 func GetToken(ctx context.Context) string {
-	return Get(ctx, CtxToken)
+	return Get(ctx, Token)
 }
 
 // NewAndCopyRequestID 创建一个context,并且复制RequestID
 func NewAndCopyRequestID(ctx context.Context) context.Context {
-	newCtx := context.TODO()
+	newCtx := context.Background()
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return newCtx
 	}
 
-	requestIDs, ok := md[CtxRequestID]
+	requestIDs, ok := md[RequestID]
 	if !ok && len(requestIDs) == 0 {
 		return newCtx
 	}
-	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestID, requestIDs[0]))
+	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(RequestID, requestIDs[0]))
 }
 
 func GetClientIP(ctx context.Context) string {

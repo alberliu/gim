@@ -7,9 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"gim/pkg/md"
 	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
@@ -24,7 +26,7 @@ func TestClient(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 	fmt.Println()
-	reply, err := getMessageIntClient().PushToUsers(context.TODO(), &pb.PushToUsersRequest{
+	reply, err := getMessageIntClient().PushToUsers(genCtx(), &pb.PushToUsersRequest{
 		UserIds:   []uint64{1},
 		Command:   connectpb.MessageCommand_MC_USER_MESSAGE,
 		Content:   []byte("hello gim"),
@@ -37,7 +39,7 @@ func TestClient(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	groupReply, err := getGroupIntClient().Push(context.TODO(), &pb.GroupPushRequest{
+	groupReply, err := getGroupIntClient().Push(genCtx(), &pb.GroupPushRequest{
 		GroupId:   1,
 		Command:   connectpb.MessageCommand_MC_GROUP_MESSAGE,
 		Content:   []byte("hello gim from group"),
@@ -50,7 +52,7 @@ func TestClient(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	_, err = getRoomIntClient().PushRoom(context.TODO(), &pb.PushRoomRequest{
+	_, err = getRoomIntClient().PushRoom(genCtx(), &pb.PushRoomRequest{
 		RoomId:     1,
 		Command:    10000,
 		Content:    []byte("hello gim from room"),
@@ -63,6 +65,10 @@ func TestClient(t *testing.T) {
 	slog.Info("房间发送成功")
 
 	select {}
+}
+
+func genCtx() context.Context {
+	return md.ContextWithRequestID(context.Background(), uuid.New().String())
 }
 
 func getMessageIntClient() pb.MessageIntServiceClient {
