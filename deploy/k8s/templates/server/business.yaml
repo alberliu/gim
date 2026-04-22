@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: file-deployment
+  name: business-deployment
   labels:
-    app: {{ .Values.server.file.name }}
+    app: {{ .Values.server.business.name }}
 spec:
-  replicas: {{ .Values.server.file.replicas }}
+  replicas: {{ .Values.server.business.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.server.file.name }}
+      app: {{ .Values.server.business.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.server.file.name }}
+        app: {{ .Values.server.business.name }}
     spec:
       initContainers:
         - name: init-mysql
@@ -25,17 +25,15 @@ spec:
           imagePullPolicy: IfNotPresent
           command: [ 'sh', '-c', "until nslookup redis-stateful-set-0.redis.default.svc.cluster.local; do echo waiting for redis; sleep 1; done" ]
       containers:
-        - name: {{ .Values.server.file.name }}
-          image: {{ .Values.server.file.image }}
-          imagePullPolicy: IfNotPresent
+        - name: {{ .Values.server.business.name }}
+          image: {{ .Values.server.business.image }}
+          imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
-            - containerPort: 8001
-              hostPort: 8031
-          volumeMounts:
-            - mountPath: /data/log/file
+            - containerPort: 8000
+              hostPort: 8020
+          volumeMounts: # 映射文件为宿主机文件
+            - mountPath: /data/log/business
               name: log
-            - mountPath: /data/file
-              name: file
           env:
             - name: POD_IP
               valueFrom:
@@ -44,27 +42,24 @@ spec:
             - name: ENV
               value: {{ $.Values.env }}
             - name: SERVER
-              value: {{ $.Values.server.file.name }}
+              value: {{ $.Values.server.business.name }}
       volumes:
         - name: log
           hostPath:
-            path: /data/log/file
-        - name: file
-          hostPath:
-            path: /data/file
+            path: /data/log/business
 ---
 # service 配置
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.server.file.name }}
+  name: {{ .Values.server.business.name }}
   labels:
-    app: {{ .Values.server.file.name }}
+    app: {{ .Values.server.business.name }}  # 只有设置label,才能被服务发现找到
 spec:
   selector:
-    app: {{ .Values.server.file.name }}
+    app: {{ .Values.server.business.name }}
   ports:
-    - name: http
+    - name: rpc
       protocol: TCP
-      port: 8001
-      targetPort: 8001
+      port: 8000
+      targetPort: 8000

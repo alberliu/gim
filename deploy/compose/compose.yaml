@@ -11,7 +11,7 @@ services:
       ENV: compose
     volumes:
       - /etc/localtime:/etc/localtime
-      - /Users/alber/data/mysql:/var/lib/mysql
+      - /Users/alber/data/gim_compose/mysql:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
       - ../../sql:/docker-entrypoint-initdb.d
     ports:
@@ -24,7 +24,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - ./redis.conf:/etc/redis.conf
-      - /Users/alber/data/redis:/data
+      - /Users/alber/data/gim_compose/redis:/data
     command:
       redis-server /etc/redis.conf
     ports:
@@ -35,14 +35,14 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20260421.100038
+    image: connect:20260422.224627
     volumes:
       - /etc/localtime:/etc/localtime
-      - /Users/alber/data/log/connect:/data/log/connect
+      - /Users/alber/data/gim_compose/log/connect:/data/log/connect
     ports:
       - "8000:8000"
-      - "8001:8001"
       - "8002:8002"
+      - "8003:8003"
     environment:
       ENV: compose
       SERVER: connect
@@ -56,10 +56,10 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20260421.100047
+    image: logic:20260422.224636
     volumes:
       - /etc/localtime:/etc/localtime
-      - /Users/alber/data/log/logic:/data/log/logic
+      - /Users/alber/data/gim_compose/log/logic:/data/log/logic
     ports:
       - "8010:8000"
     environment:
@@ -74,10 +74,10 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20260421.100050
+    image: business:20260422.224640
     volumes:
       - /etc/localtime:/etc/localtime
-      - /Users/alber/data/log/user:/data/log/user
+      - /Users/alber/data/gim_compose/log//business:/data/log/business
     ports:
       - "8020:8000"
     environment:
@@ -92,11 +92,11 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20260421.100053
+    image: file:20260422.224643
     volumes:
       - /etc/localtime:/etc/localtime
-      - /Users/alber/data/file:/data/file
-      - /Users/alber/data/log/file:/data/log/file
+      - /Users/alber/data/gim_compose/file:/data/file
+      - /Users/alber/data/gim_compose/log/file:/data/log/file
     ports:
       - "8031:8001"
     environment:

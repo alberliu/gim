@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -16,12 +15,12 @@ import (
 func Init() {
 	var writer io.Writer
 
-	logFile := config.Config.LogFile(config.Server)
+	logFile := config.Config.LogFile
 	if logFile == "" {
 		writer = os.Stdout
 	} else {
 		writer = &lumberjack.Logger{
-			Filename:   fmt.Sprintf("/data/log/%s/log.log", config.Server),
+			Filename:   logFile,
 			MaxSize:    100, // 单个文件大小megabytes
 			MaxBackups: 30,  // 最大备份数量
 			MaxAge:     30,  // 保存天数
@@ -32,16 +31,15 @@ func Init() {
 	options := &slog.HandlerOptions{
 		AddSource:   true,
 		Level:       config.Config.LogLevel,
-		ReplaceAttr: replaceAttr,
+		ReplaceAttr: ReplaceAttr,
 	}
-	slog.SetDefault(slog.New(slog.NewJSONHandler(writer, options)))
+	slog.SetDefault(slog.New(NewHandler(slog.NewJSONHandler(writer, options))))
 	slog.Info("slog init")
 }
 
-func replaceAttr(groups []string, a slog.Attr) slog.Attr {
+func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 	switch a.Key {
 	case "time":
-		a.Key = "ts"
 		a.Value = slog.StringValue(a.Value.Time().Format("2006-01-02 15:04:05.000"))
 	case "level":
 		a.Value = slog.StringValue(strings.ToLower(a.Value.String()))

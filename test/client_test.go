@@ -4,93 +4,81 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
+	"gim/pkg/logger"
 	"gim/pkg/md"
 	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
 func TestClient(t *testing.T) {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		AddSource:   true,
+		ReplaceAttr: logger.ReplaceAttr,
+	})))
+	var header metadata.MD
+
 	initData()
 
-	connect(1, 11)
-	connect(1, 12)
-	connect(2, 2)
-	connect(3, 3)
+	network := NetworkWebsocket
+	connect(network, 1, 11)
+	connect(network, 1, 12)
+	connect(network, 2, 2)
+	connect(network, 3, 3)
 
 	time.Sleep(2 * time.Second)
 	fmt.Println()
-	reply, err := getMessageIntClient().PushToUsers(genCtx(), &pb.PushToUsersRequest{
+	reply, err := getMessageIntClient().PushToUsers(context.Background(), &pb.PushToUsersRequest{
 		UserIds:   []uint64{1},
 		Command:   connectpb.MessageCommand_MC_USER_MESSAGE,
 		Content:   []byte("hello gim"),
 		IsPersist: true,
-	})
+	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("私聊发送", "MessageID", reply.MessageId)
+	slog.Info("私聊发送", "message_id", reply.MessageId, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	groupReply, err := getGroupIntClient().Push(genCtx(), &pb.GroupPushRequest{
+	groupReply, err := getGroupIntClient().Push(context.Background(), &pb.GroupPushRequest{
 		GroupId:   1,
 		Command:   connectpb.MessageCommand_MC_GROUP_MESSAGE,
 		Content:   []byte("hello gim from group"),
 		IsPersist: true,
-	})
+	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("群组发送成功", "MessageID", groupReply.MessageId)
+	slog.Info("群组发送成功", "message_id", groupReply.MessageId, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	_, err = getRoomIntClient().PushRoom(genCtx(), &pb.PushRoomRequest{
+	_, err = getRoomIntClient().PushRoom(context.Background(), &pb.PushRoomRequest{
 		RoomId:     1,
 		Command:    10000,
 		Content:    []byte("hello gim from room"),
 		SendTime:   time.Now().Unix(),
 		IsPriority: false,
-	})
+	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("房间发送成功")
+	slog.Info("房间发送成功", "request_id", getRequestID(header))
 
 	select {}
 }
 
-func genCtx() context.Context {
-	return md.ContextWithRequestID(context.Background(), uuid.New().String())
-}
-
-func getMessageIntClient() pb.MessageIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
+func getRequestID(header metadata.MD) string {
+	ids := header.Get(md.RequestID)
+	if len(ids) > 0 {
+		return ids[0]
 	}
-	return pb.NewMessageIntServiceClient(conn)
-}
-
-func getGroupIntClient() pb.GroupIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return pb.NewGroupIntServiceClient(conn)
-}
-
-func getRoomIntClient() pb.RoomIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return pb.NewRoomIntServiceClient(conn)
+	return ""
 }

@@ -25,12 +25,52 @@ import (
 )
 
 var (
-	connectTcpServerAddr = "127.0.0.1:8002"
-	businessServerAddr   = "127.0.0.1:8020"
-	logicServerAddr      = "127.0.0.1:8010"
+	connectTCPServerAddr       = "127.0.0.1:8002"
+	connectWebsocketServerAddr = "ws://127.0.0.1:8003/ws"
+	businessServerAddr         = "127.0.0.1:8020"
+	logicServerAddr            = "127.0.0.1:8010"
 )
 
-func connect(userID, deviceID uint64) {
+type Network string
+
+const (
+	NetworkTCP       Network = "tcp"
+	NetworkWebsocket Network = "websocket"
+)
+
+func getUserExtServiceClient() businesspb.UserExtServiceClient {
+	conn, err := grpc.NewClient(businessServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return businesspb.NewUserExtServiceClient(conn)
+}
+
+func getMessageIntClient() logicpb.MessageIntServiceClient {
+	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return logicpb.NewMessageIntServiceClient(conn)
+}
+
+func getGroupIntClient() logicpb.GroupIntServiceClient {
+	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return logicpb.NewGroupIntServiceClient(conn)
+}
+
+func getRoomIntClient() logicpb.RoomIntServiceClient {
+	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	return logicpb.NewRoomIntServiceClient(conn)
+}
+
+func connect(network Network, userID, deviceID uint64) {
 	log := slog.With("userID", userID, "deviceID", deviceID)
 
 	reply, err := getUserExtServiceClient().SignIn(context.Background(), &businesspb.SignInRequest{
@@ -50,15 +90,136 @@ func connect(userID, deviceID uint64) {
 		panic(err)
 	}
 	log.Info("短连接登录成功", "reply", reply)
-	go runClient(log, "tcp", connectTcpServerAddr, userID, deviceID, reply.Token)
+
+	addr := connectTCPServerAddr
+	if network == NetworkWebsocket {
+		addr = connectWebsocketServerAddr
+	}
+	go runClient(log, network, addr, userID, deviceID, reply.Token)
 }
 
-func getUserExtServiceClient() businesspb.UserExtServiceClient {
-	conn, err := grpc.NewClient(businessServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+type client struct {
+	UserID   uint64
+	DeviceID uint64
+	Token    string
+	conn     conn
+	log      *slog.Logger
+}
+
+func runClient(log *slog.Logger, network Network, addr string, userID, deviceID uint64, token string) {
+	var conn conn
+	var err error
+	switch network {
+	case NetworkTCP:
+		conn, err = newTCPConn(addr)
+	case NetworkWebsocket:
+		conn, err = newWsConn(addr)
+	default:
+		panic("unsupported network")
+	}
 	if err != nil {
 		panic(err)
 	}
-	return businesspb.NewUserExtServiceClient(conn)
+
+	client := &client{
+		UserID:   userID,
+		DeviceID: deviceID,
+		Token:    token,
+		conn:     conn,
+		log:      log,
+	}
+	client.run()
+}
+
+func (c *client) run() {
+	go c.conn.receive(c.handleMessage)
+	c.signIn()
+	c.subscribeRoom()
+	c.heartbeat()
+}
+
+func (c *client) send(pt connectpb.PacketCommand, requestID string, msg proto.Message) {
+	var packet = connectpb.Packet{
+		Command:   pt,
+		RequestId: requestID,
+	}
+
+	if msg != nil {
+		bytes, err := proto.Marshal(msg)
+		if err != nil {
+			c.log.Error("send", "error", err)
+			return
+		}
+		packet.Content = bytes
+	}
+
+	buf, err := proto.Marshal(&packet)
+	if err != nil {
+		c.log.Error("send", "error", err)
+		return
+	}
+
+	err = c.conn.write(buf)
+	if err != nil {
+		c.log.Error("send", "error", err)
+	}
+}
+
+func (c *client) signIn() {
+	request := logicpb.SignInRequest{
+		UserId:   c.UserID,
+		DeviceId: c.DeviceID,
+		Token:    c.Token,
+	}
+	c.send(connectpb.PacketCommand_PC_SIGN_IN, generateRequestID(), &request)
+	c.log.Info("发送登录指令")
+	time.Sleep(1 * time.Second)
+}
+
+func (c *client) heartbeat() {
+	ticker := time.NewTicker(time.Minute * 5)
+	for range ticker.C {
+		c.send(connectpb.PacketCommand_PC_HEARTBEAT, generateRequestID(), nil)
+		c.log.Info("心跳发送")
+	}
+}
+
+func (c *client) subscribeRoom() {
+	var roomID uint64 = 1
+	c.send(connectpb.PacketCommand_PC_SUBSCRIBE_ROOM, generateRequestID(), &connectpb.SubscribeRoomRequest{
+		RoomId: roomID,
+	})
+	c.log.Info("订阅房间", "roomID", roomID)
+}
+
+func (c *client) handleMessage(buf []byte) {
+	var packet connectpb.Packet
+	err := proto.Unmarshal(buf, &packet)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	switch packet.Command {
+	case connectpb.PacketCommand_PC_SIGN_IN:
+		c.log.Info("登录响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
+
+		time.Sleep(1 * time.Second)
+	case connectpb.PacketCommand_PC_HEARTBEAT:
+		c.log.Info("心跳响应")
+	case connectpb.PacketCommand_PC_SUBSCRIBE_ROOM:
+		c.log.Info("订阅房间响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
+	case connectpb.PacketCommand_PC_MESSAGE:
+		var message connectpb.Message
+		err := proto.Unmarshal(packet.Content, &message)
+		if err != nil {
+			c.log.Error("proto.Unmarshal", "error", err)
+			return
+		}
+		c.log.Info("消息下发", "message", stringMessage(&message))
+	default:
+		c.log.Info("other", "packet", &packet)
+	}
 }
 
 type conn interface {
@@ -137,133 +298,9 @@ func (c *wsConn) receive(handler func([]byte)) {
 	}
 }
 
-type client struct {
-	UserID   uint64
-	DeviceID uint64
-	Token    string
-	conn     conn
-	log      *slog.Logger
-}
-
-func runClient(log *slog.Logger, network string, addr string, userID, deviceID uint64, token string) {
-	var conn conn
-	var err error
-	switch network {
-	case "tcp":
-		conn, err = newTCPConn(addr)
-	case "ws":
-		conn, err = newWsConn(addr)
-	default:
-		panic("unsupported network")
-	}
-	if err != nil {
-		panic(err)
-	}
-
-	client := &client{
-		UserID:   userID,
-		DeviceID: deviceID,
-		Token:    token,
-		conn:     conn,
-		log:      log,
-	}
-	client.run()
-}
-
-func (c *client) run() {
-	go c.conn.receive(c.handleMessage)
-	c.signIn()
-	c.subscribeRoom()
-	c.heartbeat()
-}
-
-func (c *client) send(pt connectpb.PacketCommand, requestID string, msg proto.Message) {
-	var packet = connectpb.Packet{
-		Command:   pt,
-		RequestId: requestID,
-	}
-
-	if msg != nil {
-		bytes, err := proto.Marshal(msg)
-		if err != nil {
-			c.log.Error("send", "error", err)
-			return
-		}
-		packet.Content = bytes
-	}
-
-	buf, err := proto.Marshal(&packet)
-	if err != nil {
-		c.log.Error("send", "error", err)
-		return
-	}
-
-	err = c.conn.write(buf)
-	if err != nil {
-		c.log.Error("send", "error", err)
-	}
-}
-
-func getRequestID() string {
+func generateRequestID() string {
 	unix := time.Now().UnixNano()
 	return strconv.FormatInt(unix, 10)
-}
-
-func (c *client) signIn() {
-	request := logicpb.SignInRequest{
-		UserId:   c.UserID,
-		DeviceId: c.DeviceID,
-		Token:    c.Token,
-	}
-	c.send(connectpb.PacketCommand_PC_SIGN_IN, getRequestID(), &request)
-	c.log.Info("发送登录指令")
-	time.Sleep(1 * time.Second)
-}
-
-func (c *client) heartbeat() {
-	ticker := time.NewTicker(time.Minute * 5)
-	for range ticker.C {
-		c.send(connectpb.PacketCommand_PC_HEARTBEAT, getRequestID(), nil)
-		c.log.Info("心跳发送")
-	}
-}
-
-func (c *client) subscribeRoom() {
-	var roomID uint64 = 1
-	c.send(connectpb.PacketCommand_PC_SUBSCRIBE_ROOM, getRequestID(), &connectpb.SubscribeRoomRequest{
-		RoomId: roomID,
-	})
-	c.log.Info("订阅房间", "roomID", roomID)
-}
-
-func (c *client) handleMessage(buf []byte) {
-	var packet connectpb.Packet
-	err := proto.Unmarshal(buf, &packet)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	switch packet.Command {
-	case connectpb.PacketCommand_PC_SIGN_IN:
-		c.log.Info("登录响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
-
-		time.Sleep(1 * time.Second)
-	case connectpb.PacketCommand_PC_HEARTBEAT:
-		c.log.Info("心跳响应")
-	case connectpb.PacketCommand_PC_SUBSCRIBE_ROOM:
-		c.log.Info("订阅房间响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
-	case connectpb.PacketCommand_PC_MESSAGE:
-		var message connectpb.Message
-		err := proto.Unmarshal(packet.Content, &message)
-		if err != nil {
-			c.log.Error("proto.Unmarshal", "error", err)
-			return
-		}
-		c.log.Info("消息下发", "message", stringMessage(&message))
-	default:
-		c.log.Info("other", "packet", &packet)
-	}
 }
 
 func stringMessage(message *connectpb.Message) string {

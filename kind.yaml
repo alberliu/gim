@@ -1,0 +1,41 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # mysql
+      - containerPort: 3306
+        hostPort: 3306
+        protocol: TCP
+      # redis
+      - containerPort: 6379
+        hostPort: 6379
+        protocol: TCP
+      # connect: gRPC/TCP/WebSocket
+      - containerPort: 8000
+        hostPort: 8000
+        protocol: TCP
+      - containerPort: 8002
+        hostPort: 8002
+        protocol: TCP
+      - containerPort: 8003
+        hostPort: 8003
+        protocol: TCP
+      # logic
+      - containerPort: 8010
+        hostPort: 8010
+        protocol: TCP
+      # business
+      - containerPort: 8020
+        hostPort: 8020
+        protocol: TCP
+      # file
+      - containerPort: 8031
+        hostPort: 8031
+        protocol: TCP
+    extraMounts:
+      - hostPath: /etc/localtime
+        containerPath: /etc/localtime
+        readOnly: true
+      - hostPath: /Users/alber/data/gim_cluster
+        containerPath: /data

@@ -168,7 +168,7 @@ func (c *Conn) SendPacket(packet *pb.Packet) {
 		c.Close(err)
 		return
 	}
-	slog.Info("SendPacket", "userID", c.UserID, "packet", packet)
+	slog.Info("SendPacket", "user_id", c.UserID, "packet", packet)
 }
 
 func (c *Conn) SendMessage(message *pb.Message) {
@@ -184,7 +184,7 @@ func (c *Conn) SendMessage(message *pb.Message) {
 	}
 	c.SendPacket(packet)
 
-	slog.Info("SendMessage", "userID", c.UserID, "message", message)
+	slog.Info("SendMessage", "user_id", c.UserID, "message", message)
 }
 
 // SignIn 登录
@@ -196,7 +196,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().SignIn(md.ContextWithRequestID(context.Background(), packet.RequestId), &logicpb.SignInRequest{
+	_, err = rpc.GetDeviceIntClient().SignIn(md.WithRequestID(context.Background(), packet.RequestId), &logicpb.SignInRequest{
 		UserId:     request.UserId,
 		DeviceId:   request.DeviceId,
 		Token:      request.Token,
@@ -223,10 +223,10 @@ func (c *Conn) Heartbeat(packet *pb.Packet) {
 		DeviceId: c.DeviceID,
 	})
 	if err != nil {
-		slog.Error("Heartbeat error", "deviceID", c.DeviceID, "userID", c.UserID, "error", err)
+		slog.Error("Heartbeat error", "device_id", c.DeviceID, "user_id", c.UserID, "error", err)
 	}
 
-	slog.Info("heartbeat", "deviceID", c.DeviceID, "userID", c.UserID)
+	slog.Info("heartbeat", "device_id", c.DeviceID, "user_id", c.UserID)
 }
 
 // SubscribedRoom 订阅房间

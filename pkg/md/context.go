@@ -16,7 +16,7 @@ const (
 	RequestID = "request_id"
 )
 
-func ContextWithRequestID(ctx context.Context, requestID string) context.Context {
+func WithRequestID(ctx context.Context, requestID string) context.Context {
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs(RequestID, requestID))
 }
 
@@ -55,17 +55,8 @@ func GetToken(ctx context.Context) string {
 
 // NewAndCopyRequestID 创建一个context,并且复制RequestID
 func NewAndCopyRequestID(ctx context.Context) context.Context {
-	newCtx := context.Background()
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return newCtx
-	}
-
-	requestIDs, ok := md[RequestID]
-	if !ok && len(requestIDs) == 0 {
-		return newCtx
-	}
-	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(RequestID, requestIDs[0]))
+	requestID := GetRequestID(ctx)
+	return metadata.NewOutgoingContext(context.Background(), metadata.Pairs(RequestID, requestID))
 }
 
 func GetClientIP(ctx context.Context) string {

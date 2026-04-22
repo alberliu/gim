@@ -15,9 +15,9 @@ server:
     name: logic
     image: logic:0.0.0
     replicas: 1
-  user:
-    name: user
-    image: user:0.0.0
+  business:
+    name: business
+    image: business:0.0.0
     replicas: 1
   file:
     name: file

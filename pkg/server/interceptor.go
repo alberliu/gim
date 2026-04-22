@@ -5,11 +5,13 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"gim/pkg/gerrors"
+	"gim/pkg/logger"
 	"gim/pkg/md"
 	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/rpc"
@@ -17,20 +19,35 @@ import (
 
 // NewInterceptor 生成GRPC过滤器
 func NewInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (reply interface{}, err error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (reply any, err error) {
 		defer gerrors.LogPanic(ctx, req, info, &err)
-		md, _ := metadata.FromIncomingContext(ctx)
-		logger := slog.With("method", info.FullMethod, "md", md, "request", req, "reply", reply)
 
+		ctx = generateRequestID(ctx)
 		reply, err = handleWithAuth(ctx, req, info, handler)
+
+		inMD, _ := metadata.FromIncomingContext(ctx)
+		log := slog.With("method", info.FullMethod, "md", inMD, "request", req, "reply", reply)
 
 		s, _ := status.FromError(err)
 		if s.Code() != 0 && s.Code() < 10000 {
-			logger.Error("interceptor", "error", err, "stack", gerrors.GetErrorStack(s))
+			log.ErrorContext(ctx, "server interceptor", logger.Error(err), "stack", gerrors.GetErrorStack(s))
 		}
-		logger.Debug("interceptor", "error", err)
+		log.DebugContext(ctx, "server interceptor", logger.Error(err))
 		return
 	}
+}
+
+func generateRequestID(ctx context.Context) context.Context {
+	requestID := md.GetRequestID(ctx)
+	if requestID == "" {
+		requestID = uuid.NewString()
+		incomingMD, _ := metadata.FromIncomingContext(ctx)
+		incomingMD = incomingMD.Copy()
+		incomingMD.Set(md.RequestID, requestID)
+		ctx = metadata.NewIncomingContext(ctx, incomingMD)
+	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs(md.RequestID, requestID))
+	return ctx
 }
 
 // handleWithAuth 处理鉴权逻辑

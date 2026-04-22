@@ -7,14 +7,18 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+
+	"gim/pkg/logger"
+	"gim/pkg/md"
 )
 
 func clientInterceptor(ctx context.Context, method string, request, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption) error {
+	ctx = md.WithRequestID(ctx, md.GetRequestID(ctx))
 	err := invoker(ctx, method, request, reply, cc, opts...)
 
 	md, _ := metadata.FromOutgoingContext(ctx)
-	slog.Debug("client interceptor", "method", method, "metadata", md, "request", request, "reply", reply, "error", err)
+	slog.DebugContext(ctx, "client interceptor", "method", method, "metadata", md, "request", request, "reply", reply, logger.Error(err))
 	return err
 }
 

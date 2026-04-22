@@ -8,4 +8,6 @@ set -e
 ./publish.sh file skip_publish
 
 cd deploy/compose
+docker compose down
+rm -rf /Users/alber/data/gim_compose
 docker compose up -d  --remove-orphans

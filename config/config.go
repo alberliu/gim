@@ -32,7 +32,7 @@ type Builder interface {
 
 type Configuration struct {
 	LogLevel slog.Level
-	LogFile  func(server string) string
+	LogFile  string
 
 	MySQL                string
 	RedisHost            string

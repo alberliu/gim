@@ -15,12 +15,22 @@ spec:
       labels:
         app: {{ .Values.server.logic.name }}
     spec:
+      initContainers:
+        - name: init-mysql
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          command: [ 'sh', '-c', "until nslookup mysql-stateful-set-0.mysql.default.svc.cluster.local; do echo waiting for mysql; sleep 1; done" ]
+        - name: init-redis
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          command: [ 'sh', '-c', "until nslookup redis-stateful-set-0.redis.default.svc.cluster.local; do echo waiting for redis; sleep 1; done" ]
       containers:
         - name: {{ .Values.server.logic.name }}
           image: {{ .Values.server.logic.image }}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
+              hostPort: 8010
           volumeMounts:
             - mountPath: /data/log/logic
               name: log

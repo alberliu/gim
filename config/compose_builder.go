@@ -10,9 +10,7 @@ type composeBuilder struct{}
 func (*composeBuilder) Build() Configuration {
 	return Configuration{
 		LogLevel: slog.LevelDebug,
-		LogFile: func(server string) string {
-			return fmt.Sprintf("/data/log/%s/log.log", server)
-		},
+		LogFile:  fmt.Sprintf("/data/log/%s/log.log", Server),
 
 		MySQL:                "root:123456@tcp(mysql:3306)/gim?charset=utf8mb4&parseTime=true&loc=Local",
 		RedisHost:            "redis:6379",

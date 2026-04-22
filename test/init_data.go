@@ -5,17 +5,16 @@ import (
 )
 
 func initData() {
-	// 删除表数据（注意顺序，先删除有外键依赖的表）
-	if err := db.DB.Exec("DELETE FROM `group_member`").Error; err != nil {
+	if err := db.DB.Exec("DELETE FROM `user` WHERE `id` IN (1, 2, 3)").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("DELETE FROM `device`").Error; err != nil {
+	if err := db.DB.Exec("DELETE FROM `device` WHERE `id` IN (11, 12, 2, 3)").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("DELETE FROM `group`").Error; err != nil {
+	if err := db.DB.Exec("DELETE FROM `group` WHERE `id` = 1").Error; err != nil {
 		panic(err)
 	}
-	if err := db.DB.Exec("DELETE FROM `user`").Error; err != nil {
+	if err := db.DB.Exec("DELETE FROM `group_member` WHERE `group_id` = 1 AND `user_id` IN (1, 2, 3)").Error; err != nil {
 		panic(err)
 	}
 

@@ -62,7 +62,7 @@ func (d *dispatcher) dispatch() error {
 		if d.isPersist {
 			seq, err = repo.SeqRepo.Incr(d.ctx, userID)
 			if err != nil {
-				slog.Error("messageDispatcher dispatch SeqRepo Incr", "error", err, "userID", userID)
+				slog.ErrorContext(d.ctx, "messageDispatcher dispatch SeqRepo Incr", "error", err, "user_id", userID)
 				continue
 			}
 		}
@@ -86,7 +86,7 @@ func (d *dispatcher) dispatch() error {
 	for _, userMessage := range d.userMessages {
 		devices, err := deviceapp.DeviceApp.ListByUserID(d.ctx, userMessage.UserID)
 		if err != nil {
-			slog.Error("messageDispatcher dispatch ListByUserID", "error", err, "userID", userMessage.UserID)
+			slog.ErrorContext(d.ctx, "messageDispatcher dispatch ListByUserID", "error", err, "user_id", userMessage.UserID)
 			continue
 		}
 

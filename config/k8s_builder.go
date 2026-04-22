@@ -33,9 +33,7 @@ func (*k8sBuilder) Build() Configuration {
 
 	return Configuration{
 		LogLevel: slog.LevelDebug,
-		LogFile: func(server string) string {
-			return fmt.Sprintf("/data/log/%s/log.log", server)
-		},
+		LogFile:  fmt.Sprintf("/data/log/%s/log.log", Server),
 
 		MySQL:                configmap.Data["mysql"],
 		RedisHost:            configmap.Data["redisIP"],

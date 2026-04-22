@@ -15,14 +15,26 @@ spec:
       labels:
         app: {{ .Values.server.connect.name }}
     spec:
+      initContainers:
+        - name: init-mysql
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          command: [ 'sh', '-c', "until nslookup mysql-stateful-set-0.mysql.default.svc.cluster.local; do echo waiting for mysql; sleep 1; done" ]
+        - name: init-redis
+          image: busybox:1.28
+          imagePullPolicy: IfNotPresent
+          command: [ 'sh', '-c', "until nslookup redis-stateful-set-0.redis.default.svc.cluster.local; do echo waiting for redis; sleep 1; done" ]
       containers:
         - name: {{ .Values.server.connect.name }}
           image: {{ .Values.server.connect.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
             - containerPort: 8000
-            - containerPort: 8001
+              hostPort: 8000
             - containerPort: 8002
+              hostPort: 8002
+            - containerPort: 8003
+              hostPort: 8003
           volumeMounts: # 映射文件为宿主机文件
             - mountPath: /data/log/connect
               name: log
@@ -57,9 +69,9 @@ spec:
       targetPort: 8000
     - name: tcp
       protocol: TCP
-      port: 8001
-      targetPort: 8001
-    - name: websocket
-      protocol: TCP
       port: 8002
       targetPort: 8002
+    - name: websocket
+      protocol: TCP
+      port: 8003
+      targetPort: 8003
