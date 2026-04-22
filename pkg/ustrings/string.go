@@ -1,4 +1,4 @@
-package util
+package ustrings
 
 import (
 	"math/rand"

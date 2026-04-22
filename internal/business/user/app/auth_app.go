@@ -13,7 +13,7 @@ import (
 	pb "gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
-	"gim/pkg/util"
+	"gim/pkg/ustrings"
 )
 
 type authApp struct{}
@@ -50,7 +50,7 @@ func (*authApp) SignIn(ctx context.Context, request *pb.SignInRequest) (*pb.Sign
 		return nil, err
 	}
 
-	token := util.RandString(32)
+	token := ustrings.RandString(32)
 	err = repo.AuthRepo.Set(ctx, user.ID, reply.DeviceId, domain.Device{
 		Type:   request.Device.Type,
 		Token:  token,

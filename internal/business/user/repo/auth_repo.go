@@ -8,7 +8,7 @@ import (
 
 	"gim/internal/business/user/domain"
 	"gim/pkg/db"
-	"gim/pkg/util"
+	"gim/pkg/ustrings"
 )
 
 const AuthKey = "auth:%d"
@@ -56,7 +56,7 @@ func (*authRepo) GetAll(ctx context.Context, userID uint64) (map[uint64]domain.D
 		}
 
 		var device domain.Device
-		err = json.Unmarshal(util.Str2bytes(v), &device)
+		err = json.Unmarshal(ustrings.Str2bytes(v), &device)
 		if err != nil {
 			return nil, err
 		}

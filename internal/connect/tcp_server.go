@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"gim/pkg/codec"
-	"gim/pkg/util"
+	"gim/pkg/safe"
 )
 
 // StartTCPServer 启动TCP服务器
@@ -48,24 +48,25 @@ func accept(listener *net.TCPListener) {
 }
 
 func handleConn(tcpConn *net.TCPConn) {
-	defer util.RecoverPanic()
-
 	conn := &Conn{
 		ConnType: ConnTypeTCP,
 		TCP:      tcpConn,
 		Reader:   bufio.NewReader(tcpConn),
 	}
 
+	var err error
+	var buf []byte
+	defer safe.RecoverPanic()
+	defer func() { conn.Close(err) }()
+
 	for {
-		err := conn.TCP.SetReadDeadline(time.Now().Add(ReadDeadline))
+		err = conn.TCP.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
-			conn.Close(err)
 			return
 		}
 
-		buf, err := codec.Decode(conn.Reader)
+		buf, err = codec.Decode(conn.Reader)
 		if err != nil {
-			conn.Close(err)
 			return
 		}
 

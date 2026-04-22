@@ -3,11 +3,12 @@ package gerrors
 import (
 	"context"
 	"log/slog"
+	"runtime/debug"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 
-	"gim/pkg/util"
+	"gim/pkg/ustrings"
 )
 
 const TypeUrlStack = "type_url_stack"
@@ -16,7 +17,7 @@ func GetErrorStack(s *status.Status) string {
 	pbs := s.Proto()
 	for i := range pbs.Details {
 		if pbs.Details[i].TypeUrl == TypeUrlStack {
-			return util.Bytes2str(pbs.Details[i].Value)
+			return ustrings.Bytes2str(pbs.Details[i].Value)
 		}
 	}
 	return ""
@@ -26,7 +27,7 @@ func LogPanic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, 
 	p := recover()
 	if p != nil {
 		slog.Error("panic", "info", info, "ctx", ctx, "req", req, "panic", p,
-			"stack", util.GetStackInfo())
+			"stack", string(debug.Stack()))
 		*err = ErrUnknown
 	}
 }

@@ -1,11 +1,14 @@
 package connect
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+
+	"gim/pkg/safe"
 )
 
 var upgrader = websocket.Upgrader{
@@ -23,7 +26,7 @@ func StartWSServer(address string) *http.Server {
 	server := &http.Server{Addr: address, Handler: mux}
 	go func() {
 		slog.Info("websocket server running")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
 	}()
@@ -45,19 +48,21 @@ func DoConn(wsConn *websocket.Conn) {
 		ConnType: ConnTypeWS,
 		WS:       wsConn,
 	}
+	var err error
+	var buf []byte
+	defer safe.RecoverPanic()
+	defer func() { conn.Close(err) }()
 
 	for {
-		err := conn.WS.SetReadDeadline(time.Now().Add(ReadDeadline))
+		err = conn.WS.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
-			conn.Close(err)
 			return
 		}
-		_, data, err := conn.WS.ReadMessage()
+		_, buf, err = conn.WS.ReadMessage()
 		if err != nil {
-			conn.Close(err)
 			return
 		}
 
-		conn.HandlePacket(data)
+		conn.HandlePacket(buf)
 	}
 }

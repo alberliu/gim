@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"gim/pkg/logger"
-	"gim/pkg/util"
+	"gim/pkg/ustrings"
 )
 
 type Response struct {
@@ -37,7 +37,7 @@ func main() {
 		}
 
 		filenames := strings.Split(file.Filename, ".")
-		name := strconv.FormatInt(time.Now().UnixNano(), 10) + "-" + util.RandString(30) + "." + filenames[len(filenames)-1]
+		name := strconv.FormatInt(time.Now().UnixNano(), 10) + "-" + ustrings.RandString(30) + "." + filenames[len(filenames)-1]
 		filePath := "/data/file/" + name
 		err = c.SaveUploadedFile(file, filePath)
 		if err != nil {
