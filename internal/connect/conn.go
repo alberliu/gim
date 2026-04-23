@@ -24,13 +24,15 @@ import (
 const ReadDeadline = time.Minute * 12
 const WriteDeadline = time.Second * 5
 
+type ConnType int
+
 const (
-	ConnTypeTCP int8 = 1 // TCP连接
-	ConnTypeWS  int8 = 2 // WebSocket连接
+	ConnTypeTCP ConnType = 1 // TCP连接
+	ConnTypeWS  ConnType = 2 // WebSocket连接
 )
 
 type Conn struct {
-	ConnType int8 // 连接类型
+	ConnType ConnType // 连接类型
 
 	TCP    *net.TCPConn  // TCP连接
 	Reader *bufio.Reader // Reader
@@ -189,6 +191,10 @@ func (c *Conn) SendMessage(message *pb.Message) {
 
 // SignIn 登录
 func (c *Conn) SignIn(packet *pb.Packet) {
+	if c.ConnType != ConnTypeTCP {
+		return
+	}
+
 	var request pb.SignInRequest
 	err := proto.Unmarshal(packet.Content, &request)
 	if err != nil {

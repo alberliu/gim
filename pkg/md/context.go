@@ -5,6 +5,7 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 )
@@ -18,6 +19,11 @@ const (
 
 func WithRequestID(ctx context.Context, requestID string) context.Context {
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs(RequestID, requestID))
+}
+
+func WithGenerateRequestID() context.Context {
+	requestID := uuid.NewString()
+	return metadata.NewOutgoingContext(context.Background(), metadata.Pairs(RequestID, requestID))
 }
 
 func Get(ctx context.Context, key string) string {

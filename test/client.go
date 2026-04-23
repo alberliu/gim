@@ -99,6 +99,7 @@ func connect(network Network, userID, deviceID uint64) {
 }
 
 type client struct {
+	Network  Network
 	UserID   uint64
 	DeviceID uint64
 	Token    string
@@ -113,7 +114,7 @@ func runClient(log *slog.Logger, network Network, addr string, userID, deviceID 
 	case NetworkTCP:
 		conn, err = newTCPConn(addr)
 	case NetworkWebsocket:
-		conn, err = newWsConn(addr)
+		conn, err = newWsConn(addr, userID, deviceID, token)
 	default:
 		panic("unsupported network")
 	}
@@ -122,6 +123,7 @@ func runClient(log *slog.Logger, network Network, addr string, userID, deviceID 
 	}
 
 	client := &client{
+		Network:  network,
 		UserID:   userID,
 		DeviceID: deviceID,
 		Token:    token,
@@ -166,6 +168,10 @@ func (c *client) send(pt connectpb.PacketCommand, requestID string, msg proto.Me
 }
 
 func (c *client) signIn() {
+	if c.Network == NetworkWebsocket {
+		return
+	}
+
 	request := logicpb.SignInRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
@@ -266,8 +272,9 @@ type wsConn struct {
 	conn *websocket.Conn
 }
 
-func newWsConn(url string) (*wsConn, error) {
+func newWsConn(url string, userID, deviceID uint64, token string) (*wsConn, error) {
 	// demo "ws://127.0.0.1:8002/ws"
+	url = fmt.Sprintf("%s?user_id=%d&device_id=%d&token=%s", url, userID, deviceID, token)
 	conn, resp, err := websocket.DefaultDialer.Dial(url, http.Header{})
 	if err != nil {
 		return nil, err

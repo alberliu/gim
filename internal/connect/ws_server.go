@@ -4,10 +4,14 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
 
+	"gim/pkg/md"
+	"gim/pkg/protocol/pb/logicpb"
+	"gim/pkg/rpc"
 	"gim/pkg/safe"
 )
 
@@ -33,24 +37,69 @@ func StartWSServer(address string) *http.Server {
 	return server
 }
 
+func parseRequest(r *http.Request) (*logicpb.SignInRequest, error) {
+	q := r.URL.Query()
+
+	userID, err := strconv.ParseUint(q.Get("user_id"), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	deviceID, err := strconv.ParseUint(q.Get("device_id"), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	token := q.Get("token")
+	if token == "" {
+		return nil, err
+	}
+
+	clientAddr := r.Header.Get("X-Real-IP")
+	if clientAddr == "" {
+		clientAddr = r.RemoteAddr
+	}
+	return &logicpb.SignInRequest{
+		UserId:     userID,
+		DeviceId:   deviceID,
+		Token:      token,
+		ClientAddr: clientAddr,
+	}, nil
+}
+
 func wsHandler(w http.ResponseWriter, r *http.Request) {
+	defer safe.RecoverPanic()
+
+	request, err := parseRequest(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	_, err = rpc.GetDeviceIntClient().SignIn(md.WithGenerateRequestID(), request)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		slog.Error("upgrade websocket failed", "error", err)
 		return
 	}
-	DoConn(wsConn)
-}
 
-// DoConn 处理连接
-func DoConn(wsConn *websocket.Conn) {
 	conn := &Conn{
 		ConnType: ConnTypeWS,
 		WS:       wsConn,
+		UserID:   request.UserId,
+		DeviceID: request.DeviceId,
 	}
+	SetConn(request.DeviceId, conn)
+	handleMessage(conn)
+}
+
+// handleMessage 处理消息
+func handleMessage(conn *Conn) {
 	var err error
 	var buf []byte
-	defer safe.RecoverPanic()
 	defer func() { conn.Close(err) }()
 
 	for {
