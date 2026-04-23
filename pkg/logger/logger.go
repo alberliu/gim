@@ -34,7 +34,7 @@ func Init() {
 		ReplaceAttr: ReplaceAttr,
 	}
 	slog.SetDefault(slog.New(NewHandler(slog.NewJSONHandler(writer, options))))
-	slog.Info("slog init")
+	slog.Info("logger initialized")
 }
 
 func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {

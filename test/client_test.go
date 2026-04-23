@@ -43,7 +43,7 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("私聊发送", "message_id", reply.MessageId, "request_id", getRequestID(header))
+	slog.Info("push to user", "message_id", reply.MessageId, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
@@ -56,7 +56,7 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("群组发送成功", "message_id", groupReply.MessageId, "request_id", getRequestID(header))
+	slog.Info("push to group", "message_id", groupReply.MessageId, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
@@ -70,7 +70,7 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("房间发送成功", "request_id", getRequestID(header))
+	slog.Info("push to room", "request_id", getRequestID(header))
 
 	select {}
 }

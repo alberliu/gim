@@ -31,7 +31,7 @@ func newDB(dsn string) *gorm.DB {
 			},
 		})
 	if err != nil {
-		slog.Error("open db error", "error", err, slog.String("dsn", dsn))
+		slog.Error("open db failed", "error", err, slog.String("dsn", dsn))
 		panic(err)
 	}
 

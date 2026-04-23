@@ -36,7 +36,7 @@ func StartWSServer(address string) *http.Server {
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		slog.Error("upgrade error", "error", err)
+		slog.Error("upgrade websocket failed", "error", err)
 		return
 	}
 	DoConn(wsConn)

@@ -27,7 +27,7 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 			if room.Conns.Front() == nil {
 				RoomsManager.Delete(oldRoomID)
 			}
-			slog.Debug("SubscribedRoom un", "user_id", conn.UserID, "room_id", roomID)
+			slog.Debug("unsubscribe room", "user_id", conn.UserID, "room_id", roomID)
 		}
 	}
 
@@ -42,7 +42,7 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 			room = value.(*Room)
 		}
 		room.Subscribe(conn)
-		slog.Debug("SubscribedRoom", "user_id", conn.UserID, "room_id", roomID)
+		slog.Debug("subscribe room", "user_id", conn.UserID, "room_id", roomID)
 		return
 	}
 }
@@ -54,7 +54,7 @@ func PushRoom(roomID uint64, message *pb.Message) {
 		return
 	}
 
-	slog.Debug("PushRoom", "room_id", roomID, "msg", message)
+	slog.Debug("push room", "room_id", roomID, "msg", message)
 	value.(*Room).Push(message)
 }
 
@@ -98,7 +98,7 @@ func (r *Room) Push(message *pb.Message) {
 	element := r.Conns.Front()
 	for element != nil {
 		conn := element.Value.(*Conn)
-		slog.Debug("PushRoom toUser", "user_id", conn.UserID, "msg", message)
+		slog.Debug("push room to user", "user_id", conn.UserID, "msg", message)
 		conn.SendMessage(message)
 
 		element = element.Next()

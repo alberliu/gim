@@ -26,7 +26,7 @@ func main() {
 	connect.StartSubscribe()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
-		pb.RegisterConnectIntServiceServer(server, &connect.ConnIntService{})
+		pb.RegisterConnectIntServiceServer(server, &connect.ConnectIntService{})
 	})
 
 	server.WaitForShutdown(wsServer)
@@ -34,6 +34,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := wsServer.Shutdown(ctx); err != nil {
-		slog.Error("httpServer shutdown", "error", err)
+		slog.Error("http server shutdown failed", "error", err)
 	}
 }

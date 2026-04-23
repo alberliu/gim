@@ -15,9 +15,9 @@ import (
 )
 
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
 }
 
 func main() {
@@ -54,6 +54,6 @@ func main() {
 	})
 	err := router.Run(":8001")
 	if err != nil {
-		slog.Error("Run error", "error", err)
+		slog.Error("run server failed", "error", err)
 	}
 }

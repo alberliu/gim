@@ -89,7 +89,7 @@ func connect(network Network, userID, deviceID uint64) {
 	if err != nil {
 		panic(err)
 	}
-	log.Info("短连接登录成功", "reply", reply)
+	log.Info("sign in success", "reply", reply)
 
 	addr := connectTCPServerAddr
 	if network == NetworkWebsocket {
@@ -147,7 +147,7 @@ func (c *client) send(pt connectpb.PacketCommand, requestID string, msg proto.Me
 	if msg != nil {
 		bytes, err := proto.Marshal(msg)
 		if err != nil {
-			c.log.Error("send", "error", err)
+			c.log.Error("marshal message failed", "error", err)
 			return
 		}
 		packet.Content = bytes
@@ -155,13 +155,13 @@ func (c *client) send(pt connectpb.PacketCommand, requestID string, msg proto.Me
 
 	buf, err := proto.Marshal(&packet)
 	if err != nil {
-		c.log.Error("send", "error", err)
+		c.log.Error("marshal packet failed", "error", err)
 		return
 	}
 
 	err = c.conn.write(buf)
 	if err != nil {
-		c.log.Error("send", "error", err)
+		c.log.Error("write packet failed", "error", err)
 	}
 }
 
@@ -172,7 +172,7 @@ func (c *client) signIn() {
 		Token:    c.Token,
 	}
 	c.send(connectpb.PacketCommand_PC_SIGN_IN, generateRequestID(), &request)
-	c.log.Info("发送登录指令")
+	c.log.Info("send sign in")
 	time.Sleep(1 * time.Second)
 }
 
@@ -180,7 +180,7 @@ func (c *client) heartbeat() {
 	ticker := time.NewTicker(time.Minute * 5)
 	for range ticker.C {
 		c.send(connectpb.PacketCommand_PC_HEARTBEAT, generateRequestID(), nil)
-		c.log.Info("心跳发送")
+		c.log.Info("send heartbeat")
 	}
 }
 
@@ -189,7 +189,7 @@ func (c *client) subscribeRoom() {
 	c.send(connectpb.PacketCommand_PC_SUBSCRIBE_ROOM, generateRequestID(), &connectpb.SubscribeRoomRequest{
 		RoomId: roomID,
 	})
-	c.log.Info("订阅房间", "roomID", roomID)
+	c.log.Info("subscribe room", "roomID", roomID)
 }
 
 func (c *client) handleMessage(buf []byte) {
@@ -202,21 +202,21 @@ func (c *client) handleMessage(buf []byte) {
 
 	switch packet.Command {
 	case connectpb.PacketCommand_PC_SIGN_IN:
-		c.log.Info("登录响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
+		c.log.Info("sign in response", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
 
 		time.Sleep(1 * time.Second)
 	case connectpb.PacketCommand_PC_HEARTBEAT:
-		c.log.Info("心跳响应")
+		c.log.Info("heartbeat response")
 	case connectpb.PacketCommand_PC_SUBSCRIBE_ROOM:
-		c.log.Info("订阅房间响应", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
+		c.log.Info("subscribe room response", "packet", jsonString(&packet), "reply", jsonString(getReply(&packet)))
 	case connectpb.PacketCommand_PC_MESSAGE:
 		var message connectpb.Message
 		err := proto.Unmarshal(packet.Content, &message)
 		if err != nil {
-			c.log.Error("proto.Unmarshal", "error", err)
+			c.log.Error("unmarshal message failed", "error", err)
 			return
 		}
-		c.log.Info("消息下发", "message", stringMessage(&message))
+		c.log.Info("receive message", "message", stringMessage(&message))
 	default:
 		c.log.Info("other", "packet", &packet)
 	}

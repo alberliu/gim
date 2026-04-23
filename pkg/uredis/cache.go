@@ -20,7 +20,7 @@ func Get[T any](client *Client, ctx context.Context, key string, ttl time.Durati
 		return t, nil
 	}
 	if !errors.Is(err, redis.Nil) {
-		slog.ErrorContext(ctx, "Get", "error", err, "key", key)
+		slog.ErrorContext(ctx, "cache get failed", "error", err, "key", key)
 	}
 
 	result, err, _ := group.Do(key, func() (any, error) {
@@ -30,7 +30,7 @@ func Get[T any](client *Client, ctx context.Context, key string, ttl time.Durati
 		}
 		err = client.SetAny(ctx, key, t, ttl)
 		if err != nil {
-			slog.ErrorContext(ctx, "Get", "error", err, "key", key)
+			slog.ErrorContext(ctx, "cache set failed", "error", err, "key", key)
 		}
 		return t, nil
 	})

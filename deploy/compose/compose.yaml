@@ -35,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20260422.224627
+    image: connect:20260423.134018
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/connect:/data/log/connect
@@ -56,7 +56,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20260422.224636
+    image: logic:20260423.134030
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/logic:/data/log/logic
@@ -74,7 +74,7 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20260422.224640
+    image: business:20260423.134034
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log//business:/data/log/business
@@ -92,7 +92,7 @@ services:
   file:
     container_name: file
     restart: always
-    image: file:20260422.224643
+    image: file:20260423.134036
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/file:/data/file

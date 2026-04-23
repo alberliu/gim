@@ -88,7 +88,7 @@ func (c *Conn) WriteToWS(buf []byte) error {
 // io.EOF是用户主动断开连接
 // io timeout是SetReadDeadline之后，超时返回的错误
 func (c *Conn) Close(err error) {
-	slog.Warn("Conn Close", "error", err)
+	slog.Warn("close conn", "error", err)
 	// 取消设备和连接的对应关系
 	if c.DeviceID != 0 {
 		DeleteConn(c.DeviceID)
@@ -130,10 +130,10 @@ func (c *Conn) HandlePacket(buf []byte) {
 	packet := new(pb.Packet)
 	err := proto.Unmarshal(buf, packet)
 	if err != nil {
-		slog.Error("unmarshal error", "error", err, "len", len(buf))
+		slog.Error("unmarshal packet failed", "error", err, "len", len(buf))
 		return
 	}
-	slog.Debug("HandlePacket", "packet", packet)
+	slog.Debug("handle packet", "packet", packet)
 
 	// 对未登录的用户进行拦截
 	if packet.Command != pb.PacketCommand_PC_SIGN_IN && c.UserID == 0 {
@@ -150,7 +150,7 @@ func (c *Conn) HandlePacket(buf []byte) {
 	case pb.PacketCommand_PC_SUBSCRIBE_ROOM:
 		c.SubscribedRoom(packet)
 	default:
-		slog.Error("handler switch other", "command", packet.Command)
+		slog.Error("unknown command", "command", packet.Command)
 	}
 }
 
@@ -158,23 +158,23 @@ func (c *Conn) HandlePacket(buf []byte) {
 func (c *Conn) SendPacket(packet *pb.Packet) {
 	buf, err := proto.Marshal(packet)
 	if err != nil {
-		slog.Error("proto.Marshal error", "error", err)
+		slog.Error("marshal packet failed", "error", err)
 		return
 	}
 
 	err = c.Write(buf)
 	if err != nil {
-		slog.Error("Write error", "error", err)
+		slog.Error("write packet failed", "error", err)
 		c.Close(err)
 		return
 	}
-	slog.Info("SendPacket", "user_id", c.UserID, "packet", packet)
+	slog.Info("send packet", "user_id", c.UserID, "packet", packet)
 }
 
 func (c *Conn) SendMessage(message *pb.Message) {
 	buf, err := proto.Marshal(message)
 	if err != nil {
-		slog.Error("proto.Marshal error", "error", err)
+		slog.Error("marshal message failed", "error", err)
 		return
 	}
 
@@ -184,7 +184,7 @@ func (c *Conn) SendMessage(message *pb.Message) {
 	}
 	c.SendPacket(packet)
 
-	slog.Info("SendMessage", "user_id", c.UserID, "message", message)
+	slog.Info("send message", "user_id", c.UserID, "message", message)
 }
 
 // SignIn 登录
@@ -192,7 +192,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 	var request pb.SignInRequest
 	err := proto.Unmarshal(packet.Content, &request)
 	if err != nil {
-		slog.Error("proto unmarshal error", "error", err)
+		slog.Error("unmarshal sign in failed", "error", err)
 		return
 	}
 
@@ -223,10 +223,10 @@ func (c *Conn) Heartbeat(packet *pb.Packet) {
 		DeviceId: c.DeviceID,
 	})
 	if err != nil {
-		slog.Error("Heartbeat error", "device_id", c.DeviceID, "user_id", c.UserID, "error", err)
+		slog.Error("heartbeat failed", "device_id", c.DeviceID, "user_id", c.UserID, "error", err)
 	}
 
-	slog.Info("heartbeat", "device_id", c.DeviceID, "user_id", c.UserID)
+	slog.Info("heartbeat received", "device_id", c.DeviceID, "user_id", c.UserID)
 }
 
 // SubscribedRoom 订阅房间
@@ -234,7 +234,7 @@ func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	var subscribeRoom pb.SubscribeRoomRequest
 	err := proto.Unmarshal(packet.Content, &subscribeRoom)
 	if err != nil {
-		slog.Error("proto unmarshal", "error", err)
+		slog.Error("unmarshal subscribe room failed", "error", err)
 		return
 	}
 
@@ -247,7 +247,7 @@ func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 		RoomId:   subscribeRoom.RoomId,
 	})
 	if err != nil {
-		slog.Error("SubscribedRoom error", "error", err)
+		slog.Error("subscribe room failed", "error", err)
 	}
 }
 
@@ -262,13 +262,13 @@ func setContent(packet *pb.Packet, err error, message proto.Message) {
 	if message != nil {
 		reply.Data, err = proto.Marshal(message)
 		if err != nil {
-			slog.Error("setContent error", "error", err)
+			slog.Error("marshal reply data failed", "error", err)
 		}
 	}
 
 	buf, err := proto.Marshal(&reply)
 	if err != nil {
-		slog.Error("setContent error", "error", err)
+		slog.Error("marshal reply failed", "error", err)
 		return
 	}
 	packet.Content = buf

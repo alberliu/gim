@@ -29,18 +29,18 @@ func accept(listener *net.TCPListener) {
 	for {
 		conn, err := listener.AcceptTCP()
 		if err != nil {
-			slog.Error("acceptTCP error", "error", err)
+			slog.Error("accept tcp failed", "error", err)
 			continue
 		}
 
 		err = conn.SetKeepAlive(true)
 		if err != nil {
-			slog.Error("setKeepAlive error", "error", err)
+			slog.Error("set keep alive failed", "error", err)
 		}
 
 		err = conn.SetNoDelay(true)
 		if err != nil {
-			slog.Error("setNoDelay error", "error", err)
+			slog.Error("set no delay failed", "error", err)
 		}
 
 		go handleConn(conn)

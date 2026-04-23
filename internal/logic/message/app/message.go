@@ -24,7 +24,7 @@ type messageApp struct{}
 // PushToUsers 发送消息
 func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
 	message.CreatedAt = time.Now().Unix()
-	slog.DebugContext(ctx, "PushToUsers", "request_id", md.GetRequestID(ctx), "to_user_ids", userIDs)
+	slog.DebugContext(ctx, "push to users", "request_id", md.GetRequestID(ctx), "to_user_ids", userIDs)
 
 	dispatcher := newDispatcher(ctx, message, isPersist, userIDs)
 	err := dispatcher.dispatch()

@@ -30,9 +30,9 @@ func NewInterceptor() grpc.UnaryServerInterceptor {
 
 		s, _ := status.FromError(err)
 		if s.Code() != 0 && s.Code() < 10000 {
-			log.ErrorContext(ctx, "server interceptor", logger.Error(err), "stack", gerrors.GetErrorStack(s))
+			log.ErrorContext(ctx, "handle request failed", logger.Error(err), "stack", gerrors.GetErrorStack(s))
 		}
-		log.DebugContext(ctx, "server interceptor", logger.Error(err))
+		log.DebugContext(ctx, "handle request", logger.Error(err))
 		return
 	}
 }
@@ -51,7 +51,7 @@ func generateRequestID(ctx context.Context) context.Context {
 }
 
 // handleWithAuth 处理鉴权逻辑
-func handleWithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+func handleWithAuth(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	serverName := strings.Split(info.FullMethod, "/")[1]
 	if strings.HasSuffix(serverName, "ExtService") {
 		if _, ok := URLWhitelist[info.FullMethod]; !ok {

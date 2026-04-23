@@ -22,7 +22,7 @@ func NewClient(addr, password string) *Client {
 
 	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		slog.Error("redis ping error", "error", err)
+		slog.Error("redis ping failed", "error", err)
 		panic(err)
 	}
 	return &Client{Client: client}

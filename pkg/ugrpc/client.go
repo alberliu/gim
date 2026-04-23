@@ -18,7 +18,7 @@ func clientInterceptor(ctx context.Context, method string, request, reply any, c
 	err := invoker(ctx, method, request, reply, cc, opts...)
 
 	md, _ := metadata.FromOutgoingContext(ctx)
-	slog.DebugContext(ctx, "client interceptor", "method", method, "metadata", md, "request", request, "reply", reply, logger.Error(err))
+	slog.DebugContext(ctx, "send grpc request", "method", method, "metadata", md, "request", request, "reply", reply, logger.Error(err))
 	return err
 }
 

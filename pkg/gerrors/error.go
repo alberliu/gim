@@ -23,10 +23,10 @@ func GetErrorStack(s *status.Status) string {
 	return ""
 }
 
-func LogPanic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, err *error) {
+func LogPanic(ctx context.Context, req any, info *grpc.UnaryServerInfo, err *error) {
 	p := recover()
 	if p != nil {
-		slog.Error("panic", "info", info, "ctx", ctx, "req", req, "panic", p,
+		slog.Error("panic recovered", "info", info, "ctx", ctx, "req", req, "panic", p,
 			"stack", string(debug.Stack()))
 		*err = ErrUnknown
 	}

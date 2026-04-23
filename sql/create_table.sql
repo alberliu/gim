@@ -19,7 +19,7 @@ CREATE TABLE `device` (
   `client_addr` varchar(25) NOT NULL COMMENT '客户端地址',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='设备';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='设备';
 
 CREATE TABLE `device_ack` (
   `device_id` bigint unsigned NOT NULL COMMENT '设备ID',
@@ -29,7 +29,7 @@ CREATE TABLE `device_ack` (
   `ack` bigint unsigned NOT NULL COMMENT '序列号',
   PRIMARY KEY (`device_id`),
   KEY `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ack';
+) ENGINE=InnoDB COMMENT='ack';
 
 CREATE TABLE `friend` (
   `user_id` bigint unsigned NOT NULL COMMENT '用户id',
@@ -40,7 +40,7 @@ CREATE TABLE `friend` (
   `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   `status` tinyint NOT NULL COMMENT '状态，1：申请，2：同意',
   PRIMARY KEY (`user_id`,`friend_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='好友';
+) ENGINE=InnoDB COMMENT='好友';
 
 CREATE TABLE `group` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -51,7 +51,7 @@ CREATE TABLE `group` (
   `introduction` varchar(255) NOT NULL COMMENT '群组简介',
   `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='群组';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='群组';
 
 CREATE TABLE `group_member` (
   `group_id` bigint unsigned NOT NULL COMMENT '群组ID',
@@ -64,7 +64,7 @@ CREATE TABLE `group_member` (
   `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   PRIMARY KEY (`group_id`,`user_id`),
   KEY `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='群组成员';
+) ENGINE=InnoDB COMMENT='群组成员';
 
 CREATE TABLE `message` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -74,9 +74,17 @@ CREATE TABLE `message` (
   `command` int NOT NULL COMMENT '消息类型',
   `content` blob NOT NULL COMMENT '消息内容',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='消息'
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='消息'
 /*!50100 PARTITION BY HASH (`id`)
 PARTITIONS 8 */;
+
+CREATE TABLE `seq` (
+  `user_id` bigint unsigned NOT NULL COMMENT '用户ID',
+  `created_at` datetime NOT NULL COMMENT '创建时间',
+  `updated_at` datetime NOT NULL COMMENT '更新时间',
+  `seq` bigint unsigned NOT NULL COMMENT '序列号',
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB COMMENT='序列号';
 
 CREATE TABLE `user` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -89,7 +97,7 @@ CREATE TABLE `user` (
   `extra` varchar(1024) NOT NULL COMMENT '附加属性',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_phone_number` (`phone_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户';
+) ENGINE=InnoDB AUTO_INCREMENT=10000 COMMENT='用户';
 
 CREATE TABLE `user_message` (
   `user_id` bigint unsigned NOT NULL COMMENT '所属类型的id',
@@ -98,6 +106,6 @@ CREATE TABLE `user_message` (
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `message_id` bigint unsigned NOT NULL COMMENT '消息ID',
   PRIMARY KEY (`user_id`,`seq`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户消息'
+) ENGINE=InnoDB COMMENT='用户消息'
 /*!50100 PARTITION BY HASH (`user_id`)
 PARTITIONS 8 */;

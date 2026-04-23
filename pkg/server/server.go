@@ -28,10 +28,10 @@ func RunGRPCServer(f func(server *grpc.Server)) {
 		panic(err)
 	}
 	go func() {
-		slog.Info("StartRPCServer", "addr", config.GrpcListenAddr)
+		slog.Info("rpc server started", "addr", config.GrpcListenAddr)
 		err = grpcServer.Serve(listen)
 		if err != nil {
-			slog.Error("StartRPCServer", "error", err)
+			slog.Error("start rpc server failed", "error", err)
 			panic(err)
 		}
 	}()
@@ -41,10 +41,10 @@ func WaitForShutdown(httpServers ...*http.Server) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM)
 	s := <-c
-	slog.Info("server stop", "signal", s)
+	slog.Info("server stopping", "signal", s)
 
 	if grpcServer != nil {
 		grpcServer.GracefulStop()
-		slog.Info("grpcServer GracefulStop")
+		slog.Info("grpc server stopped")
 	}
 }
