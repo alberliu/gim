@@ -32,13 +32,13 @@ const (
 )
 
 type Conn struct {
-	ConnType ConnType // 连接类型
+	ConnType ConnType   // 连接类型
+	Mutex    sync.Mutex // WS写锁
 
 	TCP    *net.TCPConn  // TCP连接
 	Reader *bufio.Reader // Reader
 
-	Mutex sync.Mutex      // WS写锁
-	WS    *websocket.Conn // WebSocket连接
+	WS *websocket.Conn // WebSocket连接
 
 	UserID   uint64        // 用户ID
 	DeviceID uint64        // 设备ID
@@ -57,10 +57,6 @@ func (c *Conn) Write(buf []byte) error {
 		err = c.WriteToTCP(buf)
 	case ConnTypeWS:
 		err = c.WriteToWS(buf)
-	}
-
-	if err != nil {
-		c.Close(err)
 	}
 	return err
 }
@@ -83,38 +79,6 @@ func (c *Conn) WriteToWS(buf []byte) error {
 		return err
 	}
 	return c.WS.WriteMessage(websocket.BinaryMessage, buf)
-}
-
-// Close 关闭
-// use of closed network connection 服务端主动关闭
-// io.EOF是用户主动断开连接
-// io timeout是SetReadDeadline之后，超时返回的错误
-func (c *Conn) Close(err error) {
-	slog.Warn("close conn", "error", err)
-	// 取消设备和连接的对应关系
-	if c.DeviceID != 0 {
-		DeleteConn(c.DeviceID)
-	}
-
-	// 取消订阅，需要异步出去，防止重复加锁造成死锁
-	go func() {
-		SubscribedRoom(c, 0)
-	}()
-
-	if c.DeviceID != 0 {
-		_, _ = rpc.GetDeviceIntClient().Offline(context.Background(), &logicpb.OfflineRequest{
-			UserId:     c.UserID,
-			DeviceId:   c.DeviceID,
-			ClientAddr: c.GetAddr(),
-		})
-	}
-
-	switch c.ConnType {
-	case ConnTypeTCP:
-		_ = c.TCP.Close()
-	case ConnTypeWS:
-		_ = c.WS.Close()
-	}
 }
 
 func (c *Conn) GetAddr() string {
@@ -202,7 +166,9 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().SignIn(md.WithRequestID(context.Background(), packet.RequestId), &logicpb.SignInRequest{
+	ctx, cancel := context.WithTimeout(md.WithRequestID(context.Background(), packet.RequestId), rpc.Timeout)
+	defer cancel()
+	_, err = rpc.GetDeviceIntClient().SignIn(ctx, &logicpb.SignInRequest{
 		UserId:     request.UserId,
 		DeviceId:   request.DeviceId,
 		Token:      request.Token,
@@ -224,7 +190,9 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 func (c *Conn) Heartbeat(packet *pb.Packet) {
 	c.SendPacket(packet)
 
-	_, err := rpc.GetDeviceIntClient().Heartbeat(context.Background(), &logicpb.HeartbeatRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), rpc.Timeout)
+	defer cancel()
+	_, err := rpc.GetDeviceIntClient().Heartbeat(ctx, &logicpb.HeartbeatRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 	})
@@ -247,7 +215,9 @@ func (c *Conn) SubscribedRoom(packet *pb.Packet) {
 	SubscribedRoom(c, subscribeRoom.RoomId)
 	setContent(packet, nil, nil)
 	c.SendPacket(packet)
-	_, err = rpc.GetRoomIntClient().SubscribeRoom(context.Background(), &logicpb.SubscribeRoomRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), rpc.Timeout)
+	defer cancel()
+	_, err = rpc.GetRoomIntClient().SubscribeRoom(ctx, &logicpb.SubscribeRoomRequest{
 		UserId:   c.UserID,
 		DeviceId: c.DeviceID,
 		RoomId:   subscribeRoom.RoomId,
@@ -278,4 +248,38 @@ func setContent(packet *pb.Packet, err error, message proto.Message) {
 		return
 	}
 	packet.Content = buf
+}
+
+// Close 关闭
+// use of closed network connection 服务端主动关闭
+// io.EOF是用户主动断开连接
+// io timeout是SetReadDeadline之后，超时返回的错误
+func (c *Conn) Close(err error) {
+	slog.Warn("close conn", "error", err)
+	// 取消设备和连接的对应关系
+	if c.DeviceID != 0 {
+		DeleteConn(c.DeviceID)
+	}
+
+	// 取消订阅，需要异步出去，防止重复加锁造成死锁
+	go func() {
+		SubscribedRoom(c, 0)
+	}()
+
+	if c.DeviceID != 0 {
+		ctx, cancel := context.WithTimeout(context.Background(), rpc.Timeout)
+		defer cancel()
+		_, _ = rpc.GetDeviceIntClient().Offline(ctx, &logicpb.OfflineRequest{
+			UserId:     c.UserID,
+			DeviceId:   c.DeviceID,
+			ClientAddr: c.GetAddr(),
+		})
+	}
+
+	switch c.ConnType {
+	case ConnTypeTCP:
+		_ = c.TCP.Close()
+	case ConnTypeWS:
+		_ = c.WS.Close()
+	}
 }

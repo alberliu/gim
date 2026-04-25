@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"google.golang.org/protobuf/proto"
 
@@ -13,6 +14,8 @@ import (
 	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/ugrpc"
 )
+
+const Timeout = time.Second * 5
 
 func getTarget(server string) string {
 	switch config.ENV {

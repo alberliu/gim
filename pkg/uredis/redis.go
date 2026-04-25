@@ -20,7 +20,9 @@ func NewClient(addr, password string) *Client {
 		Password: password,
 	})
 
-	_, err := client.Ping(context.Background()).Result()
+	pingCtx, pingCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer pingCancel()
+	_, err := client.Ping(pingCtx).Result()
 	if err != nil {
 		slog.Error("redis ping failed", "error", err)
 		panic(err)

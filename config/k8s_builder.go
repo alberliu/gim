@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"time"
 
 	"github.com/sercand/kuberesolver/v6"
 	"google.golang.org/grpc/resolver"
@@ -26,7 +27,9 @@ func (*k8sBuilder) Build() Configuration {
 	if err != nil {
 		panic(err)
 	}
-	configmap, err := k8sClient.CoreV1().ConfigMaps(namespace).Get(context.Background(), "config", metav1.GetOptions{})
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	configmap, err := k8sClient.CoreV1().ConfigMaps(namespace).Get(ctx, "config", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}

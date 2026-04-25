@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -74,7 +75,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = rpc.GetDeviceIntClient().SignIn(md.WithGenerateRequestID(), request)
+	signInCtx, signInCancel := context.WithTimeout(md.WithGenerateRequestID(), rpc.Timeout)
+	defer signInCancel()
+	_, err = rpc.GetDeviceIntClient().SignIn(signInCtx, request)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
