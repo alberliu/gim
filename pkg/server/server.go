@@ -3,7 +3,6 @@ package server
 import (
 	"log/slog"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -37,7 +36,7 @@ func RunGRPCServer(f func(server *grpc.Server)) {
 	}()
 }
 
-func WaitForShutdown(httpServers ...*http.Server) {
+func WaitForShutdown() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM)
 	s := <-c

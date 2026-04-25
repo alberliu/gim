@@ -7,8 +7,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
-
-	"gim/pkg/ustrings"
 )
 
 const TypeUrlStack = "type_url_stack"
@@ -17,7 +15,7 @@ func GetErrorStack(s *status.Status) string {
 	pbs := s.Proto()
 	for i := range pbs.Details {
 		if pbs.Details[i].TypeUrl == TypeUrlStack {
-			return ustrings.Bytes2str(pbs.Details[i].Value)
+			return string(pbs.Details[i].Value)
 		}
 	}
 	return ""

@@ -28,7 +28,7 @@ func (s *friendApp) List(ctx context.Context, userID uint64) ([]*pb.Friend, erro
 
 	userIDs := make([]uint64, 0, len(friends))
 	for i := range friends {
-		userIDs = append(userIDs, friends[i].UserID)
+		userIDs = append(userIDs, friends[i].FriendID)
 	}
 	users, err := userapp.UserApp.GetUsers(ctx, userIDs)
 	if err != nil {

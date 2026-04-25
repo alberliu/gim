@@ -58,5 +58,5 @@ message Device {
   string model = 4; // 机型
   string system_version = 5; // 系统版本
   string sdk_version = 6; // SDK版本
-  string branch_push_id = 7; // 厂商推送ID
+  string push_token = 7; // 厂商推送token
 }

@@ -2,6 +2,7 @@ package connect
 
 import (
 	"bufio"
+	"errors"
 	"log/slog"
 	"net"
 	"time"
@@ -28,6 +29,9 @@ func StartTCPServer(addr string) {
 func accept(listener *net.TCPListener) {
 	for {
 		conn, err := listener.AcceptTCP()
+		if errors.Is(err, net.ErrClosed) {
+			return
+		}
 		if err != nil {
 			slog.Error("accept tcp failed", "error", err)
 			continue

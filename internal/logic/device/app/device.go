@@ -65,7 +65,7 @@ func (*deviceApp) Save(ctx context.Context, pbdevice *pb.Device) (uint64, error)
 		Model:         pbdevice.Model,
 		SystemVersion: pbdevice.SystemVersion,
 		SDKVersion:    pbdevice.SdkVersion,
-		BrandPushID:   pbdevice.BranchPushId,
+		PushToken:     pbdevice.PushToken,
 	}
 
 	err := repo.DeviceRepo.Save(ctx, device)

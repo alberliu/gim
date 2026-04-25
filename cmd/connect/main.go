@@ -29,7 +29,7 @@ func main() {
 		pb.RegisterConnectIntServiceServer(server, &connect.ConnectIntService{})
 	})
 
-	server.WaitForShutdown(wsServer)
+	server.WaitForShutdown()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

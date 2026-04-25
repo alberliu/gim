@@ -24,7 +24,7 @@ type Device struct {
 	Model         string        // 机型
 	SystemVersion string        // 系统版本
 	SDKVersion    string        // SDK版本
-	BrandPushID   string        // 厂商推送ID
+	PushToken     string        // 厂商推送token
 	ConnectIP     string        // 连接层服务器IP
 	ClientAddr    string        // 客户端地址
 

@@ -50,7 +50,7 @@ func parseRequest(r *http.Request) (*logicpb.SignInRequest, error) {
 	}
 	token := q.Get("token")
 	if token == "" {
-		return nil, err
+		return nil, errors.New("token is empty")
 	}
 
 	clientAddr := r.Header.Get("X-Real-IP")

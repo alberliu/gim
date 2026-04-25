@@ -83,7 +83,7 @@ func connect(network Network, userID, deviceID uint64) {
 			Model:         "xiaomi 15",
 			SystemVersion: "15.0.0",
 			SdkVersion:    "1.0.0",
-			BranchPushId:  "xiaomi push id",
+			PushToken:     "xiaomi push id",
 		},
 	})
 	if err != nil {

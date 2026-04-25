@@ -136,7 +136,7 @@ func pushToDevices(ctx context.Context, addr string, deviceMessages []*connectpb
 			DeviceMessages: deviceMessages[i:end],
 		})
 		if err != nil {
-			slog.Error("push to devices failed", "error", err, "addr", addr)
+			slog.ErrorContext(ctx, "push to devices failed", "error", err, "addr", addr)
 		}
 	}
 }
