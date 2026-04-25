@@ -33,14 +33,8 @@ func SubscribedRoom(conn *Conn, roomID uint64) {
 
 	// 订阅
 	if roomID != 0 {
-		value, ok := RoomsManager.Load(roomID)
-		var room *Room
-		if !ok {
-			room = NewRoom(roomID)
-			RoomsManager.Store(roomID, room)
-		} else {
-			room = value.(*Room)
-		}
+		actual, _ := RoomsManager.LoadOrStore(roomID, NewRoom(roomID))
+		room := actual.(*Room)
 		room.Subscribe(conn)
 		slog.Debug("subscribe room", "user_id", conn.UserID, "room_id", roomID)
 		return
@@ -91,16 +85,15 @@ func (r *Room) Unsubscribe(conn *Conn) {
 }
 
 // Push 推送消息到房间
+// 先快照连接列表、释放锁，再做网络写入,避免单个客户端阻塞导致锁时间过长
 func (r *Room) Push(message *pb.Message) {
 	r.lock.RLock()
-	defer r.lock.RUnlock()
-
-	element := r.Conns.Front()
-	for element != nil {
-		conn := element.Value.(*Conn)
-		slog.Debug("push room to user", "user_id", conn.UserID, "msg", message)
-		conn.SendMessage(message)
-
-		element = element.Next()
+	conns := make([]*Conn, 0, r.Conns.Len())
+	for e := r.Conns.Front(); e != nil; e = e.Next() {
+		conns = append(conns, e.Value.(*Conn))
+	}
+	r.lock.RUnlock()
+	for _, c := range conns {
+		c.SendMessage(message)
 	}
 }

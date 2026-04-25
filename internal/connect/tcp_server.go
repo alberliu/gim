@@ -12,7 +12,7 @@ import (
 )
 
 // StartTCPServer 启动TCP服务器
-func StartTCPServer(addr string) {
+func StartTCPServer(addr string) *net.TCPListener {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
 		panic(err)
@@ -24,6 +24,7 @@ func StartTCPServer(addr string) {
 	}
 	slog.Info("tcp server running")
 	go accept(listener)
+	return listener
 }
 
 func accept(listener *net.TCPListener) {

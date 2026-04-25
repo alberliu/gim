@@ -55,13 +55,21 @@ func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.
 		return nil, err
 	}
 
-	// Status 是动态的，需要实时获取
-	for i := range *devices {
-		status, err := r.GetStatus(ctx, (*devices)[i].ID)
+	// Status 是动态的，用 MGet 批量获取减少 Redis 往返
+	if len(*devices) > 0 {
+		keys := make([]string, len(*devices))
+		for i := range *devices {
+			keys[i] = fmt.Sprintf(deviceStatus, (*devices)[i].ID)
+		}
+		vals, err := db.RedisCli.MGet(ctx, keys...).Result()
 		if err != nil {
 			return nil, err
 		}
-		(*devices)[i].Status = status
+		for i := range *devices {
+			if vals[i] != nil {
+				(*devices)[i].Status = domain.StatusOnline
+			}
+		}
 	}
 	return *devices, nil
 }

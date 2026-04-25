@@ -37,8 +37,8 @@ type Conn struct {
 	TCP    *net.TCPConn  // TCP连接
 	Reader *bufio.Reader // Reader
 
-	WSMutex sync.Mutex      // WS写锁
-	WS      *websocket.Conn // WebSocket连接
+	Mutex sync.Mutex      // WS写锁
+	WS    *websocket.Conn // WebSocket连接
 
 	UserID   uint64        // 用户ID
 	DeviceID uint64        // 设备ID
@@ -48,6 +48,9 @@ type Conn struct {
 
 // Write 写入数据
 func (c *Conn) Write(buf []byte) error {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	var err error
 	switch c.ConnType {
 	case ConnTypeTCP:
@@ -75,9 +78,6 @@ func (c *Conn) WriteToTCP(buf []byte) error {
 
 // WriteToWS 消息写入WebSocket
 func (c *Conn) WriteToWS(buf []byte) error {
-	c.WSMutex.Lock()
-	defer c.WSMutex.Unlock()
-
 	err := c.WS.SetWriteDeadline(time.Now().Add(WriteDeadline))
 	if err != nil {
 		return err

@@ -56,7 +56,7 @@ func (*deviceApp) ListByUserID(ctx context.Context, userID uint64) ([]domain.Dev
 	return repo.DeviceRepo.ListByUserID(ctx, userID)
 }
 
-// Save 获取设备信息
+// Save 保存设备信息
 func (*deviceApp) Save(ctx context.Context, pbdevice *pb.Device) (uint64, error) {
 	device := &domain.Device{
 		ID:            pbdevice.Id,

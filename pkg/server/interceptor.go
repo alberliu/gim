@@ -29,7 +29,7 @@ func NewInterceptor() grpc.UnaryServerInterceptor {
 		log := slog.With("method", info.FullMethod, "md", inMD, "request", req, "reply", reply)
 
 		s, _ := status.FromError(err)
-		if s.Code() != 0 && s.Code() < 10000 {
+		if s.Code() != 0 && s.Code() < gerrors.MinBizCode {
 			log.ErrorContext(ctx, "handle request failed", logger.Error(err), "stack", gerrors.GetErrorStack(s))
 		}
 		log.DebugContext(ctx, "handle request", logger.Error(err))

@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const MinBizCode = 10000
+
 const TypeUrlStack = "type_url_stack"
 
 func GetErrorStack(s *status.Status) string {
