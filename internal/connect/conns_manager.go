@@ -22,9 +22,10 @@ func GetConn(deviceID uint64) *Conn {
 	return nil
 }
 
-// DeleteConn 删除
-func DeleteConn(deviceID uint64) {
-	ConnsManager.Delete(deviceID)
+// DeleteConn 删除：仅当当前 map 中存储的就是 conn 本身时才删除，
+// 防止旧连接的清理流程把已被新连接覆盖的条目误删。
+func DeleteConn(deviceID uint64, conn *Conn) {
+	ConnsManager.CompareAndDelete(deviceID, conn)
 }
 
 // PushAll 全服推送

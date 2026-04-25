@@ -38,17 +38,17 @@ func (*deviceApp) SignIn(ctx context.Context, request *pb.SignInRequest) error {
 		return err
 	}
 
-	return repo.DeviceRepo.SetStatus(ctx, request.DeviceId, domain.StatusOnline)
+	return repo.DeviceRepo.SetOnline(ctx, request.DeviceId, request.ConnToken)
 }
 
-// Heartbeat 设备离线
+// Heartbeat 心跳，仅刷新在线态 TTL
 func (*deviceApp) Heartbeat(ctx context.Context, deviceID uint64) error {
-	return repo.DeviceRepo.SetStatus(ctx, deviceID, domain.StatusOnline)
+	return repo.DeviceRepo.RefreshOnline(ctx, deviceID)
 }
 
-// Offline 设备离线
-func (*deviceApp) Offline(ctx context.Context, deviceID uint64) error {
-	return repo.DeviceRepo.SetStatus(ctx, deviceID, domain.StatusOffline)
+// Offline 设备离线，仅在 token 与当前在线态匹配时才标记离线
+func (*deviceApp) Offline(ctx context.Context, deviceID uint64, connToken string) error {
+	return repo.DeviceRepo.SetOffline(ctx, deviceID, connToken)
 }
 
 // ListByUserID 获取用户所有在线设备

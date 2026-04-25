@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -44,6 +45,7 @@ type Conn struct {
 	DeviceID uint64        // 设备ID
 	RoomID   uint64        // 订阅的房间ID
 	Element  *list.Element // 链表节点
+	Token    string        // 本次连接的会话token，用作Offline时的fencing标识
 }
 
 // Write 写入数据
@@ -166,6 +168,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		return
 	}
 
+	connToken := uuid.NewString()
 	ctx, cancel := context.WithTimeout(md.WithRequestID(context.Background(), packet.RequestId), rpc.Timeout)
 	defer cancel()
 	_, err = rpc.GetDeviceIntClient().SignIn(ctx, &logicpb.SignInRequest{
@@ -173,6 +176,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 		DeviceId:   request.DeviceId,
 		Token:      request.Token,
 		ClientAddr: c.GetAddr(),
+		ConnToken:  connToken,
 	})
 
 	setContent(packet, err, nil)
@@ -183,6 +187,7 @@ func (c *Conn) SignIn(packet *pb.Packet) {
 
 	c.UserID = request.UserId
 	c.DeviceID = request.DeviceId
+	c.Token = connToken
 	SetConn(request.DeviceId, c)
 }
 
@@ -256,9 +261,10 @@ func setContent(packet *pb.Packet, err error, message proto.Message) {
 // io timeout是SetReadDeadline之后，超时返回的错误
 func (c *Conn) Close(err error) {
 	slog.Warn("close conn", "error", err)
-	// 取消设备和连接的对应关系
+	// 取消设备和连接的对应关系：仅当map中当前条目就是本连接时才删除，
+	// 避免在新连接覆盖后误删新连接。
 	if c.DeviceID != 0 {
-		DeleteConn(c.DeviceID)
+		DeleteConn(c.DeviceID, c)
 	}
 
 	// 取消订阅，需要异步出去，防止重复加锁造成死锁
@@ -273,6 +279,7 @@ func (c *Conn) Close(err error) {
 			UserId:     c.UserID,
 			DeviceId:   c.DeviceID,
 			ClientAddr: c.GetAddr(),
+			ConnToken:  c.Token,
 		})
 	}
 

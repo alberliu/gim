@@ -26,7 +26,7 @@ func (s *DeviceIntService) Heartbeat(ctx context.Context, request *pb.HeartbeatR
 
 // Offline 设备离线
 func (*DeviceIntService) Offline(ctx context.Context, request *pb.OfflineRequest) (*emptypb.Empty, error) {
-	err := app.DeviceApp.Offline(ctx, request.DeviceId)
+	err := app.DeviceApp.Offline(ctx, request.DeviceId, request.ConnToken)
 	return &emptypb.Empty{}, err
 }
 

@@ -76,14 +76,36 @@ func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.
 
 const deviceStatus = "deviceStatus:%d"
 
-// SetStatus 设置在线
-func (*deviceRepo) SetStatus(ctx context.Context, deviceID uint64, status domain.Status) error {
+const deviceStatusTTL = 12 * time.Minute
+
+// offlineScript 仅当当前 value 与传入 token 一致时才 DEL，避免旧连接关闭时
+// 误把新连接已经写入的在线态抹掉。
+var offlineScript = redis.NewScript(`
+if redis.call('GET', KEYS[1]) == ARGV[1] then
+    return redis.call('DEL', KEYS[1])
+end
+return 0
+`)
+
+// SetOnline 写入在线态，value 为本次连接的 token，覆盖式。
+func (*deviceRepo) SetOnline(ctx context.Context, deviceID uint64, token string) error {
 	key := fmt.Sprintf(deviceStatus, deviceID)
-	var err error
-	if status == domain.StatusOnline {
-		_, err = db.RedisCli.Set(ctx, key, "", 12*time.Minute).Result()
-	} else {
-		_, err = db.RedisCli.Del(ctx, key).Result()
+	return db.RedisCli.Set(ctx, key, token, deviceStatusTTL).Err()
+}
+
+// RefreshOnline 仅刷新 TTL，不改 value，供心跳调用，避免覆盖当前会话 token。
+func (*deviceRepo) RefreshOnline(ctx context.Context, deviceID uint64) error {
+	key := fmt.Sprintf(deviceStatus, deviceID)
+	return db.RedisCli.Expire(ctx, key, deviceStatusTTL).Err()
+}
+
+// SetOffline 仅当当前 value 与 token 一致时才删除（fencing），
+// 这样旧连接发来的 Offline 不会把新连接的在线态吃掉。
+func (*deviceRepo) SetOffline(ctx context.Context, deviceID uint64, token string) error {
+	key := fmt.Sprintf(deviceStatus, deviceID)
+	_, err := offlineScript.Run(ctx, db.RedisCli, []string{key}, token).Result()
+	if errors.Is(err, redis.Nil) {
+		return nil
 	}
 	return err
 }

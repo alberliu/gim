@@ -20,6 +20,7 @@ message SignInRequest {
   uint64 device_id = 2; // 设备ID
   string token = 3; // 秘钥
   string client_addr = 4; // 客户端地址
+  string conn_token = 5; // 本次连接的会话token，用于在Offline时做fencing
 }
 
 message SignInReply {}
@@ -33,6 +34,7 @@ message OfflineRequest {
   uint64 user_id = 1; // 用户id
   uint64 device_id = 2; // 设备id
   string client_addr = 3; // 客户端地址
+  string conn_token = 4; // 自报家门的会话token，与SignIn时一致才会被采纳
 }
 
 message DeviceSaveRequest {

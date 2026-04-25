@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
 	"gim/pkg/md"
@@ -75,6 +76,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	connToken := uuid.NewString()
+	request.ConnToken = connToken
+
 	signInCtx, signInCancel := context.WithTimeout(md.WithGenerateRequestID(), rpc.Timeout)
 	defer signInCancel()
 	_, err = rpc.GetDeviceIntClient().SignIn(signInCtx, request)
@@ -94,6 +98,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		WS:       wsConn,
 		UserID:   request.UserId,
 		DeviceID: request.DeviceId,
+		Token:    connToken,
 	}
 	SetConn(request.DeviceId, conn)
 	handleMessage(conn)
