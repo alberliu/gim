@@ -41,6 +41,62 @@ func (*deviceRepo) Save(ctx context.Context, device *domain.Device) error {
 	return db.RedisCli.Del(ctx, key).Err()
 }
 
+// ListByUserIDs 批量获取多个用户的设备列表
+func (r *deviceRepo) ListByUserIDs(ctx context.Context, userIDs []uint64) (map[uint64][]domain.Device, error) {
+	result, err := uredis.MGet(db.RedisCli, ctx, userIDs,
+		func(userID uint64) string {
+			return fmt.Sprintf(userDeviceKey, userID)
+		},
+		24*time.Hour,
+		func(missedIDs []uint64) (map[uint64][]domain.Device, error) {
+			devices, err := gorm.G[domain.Device](db.DB).Where("user_id IN ?", missedIDs).Find(ctx)
+			if err != nil {
+				return nil, err
+			}
+			m := make(map[uint64][]domain.Device, len(missedIDs))
+			for _, id := range missedIDs {
+				m[id] = []domain.Device{}
+			}
+			for _, d := range devices {
+				m[d.UserID] = append(m[d.UserID], d)
+			}
+			return m, nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var allDeviceIDs []uint64
+	for _, devices := range result {
+		for _, d := range devices {
+			allDeviceIDs = append(allDeviceIDs, d.ID)
+		}
+	}
+	if len(allDeviceIDs) > 0 {
+		keys := make([]string, len(allDeviceIDs))
+		for i, id := range allDeviceIDs {
+			keys[i] = fmt.Sprintf(deviceStatus, id)
+		}
+		vals, err := db.RedisCli.MGet(ctx, keys...).Result()
+		if err != nil {
+			return nil, err
+		}
+		statusMap := make(map[uint64]domain.Status, len(allDeviceIDs))
+		for i, id := range allDeviceIDs {
+			if vals[i] != nil {
+				statusMap[id] = domain.StatusOnline
+			}
+		}
+		for _, devs := range result {
+			for i := range devs {
+				devs[i].Status = statusMap[devs[i].ID]
+			}
+		}
+	}
+	return result, nil
+}
+
 // ListByUserID 获取用户设备
 func (r *deviceRepo) ListByUserID(ctx context.Context, userID uint64) ([]domain.Device, error) {
 	key := fmt.Sprintf(userDeviceKey, userID)

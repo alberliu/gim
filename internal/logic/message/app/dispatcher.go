@@ -83,16 +83,19 @@ func (d *dispatcher) dispatch() error {
 		d.userMessages = append(d.userMessages, userMessage)
 	}
 
-	for _, userMessage := range d.userMessages {
-		devices, err := deviceapp.DeviceApp.ListByUserID(d.ctx, userMessage.UserID)
-		if err != nil {
-			slog.ErrorContext(d.ctx, "list device by user failed", "error", err, "user_id", userMessage.UserID)
-			continue
-		}
-
-		for _, device := range devices {
+	userIDs := make([]uint64, 0, len(d.userMessages))
+	for _, um := range d.userMessages {
+		userIDs = append(userIDs, um.UserID)
+	}
+	userDevices, err := deviceapp.DeviceApp.ListByUserIDs(d.ctx, userIDs)
+	if err != nil {
+		slog.ErrorContext(d.ctx, "list devices by users failed", "error", err)
+		return err
+	}
+	for _, um := range d.userMessages {
+		for _, device := range userDevices[um.UserID] {
 			if device.Status == devicedomain.StatusOnline {
-				d.appendDeviceMessage(device.ConnectIP, device.ID, userMessage.Message)
+				d.appendDeviceMessage(device.ConnectIP, device.ID, um.Message)
 			} else {
 				// 离线推送
 			}

@@ -56,6 +56,11 @@ func (*deviceApp) ListByUserID(ctx context.Context, userID uint64) ([]domain.Dev
 	return repo.DeviceRepo.ListByUserID(ctx, userID)
 }
 
+// ListByUserIDs 批量获取多个用户的设备列表
+func (*deviceApp) ListByUserIDs(ctx context.Context, userIDs []uint64) (map[uint64][]domain.Device, error) {
+	return repo.DeviceRepo.ListByUserIDs(ctx, userIDs)
+}
+
 // Save 保存设备信息
 func (*deviceApp) Save(ctx context.Context, pbdevice *pb.Device) (uint64, error) {
 	device := &domain.Device{
