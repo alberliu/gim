@@ -267,10 +267,7 @@ func (c *Conn) Close(err error) {
 		DeleteConn(c.DeviceID, c)
 	}
 
-	// 取消订阅，需要异步出去，防止重复加锁造成死锁
-	go func() {
-		SubscribedRoom(c, 0)
-	}()
+	SubscribedRoom(c, 0)
 
 	if c.DeviceID != 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), rpc.Timeout)
