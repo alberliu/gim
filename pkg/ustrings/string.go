@@ -1,15 +1,18 @@
 package ustrings
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 )
 
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
 // RandString 生成随机字符串
-func RandString(len int) string {
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		b := rand.Intn(26) + 65
-		bytes[i] = byte(b)
+func RandString(n int) string {
+	bytes := make([]byte, n)
+	for i := range bytes {
+		idx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		bytes[i] = letters[idx.Int64()]
 	}
 	return string(bytes)
 }
