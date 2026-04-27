@@ -12,12 +12,13 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"gim/config"
+	"gim/pkg/ugrpc"
 )
 
 var grpcServer *grpc.Server
 
 func RunGRPCServer(f func(server *grpc.Server)) {
-	grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(NewInterceptor()))
+	grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(ugrpc.ServerInterceptor))
 	grpc_health_v1.RegisterHealthServer(grpcServer, health.NewServer())
 
 	f(grpcServer)

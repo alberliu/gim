@@ -14,11 +14,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
 
 	"gim/pkg/codec"
+	"gim/pkg/local"
 	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
@@ -27,8 +26,6 @@ import (
 var (
 	connectTCPServerAddr       = "127.0.0.1:8002"
 	connectWebsocketServerAddr = "ws://127.0.0.1:8003/ws"
-	businessServerAddr         = "127.0.0.1:8020"
-	logicServerAddr            = "127.0.0.1:8010"
 )
 
 type Network string
@@ -38,42 +35,10 @@ const (
 	NetworkWebsocket Network = "websocket"
 )
 
-func getUserExtServiceClient() businesspb.UserExtServiceClient {
-	conn, err := grpc.NewClient(businessServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return businesspb.NewUserExtServiceClient(conn)
-}
-
-func getMessageIntClient() logicpb.MessageIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return logicpb.NewMessageIntServiceClient(conn)
-}
-
-func getGroupIntClient() logicpb.GroupIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return logicpb.NewGroupIntServiceClient(conn)
-}
-
-func getRoomIntClient() logicpb.RoomIntServiceClient {
-	conn, err := grpc.NewClient(logicServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	return logicpb.NewRoomIntServiceClient(conn)
-}
-
-func connect(network Network, userID, deviceID uint64) {
+func connect(network Network, userID, deviceID uint64) *businesspb.SignInReply {
 	log := slog.With("userID", userID, "deviceID", deviceID)
 
-	reply, err := getUserExtServiceClient().SignIn(context.Background(), &businesspb.SignInRequest{
+	reply, err := local.GetUserExtServiceClient().SignIn(context.Background(), &businesspb.SignInRequest{
 		PhoneNumber: strconv.FormatUint(userID, 10),
 		Code:        "0",
 		Device: &logicpb.Device{
@@ -96,6 +61,7 @@ func connect(network Network, userID, deviceID uint64) {
 		addr = connectWebsocketServerAddr
 	}
 	go runClient(log, network, addr, userID, deviceID, reply.Token)
+	return reply
 }
 
 type client struct {
@@ -134,7 +100,7 @@ func runClient(log *slog.Logger, network Network, addr string, userID, deviceID 
 }
 
 func (c *client) run() {
-	go c.conn.receive(c.handleMessage)
+	go c.conn.receive(c.handlePacket)
 	c.signIn()
 	c.subscribeRoom()
 	c.heartbeat()
@@ -198,7 +164,7 @@ func (c *client) subscribeRoom() {
 	c.log.Info("subscribe room", "roomID", roomID)
 }
 
-func (c *client) handleMessage(buf []byte) {
+func (c *client) handlePacket(buf []byte) {
 	var packet connectpb.Packet
 	err := proto.Unmarshal(buf, &packet)
 	if err != nil {
@@ -222,9 +188,40 @@ func (c *client) handleMessage(buf []byte) {
 			c.log.Error("unmarshal message failed", "error", err)
 			return
 		}
-		c.log.Info("receive message", "message", stringMessage(&message))
+		c.handleMessage(&message)
 	default:
 		c.log.Info("other", "packet", &packet)
+	}
+}
+
+func (c *client) handleMessage(message *connectpb.Message) {
+	switch message.Command {
+	case connectpb.MessageCommand_MC_USER_MESSAGE:
+		var push logicpb.UserMessagePush
+		if err := proto.Unmarshal(message.Content, &push); err != nil {
+			c.log.Error("unmarshal user message failed", "error", err)
+			return
+		}
+		c.log.Info("receive user message",
+			"from_user_id", push.FromUser.GetUserId(),
+			"to_user_id", push.ToUserId,
+			"content", string(push.Content))
+	case connectpb.MessageCommand_MC_GROUP_MESSAGE:
+		var push logicpb.GroupMessagePush
+		if err := proto.Unmarshal(message.Content, &push); err != nil {
+			c.log.Error("unmarshal group message failed", "error", err)
+			return
+		}
+		c.log.Info("receive group message",
+			"from_user_id", push.FromUser.GetUserId(),
+			"group_id", push.GroupId,
+			"content", string(push.Content))
+	case connectpb.MessageCommand_MC_ROOM_MESSAGE:
+		c.log.Info("receive room message",
+			"room_id", message.RoomId,
+			"content", string(message.Content))
+	default:
+		c.log.Info("receive unknown message", "message", stringMessage(message))
 	}
 }
 

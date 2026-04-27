@@ -2,13 +2,11 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 
-	"gim/config"
 	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/protocol/pb/logicpb"
@@ -17,27 +15,17 @@ import (
 
 const Timeout = time.Second * 5
 
-func getTarget(server string) string {
-	switch config.ENV {
-	case config.EnvCompose:
-		return fmt.Sprintf("dns:///%s:8000", server)
-	case config.EnvK8s:
-		return fmt.Sprintf("k8s:///%s:8000", server)
-	default:
-		panic("unknown env")
-	}
-}
-
 var connectIntClients sync.Map
 
 var (
-	logicConn    = ugrpc.NewClient(getTarget("logic"))
-	businessConn = ugrpc.NewClient(getTarget("business"))
+	logicConn    = ugrpc.NewClient(ugrpc.GetTarget("logic"))
+	businessConn = ugrpc.NewClient(ugrpc.GetTarget("business"))
 )
 
 var (
 	deviceIntClient  = logicpb.NewDeviceIntServiceClient(logicConn)
 	messageIntClient = logicpb.NewMessageIntServiceClient(logicConn)
+	groupIntClient   = logicpb.NewGroupIntServiceClient(logicConn)
 	roomIntClient    = logicpb.NewRoomIntServiceClient(logicConn)
 	userIntClient    = businesspb.NewUserIntServiceClient(businessConn)
 )
@@ -62,6 +50,10 @@ func GetMessageIntClient() logicpb.MessageIntServiceClient {
 	return messageIntClient
 }
 
+func GetGroupIntClient() logicpb.GroupIntServiceClient {
+	return groupIntClient
+}
+
 func GetRoomIntClient() logicpb.RoomIntServiceClient {
 	return roomIntClient
 }
@@ -71,10 +63,11 @@ func GetUserIntClient() businesspb.UserIntServiceClient {
 }
 
 type PushRequest struct {
-	UserIDs   []uint64
-	Command   connectpb.MessageCommand
-	Message   proto.Message
-	IsPersist bool
+	FromUserID uint64
+	UserIDs    []uint64
+	Command    connectpb.MessageCommand
+	Message    proto.Message
+	IsPersist  bool
 }
 
 func PushToUsers(ctx context.Context, request PushRequest) (*logicpb.PushToUsersReply, error) {
@@ -83,10 +76,11 @@ func PushToUsers(ctx context.Context, request PushRequest) (*logicpb.PushToUsers
 		return nil, err
 	}
 	return GetMessageIntClient().PushToUsers(ctx, &logicpb.PushToUsersRequest{
-		UserIds:   request.UserIDs,
-		Command:   request.Command,
-		Content:   content,
-		IsPersist: request.IsPersist,
+		FromUserId: request.FromUserID,
+		UserIds:    request.UserIDs,
+		Command:    request.Command,
+		Content:    content,
+		IsPersist:  request.IsPersist,
 	})
 
 }

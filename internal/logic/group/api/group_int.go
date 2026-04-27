@@ -15,11 +15,7 @@ type GroupIntService struct {
 
 // Push 发送群组消息
 func (*GroupIntService) Push(ctx context.Context, request *pb.GroupPushRequest) (*pb.GroupPushReply, error) {
-	messageID, err := app.GroupApp.Push(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.GroupPushReply{MessageId: messageID}, nil
+	return app.GroupApp.Push(ctx, request)
 }
 
 // Create 创建群组

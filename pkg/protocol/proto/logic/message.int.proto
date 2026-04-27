@@ -15,13 +15,15 @@ service MessageIntService {
 
 
 message PushToUsersRequest{
-  repeated uint64 user_ids = 1; // 用户ID
-  connect.MessageCommand command = 2; // 推送码
-  bytes content = 3; // 推送内容
-  bool is_persist = 4; // 是否持久化
+  uint64 from_user_id = 1; // 消息发送用户ID
+  repeated uint64 user_ids = 2; // 用户ID列表
+  connect.MessageCommand command = 3; // 推送码
+  bytes content = 4; // 推送内容
+  bool is_persist = 5; // 是否持久化
 }
 message PushToUsersReply{
-  uint64 message_id = 1;
+  uint64 message_id = 1; // 消息ID
+  uint64 from_user_seq = 2; // 用户序列号
 }
 
 message PushToAllRequest{

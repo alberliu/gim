@@ -2,7 +2,6 @@ syntax = "proto3";
 package business;
 option go_package = "gim/pkg/protocol/pb/businesspb";
 
-
 enum Command{
   DEFAULT = 0;
   ADD_FRIEND = 110; // 添加好友请求
@@ -12,3 +11,36 @@ enum Command{
   ADD_GROUP_MEMBERS = 121; // 添加群组成员
   REMOVE_GROUP_MEMBER = 122; // 移除群组成员
 }
+
+service MessageExtService {
+  // 发送好友消息
+  rpc SendFriendMessage (SendFriendMessageRequest) returns (SendFriendMessageReply);
+  // 发送群组信息
+  rpc SendGroupMessage (SendGroupMessageRequest) returns (SendGroupMessageReply);
+  // 发送房间信息
+  rpc SendRoomMessage (SendRoomMessageRequest) returns (SendRoomMessageReply);
+}
+
+message SendFriendMessageRequest{
+  uint64 user_id = 1; // 用户ID
+  bytes content = 2; // 发送内容
+}
+message SendFriendMessageReply{
+  uint64 message_id = 1; // 消息ID
+  uint64 from_user_seq = 2; // 发送用户消息序列号
+}
+
+message SendGroupMessageRequest{
+  uint64 group_id = 1; // 群组ID
+  bytes content = 2; // 发送内容
+}
+message SendGroupMessageReply{
+  uint64 message_id = 1; // 消息ID
+  uint64 from_user_seq = 2; // 发送用户消息序列号
+}
+
+message SendRoomMessageRequest{
+  uint64 room_id = 1; // 房间ID
+  bytes content = 2; // 发送内容
+}
+message SendRoomMessageReply{}

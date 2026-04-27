@@ -45,13 +45,15 @@ enum GroupMemberStatus{
 }
 
 message GroupPushRequest {
-  uint64 group_id = 1; // 群组ID
-  connect.MessageCommand command = 2; // 推送码
-  bytes content = 3; // 推送内容
-  bool is_persist = 4; // 是否持久化
+  uint64 from_user_id = 1; // 发送用户ID
+  uint64 group_id = 2; // 群组ID
+  connect.MessageCommand command = 3; // 推送码
+  bytes content = 4; // 推送内容
+  bool is_persist = 5; // 是否持久化
 }
 message GroupPushReply {
   uint64 message_id = 1; // 消息ID
+  uint64 from_user_seq = 2; // 发送用户消息序列号
 }
 
 message GroupCreateRequest {

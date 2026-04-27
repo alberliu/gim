@@ -28,9 +28,6 @@ spec:
         - name: {{ .Values.server.logic.name }}
           image: {{ .Values.server.logic.image }}
           imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8000
-              hostPort: 8010
           volumeMounts:
             - mountPath: /data/log/logic
               name: log

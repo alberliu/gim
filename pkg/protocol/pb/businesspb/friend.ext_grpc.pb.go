@@ -20,19 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FriendExtService_SendMessage_FullMethodName = "/business.FriendExtService/SendMessage"
-	FriendExtService_Add_FullMethodName         = "/business.FriendExtService/Add"
-	FriendExtService_Agree_FullMethodName       = "/business.FriendExtService/Agree"
-	FriendExtService_Set_FullMethodName         = "/business.FriendExtService/Set"
-	FriendExtService_GetFriends_FullMethodName  = "/business.FriendExtService/GetFriends"
+	FriendExtService_Add_FullMethodName        = "/business.FriendExtService/Add"
+	FriendExtService_Agree_FullMethodName      = "/business.FriendExtService/Agree"
+	FriendExtService_Set_FullMethodName        = "/business.FriendExtService/Set"
+	FriendExtService_GetFriends_FullMethodName = "/business.FriendExtService/GetFriends"
 )
 
 // FriendExtServiceClient is the client API for FriendExtService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FriendExtServiceClient interface {
-	// 发送好友消息
-	SendMessage(ctx context.Context, in *SendFriendMessageRequest, opts ...grpc.CallOption) (*SendFriendMessageReply, error)
 	// 添加好友
 	Add(ctx context.Context, in *FriendAddRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 同意添加好友
@@ -49,16 +46,6 @@ type friendExtServiceClient struct {
 
 func NewFriendExtServiceClient(cc grpc.ClientConnInterface) FriendExtServiceClient {
 	return &friendExtServiceClient{cc}
-}
-
-func (c *friendExtServiceClient) SendMessage(ctx context.Context, in *SendFriendMessageRequest, opts ...grpc.CallOption) (*SendFriendMessageReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SendFriendMessageReply)
-	err := c.cc.Invoke(ctx, FriendExtService_SendMessage_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *friendExtServiceClient) Add(ctx context.Context, in *FriendAddRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -105,8 +92,6 @@ func (c *friendExtServiceClient) GetFriends(ctx context.Context, in *emptypb.Emp
 // All implementations must embed UnimplementedFriendExtServiceServer
 // for forward compatibility.
 type FriendExtServiceServer interface {
-	// 发送好友消息
-	SendMessage(context.Context, *SendFriendMessageRequest) (*SendFriendMessageReply, error)
 	// 添加好友
 	Add(context.Context, *FriendAddRequest) (*emptypb.Empty, error)
 	// 同意添加好友
@@ -125,9 +110,6 @@ type FriendExtServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFriendExtServiceServer struct{}
 
-func (UnimplementedFriendExtServiceServer) SendMessage(context.Context, *SendFriendMessageRequest) (*SendFriendMessageReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
-}
 func (UnimplementedFriendExtServiceServer) Add(context.Context, *FriendAddRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
@@ -159,24 +141,6 @@ func RegisterFriendExtServiceServer(s grpc.ServiceRegistrar, srv FriendExtServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&FriendExtService_ServiceDesc, srv)
-}
-
-func _FriendExtService_SendMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendFriendMessageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FriendExtServiceServer).SendMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: FriendExtService_SendMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FriendExtServiceServer).SendMessage(ctx, req.(*SendFriendMessageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _FriendExtService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -258,10 +222,6 @@ var FriendExtService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "business.FriendExtService",
 	HandlerType: (*FriendExtServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SendMessage",
-			Handler:    _FriendExtService_SendMessage_Handler,
-		},
 		{
 			MethodName: "Add",
 			Handler:    _FriendExtService_Add_Handler,

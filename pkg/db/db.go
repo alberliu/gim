@@ -17,7 +17,7 @@ var (
 	RedisCli *uredis.Client
 )
 
-func init() {
+func Init() {
 	DB = newDB(config.Config.MySQL)
 	RedisCli = uredis.NewClient(config.Config.RedisHost, config.Config.RedisPassword)
 }

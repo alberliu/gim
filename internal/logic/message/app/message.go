@@ -22,20 +22,27 @@ var MessageApp = new(messageApp)
 type messageApp struct{}
 
 // PushToUsers 发送消息
-func (a *messageApp) PushToUsers(ctx context.Context, userIDs []uint64, message *connectpb.Message, isPersist bool) (uint64, error) {
-	message.CreatedAt = time.Now().Unix()
-	slog.DebugContext(ctx, "push to users", "request_id", md.GetRequestID(ctx), "to_user_ids", userIDs)
+func (a *messageApp) PushToUsers(ctx context.Context, request *pb.PushToUsersRequest) (*pb.PushToUsersReply, error) {
+	slog.DebugContext(ctx, "push to users", "request_id", md.GetRequestID(ctx), "to_user_ids", request.UserIds)
 
-	dispatcher := newDispatcher(ctx, message, isPersist, userIDs)
+	message := &connectpb.Message{
+		Command:   request.Command,
+		Content:   request.Content,
+		CreatedAt: time.Now().Unix(),
+	}
+	dispatcher := newDispatcher(ctx, request.FromUserId, message, request.IsPersist, request.UserIds)
 	err := dispatcher.dispatch()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	err = dispatcher.flush()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return dispatcher.messageID, nil
+	return &pb.PushToUsersReply{
+		MessageId:   dispatcher.messageID,
+		FromUserSeq: dispatcher.fromUserSeq,
+	}, nil
 }
 
 // PushToAll 全服推送

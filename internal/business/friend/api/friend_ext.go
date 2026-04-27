@@ -14,18 +14,6 @@ type FriendExtService struct {
 	pb.UnsafeFriendExtServiceServer
 }
 
-// SendMessage 发送好友消息
-func (*FriendExtService) SendMessage(ctx context.Context, request *pb.SendFriendMessageRequest) (*pb.SendFriendMessageReply, error) {
-	userID := md.GetUserID(ctx)
-	deviceID := md.GetDeviceID(ctx)
-
-	messageId, err := app.FriendApp.SendToFriend(ctx, deviceID, userID, request)
-	if err != nil {
-		return nil, err
-	}
-	return &pb.SendFriendMessageReply{MessageId: messageId}, nil
-}
-
 func (s *FriendExtService) Add(ctx context.Context, request *pb.FriendAddRequest) (*emptypb.Empty, error) {
 	userID := md.GetUserID(ctx)
 

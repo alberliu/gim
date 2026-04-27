@@ -7,6 +7,7 @@ import (
 	groupapi "gim/internal/logic/group/api"
 	messageapi "gim/internal/logic/message/api"
 	"gim/internal/logic/room"
+	"gim/pkg/db"
 	"gim/pkg/logger"
 	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/server"
@@ -14,6 +15,7 @@ import (
 
 func main() {
 	logger.Init()
+	db.Init()
 
 	server.RunGRPCServer(func(server *grpc.Server) {
 		pb.RegisterDeviceIntServiceServer(server, &deviceapi.DeviceIntService{})
@@ -21,7 +23,6 @@ func main() {
 		pb.RegisterMessageIntServiceServer(server, &messageapi.MessageIntService{})
 		pb.RegisterGroupIntServiceServer(server, &groupapi.GroupIntService{})
 		pb.RegisterRoomIntServiceServer(server, &room.RoomIntService{})
-
 	})
 
 	server.WaitForShutdown()

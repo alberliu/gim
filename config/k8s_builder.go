@@ -7,16 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sercand/kuberesolver/v6"
-	"google.golang.org/grpc/resolver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"gim/pkg/uk8s"
 )
-
-func init() {
-	resolver.Register(kuberesolver.NewBuilder(nil, "k8s"))
-}
 
 type k8sBuilder struct{}
 

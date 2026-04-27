@@ -1,6 +1,5 @@
 # 本地开发环境
 name: gim
-
 services:
   mysql:
     container_name: mysql
@@ -16,7 +15,6 @@ services:
       - ../../sql:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
-
   redis:
     container_name: redis
     restart: always
@@ -25,43 +23,36 @@ services:
       - /etc/localtime:/etc/localtime
       - ./redis.conf:/etc/redis.conf
       - /Users/alber/data/gim_compose/redis:/data
-    command:
-      redis-server /etc/redis.conf
+    command: redis-server /etc/redis.conf
     ports:
       - "6379:6379"
     environment:
       ENV: compose
-
   connect:
     container_name: connect
     restart: always
-    image: connect:20260427.102227
+    image: connect:20260427.220659
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/connect:/data/log/connect
     ports:
-      - "8000:8000"
       - "8002:8002"
       - "8003:8003"
     environment:
       ENV: compose
       SERVER: connect
-
     depends_on:
       mysql:
         condition: service_started
       redis:
         condition: service_started
-
   logic:
     container_name: logic
     restart: always
-    image: logic:20260427.102239
+    image: logic:20260427.220706
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/logic:/data/log/logic
-    ports:
-      - "8010:8000"
     environment:
       ENV: compose
       SERVER: logic
@@ -70,19 +61,33 @@ services:
         condition: service_started
       redis:
         condition: service_started
-
   business:
     container_name: business
     restart: always
-    image: business:20260427.102242
+    image: business:20260427.220711
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log//business:/data/log/business
-    ports:
-      - "8020:8000"
     environment:
       ENV: compose
       SERVER: business
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_started
+  proxy:
+    container_name: proxy
+    restart: always
+    image: proxy:20260427.174615
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /Users/alber/data/gim_compose/log//proxy:/data/log/proxy
+    ports:
+      - "8080:8080"
+    environment:
+      ENV: compose
+      SERVER: proxy
     depends_on:
       mysql:
         condition: service_started

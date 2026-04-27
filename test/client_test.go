@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	"gim/pkg/local"
 	"gim/pkg/logger"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/connectpb"
-	pb "gim/pkg/protocol/pb/logicpb"
+	"gim/pkg/protocol/pb/businesspb"
 )
 
 func TestClient(t *testing.T) {
@@ -27,45 +28,41 @@ func TestClient(t *testing.T) {
 	initData()
 
 	network := NetworkWebsocket
-	connect(network, 1, 11)
+	user1 := connect(network, 1, 11)
 	connect(network, 1, 12)
 	connect(network, 2, 2)
 	connect(network, 3, 3)
 
+	ctx := generateCtx(user1)
+	messageClient := local.GetMessageExtClient()
+
 	time.Sleep(2 * time.Second)
 	fmt.Println()
-	reply, err := getMessageIntClient().PushToUsers(context.Background(), &pb.PushToUsersRequest{
-		UserIds:   []uint64{1},
-		Command:   connectpb.MessageCommand_MC_USER_MESSAGE,
-		Content:   []byte("hello gim"),
-		IsPersist: true,
+	reply, err := messageClient.SendFriendMessage(ctx, &businesspb.SendFriendMessageRequest{
+		UserId:  2,
+		Content: []byte("hello gim"),
 	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("push to user", "message_id", reply.MessageId, "request_id", getRequestID(header))
+	slog.Info("push to user", "reply", reply, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	groupReply, err := getGroupIntClient().Push(context.Background(), &pb.GroupPushRequest{
-		GroupId:   1,
-		Command:   connectpb.MessageCommand_MC_GROUP_MESSAGE,
-		Content:   []byte("hello gim from group"),
-		IsPersist: true,
+	groupReply, err := messageClient.SendGroupMessage(ctx, &businesspb.SendGroupMessageRequest{
+		GroupId: 1,
+		Content: []byte("hello gim from group"),
 	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
 	}
-	slog.Info("push to group", "message_id", groupReply.MessageId, "request_id", getRequestID(header))
+	slog.Info("push to group", "reply", groupReply, "request_id", getRequestID(header))
 
 	time.Sleep(1 * time.Second)
 	fmt.Println()
-	_, err = getRoomIntClient().PushRoom(context.Background(), &pb.PushRoomRequest{
-		RoomId:     1,
-		Command:    10000,
-		Content:    []byte("hello gim from room"),
-		SendTime:   time.Now().Unix(),
-		IsPriority: false,
+	_, err = messageClient.SendRoomMessage(ctx, &businesspb.SendRoomMessageRequest{
+		RoomId:  1,
+		Content: []byte("hello gim from room"),
 	}, grpc.Header(&header))
 	if err != nil {
 		t.Fatal(err)
@@ -73,6 +70,14 @@ func TestClient(t *testing.T) {
 	slog.Info("push to room", "request_id", getRequestID(header))
 
 	select {}
+}
+
+func generateCtx(reply *businesspb.SignInReply) context.Context {
+	return metadata.NewOutgoingContext(context.Background(), metadata.New(map[string]string{
+		md.UserID:   strconv.FormatUint(reply.UserId, 10),
+		md.DeviceID: strconv.FormatUint(reply.DeviceId, 10),
+		md.Token:    reply.Token,
+	}))
 }
 
 func getRequestID(header metadata.MD) string {

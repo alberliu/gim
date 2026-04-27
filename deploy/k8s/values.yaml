@@ -19,3 +19,7 @@ server:
     name: business
     image: business:0.0.0
     replicas: 1
+  proxy:
+    name: proxy
+    image: proxy:0.0.0
+    replicas: 1

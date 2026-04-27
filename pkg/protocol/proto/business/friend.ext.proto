@@ -5,8 +5,6 @@ option go_package = "gim/pkg/protocol/pb/businesspb";
 import "google/protobuf/empty.proto";
 
 service FriendExtService {
-  // 发送好友消息
-  rpc SendMessage (SendFriendMessageRequest) returns (SendFriendMessageReply);
   // 添加好友
   rpc Add (FriendAddRequest) returns (google.protobuf.Empty);
   // 同意添加好友
@@ -15,14 +13,6 @@ service FriendExtService {
   rpc Set (FriendSetRequest) returns (FriendSetReply);
   // 获取好友列表
   rpc GetFriends (google.protobuf.Empty) returns (GetFriendsReply);
-}
-
-message SendFriendMessageRequest {
-  uint64 user_id = 1; // 接收者ID，用户ID/群组ID
-  bytes content = 2; // 推动内容
-}
-message SendFriendMessageReply {
-  uint64 message_id = 1; // 消息序列号
 }
 
 message FriendAddRequest {

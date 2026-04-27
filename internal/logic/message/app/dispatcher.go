@@ -16,14 +16,16 @@ import (
 )
 
 type dispatcher struct {
-	ctx       context.Context
-	message   *connectpb.Message
-	isPersist bool
-	userIDs   []uint64
+	ctx        context.Context
+	fromUserID uint64
+	message    *connectpb.Message
+	isPersist  bool
+	userIDs    []uint64
 
-	messageID      uint64
 	userMessages   []userMessage
 	deviceMessages map[string][]*connectpb.DeviceMessage
+	messageID      uint64
+	fromUserSeq    uint64
 }
 
 type userMessage struct {
@@ -31,9 +33,10 @@ type userMessage struct {
 	*connectpb.Message
 }
 
-func newDispatcher(ctx context.Context, message *connectpb.Message, isPersist bool, userIDs []uint64) *dispatcher {
+func newDispatcher(ctx context.Context, fromUserID uint64, message *connectpb.Message, isPersist bool, userIDs []uint64) *dispatcher {
 	return &dispatcher{
 		ctx:            ctx,
+		fromUserID:     fromUserID,
 		message:        message,
 		isPersist:      isPersist,
 		userIDs:        userIDs,
@@ -64,6 +67,10 @@ func (d *dispatcher) dispatch() error {
 			if err != nil {
 				slog.ErrorContext(d.ctx, "incr message seq failed", "error", err, "user_id", userID)
 				continue
+			}
+
+			if d.fromUserID == userID {
+				d.fromUserSeq = seq
 			}
 		}
 

@@ -29,8 +29,6 @@ spec:
           image: {{ .Values.server.connect.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
           ports:
-            - containerPort: 8000
-              hostPort: 8000
             - containerPort: 8002
               hostPort: 8002
             - containerPort: 8003

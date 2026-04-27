@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: business-deployment
+  name: proxy-deployment
   labels:
-    app: {{ .Values.server.business.name }}
+    app: {{ .Values.server.proxy.name }}
 spec:
-  replicas: {{ .Values.server.business.replicas }}
+  replicas: {{ .Values.server.proxy.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.server.business.name }}
+      app: {{ .Values.server.proxy.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.server.business.name }}
+        app: {{ .Values.server.proxy.name }}
     spec:
       initContainers:
         - name: init-mysql
@@ -25,11 +25,14 @@ spec:
           imagePullPolicy: IfNotPresent
           command: [ 'sh', '-c', "until nslookup redis-stateful-set-0.redis.default.svc.cluster.local; do echo waiting for redis; sleep 1; done" ]
       containers:
-        - name: {{ .Values.server.business.name }}
-          image: {{ .Values.server.business.image }}
+        - name: {{ .Values.server.proxy.name }}
+          image: {{ .Values.server.proxy.image }}
           imagePullPolicy: IfNotPresent     # 在kind中需要指定，不然会强制到远程拉取镜像，导致部署失败
-          volumeMounts: # 映射文件为宿主机文件
-            - mountPath: /data/log/business
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+          volumeMounts:
+            - mountPath: /data/log/proxy
               name: log
           env:
             - name: POD_IP
@@ -39,24 +42,24 @@ spec:
             - name: ENV
               value: {{ $.Values.env }}
             - name: SERVER
-              value: {{ $.Values.server.business.name }}
+              value: {{ $.Values.server.proxy.name }}
       volumes:
         - name: log
           hostPath:
-            path: /data/log/business
+            path: /data/log/proxy
 ---
 # service 配置
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.server.business.name }}
+  name: {{ .Values.server.proxy.name }}
   labels:
-    app: {{ .Values.server.business.name }}  # 只有设置label,才能被服务发现找到
+    app: {{ .Values.server.proxy.name }}
 spec:
   selector:
-    app: {{ .Values.server.business.name }}
+    app: {{ .Values.server.proxy.name }}
   ports:
-    - name: rpc
+    - name: http
       protocol: TCP
-      port: 8000
-      targetPort: 8000
+      port: 8080
+      targetPort: 8080

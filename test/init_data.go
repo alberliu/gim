@@ -5,6 +5,8 @@ import (
 )
 
 func initData() {
+	db.Init()
+
 	if err := db.DB.Exec("DELETE FROM `user` WHERE `id` IN (1, 2, 3)").Error; err != nil {
 		panic(err)
 	}

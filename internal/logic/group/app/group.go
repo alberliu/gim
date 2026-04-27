@@ -6,7 +6,6 @@ import (
 	"gim/internal/logic/group/domain"
 	"gim/internal/logic/group/repo"
 	messageapp "gim/internal/logic/message/app"
-	"gim/pkg/protocol/pb/connectpb"
 	pb "gim/pkg/protocol/pb/logicpb"
 )
 
@@ -89,14 +88,14 @@ func (*groupApp) RemoveMember(ctx context.Context, request *pb.GroupRemoveMember
 }
 
 // Push 发送群组消息
-func (*groupApp) Push(ctx context.Context, request *pb.GroupPushRequest) (uint64, error) {
+func (*groupApp) Push(ctx context.Context, request *pb.GroupPushRequest) (*pb.GroupPushReply, error) {
 	_, err := repo.GroupRepo.Get(ctx, request.GroupId)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	members, err := repo.GroupMemberRepo.ListByGroupID(ctx, request.GroupId)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	memberIDs := make([]uint64, 0, len(members))
@@ -104,9 +103,18 @@ func (*groupApp) Push(ctx context.Context, request *pb.GroupPushRequest) (uint64
 		memberIDs = append(memberIDs, member.UserID)
 	}
 
-	message := &connectpb.Message{
-		Command: request.Command,
-		Content: request.Content,
+	reply, err := messageapp.MessageApp.PushToUsers(ctx, &pb.PushToUsersRequest{
+		FromUserId: request.FromUserId,
+		UserIds:    memberIDs,
+		Command:    request.Command,
+		Content:    request.Content,
+		IsPersist:  request.IsPersist,
+	})
+	if err != nil {
+		return nil, err
 	}
-	return messageapp.MessageApp.PushToUsers(ctx, memberIDs, message, request.IsPersist)
+	return &pb.GroupPushReply{
+		MessageId:   reply.MessageId,
+		FromUserSeq: reply.FromUserSeq,
+	}, nil
 }

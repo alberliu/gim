@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 
 	"gim/internal/connect"
+	"gim/pkg/db"
 	"gim/pkg/logger"
 	pb "gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/server"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	logger.Init()
+	db.Init()
 
 	// 启动TCP长链接服务器
 	tcpListener := connect.StartTCPServer(":8002")

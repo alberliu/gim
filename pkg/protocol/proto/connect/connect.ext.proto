@@ -22,6 +22,7 @@ enum MessageCommand{
   MC_UNKNOWN = 0; // 未知
   MC_USER_MESSAGE = 1; // 用户消息
   MC_GROUP_MESSAGE = 2; // 群组消息
+  MC_ROOM_MESSAGE = 3; // 房间消息
 }
 
 // 消息

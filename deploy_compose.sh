@@ -2,9 +2,9 @@
 
 set -e
 
-./publish.sh connect skip_publish
-./publish.sh logic skip_publish
-./publish.sh business skip_publish
+./publish.sh connect
+./publish.sh logic
+./publish.sh business
 
 cd deploy/compose
 docker compose down
