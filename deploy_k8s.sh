@@ -26,8 +26,6 @@ kind load docker-image logic:0.0.0 --name "$CLUSTER"
 ./build.sh business 0.0.0
 kind load docker-image business:0.0.0 --name "$CLUSTER"
 
-./build.sh file 0.0.0
-kind load docker-image file:0.0.0 --name "$CLUSTER"
 
 cd deploy/k8s
 helm install -f values.yaml gim .

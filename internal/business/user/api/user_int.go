@@ -23,11 +23,6 @@ func (*UserIntService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb
 }
 
 func (*UserIntService) GetUsers(ctx context.Context, req *pb.GetUsersRequest) (*pb.GetUsersReply, error) {
-	var userIDs = make([]uint64, 0, len(req.UserIds))
-	for k := range req.UserIds {
-		userIDs = append(userIDs, k)
-	}
-
-	users, err := app.UserApp.GetUsers(ctx, userIDs)
+	users, err := app.UserApp.GetUsers(ctx, req.UserIds)
 	return &pb.GetUsersReply{Users: users}, err
 }

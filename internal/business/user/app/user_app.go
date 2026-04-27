@@ -36,6 +36,9 @@ func (*userApp) Update(ctx context.Context, userID uint64, req *pb.UpdateUserReq
 }
 
 func (*userApp) GetUsers(ctx context.Context, userIDs []uint64) (map[uint64]*pb.User, error) {
+	if len(userIDs) == 0 {
+		return make(map[uint64]*pb.User), nil
+	}
 	users, err := repo.UserRepo.GetByIDs(ctx, userIDs)
 	if err != nil {
 		return nil, err

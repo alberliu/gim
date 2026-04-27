@@ -19,7 +19,3 @@ server:
     name: business
     image: business:0.0.0
     replicas: 1
-  file:
-    name: file
-    image: file:0.0.0
-    replicas: 1

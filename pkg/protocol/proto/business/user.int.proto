@@ -21,7 +21,7 @@ message AuthRequest {
 }
 
 message GetUsersRequest {
-  map<uint64, int32> user_ids = 1; // 用户id
+  repeated uint64 user_ids = 1; // 用户id
 }
 message GetUsersReply {
   map<uint64, User> users = 1; // 用户信息

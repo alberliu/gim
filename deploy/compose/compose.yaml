@@ -35,7 +35,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20260427.095239
+    image: connect:20260427.102227
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/connect:/data/log/connect
@@ -56,7 +56,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20260427.095248
+    image: logic:20260427.102239
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/logic:/data/log/logic
@@ -74,7 +74,7 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20260427.095251
+    image: business:20260427.102242
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log//business:/data/log/business
@@ -83,25 +83,6 @@ services:
     environment:
       ENV: compose
       SERVER: business
-    depends_on:
-      mysql:
-        condition: service_started
-      redis:
-        condition: service_started
-
-  file:
-    container_name: file
-    restart: always
-    image: file:20260427.095254
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - /Users/alber/data/gim_compose/file:/data/file
-      - /Users/alber/data/gim_compose/log/file:/data/log/file
-    ports:
-      - "8031:8001"
-    environment:
-      ENV: compose
-      SERVER: file
     depends_on:
       mysql:
         condition: service_started
