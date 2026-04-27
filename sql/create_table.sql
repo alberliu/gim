@@ -70,7 +70,7 @@ CREATE TABLE `message` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
-  `request_id` bigint NOT NULL COMMENT '请求id',
+  `request_id` varchar(128) NOT NULL COMMENT '请求id',
   `command` int NOT NULL COMMENT '消息类型',
   `content` blob NOT NULL COMMENT '消息内容',
   PRIMARY KEY (`id`)
