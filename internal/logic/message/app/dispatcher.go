@@ -10,8 +10,8 @@ import (
 	devicedomain "gim/internal/logic/device/domain"
 	"gim/internal/logic/message/domain"
 	"gim/internal/logic/message/repo"
+	"gim/pkg/gen/proto/connectpb"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/rpc"
 )
 

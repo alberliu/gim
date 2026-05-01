@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gim/internal/logic/message/app"
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 type MessageIntService struct {

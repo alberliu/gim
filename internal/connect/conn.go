@@ -15,10 +15,10 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"gim/pkg/codec"
+	pb "gim/pkg/gen/proto/connectpb"
+	"gim/pkg/gen/proto/logicpb"
 	"gim/pkg/gerrors"
 	"gim/pkg/md"
-	pb "gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 

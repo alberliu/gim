@@ -10,9 +10,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"gim/pkg/gen/proto/businesspb"
 	"gim/pkg/gerrors"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/rpc"
 	"gim/pkg/ugrpc"
 )

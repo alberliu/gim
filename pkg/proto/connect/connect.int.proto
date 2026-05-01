@@ -1,6 +1,6 @@
 syntax = "proto3";
 package connect;
-option go_package = "gim/pkg/protocol/pb/connectpb";
+option go_package = "gim/pkg/gen/proto/connectpb";
 
 import "google/protobuf/empty.proto";
 

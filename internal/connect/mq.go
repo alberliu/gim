@@ -9,8 +9,8 @@ import (
 
 	"gim/config"
 	"gim/pkg/db"
+	pb "gim/pkg/gen/proto/connectpb"
 	"gim/pkg/mq"
-	pb "gim/pkg/protocol/pb/connectpb"
 )
 
 // StartSubscribe 启动MQ消息处理逻辑

@@ -3,7 +3,7 @@ package connect
 import (
 	"sync"
 
-	pb "gim/pkg/protocol/pb/connectpb"
+	pb "gim/pkg/gen/proto/connectpb"
 )
 
 var ConnsManager = sync.Map{}

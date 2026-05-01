@@ -9,9 +9,9 @@ import (
 
 	"gim/internal/business/user/domain"
 	"gim/internal/business/user/repo"
+	pb "gim/pkg/gen/proto/businesspb"
+	"gim/pkg/gen/proto/logicpb"
 	"gim/pkg/gerrors"
-	pb "gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 	"gim/pkg/ustrings"
 )

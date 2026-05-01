@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 func getClient() pb.MessageIntServiceClient {

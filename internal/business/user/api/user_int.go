@@ -6,7 +6,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gim/internal/business/user/app"
-	pb "gim/pkg/protocol/pb/businesspb"
+	pb "gim/pkg/gen/proto/businesspb"
 )
 
 type UserIntService struct {

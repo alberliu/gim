@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
+	"gim/pkg/gen/proto/logicpb"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 	"gim/pkg/safe"
 )

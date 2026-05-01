@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 func TestGroupExtService_Create(t *testing.T) {

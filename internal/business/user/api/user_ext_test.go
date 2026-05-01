@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
-	pb "gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/businesspb"
+	"gim/pkg/gen/proto/logicpb"
 )
 
 func getUserExtServiceClient() pb.UserExtServiceClient {

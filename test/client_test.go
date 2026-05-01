@@ -12,10 +12,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	"gim/pkg/gen/proto/businesspb"
 	"gim/pkg/local"
 	"gim/pkg/logger"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/businesspb"
 )
 
 func TestClient(t *testing.T) {

@@ -8,8 +8,8 @@ import (
 	messageapi "gim/internal/logic/message/api"
 	"gim/internal/logic/room"
 	"gim/pkg/db"
+	pb "gim/pkg/gen/proto/logicpb"
 	"gim/pkg/logger"
-	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/server"
 )
 

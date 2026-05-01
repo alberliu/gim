@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"gim/pkg/gen/proto/businesspb"
 	"gim/pkg/local"
-	"gim/pkg/protocol/pb/businesspb"
 )
 
 func TestAuth(t *testing.T) {

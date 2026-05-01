@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	pb "gim/pkg/protocol/pb/businesspb"
+	pb "gim/pkg/gen/proto/businesspb"
 )
 
 // User 账户

@@ -1,7 +1,7 @@
 package domain
 
 import (
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 type Device struct {

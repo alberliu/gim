@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	pb "gim/pkg/protocol/pb/connectpb"
+	pb "gim/pkg/gen/proto/connectpb"
 )
 
 type ConnectIntService struct {

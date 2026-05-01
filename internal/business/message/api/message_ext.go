@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"gim/internal/business/message/app"
+	pb "gim/pkg/gen/proto/businesspb"
 	"gim/pkg/md"
-	pb "gim/pkg/protocol/pb/businesspb"
 )
 
 type MessageExtService struct {

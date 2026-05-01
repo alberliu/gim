@@ -6,8 +6,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gim/internal/logic/message/app"
+	pb "gim/pkg/gen/proto/logicpb"
 	"gim/pkg/md"
-	pb "gim/pkg/protocol/pb/logicpb"
 )
 
 type MessageExtService struct {

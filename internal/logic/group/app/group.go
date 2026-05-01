@@ -6,7 +6,7 @@ import (
 	"gim/internal/logic/group/domain"
 	"gim/internal/logic/group/repo"
 	messageapp "gim/internal/logic/message/app"
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 var GroupApp = new(groupApp)

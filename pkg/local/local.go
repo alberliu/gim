@@ -4,7 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"gim/pkg/protocol/pb/businesspb"
+	"gim/pkg/gen/proto/businesspb"
 )
 
 const BusinessServerAddr = "127.0.0.1:8080"

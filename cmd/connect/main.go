@@ -9,8 +9,8 @@ import (
 
 	"gim/internal/connect"
 	"gim/pkg/db"
+	pb "gim/pkg/gen/proto/connectpb"
 	"gim/pkg/logger"
-	pb "gim/pkg/protocol/pb/connectpb"
 	"gim/pkg/server"
 )
 

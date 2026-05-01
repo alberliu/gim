@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"sync"
 
-	pb "gim/pkg/protocol/pb/connectpb"
+	pb "gim/pkg/gen/proto/connectpb"
 )
 
 var RoomsManager sync.Map

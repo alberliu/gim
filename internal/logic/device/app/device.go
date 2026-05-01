@@ -5,9 +5,9 @@ import (
 
 	"gim/internal/logic/device/domain"
 	"gim/internal/logic/device/repo"
+	"gim/pkg/gen/proto/businesspb"
+	pb "gim/pkg/gen/proto/logicpb"
 	"gim/pkg/md"
-	"gim/pkg/protocol/pb/businesspb"
-	pb "gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 

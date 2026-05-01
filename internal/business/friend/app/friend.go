@@ -8,10 +8,10 @@ import (
 	"gim/internal/business/friend/domain"
 	"gim/internal/business/friend/repo"
 	userapp "gim/internal/business/user/app"
+	pb "gim/pkg/gen/proto/businesspb"
+	"gim/pkg/gen/proto/connectpb"
+	"gim/pkg/gen/proto/logicpb"
 	"gim/pkg/gerrors"
-	pb "gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
 	"gim/pkg/rpc"
 )
 

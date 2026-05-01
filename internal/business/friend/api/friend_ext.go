@@ -6,8 +6,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"gim/internal/business/friend/app"
+	pb "gim/pkg/gen/proto/businesspb"
 	"gim/pkg/md"
-	pb "gim/pkg/protocol/pb/businesspb"
 )
 
 type FriendExtService struct {

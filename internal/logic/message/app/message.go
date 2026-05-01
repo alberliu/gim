@@ -9,10 +9,10 @@ import (
 
 	"gim/internal/logic/message/domain"
 	"gim/internal/logic/message/repo"
+	"gim/pkg/gen/proto/connectpb"
+	pb "gim/pkg/gen/proto/logicpb"
 	"gim/pkg/md"
 	"gim/pkg/mq"
-	"gim/pkg/protocol/pb/connectpb"
-	pb "gim/pkg/protocol/pb/logicpb"
 )
 
 const pageSize = 50 // 最大消息同步数量

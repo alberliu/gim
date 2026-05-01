@@ -7,9 +7,9 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
 
+	pb "gim/pkg/gen/proto/businesspb"
 	"gim/pkg/local"
 	"gim/pkg/md"
-	pb "gim/pkg/protocol/pb/businesspb"
 )
 
 func TestFriendExtService_Add(t *testing.T) {

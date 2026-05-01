@@ -2,11 +2,11 @@
 
 set -e
 
-rm -rf pkg/protocol/pb
+rm -rf pkg/gen/proto
 
 buildDir(){
   dir=$1
-  protoc -I pkg/protocol/proto --go_out=..  --go-grpc_out=..  pkg/protocol/proto/$dir/*.proto
+  protoc -I pkg/proto --go_out=..  --go-grpc_out=..  pkg/proto/$dir/*.proto
 }
 
 buildDir connect

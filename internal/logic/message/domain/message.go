@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	"gim/pkg/protocol/pb/connectpb"
+	"gim/pkg/gen/proto/connectpb"
 )
 
 type Message struct {

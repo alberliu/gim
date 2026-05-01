@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"gim/internal/business/user/repo"
-	pb "gim/pkg/protocol/pb/businesspb"
+	pb "gim/pkg/gen/proto/businesspb"
 )
 
 type userApp struct{}

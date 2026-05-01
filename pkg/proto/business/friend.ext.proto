@@ -1,6 +1,6 @@
 syntax = "proto3";
 package business;
-option go_package = "gim/pkg/protocol/pb/businesspb";
+option go_package = "gim/pkg/gen/proto/businesspb";
 
 import "google/protobuf/empty.proto";
 

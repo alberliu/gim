@@ -17,10 +17,10 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"gim/pkg/codec"
+	"gim/pkg/gen/proto/businesspb"
+	"gim/pkg/gen/proto/connectpb"
+	"gim/pkg/gen/proto/logicpb"
 	"gim/pkg/local"
-	"gim/pkg/protocol/pb/businesspb"
-	"gim/pkg/protocol/pb/connectpb"
-	"gim/pkg/protocol/pb/logicpb"
 )
 
 var (

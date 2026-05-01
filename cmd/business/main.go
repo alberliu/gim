@@ -7,8 +7,8 @@ import (
 	messageapi "gim/internal/business/message/api"
 	userapi "gim/internal/business/user/api"
 	"gim/pkg/db"
+	pb "gim/pkg/gen/proto/businesspb"
 	"gim/pkg/logger"
-	pb "gim/pkg/protocol/pb/businesspb"
 	"gim/pkg/server"
 )
 

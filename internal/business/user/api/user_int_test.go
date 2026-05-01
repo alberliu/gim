@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "gim/pkg/protocol/pb/businesspb"
+	pb "gim/pkg/gen/proto/businesspb"
 )
 
 func getUserIntClient() pb.UserIntServiceClient {

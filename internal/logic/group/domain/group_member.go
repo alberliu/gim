@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	pb "gim/pkg/protocol/pb/logicpb"
+	pb "gim/pkg/gen/proto/logicpb"
 )
 
 type GroupMember struct {

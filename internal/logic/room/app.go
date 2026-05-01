@@ -6,9 +6,9 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"gim/pkg/gen/proto/connectpb"
+	pb "gim/pkg/gen/proto/logicpb"
 	"gim/pkg/mq"
-	"gim/pkg/protocol/pb/connectpb"
-	pb "gim/pkg/protocol/pb/logicpb"
 )
 
 type app struct{}
