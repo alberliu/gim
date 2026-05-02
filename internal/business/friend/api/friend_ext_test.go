@@ -8,13 +8,10 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "gim/pkg/gen/proto/businesspb"
-	"gim/pkg/local"
 	"gim/pkg/md"
 )
 
 func TestFriendExtService_Add(t *testing.T) {
-	local.Init()
-
 	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
 		md.UserID:   "2",
 		md.DeviceID: "2",
@@ -47,27 +44,7 @@ func TestFriendExtService_Agree(t *testing.T) {
 	t.Log(reply)
 }
 
-func TestFriendExtService_SendMessage(t *testing.T) {
-	local.Init()
-
-	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
-		md.UserID:   "2",
-		md.DeviceID: "2",
-	}))
-
-	reply, err := new(FriendExtService).SendMessage(ctx, &pb.SendFriendMessageRequest{
-		UserId:  1,
-		Content: []byte("hello im 2 2"),
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(reply)
-}
-
 func TestFriendExtService_GetFriends(t *testing.T) {
-	local.Init()
-
 	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
 		md.UserID:   "2",
 		md.DeviceID: "2",

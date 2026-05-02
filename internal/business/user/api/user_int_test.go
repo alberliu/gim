@@ -27,7 +27,7 @@ func TestUserIntServer_Auth(t *testing.T) {
 
 func TestUserIntServer_GetUsers(t *testing.T) {
 	reply, err := getUserIntClient().GetUsers(getCtx(), &pb.GetUsersRequest{
-		UserIds: map[uint64]int32{1: 0, 2: 0, 3: 0},
+		UserIds: []uint64{1, 2, 3},
 	})
 	if err != nil {
 		t.Fatal(err)

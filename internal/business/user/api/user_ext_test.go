@@ -43,7 +43,7 @@ func TestUserExtServer_SignIn(t *testing.T) {
 			Model:         "xiaomi 15",
 			SystemVersion: "15.0.0",
 			SdkVersion:    "1.0.0",
-			BranchPushId:  "xiaomi push id",
+			PushToken:     "xiaomi push token",
 		},
 	})
 	if err != nil {

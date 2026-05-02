@@ -3,7 +3,9 @@ package main
 import (
 	"google.golang.org/grpc"
 
+	"gim/internal/business/file"
 	friendapi "gim/internal/business/friend/api"
+	groupapi "gim/internal/business/group/api"
 	messageapi "gim/internal/business/message/api"
 	userapi "gim/internal/business/user/api"
 	"gim/pkg/db"
@@ -20,8 +22,11 @@ func main() {
 		pb.RegisterUserIntServiceServer(server, &userapi.UserIntService{})
 		pb.RegisterUserExtServiceServer(server, &userapi.UserExtService{})
 		pb.RegisterFriendExtServiceServer(server, &friendapi.FriendExtService{})
+		pb.RegisterGroupExtServiceServer(server, &groupapi.GroupExtService{})
 		pb.RegisterMessageExtServiceServer(server, &messageapi.MessageExtService{})
 	})
+
+	go file.RunFileServer()
 
 	server.WaitForShutdown()
 }

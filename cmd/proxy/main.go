@@ -28,16 +28,17 @@ func main() {
 		grpcweb.WithOriginFunc(func(origin string) bool {
 			return true
 		}),
-		grpcweb.WithAllowedRequestHeaders([]string{
-			"content-type",
-			"x-grpc-web",
-			"x-user-agent",
-			"grpc-timeout",
-			"authorization",
-		}),
+		grpcweb.WithAllowedRequestHeaders([]string{"*"}),
+		grpcweb.WithCorsForRegisteredEndpointsOnly(false),
 	)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// grpc-web sets ProtoMajor=2 but doesn't strip HTTP/1.1 hop-by-hop headers;
+		// gRPC-go v1.80 enforces A41: Connection header in HTTP/2 causes RST_STREAM PROTOCOL_ERROR.
+		r.Header.Del("connection")
+		r.Header.Del("keep-alive")
+		r.Header.Del("proxy-connection")
+
 		// gRPC-Web 请求
 		if grpcWebServer.IsGrpcWebRequest(r) ||
 			grpcWebServer.IsAcceptableGrpcCorsRequest(r) {
@@ -56,8 +57,7 @@ func main() {
 	})
 
 	httpServer := &http.Server{
-		Addr: ":8080",
-		// h2c 允许明文 HTTP/2，方便本地直接跑原生 gRPC。
+		Addr:    ":8080",
 		Handler: h2c.NewHandler(handler, &http2.Server{}),
 	}
 

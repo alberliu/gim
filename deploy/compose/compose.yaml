@@ -31,7 +31,7 @@ services:
   connect:
     container_name: connect
     restart: always
-    image: connect:20260501.142915
+    image: connect:20260503.001159
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/connect:/data/log/connect
@@ -49,7 +49,7 @@ services:
   logic:
     container_name: logic
     restart: always
-    image: logic:20260501.142919
+    image: logic:20260503.001209
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log/logic:/data/log/logic
@@ -64,10 +64,13 @@ services:
   business:
     container_name: business
     restart: always
-    image: business:20260501.142921
+    image: business:20260503.001211
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log//business:/data/log/business
+      - /Users/alber/data/gim_compose/file:/data/file
+    ports:
+      - "8081:8081"
     environment:
       ENV: compose
       SERVER: business
@@ -79,7 +82,7 @@ services:
   proxy:
     container_name: proxy
     restart: always
-    image: proxy:20260427.174615
+    image: proxy:20260503.001214
     volumes:
       - /etc/localtime:/etc/localtime
       - /Users/alber/data/gim_compose/log//proxy:/data/log/proxy

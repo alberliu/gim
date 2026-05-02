@@ -5,6 +5,7 @@ set -e
 ./publish.sh connect
 ./publish.sh logic
 ./publish.sh business
+./publish.sh proxy
 
 cd deploy/compose
 docker compose down
