@@ -1,5 +1,6 @@
 .idea
 .claude
 
+web/.vite
 web/dist
 web/node_modules
