@@ -1,0 +1,29 @@
+{
+  "name": "gim-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "gen:proto": "bash scripts/gen-proto.sh"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.12.0",
+    "@connectrpc/connect": "2.1.1",
+    "@connectrpc/connect-web": "2.1.1",
+    "lucide-vue-next": "^0.468.0",
+    "naive-ui": "2.44.1",
+    "vue": "3.5.33",
+    "vueuc": "^0.4.65"
+  },
+  "devDependencies": {
+    "@bufbuild/protoc-gen-es": "2.12.0",
+    "@types/node": "^25.6.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.0",
+    "vue-tsc": "^2.1.10"
+  }
+}

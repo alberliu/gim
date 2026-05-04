@@ -1,0 +1,119 @@
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e9e9eb;
+}
+#app {
+  width: min(1200px, 100vw);
+  height: min(760px, 100vh);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+}
+#app > .n-config-provider {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128,128,128,0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+img {
+  max-width: 100%;
+}
+
+.gim-app {
+  height: 100%;
+  width: 100%;
+}
+
+.user-text {
+  user-select: text;
+}
+
+/* Markdown rendered output */
+.md-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.55;
+}
+.md-body p { margin: 0; }
+.md-body p + p { margin-top: 0.4em; }
+.md-body code {
+  background: rgba(127,127,127,0.18);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+.md-body pre {
+  background: rgba(127,127,127,0.16);
+  padding: 8px 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 6px 0;
+}
+.md-body pre code { background: transparent; padding: 0; }
+.md-body img {
+  max-width: 320px;
+  max-height: 320px;
+  border-radius: 4px;
+  display: block;
+  margin: 4px 0;
+}
+.md-body a { color: #1989fa; }
+.md-body blockquote {
+  border-left: 3px solid rgba(127,127,127,0.4);
+  padding: 2px 8px;
+  margin: 4px 0;
+  color: rgba(127,127,127,0.9);
+}
+.md-body ul, .md-body ol { margin: 4px 0; padding-left: 22px; }
+
+/* Editor (contenteditable) styling */
+.md-editor {
+  outline: none;
+  min-height: 60px;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.md-editor img {
+  max-height: 100px;
+  vertical-align: middle;
+  border-radius: 4px;
+}
+.md-editor:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(128,128,128,0.5);
+  pointer-events: none;
+}

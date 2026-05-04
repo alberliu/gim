@@ -1,2 +1,5 @@
 .idea
 .claude
+
+web/dist
+web/node_modules
