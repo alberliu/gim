@@ -312,6 +312,7 @@ export async function bootstrap() {
 
   await loadFriendRequests()
   await refreshConversations()
+  void syncFriendRemarks()
 
   if (listenersBound) {
     ws.connect()
@@ -437,6 +438,51 @@ export async function recordOutgoingMessage(opts: {
   if (opts.seq > cur) await setMaxSeq(opts.seq)
   await refreshConversations()
   if (state.activeKey === key) await refreshMessages(key)
+}
+
+export async function setFriendRemarks(peerId: string, remarks: string) {
+  await friendClient.set({ friendId: BigInt(peerId), remarks })
+  const key = convKey('user', peerId)
+  let conv = await getConversation(key)
+  if (!conv) {
+    const p = await ensureUser(peerId)
+    conv = {
+      key,
+      type: 'user',
+      peerId,
+      name: p.nickname,
+      avatarUrl: p.avatarUrl,
+      lastSeq: 0,
+      lastMessageId: '',
+      lastPreview: '',
+      lastTimestamp: Date.now(),
+      unread: 0,
+      remarks,
+    }
+  } else {
+    conv.remarks = remarks
+  }
+  await upsertConversation(conv)
+  await refreshConversations()
+}
+
+async function syncFriendRemarks() {
+  try {
+    const r = await friendClient.getFriends({})
+    for (const f of r.friends || []) {
+      const peerId = f.userId.toString()
+      const key = convKey('user', peerId)
+      const conv = await getConversation(key)
+      if (!conv) continue
+      if (conv.remarks !== f.remarks) {
+        conv.remarks = f.remarks
+        await upsertConversation(conv)
+      }
+    }
+    await refreshConversations()
+  } catch (e) {
+    console.warn('syncFriendRemarks failed', e)
+  }
 }
 
 export async function ensurePeerConversation(peerId: string, peerNickname: string, peerAvatar: string) {

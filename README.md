@@ -118,6 +118,8 @@ GIM 由三个核心服务组成：
 
 仓库内置一个Web IM 客户端，位于 `web/` 目录，基于 Vue 3 + TypeScript + Vite + Naive UI，通过 gRPC-Web 与 WebSocket 与后端通信，使用 IndexedDB 做本地消息持久化。
 
+**提醒：** web客户端全部使用AI开发，仅用作演示
+
 ### 主要功能
 
 - 手机号 + 验证码登录

@@ -15,7 +15,7 @@ const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
   const list = state.conversations
   if (!q) return list
-  return list.filter((c) => c.name.toLowerCase().includes(q) || c.lastPreview.toLowerCase().includes(q))
+  return list.filter((c) => (c.remarks || c.name).toLowerCase().includes(q) || c.lastPreview.toLowerCase().includes(q))
 })
 
 const ctxKey = ref<string | null>(null)
@@ -72,10 +72,10 @@ function onDropdownSelect(key: string) {
         @click="emit('select', c.key)"
         @contextmenu="onContextMenu($event, c.key)"
       >
-        <Avatar :src="c.avatarUrl" :name="c.name" :size="42" :rounded="6" />
+        <Avatar :src="c.avatarUrl" :name="c.remarks || c.name" :size="42" :rounded="6" />
         <div class="row-mid">
           <div class="row-top">
-            <div class="row-name">{{ c.name }}</div>
+            <div class="row-name">{{ c.remarks || c.name }}</div>
             <div class="row-time">{{ formatListTime(c.lastTimestamp) }}</div>
           </div>
           <div class="row-bot">

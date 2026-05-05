@@ -19,6 +19,8 @@ export interface ConvRecord {
   lastPreview: string
   lastTimestamp: number
   unread: number
+  // 仅 1-1 会话使用：好友备注。优先级高于 name 显示。
+  remarks?: string
 }
 
 export interface MessageRecord {
