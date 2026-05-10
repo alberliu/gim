@@ -136,7 +136,7 @@ npm install
 npm run dev      # 启动开发服务，默认 http://127.0.0.1:5173
 ```
 
-更详细的功能说明与协议交互见 [`web.md`](web.md)。
+更详细的功能说明与协议交互见 [`web.md`](specs/web.md)。
 
 ## API 接口
 
